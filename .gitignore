@@ -1,0 +1,8 @@
+*.pyc
+.idea
+.vscode
+.DS_Store
+*.swp
+uwsgi.ini
+**/migrations/0*.py
+**/media/*.*
