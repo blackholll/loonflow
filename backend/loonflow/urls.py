@@ -22,7 +22,7 @@ from django.urls import path, include
 urlpatterns = [
     path('api/v1/accounts/', include('apps.account.urls')),
     path('api/v1/workflows/', include('apps.workflow.urls')),
-    path('api/v1/workflowjobs/', include('apps.workflowjob.urls')),
+    path('api/v1/tickets/', include('apps.ticket.urls')),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

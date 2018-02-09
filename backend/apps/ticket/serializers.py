@@ -1,21 +1,21 @@
 from rest_framework import serializers
-from apps.workflowjob.models import JobType, JobRecord, JobCustomField, JobFlowLog, JobStateLastMan
+from apps.ticket.models import TicketType, TicketRecord, TicketCustomField, TicketFlowLog, TicketStateLastMan
 from apps.workflow.models import Workflow
 
 
-class JobTypeSerializer(serializers.ModelSerializer):
+class TicketTypeSerializer(serializers.ModelSerializer):
     gmt_created = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
     gmt_modified = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
     parent_type = serializers.SerializerMethodField()
     workflow = serializers.SerializerMethodField()
 
     class Meta:
-        model = JobType
+        model = TicketType
         exclude = ('parent_type_id', 'workflow_id')
 
     def get_parent_type(self, obj):
         if obj.parent_type_id:
-            result = JobType.objects.filter(id=obj.parent_type_id, is_deleted=0).first()
+            result = TicketType.objects.filter(id=obj.parent_type_id, is_deleted=0).first()
             return dict(id=result.id, name=result.name)
         return dict()
 
@@ -31,7 +31,7 @@ class JobTypeSerializer(serializers.ModelSerializer):
         return dict()
 
 
-class FormatJobTypeSerializer(serializers.ModelSerializer):
+class FormatTicketTypeSerializer(serializers.ModelSerializer):
     gmt_created = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
     gmt_modified = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False, read_only=True)
     parent_type = serializers.SerializerMethodField()
@@ -39,12 +39,12 @@ class FormatJobTypeSerializer(serializers.ModelSerializer):
     format_name = serializers.SerializerMethodField()
 
     class Meta:
-        model = JobType
+        model = TicketType
         exclude = ('parent_type_id', 'workflow_id')
 
     def get_parent_type(self, obj):
         if obj.parent_type_id:
-            result = JobType.objects.filter(id=obj.parent_type_id, is_deleted=0).first()
+            result = TicketType.objects.filter(id=obj.parent_type_id, is_deleted=0).first()
             return dict(id=result.id, name=result.name)
         return dict()
 

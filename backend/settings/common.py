@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.account',
     'apps.workflow',
-    'apps.workflowjob',
+    'apps.ticket',
     'rest_framework',
     'corsheaders',
 
@@ -149,7 +149,7 @@ USE_TZ = False
 
 
 LOGIN_URL = '/account/login/'
-AUTH_USER_MODEL = 'account.MyUser'
+AUTH_USER_MODEL = 'account.LoonUser'
 
 STATIC_URL = '/static/'
 

@@ -3,12 +3,12 @@ from service.common.constant_service import CONSTANT_SERVICE
 # Create your models here.
 
 
-class JobRecord(models.Model):
+class TicketRecord(models.Model):
     """
     工单记录
     """
     title = models.CharField(u'标题', max_length=50, blank=True, help_text="工单的标题")
-    job_type_id = models.IntegerField('工单类型', help_text='与WorkflowJobType关联')
+    ticket_type_id = models.IntegerField('工单类型', help_text='与TicketType关联')
     workflow_id = models.IntegerField('关联的流程id', help_text='与workflow.Workflow流程关联')
     sn = models.CharField(u'流水号', max_length=25, help_text="工单的流水号")
     default_notice_to = models.CharField('默认通知人', max_length=50, help_text='工单创建和结束时候会将相应信息通知此用户')
@@ -25,7 +25,7 @@ class JobRecord(models.Model):
     is_deleted = models.BooleanField(u'已删除', default=False, help_text='')
 
 
-class JobType(models.Model):
+class TicketType(models.Model):
     """
     工单类型
     """
@@ -46,18 +46,18 @@ class JobType(models.Model):
     is_abandoned = models.BooleanField(u'已废弃', default=False, help_text='废弃的类型的工单允许查看，不允许创建，工单类型中会显示')
 
 
-class JobFlowLog(models.Model):
+class TicketFlowLog(models.Model):
     """
     工单流转日志
     """
-    job_id = models.IntegerField('工单id')
+    ticketid = models.IntegerField('工单id')
     action = models.CharField('动作', max_length=50)
     suggestion = models.CharField('处理意见', max_length=1000, default='', blank=True)
     user_type = models.IntegerField('处理人类型', choices=CONSTANT_SERVICE.HANDLER_TYPE_CHOICE)
     user = models.CharField('处理人', max_length=20)
     current_state_id = models.IntegerField('当前状态', default=0, blank=True)
     related_users = models.CharField('当前相关处理人', max_length=1000, help_text='此状态下所有的有权限的处理人，逗号隔开')
-    job_data = models.CharField('工单数据', max_length=10000, help_text='用于记录当前表单数据，json格式')
+    ticket_data = models.CharField('工单数据', max_length=10000, help_text='用于记录当前表单数据，json格式')
 
     creator = models.CharField(u'创建人', max_length=100)
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
@@ -65,12 +65,12 @@ class JobFlowLog(models.Model):
     is_deleted = models.BooleanField(u'已删除', default=False)
 
 
-class JobStateLastMan(models.Model):
+class TicketStateLastMan(models.Model):
     """
     记录工单每个状态的最后处理人，用于回退时候定位
     """
     state_id = models.IntegerField('状态id')
-    job_id = models.IntegerField('工单id')
+    ticket_id = models.IntegerField('工单id')
     user_type_id = models.IntegerField('处理人类型', choices=CONSTANT_SERVICE.HANDLER_TYPE_CHOICE)
     user = models.CharField(u'处理人', max_length=100, default='')
     creator = models.CharField(u'创建人', max_length=100)
@@ -79,13 +79,13 @@ class JobStateLastMan(models.Model):
     is_deleted = models.BooleanField(u'已删除', default=False)
 
 
-class JobCustomField(models.Model):
+class TicketCustomField(models.Model):
     """
     工单自定义字段
     """
     name = models.CharField(u'字段名', max_length=50)
     key = models.CharField(u'字段标识', max_length=50)
-    job_id = models.IntegerField(u'工单id')
+    ticket_id = models.IntegerField(u'工单id')
     field_type_id = models.IntegerField(u'字段类型', choices=CONSTANT_SERVICE.FIELD_TYPE_CHOICE)
     char_value = models.CharField('字符串值', max_length=1000, default='', blank=True)
     int_value = models.IntegerField('整形值', default=0, blank=True)

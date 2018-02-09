@@ -2,7 +2,7 @@ from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 
 
-class MyPermission(models.Model):
+class LoonPermission(models.Model):
     """
     所有权限
     """
@@ -17,7 +17,7 @@ class MyPermission(models.Model):
     is_deleted = models.BooleanField('已删除', default=False)
 
 
-class MyDept(models.Model):
+class LoonDept(models.Model):
     """
     部门
     """
@@ -32,7 +32,7 @@ class MyDept(models.Model):
     is_deleted = models.BooleanField('已删除', default=False)
 
 
-class MyDeptPermission(models.Model):
+class LoonDeptPermission(models.Model):
     """
     部门拥有权限
     """
@@ -45,7 +45,7 @@ class MyDeptPermission(models.Model):
     is_deleted = models.BooleanField('已删除', default=False)
 
 
-class MyRole(models.Model):
+class LoonRole(models.Model):
     """
     角色
     """
@@ -58,7 +58,7 @@ class MyRole(models.Model):
     is_deleted = models.BooleanField('已删除', default=False)
 
 
-class MyRolePermission(models.Model):
+class LoonRolePermission(models.Model):
     """
     角色权限
     """
@@ -71,7 +71,7 @@ class MyRolePermission(models.Model):
     is_deleted = models.BooleanField('已删除', default=False)
 
 
-class MyUserManager(BaseUserManager):
+class LoonUserManager(BaseUserManager):
 
     def create_user(self, email, username, password=None, dep=0):
         if not email:
@@ -87,7 +87,8 @@ class MyUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-class MyUser(AbstractBaseUser):
+
+class LoonUser(AbstractBaseUser):
     """
     用户
     """
@@ -104,7 +105,7 @@ class MyUser(AbstractBaseUser):
     gmt_modified = models.DateTimeField('更新时间', auto_now=True)
     is_deleted = models.BooleanField('已删除', default=False)
 
-    objects = MyUserManager()
+    objects = LoonUserManager()
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
 
@@ -127,13 +128,14 @@ class MyUser(AbstractBaseUser):
     @property
     def dept_name(self):
         dept_id = self.dept_id
-        dept_object = MyUserRole.objects.filter(id=dept_id)
+        dept_object = LoonUserRole.objects.filter(id=dept_id)
         if dept_object:
             return dept_object[0].name
         else:
             return '部门id不存在'
 
-class MyUserRole(models.Model):
+
+class LoonUserRole(models.Model):
     """
     用户角色
     """
