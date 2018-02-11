@@ -1,11 +1,12 @@
-from django.urls import path, re_path
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.urls import path, re_path,include
+from rest_framework.routers import DefaultRouter
 
-from apps.account import views as loon_user_views
+from apps.account import views
 
+
+router = DefaultRouter()
+router.register('', views.LoonUserListViewSet)
 
 urlpatterns = [
-    path('', loon_user_views.LoonUserList.as_view()),
-    re_path(r'^(\d+)/$', loon_user_views.LoonUserDetail.as_view()),
+    path(r'', include(router.urls))
 ]
-urlpatterns = format_suffix_patterns(urlpatterns)

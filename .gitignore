@@ -6,3 +6,5 @@
 uwsgi.ini
 **/migrations/0*.py
 **/media/*.*
+Vagrantfile
+.vagrant
