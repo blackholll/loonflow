@@ -1,19 +1,20 @@
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from apps.account.models import LoonUser
-from apps.account.serializers import MyUserSerializer
+from apps.account.serializers import LoonUserSerializer
 from rest_framework import status
 from service import format_response
 from rest_framework.permissions import IsAuthenticated,AllowAny
 
 
-class MyUserDetail(APIView):
+class LoonUserDetail(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, pk):
         print(request.user.username)
         user = LoonUser.objects.filter(is_deleted=False, id=pk)
         if user:
-            data = MyUserSerializer(user.first())
+            data = LoonUserSerializer(user.first())
             msg = ''
         else:
             data = {}
@@ -21,7 +22,7 @@ class MyUserDetail(APIView):
         return format_response.JsonResponse(data=data.data, code=status.HTTP_200_OK, msg=msg)
 
 
-class MyUserList(APIView):
+class LoonUserList(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -32,9 +33,10 @@ class MyUserList(APIView):
 
         total = LoonUser.objects.filter(is_deleted=False).count()
 
-        user_serializer_list = [MyUserSerializer(user) for user in LoonUser.objects.filter(is_deleted=False)]
+        user_serializer_list = [LoonUserSerializer(user) for user in LoonUser.objects.filter(is_deleted=False)]
         user_serializer_list = [user_serializer.data for user_serializer in user_serializer_list]
 
         return format_response.JsonResponse(data=user_serializer_list, code=status.HTTP_200_OK,
                                             msg='', per_page=per_page, page=page, total=total)
+
 

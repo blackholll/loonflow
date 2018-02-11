@@ -93,7 +93,7 @@ class LoonUser(AbstractBaseUser):
     用户
     """
     username = models.CharField('用户名', max_length=50, unique=True)
-    chinese_name = models.CharField('中文名', max_length=50, default='')
+    alias = models.CharField('姓名', max_length=50, default='')
     email = models.EmailField('邮箱', max_length=255)
     phone = models.CharField('电话', max_length=13, default='')
     dept_id = models.IntegerField('部门id', default=0)
@@ -116,8 +116,8 @@ class LoonUser(AbstractBaseUser):
     def get_short_name(self):
         return self.username
 
-    def get_chinese_name(self):
-        return self.chinese_name
+    def get_alias_name(self):
+        return self.alias
 
     def has_perms(self, perm, obj=None):
         return False
