@@ -128,7 +128,7 @@ class LoonUser(AbstractBaseUser):
     @property
     def dept_name(self):
         dept_id = self.dept_id
-        dept_object = LoonUserRole.objects.filter(id=dept_id)
+        dept_object = LoonDept.objects.filter(id=dept_id)
         if dept_object:
             return dept_object[0].name
         else:
