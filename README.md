@@ -6,6 +6,8 @@ a workflow engine base django
 
 非开源版本demo见: http://loonflow.loonapp.com/    账号密码: guest/loon1234
 
+最新代码见develop分支，正式版本见tags中(如果已经有正式版本发布的话)
+
 ### 前言
 本人2011年开始接触工作流，2013年开始开发工作流第一版本，至今经历了多个版本。目前着手开发一个开源版本，致力于提供企业统一工作流引擎方案
 

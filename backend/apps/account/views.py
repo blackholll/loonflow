@@ -1,14 +1,16 @@
-from rest_framework import viewsets
 from rest_framework.views import APIView
 from apps.account.models import LoonUser
 from apps.account.serializers import LoonUserSerializer
 from rest_framework import status
 from service import format_response
-from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 
 class LoonUserDetail(APIView):
-    permission_classes = [AllowAny]
+    """
+    用户详情
+    """
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
         print(request.user.username)
@@ -23,7 +25,10 @@ class LoonUserDetail(APIView):
 
 
 class LoonUserList(APIView):
-    permission_classes = [AllowAny]
+    """
+    用户列表
+    """
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         print(request.COOKIES)
@@ -38,5 +43,3 @@ class LoonUserList(APIView):
 
         return format_response.JsonResponse(data=user_serializer_list, code=status.HTTP_200_OK,
                                             msg='', per_page=per_page, page=page, total=total)
-
-
