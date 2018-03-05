@@ -50,7 +50,7 @@ class TicketFlowLog(models.Model):
     """
     工单流转日志
     """
-    ticketid = models.IntegerField('工单id')
+    ticket_id = models.IntegerField('工单id')
     action = models.CharField('动作', max_length=50)
     suggestion = models.CharField('处理意见', max_length=1000, default='', blank=True)
     user_type = models.IntegerField('处理人类型', choices=CONSTANT_SERVICE.HANDLER_TYPE_CHOICE)
