@@ -8,3 +8,4 @@ uwsgi.ini
 **/media/*.*
 Vagrantfile
 .vagrant
+node_modules
