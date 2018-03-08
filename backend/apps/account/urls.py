@@ -5,7 +5,7 @@ from apps.account import views
 
 
 router = DefaultRouter()
-router.register('', views.LoonUserViewSet)
+router.register('users', views.LoonUserViewSet)
 
 urlpatterns = [
     path(r'', include(router.urls))

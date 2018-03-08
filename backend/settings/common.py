@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-
+import datetime
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.ticket',
     'rest_framework',
     'corsheaders',
+    'django_filters',
 
 ]
 
@@ -162,7 +163,18 @@ REST_FRAMEWORK = {
     ],
     'EXCEPTION_HANDLER': 'service.exceptions.custom_exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 1
+    # 'PAGE_SIZE': 5,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    )
 }
+
+JWT_AUTH={
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=3),#设置jwt过期时间,
+    'JWT_AUTH_HEADER_PREFIX':'JWT',
+}
+
 
 FIXTURE_DIRS = ['fixtures/']

@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path, include
+from rest_framework_jwt.views import obtain_jwt_token
 
 urlpatterns = [
     path('api/v1/accounts/', include('apps.account.urls')),
@@ -25,4 +26,5 @@ urlpatterns = [
     path('api/v1/tickets/', include('apps.ticket.urls')),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
+    path('login',obtain_jwt_token), #JWT…Ë÷√
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
