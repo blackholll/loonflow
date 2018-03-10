@@ -8,5 +8,9 @@ uwsgi.ini
 **/media/*.*
 Vagrantfile
 .vagrant
+<<<<<<< HEAD
 
 ./frontend/node_modules
+=======
+node_modules
+>>>>>>> 5df79609640aa0b5d552eba33d351ce16e86128c
