@@ -1,0 +1,74 @@
+Arguments: 
+  /Users/yuabigale/.nvm/versions/node/v9.3.0/bin/node /Users/yuabigale/.nvm/versions/node/v9.3.0/bin/yarn add
+
+PATH: 
+  /Users/yuabigale/.pyenv/plugins/pyenv-virtualenv/shims:/Users/yuabigale/.pyenv/shims:/Users/yuabigale/.pyenv/bin:/Users/yuabigale/.nvm/versions/node/v9.3.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/yuabigale/.pyenv/plugins/pyenv-virtualenv/shims:/Users/yuabigale/.pyenv/shims:/Users/yuabigale/.pyenv/bin
+
+Yarn version: 
+  1.5.1
+
+Node version: 
+  9.3.0
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  {
+    "name": "fe-frame",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.html",
+    "scripts": {
+      "webpack": "webpack",
+      "start": "webpack-dev-server --hot --inline"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+      "@babel/core": "^7.0.0-beta.40",
+      "@babel/preset-env": "^7.0.0-beta.40",
+      "@babel/preset-react": "^7.0.0-beta.40",
+      "babel-cli": "^6.26.0",
+      "babel-loader": "^8.0.0-beta.0",
+      "babel-plugin-import": "^1.6.6",
+      "babel-preset-react": "^6.24.1",
+      "css-loader": "^0.28.10",
+      "html-webpack-plugin": "^3.0.5",
+      "less": "2.7.2",
+      "less-loader": "^4.1.0",
+      "react-dom": "^16.2.0",
+      "style-loader": "^0.20.3",
+      "url-loader": "^1.0.1",
+      "webpack": "^4.1.1",
+      "webpack-cli": "^2.0.10",
+      "webpack-dev-server": "^3.1.1"
+    },
+    "dependencies": {
+      "antd": "^3.2.3",
+      "history": "^4.7.2",
+      "react": "^16.2.0",
+      "react-redux": "^5.0.7",
+      "react-router": "^4.2.0",
+      "react-router-dom": "^4.2.2"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: Missing list of packages to add to your project.
+      at new MessageError (/Users/yuabigale/.nvm/versions/node/v9.3.0/lib/node_modules/yarn/lib/cli.js:186:110)
+      at Object.<anonymous> (/Users/yuabigale/.nvm/versions/node/v9.3.0/lib/node_modules/yarn/lib/cli.js:40587:13)
+      at Generator.next (<anonymous>)
+      at step (/Users/yuabigale/.nvm/versions/node/v9.3.0/lib/node_modules/yarn/lib/cli.js:98:30)
+      at /Users/yuabigale/.nvm/versions/node/v9.3.0/lib/node_modules/yarn/lib/cli.js:116:14
+      at new Promise (<anonymous>)
+      at new F (/Users/yuabigale/.nvm/versions/node/v9.3.0/lib/node_modules/yarn/lib/cli.js:23451:28)
+      at Object.<anonymous> (/Users/yuabigale/.nvm/versions/node/v9.3.0/lib/node_modules/yarn/lib/cli.js:95:12)
+      at Object.run (/Users/yuabigale/.nvm/versions/node/v9.3.0/lib/node_modules/yarn/lib/cli.js:40599:19)
+      at run (/Users/yuabigale/.nvm/versions/node/v9.3.0/lib/node_modules/yarn/lib/cli.js:89113:20)
