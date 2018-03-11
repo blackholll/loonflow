@@ -2,8 +2,8 @@ import React from 'react'
 var Route = require('react-router').Route
 var Switch = require('react-router').Switch
 
-import Home from "./../containers/Home.jsx";
-import Users from "./../containers/Users.jsx";
+import Home from "./../containers/Home/Home.jsx";
+import Users from "./../containers/Users/Users.jsx";
 
 
 
