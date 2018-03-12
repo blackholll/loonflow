@@ -16,7 +16,7 @@ webpack + ES6 + Redux + React
 │   │   │   ├── BasicLayout.jsx
 │   │   │   └── BasicLayout.less
 │   │   ├── BasicSider
-│   │   │   ├── BasicSider.jsx
+│   │   │   ├── BasicSider.jsx    // 左侧菜单栏
 │   │   │   └── BasicSider.less
 │   │   ├── Home
 │   │   │   └── Home.jsx
