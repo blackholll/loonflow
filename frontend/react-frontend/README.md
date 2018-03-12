@@ -1,1 +1,7 @@
-webpack + ES6 + Redux + React
+
+### 技术栈
+
+* Webpack 
+* ES6 
+* Redux 
+* React
