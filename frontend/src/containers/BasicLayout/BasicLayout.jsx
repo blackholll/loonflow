@@ -35,7 +35,7 @@ class SiderDemo extends React.Component {
             <Routers />
           </Content>
           <Footer style={{ textAlign: 'center' }}>
-            Ant Design ©2016 Created by Ant UED
+            loonflow ©2018 <a href='https://github.com/blackholll/loonflow/graphs/contributors'>contributors</a>
           </Footer>
         </Layout>
       </Layout>

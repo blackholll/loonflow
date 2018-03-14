@@ -17,7 +17,7 @@ class BasicSider extends React.Component {
           collapsed={this.props.collapsed}
           onCollapse={this.props.onCollapse}
         >
-          <div className="logo" />
+          <div className="logo" >LOONFLOW</div>
           <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
             <Menu.Item key="1">
               <Link to="/">
