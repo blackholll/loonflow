@@ -1,5 +1,5 @@
 *.pyc
-.idea
+.idea/
 .vscode
 .DS_Store
 *.swp

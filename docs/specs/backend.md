@@ -76,3 +76,38 @@ def auto_log(func):
 ### 代码提交
 
 migrations目录下除了__init__.py以外文件不要提交，否则多人提交，导致本地数据库同步会有问题
+
+### 更加Pythonic的模型写法
+通用字段使用CommonModel抽象模型，如：
+```python
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
+class CommonModel(models.Model):
+    creator = models.CharField(verbose_name=_('创建人'), max_length=100)
+    created = models.DateTimeField(verbose_name=_('创建时间'), auto_now=True)
+    modified = models.DateTimeField(verbose_name=_('修改时间'), auto_now=True)
+    deleted = models.BooleanField(verbose_name=_('己删除'), default=False)
+
+    class Meta:
+        abstract = True
+```
+真实的模型继承该抽象模型即可，如：
+```python
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from common.common_model import CommonModel
+
+
+class TicketRecord(CommonModel):
+    title = models.CharField(verbose_name=_('标题'), max_length=200, blank=True)
+    workflow = models.IntegerField(verbose_name=_('关联工作流程'))
+    sn = models.BigIntegerField(verbose_name=_('流水号'))
+    current_state = models.IntegerField(verbose_name=_('当前状态'))
+    items = models.TextField(verbose_name=_('工单内容'), help_text='工单内容，以json数据表示')
+    description = models.TextField(verbose_name=_('工单描述'))
+
+    class Meta:
+        db_table = 'ticket_record'
+
+```
