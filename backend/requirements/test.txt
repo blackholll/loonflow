@@ -1,2 +1,0 @@
-#requrements/test.txt
--r common.txt

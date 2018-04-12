@@ -1,2 +1,0 @@
-#requrements/pro.txt
--r common.txt
