@@ -1,0 +1,34 @@
+from django.contrib import admin
+
+from apps.loon_model_base_admin import LoonModelBaseAdmin
+from apps.ticket.models import TicketRecord, TicketFlowLog, TicketStateLastMan, TicketCustomField
+
+
+# Register your models here.
+
+
+class TicketRecordAdmin(LoonModelBaseAdmin):
+    search_fields = ('sn', 'title')
+    list_display = ('sn', 'title', 'workflow_id', 'state_id', 'parent_ticket_id', 'participant_type_id', 'participant') + LoonModelBaseAdmin.list_display
+
+
+class TicketFlowLogAdmin(LoonModelBaseAdmin):
+    search_fields = ('ticket_id',)
+    list_display = ('ticket_id', 'transition_id', 'suggestion', 'participant_type_id', 'participant', 'current_state_id') + LoonModelBaseAdmin.list_display
+
+
+class TicketStateLastManAdmin(LoonModelBaseAdmin):
+    search_fields = ('ticket_id',)
+    list_display = ('state_id', 'ticket_id', 'participant_type_id', 'participant') + LoonModelBaseAdmin.list_display
+
+
+class TicketCustomFieldAdmin(LoonModelBaseAdmin):
+    search_fields = ('name',)
+    list_display = ('name', 'filed_key') + LoonModelBaseAdmin.list_display
+
+
+admin.site.register(TicketRecord, TicketRecordAdmin)
+admin.site.register(TicketFlowLog, TicketFlowLogAdmin)
+admin.site.register(TicketStateLastMan, TicketStateLastManAdmin)
+admin.site.register(TicketCustomField, TicketCustomFieldAdmin)
+

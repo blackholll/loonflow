@@ -1,0 +1,2 @@
+class BaseService(object):
+    pass
