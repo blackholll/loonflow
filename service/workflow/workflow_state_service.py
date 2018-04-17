@@ -2,6 +2,7 @@ from django.db.models import QuerySet
 
 from apps.workflow.models import State
 from service.base_service import BaseService
+from service.common.constant_service import CONSTANT_SERVICE
 from service.common.log_service import auto_log
 
 
@@ -38,4 +39,18 @@ class WorkflowStateService(BaseService):
         else:
             workflow_state = State.objects.filter(id=state_id, is_deleted=False).first()
             return workflow_state, ''
+
+    @classmethod
+    @auto_log
+    def get_workflow_start_state(cls, workflow_id):
+        """
+        获取工作流初始状态
+        :param workflow_id:
+        :return:
+        """
+        workflow_state_queryset = State.objects.filter(is_deleted=0, workflow_id=workflow_id).all()
+        for workflow_state in workflow_state_queryset:
+            if workflow_state.type_id == CONSTANT_SERVICE.STATE_TYPE_START:
+                return workflow_state, ''
+        return False, '该工作流未配置初始状态，请检查工作流配置'
 

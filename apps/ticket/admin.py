@@ -14,7 +14,7 @@ class TicketRecordAdmin(LoonModelBaseAdmin):
 
 class TicketFlowLogAdmin(LoonModelBaseAdmin):
     search_fields = ('ticket_id',)
-    list_display = ('ticket_id', 'transition_id', 'suggestion', 'participant_type_id', 'participant', 'current_state_id') + LoonModelBaseAdmin.list_display
+    list_display = ('ticket_id', 'transition_id', 'suggestion', 'participant_type_id', 'participant', 'state_id') + LoonModelBaseAdmin.list_display
 
 
 class TicketStateLastManAdmin(LoonModelBaseAdmin):

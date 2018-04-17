@@ -16,6 +16,7 @@ class TicketRecord(models.Model):
     parent_ticket_state_id = models.IntegerField('对应父工单状态id', default=0, help_text='与workflow.State关联,子工单是关联到父工单的某个状态下的')
     participant_type_id = models.IntegerField('当前处理人类型', default=0, help_text='见service.constant_service中定义,0表示无处理人')
     participant = models.CharField('当前处理人', max_length=100, default='', blank=True, help_text='当工单结束时候处理人为空,多人逗号隔开')
+    relation = models.CharField('工单关联人', max_length=1000, default='', blank=True, help_text='工单流转过程中将保存所有相关的人(包括创建人、曾经的待处理人)，用于查询')
 
     creator = models.CharField('创建人', max_length=50, default='admin')
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
@@ -37,11 +38,10 @@ class TicketFlowLog(models.Model):
 
     participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
     participant = models.CharField('处理人', max_length=50, default='', blank=True)
-    current_state_id = models.IntegerField('当前状态id', default=0, blank=True)
-    related_users = models.CharField('当前相关处理人', max_length=1000, help_text='此状态下所有的有权限的处理人，逗号隔开')
-    ticket_data = models.CharField('工单数据', max_length=10000, help_text='可以用于记录当前表单数据，json格式')
+    state_id = models.IntegerField('当前状态id', default=0, blank=True)
+    ticket_data = models.CharField('工单数据', max_length=10000, default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
 
-    creator = models.CharField(u'创建人', max_length=50)
+    creator = models.CharField(u'创建人', max_length=50, default='admin')
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
     gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
     is_deleted = models.BooleanField(u'已删除', default=False)
@@ -60,7 +60,7 @@ class TicketStateLastMan(models.Model):
     participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
     participant = models.CharField(u'处理人', max_length=100, default='')
 
-    creator = models.CharField(u'创建人', max_length=50)
+    creator = models.CharField(u'创建人', max_length=50, default='admin')
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
     gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
     is_deleted = models.BooleanField(u'已删除', default=False)
@@ -95,7 +95,7 @@ class TicketCustomField(models.Model):
     text_value = models.TextField('文本值', default='', blank=True)
     username_value = models.CharField('用户名', max_length=50, default='', blank=True)
 
-    creator = models.CharField(u'创建人', max_length=50)
+    creator = models.CharField(u'创建人', max_length=50, default='admin')
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
     gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
     is_deleted = models.BooleanField(u'已删除', default=False)

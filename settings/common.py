@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'service.permission.api_permission.ApiPermissionCheck',
+    # 'service.permission.api_permission.ApiPermissionCheck',
     'service.csrf_service.DisableCSRF',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
