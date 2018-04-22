@@ -407,9 +407,50 @@ class TicketBaseService(BaseService):
         :param kwargs:
         :return:
         """
-        nte_ticket_flow_log = TicketFlowLog(**kwargs)
-        nte_ticket_flow_log.save()
-        return nte_ticket_flow_log.id, ''
+        new_ticket_flow_log = TicketFlowLog(**kwargs)
+        new_ticket_flow_log.save()
+        return new_ticket_flow_log.id, ''
+
+    @classmethod
+    @auto_log
+    def get_ticket_detail(cls, ticket_id, username):
+        """
+        获取工单详情,有处理权限，则按照当前状态返回对应的字段信息，只有查看权限则返回该工单对应工作流配置的展示字段信息
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        permission, msg = cls.ticket_view_permission_check(ticket_id, username)
+        if not permission:
+            return False, msg
+        ticket_obj = TicketRecord.objects.filter(ticket_id).first()
+
+        # 工单基础字段及属性
+        field_list = []
+        field_list.append(dict(field_key='sn', name=u'流水号', value=ticket_obj.sn, order_id=0, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='title', name=u'标题', value=ticket_obj.title, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='state_id', name=u'状态id', value=ticket_obj.state_id, order_id=40, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='ticket_type', name=u'工单类型', value=ticket_obj.ticket_type_id, order_id=60, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='creator', name=u'创建人', value=ticket_obj.creator, order_id=80, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='created_at', name=u'创建时间', value=str(ticket_obj.gmt_created), order_id=100, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='updated_at', name=u'更新时间', value=str(ticket_obj.gmt_modified), order_id=120, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_obj.state_id)
+
+        if not state_obj:
+            return False, msg
+        state_name = state_obj.name
+        field_list.append(dict(field_key='state.state_name', name=u'状态', value=state_name, order_id=41, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+
+        # 工单所有自定义字段
+        custom_filed_dict, msg = WorkflowCustomFieldService.get_workflow_custom_field(ticket_obj.workflow_id)
+        for key, value in custom_filed_dict.items():
+            field_type_id = value['field_type_id']
+            ticket_custom_field_obj = TicketCustomField.objects.filter(filed_key=key, is_deleted=0).first()
+            if not ticket_custom_field_obj:
+                field_value = None  # 尚未赋值的情况
+            else:
+                #根据字段类型 获取对应列的值
+                pass
 
 
 
@@ -418,6 +459,10 @@ class TicketBaseService(BaseService):
 
 
 
+        handle_permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        if handle_permission:
+            state_field_str = state_obj.state_field_str
+            state_field_dict = json.loads(state_field_str)
 
 
 
@@ -426,3 +471,68 @@ class TicketBaseService(BaseService):
 
 
 
+    @classmethod
+    @auto_log
+    def ticket_handle_permission_check(cls, ticket_id, username):
+        """
+        处理权限校验: 获取当前状态是否需要处理， 该用户是否有权限处理
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.filter(ticket_id=ticket_id, is_deleted=0).first()
+        if not ticket_obj:
+            return False, '工单不存在或已被删除'
+        ticket_state_id = ticket_obj.state_id
+        transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_state_id)
+        if not transition_queryset:
+            return False, '工单当前状态无需操作'
+        state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_state_id)
+        if not state_obj:
+            return False, '工单当前状态id不存在或已被删除'
+        participant_type_id = state_obj.participant_type_id
+        participant = state_obj.participant
+        if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+            if username != participant:
+                return False, '非当前处理人，无权处理'
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
+            if username not in participant.split(','):
+                return False, '非当前处理人，无权处理'
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+            user_up_dept_id_list, msg = AccountBaseService.get_user_up_dept_id_list(username)
+            if int(participant) not in user_up_dept_id_list:
+                return False, '非当前处理人，无权处理'
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+            user_role_id_list, msg = AccountBaseService.get_user_role_id_list(username)
+            if int(participant) not in user_role_id_list:
+                return False, '非当前处理人，无权处理'
+        # PARTICIPANT_TYPE_VARIABLE, PARTICIPANT_TYPE_FIELD, PARTICIPANT_TYPE_PARENT_FIELD类型会在流转时保存为实际的处理人
+        return True, ''
+
+
+
+
+
+    @classmethod
+    @auto_log
+    def ticket_view_permission_check(cls, ticket_id, username):
+        """
+        校验用户是否有工单的查看权限:先查询对应的工作流是否校验查看权限， 如果不校验直接允许，如果校验需要判断用户是否属于工单的关系人
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.filter(ticket_id=ticket_id, is_deleted=0).first()
+        if not ticket_obj:
+            return False, '工单不存在或已被删除'
+        workflow_id = ticket_obj.workflow_id
+        workflow_obj, msg = WorkflowBaseService.get_by_id(ticket_id)
+        if not workflow_obj:
+            return False, msg
+        if not workflow_obj.view_permission_check:
+            return True, '该工作流不限制查看权限'
+        else:
+            if username in ticket_obj.relation.split(','):
+                return True, '用户是该工单的关系人，有查看权限'
+            else:
+                return False, '用户不是该工单的关系人，且该工作流开启了查看权限校验'

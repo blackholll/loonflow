@@ -8,7 +8,9 @@ class WorkflowTransitionService(BaseService):
     def __init__(self):
         pass
 
-    def get_state_transition_queryset(self, state_id):
+    @classmethod
+    @auto_log
+    def get_state_transition_queryset(cls, state_id):
         """
         获取状态可以执行的操作
         :param state_id:

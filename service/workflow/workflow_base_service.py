@@ -24,4 +24,17 @@ class WorkflowBaseService(BaseService):
         """
         return True, ''
 
+    @classmethod
+    @auto_log
+    def get_by_id(cls, workflow_id):
+        """
+        获取工作流 by id
+        :param workflow_id:
+        :return:
+        """
+        workflow_obj = Workflow.objects.filter(is_deleted=0, id=workflow_id).first()
+        if not workflow_obj:
+            return False, '工作流不存在'
+        return workflow_obj, ''
+
 

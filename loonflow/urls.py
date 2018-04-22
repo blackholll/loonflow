@@ -18,11 +18,13 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path, include
+
+from apps.ticket.views import TicketListView
+
 admin.autodiscover()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
-    path('api1/v1.0/tickets', include('apps.ticket.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

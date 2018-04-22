@@ -1,8 +1,6 @@
 import json
 from django.http import HttpResponse
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
-
 from service.format_response import api_response
 from service.ticket.ticket_base_service import TicketBaseService
 
@@ -56,6 +54,29 @@ class TicketListView(View):
             code, data = -1, {}
         return api_response(code, msg, data)
 
+
+class TicketView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        获取工单详情，根据用户返回不同的内容(是否有工单表单的编辑权限)
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        ticket_id = args[0]
+        username = request_data.get('username', '')
+        result, msg = TicketBaseService.get_ticket_detail(ticket_id, username)
+
+
+        print(args)
+        return HttpResponse('11111')
+
+
+
 def ticketlist(response):
     if response.method == 'POST':
         return HttpResponse('postssss')
+    else:
+        return HttpResponse('getsss')
