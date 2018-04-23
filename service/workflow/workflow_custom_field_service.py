@@ -19,9 +19,8 @@ class WorkflowCustomFieldService(BaseService):
         format_custom_field_dict = {}
         for custom_field in custom_field_queryset:
             format_custom_field_dict[custom_field.field_key] = dict(workflow_id=custom_field.workflow_id, field_type_id=custom_field.field_type_id,
-                                                 field_name=custom_field.field_name, order_id=custom_field.field_name,
+                                                 field_name=custom_field.field_name, order_id=custom_field.order_id,
                                                  default_value=custom_field.default_value, description=custom_field.description,
                                                  field_template=custom_field.field_template, boolean_field_display=custom_field.boolean_field_display,
-                                                 radio_field_choice=custom_field.radio_field_choice, select_field_choice=custom_field.select_field_choice
-                                                  )
+                                                 field_choice=custom_field.field_choice)
         return format_custom_field_dict, ''

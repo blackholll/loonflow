@@ -16,7 +16,7 @@ class Workflow(models.Model):
     # 限制周期({'period':24} 24小时), 限制次数({'count':1}在限制周期内只允许提交1次), 限制级别({'level':1} 针对(1特定用户 2全局)限制周期限制次数)
     # 允许特定人员提交({'allow_person':'zhangsan'}只允许张三提交工单,{'allow_dept':1}只允许部门id的用户提交工单，{'allow_role':1}只允许角色id为1的用户提交工单)
     # limit_expression = models.CharField('限制表达式', max_length=100, default='', blank=True)
-    display_form_str = models.CharField('展现表单', max_length=10000, default='', blank=True, help_text='json格式，用于用户只有查看权限时显示哪些字段')
+    display_form_str = models.CharField('展现表单字段', max_length=10000, default='[]', blank=True, help_text='json格式，用于用户只有查看权限时显示哪些字段,field_key的list')
     default_notice_to = models.CharField('默认通知人', max_length=50, default='', blank=True, help_text='表单创建及结束时会发送相应通知信息')
 
     creator = models.CharField('创建人', max_length=50, default='admin')
@@ -68,8 +68,8 @@ class Transition(models.Model):
     source_state_id = models.IntegerField('源状态id')
     destination_state_id = models.IntegerField('目的状态id')
 
-    alert_enable = models.BooleanField('点击弹窗提示', default=0)
-    alert_text = models.CharField('弹窗内容', max_length=100, default='')
+    alert_enable = models.BooleanField('点击弹窗提示', default=False)
+    alert_text = models.CharField('弹窗内容', max_length=100, default='', blank=True)
 
     creator = models.CharField('创建人', max_length=50)
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
@@ -90,13 +90,11 @@ class CustomField(models.Model):
     order_id = models.IntegerField('排序', default=0)
     default_value = models.CharField('默认值', null=True, blank=True, max_length=100)
     description = models.CharField('描述', max_length=100, blank=True, default='')
-    field_template = models.TextField('模板', default='', blank=True, null=True, help_text='文本域字段支持配置内容模板')
+    field_template = models.TextField('模板', default='', blank=True, help_text='文本域字段支持配置内容模板')
     boolean_field_display = models.CharField('布尔类型显示名', max_length=100, null=True, blank=True,
                                              help_text='当为布尔类型时候，可以支持自定义显示形式。{1:"是",0:"否"}或{1:"需要",0:"不需要"}')
-    radio_field_choice = models.CharField('radio选项', max_length=500, null=True, blank=True,
-                                          help_text='radio类型可供选择的选项，格式为json如:{1:"中国",2:"美国"}')
-    select_field_choice = models.CharField('下拉列表选项', max_length=500, null=True, blank=True,
-                                           help_text='下拉列表类型类型可供选择的选项，格式为json如:{1:"中国",2:"美国"}')
+    field_choice = models.CharField('radio选项', max_length=1000, default='[]', blank=True,
+                                    help_text='radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{1:"中国",2:"美国"}')
 
     creator = models.CharField('创建人', max_length=50)
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)

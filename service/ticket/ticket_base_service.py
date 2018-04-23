@@ -420,17 +420,18 @@ class TicketBaseService(BaseService):
         :param username:
         :return:
         """
-        permission, msg = cls.ticket_view_permission_check(ticket_id, username)
-        if not permission:
-            return False, msg
-        ticket_obj = TicketRecord.objects.filter(ticket_id).first()
+        handle_permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        if not handle_permission:
+            view_permission, msg = cls.ticket_view_permission_check(ticket_id, username)
+            if not view_permission:
+                return False, msg
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
 
         # 工单基础字段及属性
         field_list = []
         field_list.append(dict(field_key='sn', name=u'流水号', value=ticket_obj.sn, order_id=0, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='title', name=u'标题', value=ticket_obj.title, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='state_id', name=u'状态id', value=ticket_obj.state_id, order_id=40, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='ticket_type', name=u'工单类型', value=ticket_obj.ticket_type_id, order_id=60, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='creator', name=u'创建人', value=ticket_obj.creator, order_id=80, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='created_at', name=u'创建时间', value=str(ticket_obj.gmt_created), order_id=100, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='updated_at', name=u'更新时间', value=str(ticket_obj.gmt_modified), order_id=120, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
@@ -450,24 +451,59 @@ class TicketBaseService(BaseService):
                 field_value = None  # 尚未赋值的情况
             else:
                 #根据字段类型 获取对应列的值
-                pass
+                if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
+                    field_value = ticket_custom_field_obj.value_char
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
+                    field_value = ticket_custom_field_obj.value_int
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
+                    field_value = ticket_custom_field_obj.value_float
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
+                    field_value = ticket_custom_field_obj.value_bool
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
+                    field_value = str(ticket_custom_field_obj.value_date)
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
+                    field_value = str(ticket_custom_field_obj.value_datetime)
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
+                    field_value = ticket_custom_field_obj.value_radio
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
+                    field_value = ticket_custom_field_obj.value_checkbox
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
+                    field_value = ticket_custom_field_obj.value_select
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
+                    field_value = ticket_custom_field_obj.value_multi_select
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
+                    field_value = ticket_custom_field_obj.value_text
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
+                    field_value = ticket_custom_field_obj.value_username
 
+            field_list.append(dict(field_key=key, field_name=custom_filed_dict[key]['field_name'], field_value=field_value, order_id=custom_filed_dict[key]['order_id'],
+                                   field_type_id=custom_filed_dict[key]['field_type_id'],
+                                   field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO,
+                                   field_choice=json.loads(custom_filed_dict[key]['field_choice']),
+                                   ))
 
+        new_field_list = []
 
-
-
-
-
-
-        handle_permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
         if handle_permission:
             state_field_str = state_obj.state_field_str
             state_field_dict = json.loads(state_field_str)
+            state_field_key_list = state_field_dict.keys()
+            for field in field_list:
+                if field['field_key'] in state_field_key_list:
+                    field['field_attribute'] = state_field_dict[field['field_key']]
+                    new_field_list.append(field)
+        else:
+            # 查看权限
+            workflow_obj, msg = WorkflowBaseService.get_by_id(workflow_id=ticket_obj.workflow_id)
+            display_form_field_list = json.loads(workflow_obj.display_form_str)
+            for field in field_list:
+                if field['field_key'] in display_form_field_list:
+                    new_field_list.append(field)
 
-
-
-
-
+        return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
+                    participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
+                    creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created), gmt_modified=str(ticket_obj.gmt_modified),
+                    field_list=new_field_list), ''
 
 
 
@@ -480,7 +516,7 @@ class TicketBaseService(BaseService):
         :param username:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(ticket_id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         if not ticket_obj:
             return False, '工单不存在或已被删除'
         ticket_state_id = ticket_obj.state_id
@@ -510,9 +546,6 @@ class TicketBaseService(BaseService):
         return True, ''
 
 
-
-
-
     @classmethod
     @auto_log
     def ticket_view_permission_check(cls, ticket_id, username):
@@ -522,11 +555,10 @@ class TicketBaseService(BaseService):
         :param username:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(ticket_id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         if not ticket_obj:
             return False, '工单不存在或已被删除'
-        workflow_id = ticket_obj.workflow_id
-        workflow_obj, msg = WorkflowBaseService.get_by_id(ticket_id)
+        workflow_obj, msg = WorkflowBaseService.get_by_id(ticket_obj.workflow_id)
         if not workflow_obj:
             return False, msg
         if not workflow_obj.view_permission_check:

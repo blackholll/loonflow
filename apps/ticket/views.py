@@ -64,14 +64,20 @@ class TicketView(View):
         :param kwargs:
         :return:
         """
+        # print(ticket_id)
         request_data = request.GET
-        ticket_id = args[0]
+        # print(args)
+        # print(kwargs)
+        ticket_id = kwargs.get('ticket_id')
         username = request_data.get('username', '')
+        if not username:
+            return api_response(-1, '参数不全，请提供username', '')
         result, msg = TicketBaseService.get_ticket_detail(ticket_id, username)
-
-
-        print(args)
-        return HttpResponse('11111')
+        if result:
+            code, data = 0, dict(value=result)
+        else:
+            code, data = -1, {}
+        return api_response(code, msg, data)
 
 
 
