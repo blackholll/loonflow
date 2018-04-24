@@ -64,10 +64,7 @@ class TicketView(View):
         :param kwargs:
         :return:
         """
-        # print(ticket_id)
         request_data = request.GET
-        # print(args)
-        # print(kwargs)
         ticket_id = kwargs.get('ticket_id')
         username = request_data.get('username', '')
         if not username:
@@ -79,6 +76,37 @@ class TicketView(View):
             code, data = -1, {}
         return api_response(code, msg, data)
 
+    def patch(self, request, *args, **kwargs):
+        """
+        处理工单
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'patch参数为空', {})
+        request_data_dict = json.loads(json_str)
+
+
+
+class TicketTransition(View):
+    """
+    工单可以做的操作
+    """
+    def get(self, request, *args, **kwargs):
+        request_data = request.GET
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data.get('username', '')
+        if not username:
+            return api_response(-1, '参数不全，请提供username', '')
+        result, msg = TicketBaseService.get_ticket_transition(ticket_id, username)
+        if result or result is not False:
+            code, data = 0, dict(value=result)
+        else:
+            code, data = -1, {}
+        return api_response(code, msg, data)
 
 
 def ticketlist(response):

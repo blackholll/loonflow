@@ -39,7 +39,7 @@ class WorkflowStateService(BaseService):
         else:
             workflow_state = State.objects.filter(id=state_id, is_deleted=False).first()
             if not workflow_state:
-                return False, '工单状态不存在'
+                return False, '工单状态不存在或已被删除'
             return workflow_state, ''
 
     @classmethod

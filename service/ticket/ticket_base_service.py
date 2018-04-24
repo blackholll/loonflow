@@ -150,9 +150,8 @@ class TicketBaseService(BaseService):
         # 校验是否所有必填字段都有提供
         for require_field in require_field_list:
             if require_field not in request_field_arg_list:
-                return False, '此工作流的必填字段为:{}'.format(','.join(request_field_arg_list))
+                return False, '此工单的必填字段为:{}'.format(','.join(request_field_arg_list))
         # 获取transition_id对应的下个状态的信息:
-
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(start_state.id)
         if transition_queryset is False:
             return False, msg
@@ -176,6 +175,7 @@ class TicketBaseService(BaseService):
             field_value, msg = cls.get_ticket_field_value(destination_participant)
             if not field_value:
                 return False, msg
+            destination_participant = field_value
             if len(field_value.split(',')) > 1:
                 # 多人的情况
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
@@ -248,7 +248,6 @@ class TicketBaseService(BaseService):
         r.set(ticket_day_count_key, new_ticket_day_count, 86400)
         now_day = datetime.datetime.now()
         return 'loonflow_%04d%02d%02d%04d' % (now_day.year, now_day.month, now_day.day, new_ticket_day_count), ''
-
 
     @classmethod
     @auto_log
@@ -505,8 +504,6 @@ class TicketBaseService(BaseService):
                     creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created), gmt_modified=str(ticket_obj.gmt_modified),
                     field_list=new_field_list), ''
 
-
-
     @classmethod
     @auto_log
     def ticket_handle_permission_check(cls, ticket_id, username):
@@ -545,7 +542,6 @@ class TicketBaseService(BaseService):
         # PARTICIPANT_TYPE_VARIABLE, PARTICIPANT_TYPE_FIELD, PARTICIPANT_TYPE_PARENT_FIELD类型会在流转时保存为实际的处理人
         return True, ''
 
-
     @classmethod
     @auto_log
     def ticket_view_permission_check(cls, ticket_id, username):
@@ -568,3 +564,125 @@ class TicketBaseService(BaseService):
                 return True, '用户是该工单的关系人，有查看权限'
             else:
                 return False, '用户不是该工单的关系人，且该工作流开启了查看权限校验'
+
+    @classmethod
+    @auto_log
+    def get_ticket_transition(cls, ticket_id, username):
+        """
+        获取用户针对工单当前可以做的操作:处理权限校验、可以做的操作
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        handle_permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        if handle_permission is False:
+            return False, msg
+        if not handle_permission:
+            return [], '用户当前无处理权限'
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
+        transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)
+        # if transition_queryset:
+        transition_dict_list = []
+        for transition in transition_queryset:
+            transition_dict = dict(transition_id=transition.id, transition_name=transition.name)
+            transition_dict_list.append(transition_dict)
+        return transition_dict_list, ''
+
+    @classmethod
+    @auto_log
+    def handle_ticket(cls, ticket_id, request_data_dict):
+        """
+        处理工单:校验必填参数,获取当前状态必填字段，更新工单基础字段，更新工单自定义字段， 更新工单流转记录，执行必要的脚本，通知消息
+        此处逻辑和新建工单有较多重复，下个版本会拆出来
+        :param ticket_id:
+        :param request_data_dict:
+        :return:
+        """
+        transition_id = request_data_dict.get('request_data_dict', '')
+        username = request_data_dict.get('username', '')
+        if not (transition_id and username):
+            return False, '参数不合法,请提供username，transition_id'
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
+        if not ticket_obj:
+            return False, '工单不存在或已被删除'
+
+        # 判断用户是否有权限处理该工单
+        has_permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        if not has_permission:
+            return False, msg
+
+        state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_obj.id)
+        if not state_obj:
+            return False, msg
+        state_field_str = state_obj.state_field_str
+        state_field_dict = json.load(state_field_str)
+        require_field_list, update_filed_list = [], []
+        for key, value in state_field_dict.items():
+            if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_REQUIRED:
+                require_field_list.append(key)
+            update_filed_list.append(key)
+
+        # 校验是否所有必填字段都有提供
+        request_field_arg_list = [key for key, value in request_data_dict.items() if (key not in ['workflow_id', 'suggestion', 'username'])]
+        for require_field in require_field_list:
+            if require_field not in request_field_arg_list:
+                return False, '此工单的必填字段为:{}'.format(','.join(request_field_arg_list))
+
+        # 获取transition_id对应的下个状态的信息:
+        transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)
+        if transition_queryset is False:
+            return False, msg
+        allow_transition_id_list = [transition.id for transition in transition_queryset]
+        if transition_id not in allow_transition_id_list:
+            return False, 'transition_id不合法'
+
+        for transition_obj in transition_queryset:
+            if transition_obj.id == transition_id:
+                destination_state_id = transition_obj.destination_state_id
+                break
+
+        destination_state, msg = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
+        if not destination_state:
+            return False, msg
+        # 获取目标状态的信息
+        destination_participant_type_id = destination_state.participant_type_id
+        destination_participant = destination_state.participant
+        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
+            # 获取工单字段的值
+            field_value, msg = cls.get_ticket_field_value(destination_participant)
+            if not field_value:
+                return False, msg
+            destination_participant = field_value
+            add_relation = destination_participant
+            if len(field_value.split(',')) > 1:
+                # 多人的情况
+                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
+            destination_participant, msg = cls.get_ticket_field_value(ticket_obj.parent_ticket_id, destination_participant)
+            if len(destination_participant.split(',')) > 1:
+                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD
+            add_relation = destination_participant
+
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_VARIABLE:
+            if destination_participant == 'creator':
+                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+                destination_participant = username
+            elif destination_participant == 'creator_tl':
+                # 获取用户的tl或审批人(优先审批人)
+                approver, msg = AccountBaseService.get_user_dept_approver(username)
+                if len(approver.split(',')) > 1:
+                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+                destination_participant = approver
+            add_relation = destination_participant
+
+        # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
+
+        ticket_update_dict = dict(participant_type_id=destination_participant_type_id, participant=destination_participant, relation=relation)
+
+
+
+
+
+
+
+
