@@ -88,7 +88,13 @@ class TicketView(View):
         if not json_str:
             return api_response(-1, 'patch参数为空', {})
         request_data_dict = json.loads(json_str)
-
+        ticket_id = kwargs.get('ticket_id')
+        result, msg = TicketBaseService.handle_ticket(ticket_id, request_data_dict)
+        if result or result is not False:
+            code, data = 0, dict(value=result)
+        else:
+            code, data = -1, {}
+        return api_response(code, msg, data)
 
 
 class TicketTransition(View):
@@ -107,6 +113,100 @@ class TicketTransition(View):
         else:
             code, data = -1, {}
         return api_response(code, msg, data)
+
+
+class TicketFlowlog(View):
+    """
+    工单流转记录
+    """
+    def get(self, request, *args, **kwargs):
+        request_data = request.GET
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data.get('username', '')  # 可用于权限控制
+        per_page = int(request_data.get('per_page', 10))
+        page = int(request_data.get('page', 1))
+        result, msg = TicketBaseService.get_ticket_flow_log(ticket_id, username, per_page, page)
+
+        if result is not False:
+            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg,  = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+
+class TicketFlowStep(View):
+    """
+    工单流转step: 用于显示工单当前状态的step图(线形结构，无交叉)
+    """
+    def get(self, request, *args, **kwargs):
+        request_data = request.GET
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data.get('username', '')  # 可用于权限控制
+        result, msg = TicketBaseService.get_ticket_flow_step(ticket_id, username)
+        if result is not False:
+            data = dict(value=result)
+            code, msg,  = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+
+class TicketState(View):
+    """
+    工单状态
+    """
+    def put(self, request, *args, **kwargs):
+        """
+        修改工单状态
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'patch参数为空', {})
+        request_data_dict = json.loads(json_str)
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data_dict.get('username', '')  # 可用于权限控制
+        state_id = request_data_dict.get('state_id')
+        if not state_id:
+            code = -1
+            msg = '请提供新的状态id'
+            data = ''
+        else:
+            result, msg = TicketBaseService.update_ticket_state(ticket_id, state_id, username)
+            if result:
+                code, msg, data = 0, msg, ''
+            else:
+                code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)
+
+
+class TicketsStates(View):
+    def get(self, request, *args, **kwargs):
+        """
+        批量获取工单状态
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        username = request_data.get('username', '')  # 可用于权限控制
+        ticket_ids = request_data.get('ticket_ids')  # 逗号隔开
+        ticket_id_list = ticket_ids.split(',')
+        ticket_id_list = [int(ticket_id) for ticket_id in ticket_id_list]
+
+        result, msg = TicketBaseService.get_tickets_states_by_ticket_id_list(ticket_id_list, username)
+        if result:
+            code, msg, data = 0, msg, result
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)
+
+
 
 
 def ticketlist(response):

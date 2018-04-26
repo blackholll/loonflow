@@ -600,9 +600,12 @@ class TicketBaseService(BaseService):
         """
         transition_id = request_data_dict.get('request_data_dict', '')
         username = request_data_dict.get('username', '')
+        suggesition = request_data_dict.get('suggesition', '')
+
         if not (transition_id and username):
             return False, '参数不合法,请提供username，transition_id'
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
+        source_ticket_state_id = ticket_obj.state_id
         if not ticket_obj:
             return False, '工单不存在或已被删除'
 
@@ -647,7 +650,14 @@ class TicketBaseService(BaseService):
         # 获取目标状态的信息
         destination_participant_type_id = destination_state.participant_type_id
         destination_participant = destination_state.participant
-        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
+        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+            username_list, msg = AccountBaseService.get_dept_username_list(int(destination_participant_type_id))
+            add_relation = ','.join(username_list)
+
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+            username_list, msg = AccountBaseService.get_role_username_list(int(destination_participant))
+            add_relation = ','.join(username_list)
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
             # 获取工单字段的值
             field_value, msg = cls.get_ticket_field_value(destination_participant)
             if not field_value:
@@ -676,12 +686,137 @@ class TicketBaseService(BaseService):
             add_relation = destination_participant
 
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
+        new_relation = ','.join(set((ticket_obj.relation + add_relation).split(',')))  # 去重
+        ticket_obj.participant_type_id = destination_participant_type_id
+        ticket_obj.participant = destination_participant
+        ticket_obj.relation = new_relation
+        ticket_obj.save()
 
-        ticket_update_dict = dict(participant_type_id=destination_participant_type_id, participant=destination_participant, relation=relation)
+        # 只更新需要更新的字段
+        request_update_dict = {}
+        for key, value in request_data_dict.items():
+            if key in update_filed_list:
+                request_update_dict[key] = value
 
 
+        update_ticket_custom_field_result, msg = cls.update_ticket_custom_field(ticket_id, request_update_dict)
+        # 更新工单流转记录，执行必要的脚本，通知消息
+        cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggesition=suggesition,
+                                     participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
+                                     state_id=source_ticket_state_id, creator=username))
+        # 执行必要的脚本
 
+        # 通知消息
+        return True, ''
 
+    @classmethod
+    @auto_log
+    def get_ticket_flow_log(cls, ticket_id, username, per_page=10, page=1):
+        """
+        获取工单流转记录
+        :param ticket_id:
+        :param username:
+        :param per_page:
+        :param page:
+        :return:
+        """
+        ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all().order_by('-id')
+        paginator = Paginator(ticket_flow_log_queryset, per_page)
+
+        try:
+            ticket_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            ticket_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            ticket_result_paginator = paginator.page(paginator.num_pages)
+
+        ticket_flow_log_restful_list = []
+        for ticket_flow_log in ticket_result_paginator.object_list:
+            state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_flow_log.state_id)
+            if ticket_flow_log.transition_id:
+                transition_obj, msg = WorkflowTransitionService.get_workflow_transition_by_id(ticket_flow_log.transition_id)
+                transition_name = transition_obj.name
+            else:
+                # 考虑到人工干预修改工单状态， transition_id为0
+                transition_name = ''
+
+            state_info_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
+            transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name)
+            ticket_flow_log_restful_list.append(dict(ticket_id=ticket_id, state=state_info_dict, transition=transition_info_dict, suggestion=ticket_flow_log.suggestion,
+                                                     gmt_created=str(ticket_flow_log.gmt_created)[:19], gmt_modified=str(ticket_flow_log.gmt_modified)[:19]
+            ))
+
+        return ticket_flow_log_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_ticket_flow_step(cls, ticket_id, username):
+        """
+        工单的流转步骤，路径。直线流转, 步骤不会很多(因为同个状态只显示一次，隐藏的状态只有当前处于才显示，否则不显示)，默认先不分页
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        # 先获取工单对应工作流的信息
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        workflow_id = ticket_obj.workflow_id
+        state_objs, msg = WorkflowStateService.get_workflow_states(workflow_id)
+        ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all()
+
+        state_step_dict_list = []
+        for state_obj in state_objs:
+            if state_obj.id == ticket_obj.state_id or (not state_obj.is_hidden):
+                ticket_state_step_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
+                state_flow_log_list = []
+                for ticket_flow_log in ticket_flow_log_queryset:
+                    if ticket_flow_log.state_id == state_obj.id:
+                        state_flow_log_list.append(dict(id=ticket_flow_log.id, suggestion=ticket_flow_log.suggestion, state_id=ticket_flow_log.state_id, gmt_created=str(ticket_flow_log.gmt_created)[:19]))
+                ticket_state_step_dict['state_flow_log_list'] = state_flow_log_list
+            state_step_dict_list.append(ticket_state_step_dict)
+        return state_step_dict_list, ''
+
+    @classmethod
+    @auto_log
+    def update_ticket_state(cls, ticket_id, state_id, username):
+        """
+        更新状态id,暂时只变更工单状态及工单当前处理人，不考虑目标状态状态处理人类型为脚本、变量、工单字段等等逻辑
+        :param ticket_id:
+        :param state_id:
+        :param username:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        if not ticket_obj:
+            return False, '工单不存在'
+        source_state_id = ticket_obj.state_id
+        state_obj, msg = WorkflowStateService.get_workflow_state_by_id(state_id)
+        if not state_obj:
+            return False, msg
+        if state_obj.workflow_id == ticket_obj.workflow_id:
+            ticket_obj.state_id = state_id
+            ticket_obj.participant_type_id = state_obj.participant_type_id
+            ticket_obj.participant = state_obj.participant
+            ticket_obj.save()
+            # 新增流转记录
+
+            cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0, suggestion='强制修改工单状态', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                         participant=username, state_id=source_state_id))
+            return True, '修改工单状态成功'
+
+    @classmethod
+    @auto_log
+    def get_tickets_states_by_ticket_id_list(cls, ticket_id_list, username):
+        """
+        批量获取工单状态
+        :param ticket_id_list:
+        :param username:
+        :return:
+        """
+        ticket_queryset = TicketRecord.objects.filter(id__in=ticket_id_list).all()
+        ticket_state_id_list = [ticket.state_id for ticket in ticket_queryset]
+        state_info_dict, msg = WorkflowStateService.get_states_info_by_state_id_list(ticket_state_id_list)
+        return state_info_dict, msg
 
 
 

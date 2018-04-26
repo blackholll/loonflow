@@ -8,20 +8,19 @@ a workflow engine base django
 
 最新代码见develop分支，正式版本见tags中(如果已经有正式版本发布的话)
 
-### 前言
+## 前言
 本人2011年开始接触工作流，2013年开始开发工作流第一版本，至今经历了多个版本。目前着手开发一个开源版本，致力于提供企业统一工作流引擎方案
 
 欢迎加入qq群一起交流工作流相关技术: 558788490
 
 
-#loonflow 后端
-### 运行开发环境
-- 创建数据库: 根据backend/settings/dev.py中的配置创建数据库
-- 创建python虚拟环境: python3.5
-- 安装依赖包: pip install -r backend/requirements/dev.txt
-- 初始化数据库: 
 
-        python manage.py makemigrations
-        python manage.py migrate
-- 初始化数据: python manage.py loaddata notice_type.json
-- 创建初始账户: python manage.py createsuperuser
+## 基本架构
+LOONFLOW 分为两部分:
+- 使用django自带的admin来管理工作流的配置信息 
+- 提供http api共各个系统(如果oa、cmdb、运维系统、客服系统)调用以完成各自系统定制化的工单需求
+
+
+## 使用文档
+[使用文档](docs/index.md)
+

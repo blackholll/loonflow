@@ -26,5 +26,6 @@ admin.autodiscover()
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
+    path('api/v1.0/workflows', include('apps.workflow.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

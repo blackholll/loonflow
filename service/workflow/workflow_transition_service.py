@@ -18,4 +18,12 @@ class WorkflowTransitionService(BaseService):
         """
         return Transition.objects.filter(is_deleted=0, source_state_id=state_id).all(), ''
 
-    # def get_transition_id
+    @classmethod
+    @auto_log
+    def get_workflow_transition_by_id(cls, transition_id):
+        """
+        获取transiton
+        :param transition_id:
+        :return:
+        """
+        return Transition.objects.filter(is_deleted=0, id=transition_id).first(), ''

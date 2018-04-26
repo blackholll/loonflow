@@ -36,7 +36,6 @@ class State(models.Model):
     name = models.CharField('名称', max_length=50)
     workflow_id = models.IntegerField('工作流')
     sub_workflow_id = models.IntegerField('子工作流id(如果需要在此状态启用子工单的话)', default=0, blank=True)
-    distribute_type_id = models.IntegerField('接单方式', default=1, help_text='见service.constant_service中定义')
     is_hidden = models.BooleanField('是否隐藏', default=1, help_text='设置为True时,工单步骤中不显示此状态(当前处于此状态时除外)')
     order_id = models.IntegerField('状态顺序', default=0, help_text='用于工单步骤接口时，step上状态的顺序(因为存在网状情况，所以需要认为设定顺序),值越小越靠前')
     type_id = models.IntegerField('状态类型id', default=0, help_text='见service.constant_service中定义')
