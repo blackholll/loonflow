@@ -22,5 +22,5 @@ LOONFLOW 分为两部分:
 
 
 ## 使用文档
-[使用文档](docs/index.md)
+[使用文档](docs/index.md)
 
