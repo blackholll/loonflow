@@ -149,10 +149,12 @@ class TicketBaseService(BaseService):
             if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_REQUIRED:
                 require_field_list.append(key)
             update_filed_list.append(key)
-        # 校验是否所有必填字段都有提供
-        for require_field in require_field_list:
-            if require_field not in request_field_arg_list:
-                return False, '此工单的必填字段为:{}'.format(','.join(request_field_arg_list))
+        # 校验是否所有必填字段都有提供，如果transition_id对应设置为不校验必填则直接通过
+        req_transition_obj, msg = WorkflowTransitionService.get_workflow_transition_by_id(transition_id)
+        if req_transition_obj.field_require_check:
+            for require_field in require_field_list:
+                if require_field not in request_field_arg_list:
+                    return False, '此工单的必填字段为:{}'.format(','.join(request_field_arg_list))
         # 获取transition_id对应的下个状态的信息:
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(start_state.id)
         if transition_queryset is False:
@@ -586,7 +588,7 @@ class TicketBaseService(BaseService):
         # if transition_queryset:
         transition_dict_list = []
         for transition in transition_queryset:
-            transition_dict = dict(transition_id=transition.id, transition_name=transition.name)
+            transition_dict = dict(transition_id=transition.id, transition_name=transition.name, field_require_check=transition.field_require_check)
             transition_dict_list.append(transition_dict)
         return transition_dict_list, ''
 
@@ -627,11 +629,13 @@ class TicketBaseService(BaseService):
                 require_field_list.append(key)
             update_filed_list.append(key)
 
-        # 校验是否所有必填字段都有提供
-        request_field_arg_list = [key for key, value in request_data_dict.items() if (key not in ['workflow_id', 'suggestion', 'username'])]
-        for require_field in require_field_list:
-            if require_field not in request_field_arg_list:
-                return False, '此工单的必填字段为:{}'.format(','.join(request_field_arg_list))
+        # 校验是否所有必填字段都有提供，如果transition_id对应设置为不校验必填则直接通过
+        req_transition_obj, msg = WorkflowTransitionService.get_workflow_transition_by_id(transition_id)
+        if req_transition_obj.field_require_check:
+            request_field_arg_list = [key for key, value in request_data_dict.items() if (key not in ['workflow_id', 'suggestion', 'username'])]
+            for require_field in require_field_list:
+                if require_field not in request_field_arg_list:
+                    return False, '此工单的必填字段为:{}'.format(','.join(request_field_arg_list))
 
         # 获取transition_id对应的下个状态的信息:
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)

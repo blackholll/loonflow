@@ -146,10 +146,12 @@ username | varchar | 是 | 请求用户的用户名
     value: [
       {
         transition_name: "提交",
+        field_require_check: true,  # 默认为ture,如果此为否时， 不校验表单必填内容
         transition_id: 1
       },
       {
         transition_name: "保存",
+        field_require_check: true,  # 默认为ture,如果此为否时， 不校验表单必填内容
         transition_id: 2
       }
     ]
