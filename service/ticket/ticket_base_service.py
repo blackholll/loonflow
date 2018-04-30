@@ -98,10 +98,12 @@ class TicketBaseService(BaseService):
         ticket_result_object_list = ticket_result_paginator.object_list
         ticket_result_restful_list = []
         for ticket_result_object in ticket_result_object_list:
+            state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_result_object.state_id)
+            state_name = state_obj.name
             ticket_result_restful_list.append(dict(title=ticket_result_object.title,
                                                    workflow_id=ticket_result_object.workflow_id,
                                                    sn=ticket_result_object.sn,
-                                                   state_id=ticket_result_object.state_id,
+                                                   state=dict(state_id=ticket_result_object.state_id, state_name=state_name),
                                                    parent_ticket_id=ticket_result_object.parent_ticket_id,
                                                    parent_ticket_state_id=ticket_result_object.parent_ticket_state_id,
                                                    participant_type_id=ticket_result_object.participant_type_id,
@@ -501,7 +503,7 @@ class TicketBaseService(BaseService):
 
         return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
                     participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
-                    creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created), gmt_modified=str(ticket_obj.gmt_modified),
+                    creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created)[:19], gmt_modified=str(ticket_obj.gmt_modified)[:19],
                     field_list=new_field_list), ''
 
     @classmethod
@@ -773,7 +775,7 @@ class TicketBaseService(BaseService):
                     if ticket_flow_log.state_id == state_obj.id:
                         state_flow_log_list.append(dict(id=ticket_flow_log.id, suggestion=ticket_flow_log.suggestion, state_id=ticket_flow_log.state_id, gmt_created=str(ticket_flow_log.gmt_created)[:19]))
                 ticket_state_step_dict['state_flow_log_list'] = state_flow_log_list
-            state_step_dict_list.append(ticket_state_step_dict)
+                state_step_dict_list.append(ticket_state_step_dict)
         return state_step_dict_list, ''
 
     @classmethod
@@ -814,9 +816,15 @@ class TicketBaseService(BaseService):
         :return:
         """
         ticket_queryset = TicketRecord.objects.filter(id__in=ticket_id_list).all()
-        ticket_state_id_list = [ticket.state_id for ticket in ticket_queryset]
+        ticket_state_id_dict = {}
+        for ticket in ticket_queryset:
+            ticket_state_id_dict[ticket.id] = ticket.state_id
+        ticket_state_id_list = [ticket_obj.state_id for ticket_obj in ticket_queryset]
         state_info_dict, msg = WorkflowStateService.get_states_info_by_state_id_list(ticket_state_id_list)
-        return state_info_dict, msg
+        new_result = {}
+        for key, value in ticket_state_id_dict.items():
+            new_result[key] = dict(state_id=key, state_name=state_info_dict[value])
+        return new_result, msg
 
 
 

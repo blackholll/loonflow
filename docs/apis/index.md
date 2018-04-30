@@ -20,3 +20,7 @@ r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets')
 result = r.json()
 
 ```
+## API
+
+## 常量定义
+见文档首页的"常量定义"

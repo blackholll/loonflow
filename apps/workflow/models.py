@@ -36,12 +36,12 @@ class State(models.Model):
     name = models.CharField('名称', max_length=50)
     workflow_id = models.IntegerField('工作流')
     sub_workflow_id = models.IntegerField('子工作流id(如果需要在此状态启用子工单的话)', default=0, blank=True)
-    is_hidden = models.BooleanField('是否隐藏', default=1, help_text='设置为True时,工单步骤中不显示此状态(当前处于此状态时除外)')
+    is_hidden = models.BooleanField('是否隐藏', default=0, help_text='设置为True时,工单步骤中不显示此状态(当前处于此状态时除外)')
     order_id = models.IntegerField('状态顺序', default=0, help_text='用于工单步骤接口时，step上状态的顺序(因为存在网状情况，所以需要认为设定顺序),值越小越靠前')
     type_id = models.IntegerField('状态类型id', default=0, help_text='见service.constant_service中定义')
 
     participant_type_id = models.IntegerField('参与者类型id', default=1, blank=True, help_text='见service.constant_service中定义')
-    participant = models.CharField('参与者', max_length=100, help_text='可以为username\多个username(以,隔开)\部门id\角色id\变量id等')
+    participant = models.CharField('参与者', default='', blank=True, max_length=100, help_text='可以为username\多个username(以,隔开)\部门id\角色id\变量id等')
 
     distribute_type_id = models.IntegerField('接单方式', default=1, help_text='见service.constant_service中定义')  # 1主动接单,2.随机分配,3.全部处理(要求所有参与人都要处理一遍)
     state_field_str = models.TextField('表单字段', default='{}', help_text='json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"created_at":1,"title":2, "sn":1}')  # json格式存储,包括读写属性1：只读，2：必填，3：可选，4：不显示, 字典的字典
