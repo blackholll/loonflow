@@ -552,9 +552,18 @@ class TicketBaseService(BaseService):
             current_participant_count = len(role_user_list)
         else:
             return False, '非当前处理人，无权处理'
-
         # PARTICIPANT_TYPE_VARIABLE, PARTICIPANT_TYPE_FIELD, PARTICIPANT_TYPE_PARENT_FIELD类型会在流转时保存为实际的处理人
-        return True, dict(current_participant_count=current_participant_count)
+
+        if current_participant_count > 1 and state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ACTIVE:
+            need_accept = True
+        else:
+            need_accept = False
+        if ticket_obj.in_add_node:
+            in_add_node = True
+        else:
+            in_add_node = False
+
+        return True, dict(need_accept=need_accept, in_add_node=in_add_node)
 
     @classmethod
     @auto_log
@@ -599,12 +608,10 @@ class TicketBaseService(BaseService):
             # 加签状态下，只允许"完成"操作, 完成后工单处理人设为add_node_man
             transition_dict_list = [dict(transition_id=0, transition_name='完成', field_require_check=False, is_accept=False, in_add_node=True)]
             return transition_dict_list, ''
+        if msg['need_accept']:
+            transition_dict_list = [dict(transition_id=0, transition_name='接单', field_require_check=False, is_accept=True, in_add_node=False)]
+            return transition_dict_list, ''
 
-        if msg['current_participant_count'] > 1:  # 当前处理人大于1, 且当前状态分配类型为主动接单,需要先接单
-            state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_obj.state_id)
-            if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ACTIVE:
-                transition_dict_list = [dict(transition_id=0, transition_name='接单', field_require_check=False, is_accept=True, in_add_node=False)]
-                return transition_dict_list, ''
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)
         transition_dict_list = []
         for transition in transition_queryset:
@@ -624,7 +631,7 @@ class TicketBaseService(BaseService):
         """
         transition_id = request_data_dict.get('request_data_dict', '')
         username = request_data_dict.get('username', '')
-        suggesition = request_data_dict.get('suggesition', '')
+        suggestion = request_data_dict.get('suggestion', '')
 
         if not (transition_id and username):
             return False, '参数不合法,请提供username，transition_id'
@@ -637,6 +644,10 @@ class TicketBaseService(BaseService):
         has_permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
         if not has_permission:
             return False, msg
+        if msg['need_accept']:
+            return False, '需要先接单再处理'
+        if msg['in_add_node']:
+            return False, '工单处理加签中，只允许加签完成操作'
 
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_obj.id)
         if not state_obj:
@@ -727,7 +738,7 @@ class TicketBaseService(BaseService):
 
         update_ticket_custom_field_result, msg = cls.update_ticket_custom_field(ticket_id, request_update_dict)
         # 更新工单流转记录，执行必要的脚本，通知消息
-        cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggesition=suggesition,
+        cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                      participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
                                      state_id=source_ticket_state_id, creator=username))
         # 执行必要的脚本

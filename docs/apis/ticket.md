@@ -51,8 +51,8 @@ category | varchar | 是 | 类型('all':所有工单, 'owner':我创建的工单
       sn: "loonflow201804010002",
       parent_ticket_state_id: 0,
       gmt_created: "2018-04-10 16:43:20",
-      creator: "wangfei",
-      participant: "wangfei"
+      creator: "zhangsan",
+      participant: "zhangsan"
     }
     ]}
 }
@@ -119,9 +119,9 @@ username | varchar | 是 | 请求用户的用户名
       }],
       participant_type_id: 0,
       title: "dfdsfsfsdf",
-      participant: "wangfei",
+      participant: "zhangsan",
       workflow_id: 1,
-      creator: "wangfei",
+      creator: "zhangsan",
       parent_ticket_id: 0
     }
   }
@@ -495,7 +495,7 @@ username | varchar | 是 | 请求用户的用户名,用于做必要的权限控�
 {
   code: 0,
   data: {
-    participant: "wangfei",
+    participant: "zhangsan",
     sub_workflow_id: 0,
     is_hidden: false,
     distribute_type_id: 1,
