@@ -207,6 +207,63 @@ class TicketsStates(View):
         return api_response(code, msg, data)
 
 
+class TicketAccept(View):
+    def post(self, request, *args, **kwargs):
+        """
+        接单,当工单当前处理人实际为多个人时(角色、部门、多人都有可能， 注意角色和部门有可能实际只有一人)
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data_dict.get('username', '')
+        result, msg = TicketBaseService.accept_ticket(ticket_id, username)
+        if result:
+            code, msg, data = 0, msg, result
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)
+
+
+class TicketDeliver(View):
+    def post(self, request, *args, **kwargs):
+        """
+        转交操作会直接修改工单处理人，且工单状态不变，所以在使用的时候可以在前端做些提醒 避免用户把工单直接转交给下个人，从而干扰了工单的正常流转(
+        如用户提交了一个请假单，部门TL审批状态下，tl本来应该点击"同意"，工单会自动流转到财务人员审批状态。 应该避免tl直接将工单转交给了某个财务)。这个地方后续会考虑怎么优化下，目前先在前端做提醒
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data_dict.get('username', '')
+        target_username = request_data_dict.get('target_username', '')
+        result, msg = TicketBaseService.deliver_ticket(ticket_id, username, target_username)
+        if result:
+            code, msg, data = 0, msg, result
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)
+
+
+class TicketAddnode(View):
+    def post(self, request, *args, **kwargs):
+        """
+        加签,加签操作会修改工单处理人，工单状态不表
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
 
 
 def ticketlist(response):

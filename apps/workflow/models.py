@@ -43,7 +43,7 @@ class State(models.Model):
     participant_type_id = models.IntegerField('参与者类型id', default=1, blank=True, help_text='见service.constant_service中定义')
     participant = models.CharField('参与者', default='', blank=True, max_length=100, help_text='可以为username\多个username(以,隔开)\部门id\角色id\变量id等')
 
-    distribute_type_id = models.IntegerField('接单方式', default=1, help_text='见service.constant_service中定义')  # 1主动接单,2.随机分配,3.全部处理(要求所有参与人都要处理一遍)
+    distribute_type_id = models.IntegerField('分配方式', default=1, help_text='见service.constant_service中定义')  # 1主动接单, 2直接处理,3.随机分配,4.全部处理(要求所有参与人都要处理一遍)
     state_field_str = models.TextField('表单字段', default='{}', help_text='json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"created_at":1,"title":2, "sn":1}')  # json格式存储,包括读写属性1：只读，2：必填，3：可选，4：不显示, 字典的字典
     label = models.CharField('状态标签', max_length=1000, default='{}', help_text='json格式，由调用方根据实际定制需求自行确定,如状态下需要显示哪些前端组件:{"components":[{"AppList":1, "ProjectList":7}]}')
 

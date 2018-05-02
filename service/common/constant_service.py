@@ -8,8 +8,9 @@ class ConstantService(BaseService):
         self.STATE_TYPE_END = 2  # 结束   distribute_type_id
 
         self.STATE_DISTRIBUTE_TYPE_ACTIVE = 1  # 主动接单
-        self.STATE_DISTRIBUTE_TYPE_RANDOM = 2  # 随机分配
-        self.STATE_DISTRIBUTE_TYPE_ALL = 3  # 全部处理
+        self.STATE_DISTRIBUTE_TYPE_DIRECT = 2  # 直接处理(当前为多人的情况，都可以处理，而不需要先接单)
+        self.STATE_DISTRIBUTE_TYPE_RANDOM = 3  # 随机分配(V0.2版本支持)
+        self.STATE_DISTRIBUTE_TYPE_ALL = 4  # 全部处理(V0.2版本支持)
 
         self.PARTICIPANT_TYPE_PERSONAL = 1  # 个人
         self.PARTICIPANT_TYPE_MULTI = 2  # 多人

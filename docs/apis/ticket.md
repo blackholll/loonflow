@@ -147,16 +147,115 @@ username | varchar | 是 | 请求用户的用户名
       {
         transition_name: "提交",
         field_require_check: true,  # 默认为ture,如果此为否时， 不校验表单必填内容
-        transition_id: 1
+        transition_id: 1,
+        is_accept: false # 不是接单,
+        in_add_node: false # 不处于加签状态下
       },
       {
         transition_name: "保存",
         field_require_check: true,  # 默认为ture,如果此为否时， 不校验表单必填内容
-        transition_id: 2
+        transition_id: 2,
+        is_accept: false, # 不是接单,
+        in_add_node: false # 不处于加签状态下
       }
     ]
     },
   code: 0
+}
+```
+如果当前处理人超过一个人(处理人类型为多人，部门、角色都有可能实际为多个人)，且当前状态的分配方式为主动接单，则会要求先接单,返回数据如下。处理时需要处理人先接单(点击接单按钮时 调用接单接口).
+```
+{
+  msg: "",
+  code: 0,
+  data: {
+    value: [
+      {
+        transition_id: 0,
+        transition_name: "接单",
+        is_accept: true,  # 接单,
+        in_add_node: false,
+        field_require_check: false
+      }
+    ]
+  }
+}
+```
+当工单当前处于加签状态下，返回格式如下。 则用户点击”完成“按钮时，需要调用完成加签操作接口
+```
+{
+  msg: "",
+  code: 0,
+  data: {
+    value: [
+      {
+        transition_id: 0,
+        transition_name: "完成",
+        is_accept: false,
+        in_add_node: true, # 处于加签状态
+        field_require_check: false
+      }
+    ]
+  }
+}
+```
+
+# 接单
+### URL
+/api/v1.0/ticket/{ticket_id}/accept
+### method
+post
+### 使用场景
+使用接口获取工单当前可以做的的操作后，如果data.value.is_accept==true,则需要用户先接单才能处理，即页面显示接单按钮，用户点击后调用接单接口，将工单的当前处理人设置该用户
+### 请求参数
+参数名 | 类型 | 必填 | 说明
+---|---|---|---
+username | varchar | 是 | 请求用户的用户名
+### 返回数据
+```
+{
+  "data": true,
+  "code": 0,
+  "msg": ""
+}
+```
+
+# 加签
+### URL
+api/v1.0/tickets/{ticket_id}/add_node
+### method
+post
+### 使用场景
+当用户A提交了一个权限申请工单，达到运维人员处理人中状态，作为运维人员的B在处理过程中发现需要C先处理或者提供一些必要的信息，B才能处理。 那么B在处理工单界面可以点击”加签“按钮，弹窗中选择C。 系统调用loonflow的加签接口将工单加签给C。C处理完后点击”完成“按钮，系统调用loonflow的加签完成接口， 工单处理人将回到B. 那么B就可以按照之前既定流程正常流转下去
+### 请求参数
+参数名 | 类型 | 必填 | 说明
+---|---|---|---
+username | varchar | 是 | 请求用户的用户名
+add_node_to | varchar | 是 | 加签对象
+### 返回结果
+```
+{
+  "data": true,
+  "code": 0,
+  "msg": ""
+}
+```
+
+#加签完成
+### URL
+api/v1.0/tickets/{ticket_id}/add_node_end
+### method
+post
+### 请求参数
+参数名 | 类型 | 必填 | 说明
+---|---|---|---
+username | varchar | 是 | 请求用户的用户名
+### 返回结果
+```
+{
+  "data": true,
+  "code": 0,
+  "msg": ""
 }
 ```
 

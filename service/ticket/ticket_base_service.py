@@ -527,24 +527,34 @@ class TicketBaseService(BaseService):
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_state_id)
         if not state_obj:
             return False, '工单当前状态id不存在或已被删除'
-        participant_type_id = state_obj.participant_type_id
-        participant = state_obj.participant
+        participant_type_id = ticket_obj.participant_type_id
+        participant = ticket_obj.participant
+
+        current_participant_count = 1  # 当前处理人个数，用于当处理人大于1时 可能需要先接单再处理
+
         if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
             if username != participant:
                 return False, '非当前处理人，无权处理'
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
             if username not in participant.split(','):
                 return False, '非当前处理人，无权处理'
+            current_participant_count = len(participant.split(','))
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-            user_up_dept_id_list, msg = AccountBaseService.get_user_up_dept_id_list(username)
-            if int(participant) not in user_up_dept_id_list:
+            dept_user_list, msg = AccountBaseService.get_dept_username_list(dept_id=int(participant))
+            if username not in dept_user_list:
                 return False, '非当前处理人，无权处理'
+            current_participant_count = len(dept_user_list)
+
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
-            user_role_id_list, msg = AccountBaseService.get_user_role_id_list(username)
-            if int(participant) not in user_role_id_list:
+            role_user_list, msg = AccountBaseService.get_role_username_list(int(participant))
+            if username not in role_user_list:
                 return False, '非当前处理人，无权处理'
+            current_participant_count = len(role_user_list)
+        else:
+            return False, '非当前处理人，无权处理'
+
         # PARTICIPANT_TYPE_VARIABLE, PARTICIPANT_TYPE_FIELD, PARTICIPANT_TYPE_PARENT_FIELD类型会在流转时保存为实际的处理人
-        return True, ''
+        return True, dict(current_participant_count=current_participant_count)
 
     @classmethod
     @auto_log
@@ -584,11 +594,21 @@ class TicketBaseService(BaseService):
         if not handle_permission:
             return [], '用户当前无处理权限'
         ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
+
+        if ticket_obj.in_add_node:
+            # 加签状态下，只允许"完成"操作, 完成后工单处理人设为add_node_man
+            transition_dict_list = [dict(transition_id=0, transition_name='完成', field_require_check=False, is_accept=False, in_add_node=True)]
+            return transition_dict_list, ''
+
+        if msg['current_participant_count'] > 1:  # 当前处理人大于1, 且当前状态分配类型为主动接单,需要先接单
+            state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_obj.state_id)
+            if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ACTIVE:
+                transition_dict_list = [dict(transition_id=0, transition_name='接单', field_require_check=False, is_accept=True, in_add_node=False)]
+                return transition_dict_list, ''
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)
-        # if transition_queryset:
         transition_dict_list = []
         for transition in transition_queryset:
-            transition_dict = dict(transition_id=transition.id, transition_name=transition.name, field_require_check=transition.field_require_check)
+            transition_dict = dict(transition_id=transition.id, transition_name=transition.name, field_require_check=transition.field_require_check, is_accept=False, in_add_node=False)
             transition_dict_list.append(transition_dict)
         return transition_dict_list, ''
 
@@ -745,7 +765,7 @@ class TicketBaseService(BaseService):
                 transition_name = transition_obj.name
             else:
                 # 考虑到人工干预修改工单状态， transition_id为0
-                transition_name = ''
+                transition_name = ticket_flow_log.suggestion
 
             state_info_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
             transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name)
@@ -830,6 +850,51 @@ class TicketBaseService(BaseService):
             new_result[key] = dict(state_id=key, state_name=state_info_dict[value])
         return new_result, msg
 
+    @classmethod
+    @auto_log
+    def accept_ticket(cls, ticket_id, username):
+        """
+        接单
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        # 先判断是否有处理权限
+        permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        if not permission:
+            return False, msg
+        if msg['current_participant_count'] > 1:
+            ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+            ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+            ticket_obj.participant = username
+            ticket_obj.save()
+            # 记录处理日志
+            ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='接单处理', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                        participant=username, state_id=ticket_obj.state_id, creator=username)
+            cls.add_ticket_flow_log(ticket_flow_log_dict)
+            return True, ''
+        else:
+            return False, '工单当前实际处理人只有一人，无需先接单'
 
-
-
+    @classmethod
+    @auto_log
+    def deliver_ticket(cls, ticket_id, username, target_username):
+        """
+        转交工单
+        :param ticket_id:
+        :param username: 操作人
+        :param target_username: 转交目标人
+        :return:
+        """
+        permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        if not permission:
+            return False, msg
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+        ticket_obj.participant = target_username
+        ticket_obj.save()
+        # 记录处理日志
+        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='转交工单', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                    participant=username, state_id=ticket_obj.state_id, creator=username)
+        cls.add_ticket_flow_log(ticket_flow_log_dict)
+        return True, ''

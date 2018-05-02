@@ -107,7 +107,7 @@ class AccountBaseService(BaseService):
                         iter_dept_id_list(sub_dept.id)
 
         iter_dept_id_list(dept_id)
-        return dept_id_list
+        return dept_id_list, ''
 
     @classmethod
     @auto_log
@@ -121,7 +121,7 @@ class AccountBaseService(BaseService):
             user_queryset = LoonUser.objects.filter(dept_id__in = sub_dept_id_list).all()
             for user in user_queryset:
                 user_name_list.append(user.username)
-        return user_name_list
+        return user_name_list, ''
 
     @classmethod
     @auto_log
