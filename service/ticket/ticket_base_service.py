@@ -226,6 +226,22 @@ class TicketBaseService(BaseService):
         # 如果下个状态为脚本处理，则开始执行脚本
         if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
             pass
+
+        # 父工单逻辑处理
+        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and new_ticket_obj.parent_ticket_id and new_ticket_obj.parent_ticket_state_id:
+                # 如果存在父工单，判断是否该父工单的下属子工单都已经结束状态，如果都是结束状态则自动流转父工单到下个状态
+            other_sub_ticket_queryset = TicketRecord.objects.filter(parent_ticket_id=new_ticket_obj.parent_ticket_id, parent_ticket_state_id= new_ticket_obj.parent_ticket_state_id,
+                                                                    is_deleted=0).all()
+            # 所有子工单使用相同的工作流,所以state都一样，检测是否都是ticket_obj.state_id即可判断是否都是结束状态
+            other_sub_ticket_state_id_list = [other_sub_ticket.state_id for other_sub_ticket in other_sub_ticket_queryset]
+            if set(other_sub_ticket_state_id_list) == set[new_ticket_obj.state_id]:
+                parent_ticket_obj = TicketRecord.objects.filter(id=new_ticket_obj.parent_ticket_id, is_deleted=0).first()
+                parent_ticket_state_id = parent_ticket_obj.state_id
+                parent_ticket_transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(parent_ticket_state_id)
+                # 含有子工单的工单状态只支持单路径流转到下个状态
+                parent_ticket_transition_id = parent_ticket_transition_queryset[0].id
+                cls.handle_ticket(parent_ticket_obj.id, dict(transition_id=parent_ticket_transition_id,
+                                                             username='loonrobot', suggestion='所有子工单处理完毕，自动流转'))
         return new_ticket_obj.id, ''
 
     @classmethod
@@ -724,6 +740,7 @@ class TicketBaseService(BaseService):
 
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
         new_relation = ','.join(set((ticket_obj.relation + add_relation).split(',')))  # 去重
+        ticket_obj.state_id = destination_state_id
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.participant = destination_participant
         ticket_obj.relation = new_relation
@@ -741,6 +758,23 @@ class TicketBaseService(BaseService):
         cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                      participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
                                      state_id=source_ticket_state_id, creator=username))
+
+        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and ticket_obj.parent_ticket_id and ticket_obj.parent_ticket_state_id:
+            # 如果存在父工单，判断是否该父工单的下属子工单都已经结束状态，如果都是结束状态则自动流转父工单到下个状态
+            other_sub_ticket_queryset = TicketRecord.objects.filter(parent_ticket_id=ticket_obj.parent_ticket_id, parent_ticket_state_id=ticket_obj.parent_ticket_state_id,
+                                                                    is_deleted=0).all()
+            # 所有子工单使用相同的工作流,所以state都一样，检测是否都是ticket_obj.state_id即可判断是否都是结束状态
+            other_sub_ticket_state_id_list = [other_sub_ticket.state_id for other_sub_ticket in other_sub_ticket_queryset]
+            if set(other_sub_ticket_state_id_list) == set[ticket_obj.state_id]:
+                parent_ticket_obj = TicketRecord.objects.filter(id=ticket_obj.parent_ticket_id, is_deleted=0).first()
+                parent_ticket_state_id = parent_ticket_obj.state_id
+                parent_ticket_transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(parent_ticket_state_id)
+                # 含有子工单的工单状态只支持单路径流转到下个状态
+                parent_ticket_transition_id = parent_ticket_transition_queryset[0].id
+                cls.handle_ticket(parent_ticket_obj.id, dict(transition_id=parent_ticket_transition_id,
+                                                             username='loonrobot', suggestion='所有子工单处理完毕，自动流转'))
+
+
         # 执行必要的脚本
 
         # 通知消息
