@@ -647,7 +647,7 @@ class TicketBaseService(BaseService):
         if msg['need_accept']:
             return False, '需要先接单再处理'
         if msg['in_add_node']:
-            return False, '工单处理加签中，只允许加签完成操作'
+            return False, '工单当前处于加签中，只允许加签完成操作'
 
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_obj.id)
         if not state_obj:
