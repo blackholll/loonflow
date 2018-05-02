@@ -255,7 +255,7 @@ class TicketDeliver(View):
         return api_response(code, msg, data)
 
 
-class TicketAddnode(View):
+class TicketAddNode(View):
     def post(self, request, *args, **kwargs):
         """
         加签,加签操作会修改工单处理人，工单状态不表
@@ -264,6 +264,44 @@ class TicketAddnode(View):
         :param kwargs:
         :return:
         """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data_dict.get('username', '')
+        target_username = request_data_dict.get('target_username', '')
+        result, msg = TicketBaseService.add_node_ticket(ticket_id, username, target_username)
+        if result:
+            code, msg, data = 0, msg, result
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)
+
+
+class TicketAddNodeEnd(View):
+    def post(self, request, *args, **kwargs):
+        """
+        加签处理完成,加签完成操作后工单处理人回回到之前加签发起人
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data_dict.get('username', '')
+        result, msg = TicketBaseService.add_node_ticket_end(ticket_id, username)
+        if result:
+            code, msg, data = 0, msg, result
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)
+
+
 
 
 def ticketlist(response):

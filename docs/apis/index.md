@@ -21,7 +21,7 @@ result = r.json()
 
 ```
 ## API
-[接口文档](./ticket.md)
+[接口文档](./ticket.md)
 
 
 ## 常量定义

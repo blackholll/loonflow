@@ -909,3 +909,52 @@ class TicketBaseService(BaseService):
                                     participant=username, state_id=ticket_obj.state_id, creator=username)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
+
+    @classmethod
+    @auto_log
+    def add_node_ticket(cls, ticket_id, username, target_username):
+        """
+        加签工单
+        :param ticket_id:
+        :param username:
+        :param target_username: 加签目标人
+        :return:
+        """
+        permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        if not permission:
+            return False, msg
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+        ticket_obj.participant = target_username
+        ticket_obj.in_add_node = True
+        ticket_obj.add_node_man = username
+        ticket_obj.save()
+        # 记录处理日志
+        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='加签工单', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                    participant=username, state_id=ticket_obj.state_id, creator=username)
+        cls.add_ticket_flow_log(ticket_flow_log_dict)
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def add_node_ticket_end(cls, ticket_id, username):
+        """
+        加签工单完成
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        if not permission:
+            return False, msg
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+        ticket_obj.participant = ticket_obj.add_node_man
+        ticket_obj.in_add_node = False
+        ticket_obj.add_node_man = ''
+        ticket_obj.save()
+        # 记录处理日志
+        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='加签处理完成', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                    participant=username, state_id=ticket_obj.state_id, creator=username)
+        cls.add_ticket_flow_log(ticket_flow_log_dict)
+        return True, ''
