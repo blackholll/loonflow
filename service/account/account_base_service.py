@@ -26,7 +26,10 @@ class AccountBaseService(BaseService):
         :return:
         """
         result = LoonUser.objects.filter(username=username, is_deleted=0).filter()
-        return result, ''
+        if result:
+            return result, ''
+        else:
+            return False, '用户不存在'
 
     @classmethod
     @auto_log

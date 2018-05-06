@@ -16,9 +16,9 @@ a workflow engine base django
 python manage.py makemigrations
 python manage.py migrate
 ```
-- 初始化数据: python manage.py loaddata notice_type.json
 - 创建初始账户: python manage.py createsuperuser
 - 启动开发环境: python manage.py runserver
+- 启动celery任务: celery -A loontask worker -l info
 
 ## 生产环境部署
 - 创建数据库并修改settings/dev.py中相应配置
@@ -29,10 +29,10 @@ python manage.py migrate
 python manage.py makemigrations
 python manage.py migrate
 ```
-- 初始化数据: python manage.py loaddata notice_type.json
 - 创建初始账户: python manage.py createsuperuser
 - python manage.py collectstatic
 - 建议使用nginx+uwsgi部署
+- 启动celery任务: celery -A loontask worker -l -c 8 info -Q loonflow   # -c参数为启动的celery进程数，可自行视情况调整
 
 
 ## 术语定义 
@@ -48,6 +48,7 @@ python manage.py migrate
 
 加签:加签与转交不同。正常情况下工单的流转都是按照其对应工作流设定的规则来流转(状态、处理人类型、处理人等).在实际操作中,比如A提交了个工单，到达运维处理中状态，B接单处理，B在处理过程中发现需要C做些操作或者提供些信息，才能处理，于是将工单加签给C.C处理完成后工单处理人会回到B.于是B可以继续处理
 
+工单自定义字段与工作流自定义字段的区别: workflow里面自定义字段规定工作流有哪些自定义的字段。比如配置一个请假的工作流。 需要有请假天数这个字段。工单里面的自定义字段 存的是自定义字段具体的值。 比如现在用于新建了一个请假工单，填写了请假天数。那么工单的自定义字段表中会保存这个值
 
 工作流处理过程可以理解为工单状态的变化，如一个工作流处理过程中可以有：发起人新建中、发起人编辑中、部门经理审核中、技术人员处理中、发起人验证中、结束等状态，每个状态对应相应的处理人（如部门经理审核中这个状态下只有部门经理才可以处理该工单）。如用户在新建工单的时候处于“发起人新建中”，（用户）提交后工单处于“部门经理审核中”， 部门经理（即“部门经理审核中”状态的处理人）审批通过后，工单的状态变更为“技术人员处理中”。 注意："转交"和"加签"使用场景不同，使用时前端需要做必要的说明，避免用户使用错误
 

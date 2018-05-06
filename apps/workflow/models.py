@@ -9,7 +9,7 @@ class Workflow(models.Model):
     """
     name = models.CharField('名称', max_length=50)
     description = models.CharField('描述', max_length=50)
-    flowchart = models.CharField('流程图路径', max_length=100, default='', blank=True)
+    flowchart = models.FileField('流程图', upload_to='flowchart', blank=True)
     notice_type = models.CharField('通知方式', max_length=50)  # 逗号隔开: 1
     view_permission_check = models.BooleanField('查看权限校验', default=1, help_text='开启后，只允许工单的关联人有权限查看工单')
 
@@ -110,7 +110,7 @@ class WorkflowScript(models.Model):
     流程中执行的脚本
     """
     name = models.CharField('名称', max_length=50)
-    saved_name = models.CharField('存储的文件名', max_length=50)
+    saved_name = models.FileField('存储的文件名', upload_to='workflow_script')
     description = models.CharField('描述', max_length=100, null=True, blank=True)
     is_active = models.BooleanField('可用', default=True)
 

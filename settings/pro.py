@@ -20,3 +20,39 @@ REDIS_HOST = '127.0.0.1'
 REDIS_PORT = 6379
 REDIS_DB = 0
 REDIS_PASSWORD = ''
+
+LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'filters': {
+            'require_debug_true': {
+                '()': 'django.utils.log.RequireDebugTrue',
+            },
+        },
+        'formatters': {
+            'standard': {
+                'format': '%(asctime)s %(pathname)s process-%(process)d thread-%(thread)d %(lineno)d [%(levelname)s]: %(message)s',
+            },
+        },
+        'handlers': {
+            'file_handler': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': '/Users/wangfei/arun.log',
+                'formatter': 'standard'
+            },
+            # 'console': {
+            #     'level': 'DEBUG',
+            #     'filters': ['require_debug_true'],
+            #     'class': 'logging.StreamHandler',
+            #     'formatter': 'standard'
+            # },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file_handler'],
+                'propagate': True,
+                'level': 'INFO',
+                        },
+        }
+    }

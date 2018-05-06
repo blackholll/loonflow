@@ -24,7 +24,7 @@ class TicketListView(View):
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
         # 待办,关联的,创建
-        category = request_data.get('category', 'all')
+        category = request_data.get('category')
         ticket_result_restful_list, msg = TicketBaseService.get_ticket_list(sn=sn, title=title, username=username,
                                                                             create_start=create_start, create_end=create_end,
                                                                             category=category, reverse=reverse, per_page=per_page, page=page)

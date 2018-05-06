@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.ticket.views import TicketListView, ticketlist, TicketView, TicketTransition, TicketFlowlog, TicketFlowStep, TicketState, TicketsStates, TicketAccept, TicketDeliver, TicketAddNode
+from apps.ticket.views import TicketListView, ticketlist, TicketView, TicketTransition, TicketFlowlog, TicketFlowStep, TicketState, TicketsStates, TicketAccept, TicketDeliver, TicketAddNode, TicketAddNodeEnd
 
 urlpatterns = [
     path('', TicketListView.as_view()),

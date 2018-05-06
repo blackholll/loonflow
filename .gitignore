@@ -4,7 +4,6 @@
 .DS_Store
 *.swp
 **/migrations/0*.py
-**/media/*.*
-Vagrantfile
-.vagrant
-flowchart/
+media/flowchart/*.*
+media/workflow_script/*.*
+!media/workflow_script/demo_script.py

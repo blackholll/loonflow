@@ -15,6 +15,7 @@ from service.workflow.workflow_state_service import WorkflowStateService
 from service.workflow.workflow_transition_service import WorkflowTransitionService
 
 
+
 class TicketBaseService(BaseService):
     """
     工单基础服务
@@ -75,12 +76,14 @@ class TicketBaseService(BaseService):
             duty_query_expression = Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username)
             duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT, participant__in=user_dept_id_str_list)
             duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE, participant__in=user_role_id_str_list)
+            query_params &= duty_query_expression
+            ticeket_query_set1 = TicketRecord.objects.filter(query_params)
+            # 多人的情况，逗号隔开，需要用extra查询实现, 这里会存在注入问题，后续改进下
+            ticeket_query_set2 = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", participant)'.format(username), 'participant_type_id={}'.format(CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI)])
+            ticket_objects = (ticeket_query_set1 | ticeket_query_set2).order_by(order_by_str)
 
-        if category == 'duty':
-            # 多人的情况，逗号隔开，需要用extra查询实现
-            ticket_objects = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET({}, participant)'.format(username)]).order_by(order_by_str)
         elif category == 'relation':
-            ticket_objects = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET({}, relation)'.format(username)]).order_by(order_by_str)
+            ticket_objects = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", relation)'.format(username)]).order_by(order_by_str)
         else:
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
 
@@ -225,7 +228,8 @@ class TicketBaseService(BaseService):
             return False, msg
         # 如果下个状态为脚本处理，则开始执行脚本
         if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
-            pass
+            from tasks import run_flow_task # 放在文件开头会存在循环引用
+            run_flow_task.apply_async(args=[new_ticket_obj.id, destination_participant, destination_state_id], queue='loonflow')
 
         # 父工单逻辑处理
         if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and new_ticket_obj.parent_ticket_id and new_ticket_obj.parent_ticket_state_id:
@@ -735,6 +739,8 @@ class TicketBaseService(BaseService):
                 approver, msg = AccountBaseService.get_user_dept_approver(username)
                 if len(approver.split(',')) > 1:
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+                else:
+                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
                 destination_participant = approver
             add_relation = destination_participant
 
@@ -773,9 +779,9 @@ class TicketBaseService(BaseService):
                 parent_ticket_transition_id = parent_ticket_transition_queryset[0].id
                 cls.handle_ticket(parent_ticket_obj.id, dict(transition_id=parent_ticket_transition_id,
                                                              username='loonrobot', suggestion='所有子工单处理完毕，自动流转'))
-
-
-        # 执行必要的脚本
+        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+            from tasks import run_flow_task  # 放在文件开头会存在循环引用
+            run_flow_task.apply_async(args=[ticket_id, destination_participant, destination_state_id], queue='loonflow')
 
         # 通知消息
         return True, ''
