@@ -8,7 +8,7 @@ a workflow engine base django
 欢迎加入qq群一起交流工作流相关技术: 558788490
 
 ## 运行开发环境
-- 创建数据库并修改settings/dev.py中相应配置
+- 创建数据库并修改settings/dev.py中相应配置(数据库配置、日志路径配置等等)
 - 创建python虚拟环境: python3.5
 - 安装依赖包: pip install -r backend/requirements/dev.txt
 - 初始化数据库: 
@@ -17,11 +17,11 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 - 创建初始账户: python manage.py createsuperuser
-- 启动开发环境: python manage.py runserver
-- 启动celery任务: celery -A loontask worker -l info
+- 启动开发环境: python manage.py runserver 如果需要启动在其他端口:python manage.py runserver 8888
+- 启动celery任务: celery -A loontask worker -l info -Q loonflow
 
 ## 生产环境部署
-- 创建数据库并修改settings/dev.py中相应配置
+- 创建数据库并修改settings/pro.py中相应配置(数据库配置、日志路径配置等等)
 - 创建python虚拟环境:python3.5
 - 按照依赖包: pip install -r backend/requirements/pro.txt
 - 初始化数据库:
@@ -59,7 +59,7 @@ LOONFLOW 分为两部分:
 
 ## 工作流配置（V0.3版本将弃用django自带的admin后台）
 1. 登录后台
-- 使用部署过程中创建的用户名密码 http://127.0.0.1/admin (或生产部署后的地址http://www.xxx.com/admin) 
+- 使用部署过程中创建的用户名密码 http://127.0.0.1:8000/admin (或生产部署后的地址http://www.xxx.com/admin) 
 2. 管理后台基本功能
 loonflow后台管理系统分为三个部分(为了早点上线开源，所有后台管理系统使用了django admin。将在v0.3版本重写管理界面):
 - 工作流:工作流的配置,包括工作流记录、工作流的流转配置、工作流状态的配置、工作流自定义字段的配置、自定义通知脚本(用于工单流转过程中的消息通知相关人员)
@@ -72,6 +72,10 @@ loonflow后台管理系统分为三个部分(为了早点上线开源，所有�
 - 新建工作流的自定义字段(如果需要的话):工单默认只提供id、流水号、标题、当前状态、当前处理人类型、当前处理人、创建时间、修改时间等字段。不同类型的工单可能需要不同的自定义字段，可以在此处给相应的工作流配置自定义字段
 - 设置工作流的状态: 工作流对应多个字段（发起人新建中、领导审批中、技术人员处理中、已结束等等）。 如果状态需要配置子工作流，必须设置该状态的处理人类型为1，处理人为loonrobot
 - 设置工作流流转: 工作流流转控制工单状态的变化，流转的名称即工单处理中的按钮的名称，用户点击工单后，系统通过此表中的配置获取到下个状态信息，以更新工单的状态以及做相应的其他操作(执行脚本、通知相关人员等等)
+
+#### 注意
+-  当某个状态的参与人配置为脚本时，其直连下个状态只能有一个。因为脚本执行完成后会只获取一个下个状态来自动流转
+- 当状态下配置了子工作流,其处理人类型需要为个人，处理人为'loonrobot',.且其直连下个状态只能一个，因为所有子工单都结束后会自动流转到下个状态(只取一个)
 
 ## 常量定义
 
