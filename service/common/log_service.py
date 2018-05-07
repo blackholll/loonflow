@@ -2,6 +2,8 @@ import functools
 import logging
 import traceback
 
+logger = logging.getLogger('django')
+
 
 def auto_log(func):
     """
@@ -15,6 +17,6 @@ def auto_log(func):
             real_func = func(*args, **kwargs)
             return real_func
         except Exception as e:
-            logging.error(traceback.format_exc())
+            logger.error(traceback.format_exc())
             return False, e.__str__()
     return _deco
