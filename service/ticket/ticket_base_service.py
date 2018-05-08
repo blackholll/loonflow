@@ -60,6 +60,7 @@ class TicketBaseService(BaseService):
 
         if category == 'owner':
             query_params &= Q(creator=username)
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
         elif category == 'duty':
             # 获取用户部门id列表, 角色id列表，工单的实际当前处理人只会有个人、多人、角色、部门、脚本(变量、工单字段、父工单字段这些类型会在工单流转的时候计算为实际的值)
             user_obj, msg = AccountBaseService.get_user_by_username(username)

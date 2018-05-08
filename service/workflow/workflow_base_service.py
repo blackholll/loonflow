@@ -66,4 +66,3 @@ class WorkflowBaseService(BaseService):
         if not workflow_obj:
             return False, '工作流不存在'
         return workflow_obj, ''
-
