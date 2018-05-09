@@ -11,10 +11,9 @@ from service.ticket import ticket_base_service
 
 def demo_script_call():
     # 获取工单信息ip地址信息
-    host_ip, msg = ticket_base_service.get_ticket_field_value(ticket_id, 'host_ip')  # ticket_id会通过exec传过来
-    # 获取到host_ip信息，就可以调用cmdb接口来开通权限了
-
-    ###
+    username, msg = ticket_base_service.get_ticket_field_value(ticket_id, 'creator')  # ticket_id会通过exec传过来
+    # 你也可以获取工单的其他字段信息，包括自定义字段的值。根据获取的值做后续处理
+    print(username)
     return True, ''
 
 

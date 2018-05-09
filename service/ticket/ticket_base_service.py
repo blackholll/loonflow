@@ -158,7 +158,7 @@ class TicketBaseService(BaseService):
         if req_transition_obj.field_require_check:
             for require_field in require_field_list:
                 if require_field not in request_field_arg_list:
-                    return False, '此工单的必填字段为:{}'.format(','.join(request_field_arg_list))
+                    return False, '此工单的必填字段为:{}'.format(','.join(require_field_list))
         # 获取transition_id对应的下个状态的信息:
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(start_state.id)
         if transition_queryset is False:

@@ -14,7 +14,7 @@ class LoonUserAdmin(LoonModelBaseAdmin):
         if not obj.creator:
             obj.creator = request.user.username
             # 可用于生成密码，晚点修改下
-            obj.password = '12222222'
+            obj.set_password(form.cleaned_data['password'])
         obj.save()
 
 

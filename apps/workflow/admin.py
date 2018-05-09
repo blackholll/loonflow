@@ -7,7 +7,7 @@ from apps.workflow.models import Workflow, State, Transition, CustomField, Workf
 
 class WorkflowAdmin(LoonModelBaseAdmin):
     search_fields = ('name',)
-    list_display = ('id', 'name', 'description', 'notice_type', 'default_notice_to') + LoonModelBaseAdmin.list_display
+    list_display = ('id', 'name', 'description') + LoonModelBaseAdmin.list_display
 
 
 class StateAdmin(LoonModelBaseAdmin):
