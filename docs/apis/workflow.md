@@ -41,6 +41,49 @@ name | varchar | 否 | 支持根据workflow name模糊查询
 }
 ```
 
+# 获取工作流初始状态
+### URL
+api/v1.0/workflows/{workflow_id}/init_state
+### method
+get
+### 请求参数
+参数名 | 类型 | 必填 | 说明
+---|---|---|---
+username | varchar | 是 | 请求用户的用户名,用于做必要的权限控制
+### 返回数据
+```
+{
+	"data": {
+		"transition": [{ # 初始状态可以做的操作，也就是新建工单时的提交路径
+			"transition_name": "提交",
+			"transition_id": 1
+		}, {
+			"transition_name": "保存",
+			"transition_id": 2
+		}],
+		"state_field": {  # 提交工单时候需要的字段 及每个字段的读写属性
+			"model": 1
+		},
+		"order_id": 0,
+		"participant_type_id": 1,
+		"sub_workflow_id": 0,
+		"is_hidden": false,
+		"participant": "wangfei",
+		"workflow_id": 1,
+		"id": 1,
+		"creator": "admin",
+		"type_id": 1,
+		"label": {},
+		"distribute_type_id": 1,
+		"name": "新建中",
+		"gmt_created": "2018-04-23 20:53:33"
+	},
+	"msg": "",
+	"code": 0
+}
+```
+
+
 # 获取工作流状态详情
 ### URL
 api/v1.0/workflows/states/{state_id}
