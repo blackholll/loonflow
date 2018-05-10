@@ -203,7 +203,7 @@ class TicketBaseService(BaseService):
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
                 destination_participant = approver
         # 生成流水号
-        ticket_sn, msg = cls.gen_ticket_sn(), msg
+        ticket_sn, msg = cls.gen_ticket_sn()
         if not ticket_sn:
             return False, msg
         # 新增工单基础表数据

@@ -49,7 +49,7 @@ class TicketListView(View):
         request_data_dict = json.loads(json_str)
         new_ticket_result, msg = TicketBaseService.new_ticket(request_data_dict)
         if new_ticket_result:
-            code, data = 0, {'ticket_id': new_ticket_result.id}
+            code, data = 0, {'ticket_id': new_ticket_result}
         else:
             code, data = -1, {}
         return api_response(code, msg, data)
