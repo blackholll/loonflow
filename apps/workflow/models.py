@@ -40,8 +40,8 @@ class State(models.Model):
     order_id = models.IntegerField('状态顺序', default=0, help_text='用于工单步骤接口时，step上状态的顺序(因为存在网状情况，所以需要人为设定顺序),值越小越靠前')
     type_id = models.IntegerField('状态类型id', default=0, help_text='0.普通类型 1.初始状态(用于新建工单时,获取对应的字段必填及transition信息) 2.结束状态(此状态下的工单不得再处理，即没有对应的transition)')
 
-    participant_type_id = models.IntegerField('参与者类型id', default=1, blank=True, help_text='1.个人,2.多人,3.部门,4.角色,5.变量(支持工单创建人,创建人的leader),6.脚本,7.工单的字段内容(如表单中的"测试负责人"，需要为用户名或者逗号隔开的多个用户名),8.父工单的字段内容')
-    participant = models.CharField('参与者', default='', blank=True, max_length=100, help_text='可以为username\多个username(以,隔开)\部门id\角色id\变量(creator,creator_tl)等')
+    participant_type_id = models.IntegerField('参与者类型id', default=1, blank=True, help_text='0.无处理人,1.个人,2.多人,3.部门,4.角色,5.变量(支持工单创建人,创建人的leader),6.脚本,7.工单的字段内容(如表单中的"测试负责人"，需要为用户名或者逗号隔开的多个用户名),8.父工单的字段内容')
+    participant = models.CharField('参与者', default='', blank=True, max_length=100, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator,creator_tl)\脚本文件名等')
 
     distribute_type_id = models.IntegerField('分配方式', default=1, help_text='1.主动接单(如果当前处理人实际为多人的时候，需要先接单才能处理) 2.直接处理(即使当前处理人实际为多人，也可以直接处理) 3.随机分配(如果实际为多人，则系统会随机分配给其中一个人。v0.2版本支持) 4.全部处理(要求所有参与人都要处理一遍,才能进入下一步。v0.2版本支持)')
     state_field_str = models.TextField('表单字段', default='{}', help_text='json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"created_at":1,"title":2, "sn":1}')  # json格式存储,包括读写属性1：只读，2：必填，3：可选，4：不显示, 字典的字典
@@ -63,7 +63,7 @@ class Transition(models.Model):
     """
     name = models.CharField('操作', max_length=50)
     workflow_id = models.IntegerField('工作流id')
-    transition_type_id = models.IntegerField('流转类型', default=1, help_text='见service.constant_service中定义') #常规流转，定时器流转，选择定时器后需要设置定时器时间，同时不得设置条件，不得设置弹窗信息
+    transition_type_id = models.IntegerField('流转类型', default=1, help_text='1.常规流转，2.定时器流转(v0.2版本支持)') #常规流转，定时器流转，选择定时器后需要设置定时器时间，同时不得设置条件，不得设置弹窗信息
     source_state_id = models.IntegerField('源状态id')
     destination_state_id = models.IntegerField('目的状态id')
     field_require_check = models.BooleanField('是否校验必填项', default=True, help_text='默认在用户点击操作的时候需要校验工单表单的必填项,如果设置为否则不检查。用于如"退回"属性的操作，不需要填写表单内容')
@@ -92,7 +92,7 @@ class CustomField(models.Model):
     field_template = models.TextField('模板', default='', blank=True, help_text='文本域字段支持配置内容模板')
     boolean_field_display = models.CharField('布尔类型显示名', max_length=100, null=True, blank=True,
                                              help_text='当为布尔类型时候，可以支持自定义显示形式。{1:"是",0:"否"}或{1:"需要",0:"不需要"}')
-    field_choice = models.CharField('radio选项', max_length=1000, default='[]', blank=True,
+    field_choice = models.CharField('radio、checkbox、select的选项', max_length=1000, default='{}', blank=True,
                                     help_text='radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{1:"中国",2:"美国"}')
 
     creator = models.CharField('创建人', max_length=50)
@@ -124,21 +124,21 @@ class WorkflowScript(models.Model):
         verbose_name_plural = '工作流脚本'
 
 
-class CustomNotice(models.Model):
-    """
-    自定义通知方式，初始化邮件方式
-    """
-    name = models.CharField('名称', max_length=50)
-    description = models.CharField('描述', max_length=100, null=True, blank=True)
-    script = models.FileField('通知脚本', upload_to='notice_script', null=True, blank=True)
-    title_template = models.CharField('标题模板', max_length=50, null=True, blank=True)  # 如果为空就按照默认模板生成
-    content_template = models.CharField('内容模板', max_length=1000, null=True, blank=True)  # 如果为空就按照默认模板生成
-
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
-
-    class Meta:
-        verbose_name = '自定义通知脚本'
-        verbose_name_plural = '自定义通知脚本'
+# class CustomNotice(models.Model):
+#     """
+#     自定义通知方式，初始化邮件方式，v0.2版本再支持
+#     """
+#     name = models.CharField('名称', max_length=50)
+#     description = models.CharField('描述', max_length=100, null=True, blank=True)
+#     script = models.FileField('通知脚本', upload_to='notice_script', null=True, blank=True)
+#     title_template = models.CharField('标题模板', max_length=50, null=True, blank=True)  # 如果为空就按照默认模板生成
+#     content_template = models.CharField('内容模板', max_length=1000, null=True, blank=True)  # 如果为空就按照默认模板生成
+#
+#     creator = models.CharField('创建人', max_length=50)
+#     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
+#     gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
+#     is_deleted = models.BooleanField(u'已删除', default=False)
+#
+#     class Meta:
+#         verbose_name = '自定义通知脚本'
+#         verbose_name_plural = '自定义通知脚本'
