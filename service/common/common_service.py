@@ -12,7 +12,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def signature_check(timestamp, signature, md5_key):
+    def signature_check(cls, timestamp, signature, md5_key):
         """
         签名校验
         :param timestamp:

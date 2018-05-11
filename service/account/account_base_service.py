@@ -25,7 +25,7 @@ class AccountBaseService(BaseService):
         获取用户信息
         :return:
         """
-        result = LoonUser.objects.filter(username=username, is_deleted=0).filter()
+        result = LoonUser.objects.filter(username=username, is_deleted=0).first()
         if result:
             return result, ''
         else:
