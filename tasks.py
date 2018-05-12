@@ -6,7 +6,7 @@ import traceback
 import logging
 
 from apps.ticket.models import TicketRecord
-from apps.workflow.models import Transition, State
+from apps.workflow.models import Transition, State, WorkflowScript
 from service.account.account_base_service import AccountBaseService
 from service.common.constant_service import CONSTANT_SERVICE
 from service.ticket.ticket_base_service import TicketBaseService
@@ -71,6 +71,11 @@ def run_flow_task(script_name, ticket_id, state_id, action_from='loonrobot'):
     """
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
     if ticket_obj.paticipant == script_name and ticket_obj.paticipant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+        ## 校验脚本是否合法
+        script_obj = WorkflowScript.objects.filter(saved_name=script_name, is_deleted=False, is_active=True).first()
+        if not script_obj:
+            return False, '脚本未注册或非激活状态'
+
         script_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "media/workflow_script"))
         script_file = os.path.join(script_dir, script_name)
         globals = {'ticket_id': ticket_id, 'action_from': action_from}
