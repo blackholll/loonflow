@@ -104,7 +104,8 @@ class TicketBaseService(BaseService):
         for ticket_result_object in ticket_result_object_list:
             state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_result_object.state_id)
             state_name = state_obj.name
-            ticket_result_restful_list.append(dict(title=ticket_result_object.title,
+            ticket_result_restful_list.append(dict(id=ticket_result_object.id,
+                                                   title=ticket_result_object.title,
                                                    workflow_id=ticket_result_object.workflow_id,
                                                    sn=ticket_result_object.sn,
                                                    state=dict(state_id=ticket_result_object.state_id, state_name=state_name),
