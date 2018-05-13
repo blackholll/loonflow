@@ -41,7 +41,7 @@ class State(models.Model):
     type_id = models.IntegerField('状态类型id', default=0, help_text='0.普通类型 1.初始状态(用于新建工单时,获取对应的字段必填及transition信息) 2.结束状态(此状态下的工单不得再处理，即没有对应的transition)')
 
     participant_type_id = models.IntegerField('参与者类型id', default=1, blank=True, help_text='0.无处理人,1.个人,2.多人,3.部门,4.角色,5.变量(支持工单创建人,创建人的leader),6.脚本,7.工单的字段内容(如表单中的"测试负责人"，需要为用户名或者逗号隔开的多个用户名),8.父工单的字段内容')
-    participant = models.CharField('参与者', default='', blank=True, max_length=100, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator,creator_tl)\脚本文件名等')
+    participant = models.CharField('参与者', default='', blank=True, max_length=100, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator,creator_tl)\脚本文件名等，包含子工作流的需要设置处理人为loonrobot')
 
     distribute_type_id = models.IntegerField('分配方式', default=1, help_text='1.主动接单(如果当前处理人实际为多人的时候，需要先接单才能处理) 2.直接处理(即使当前处理人实际为多人，也可以直接处理) 3.随机分配(如果实际为多人，则系统会随机分配给其中一个人。v0.2版本支持) 4.全部处理(要求所有参与人都要处理一遍,才能进入下一步。v0.2版本支持)')
     state_field_str = models.TextField('表单字段', default='{}', help_text='json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"created_at":1,"title":2, "sn":1}')  # json格式存储,包括读写属性1：只读，2：必填，3：可选，4：不显示, 字典的字典
@@ -86,10 +86,10 @@ class CustomField(models.Model):
     field_type_id = models.IntegerField('类型', help_text='5.字符串，10.整形，15.浮点型，20.布尔，25.日期，30.日期时间，35.单选框，40.多选框，45.下拉列表，50.多选下拉列表，55.文本域，60.用户名')
     field_key = models.CharField('字段标识', max_length=50, help_text='字段类型请尽量特殊，避免与系统中关键字冲突')
     field_name = models.CharField('字段名称', max_length=50)
-    order_id = models.IntegerField('排序', default=0)
-    default_value = models.CharField('默认值', null=True, blank=True, max_length=100)
-    description = models.CharField('描述', max_length=100, blank=True, default='')
-    field_template = models.TextField('模板', default='', blank=True, help_text='文本域字段支持配置内容模板')
+    order_id = models.IntegerField('排序', default=0, help_text='工单基础字段在表单中排序为:流水号0,标题20,状态id40,状态名41,创建人80,创建时间100,更新时间120.前端展示工单信息的表单可以根据这个id顺序排列')
+    default_value = models.CharField('默认值', null=True, blank=True, max_length=100, help_text='前端展示时，可以将此内容作为表单中的该字段的默认值')
+    description = models.CharField('描述', max_length=100, blank=True, default='', help_text='字段的描述信息，对于非文本域字段可以将此内容作为placeholder')
+    field_template = models.TextField('文本域模板', default='', blank=True, help_text='文本域类型字段前端显示时可以将此内容作为字段的placeholder')
     boolean_field_display = models.CharField('布尔类型显示名', max_length=100, null=True, blank=True,
                                              help_text='当为布尔类型时候，可以支持自定义显示形式。{1:"是",0:"否"}或{1:"需要",0:"不需要"}')
     field_choice = models.CharField('radio、checkbox、select的选项', max_length=1000, default='{}', blank=True,
