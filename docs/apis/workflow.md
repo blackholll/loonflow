@@ -6,14 +6,14 @@ api/v1.0/workflows
 ### method
 get
 ### 使用场景
-获取到工作流列表后，用户选择对应的工作流来新建对应的工单。如果需要多级类型，可以在调用方系统保存对应关系。如调用方的”权限申请-VPN权限申请“对应loonflow中id为1的workflow,调用方的”权限申请-服务器权限申请“对应loonflow中id为2的workflow
+获取到工作流列表后，用户选择对应的工作流来新建对应的工单。如果需要多级类型，可以在调用方系统保存对应关系。如调用方的“权限申请-VPN权限申请“对应loonflow中id为1的workflow,调用方的“权限申请-服务器权限申请“对应loonflow中id为2的workflow
 ### 请求参数
 
 参数名 | 类型 | 必填 | 说明
 ---|---|---|---
 page| int | 否 | 页码，默认1
 per_page| int | 否 | 每页个数，默认10
-username | varchar | 是 | 用户名，用于做必要的权限控制
+username | varchar | 是 | 用户名，用于做必要的权限控制
 name | varchar | 否 | 支持根据workflow name模糊查询
 
 ### 返回数据
@@ -115,7 +115,7 @@ username | varchar | 是 | 请求用户的用户名,用于做必要的权限控�
 			'appdetail': 1,
 			'projectdetail': 2
 		}
-		表示这个状态下前端需要显示应用详情、 项目详情， 含义和前端约定好就行。 loonflow只负责将配置的信息返回给前端
+		表示这个状态下前端需要显示应用详情、 项目详情，含义和前端约定好就行。 loonflow只负责将配置的信息返回给前端
 		gmt_created: "2018-04-23 20:53:33",
 		participant_type_id: 1,
 		workflow_id: 1,
