@@ -42,7 +42,7 @@ class WorkflowInitView(View):
         username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
 
         if not (workflow_id and username):
-            return api_response(-1, '请提供workflow_id和username', '')
+            return api_response(-1, '请提供username', '')
         state_result, msg = WorkflowStateService.get_workflow_init_state(workflow_id)
         if state_result is not False:
             code, msg, data = 0, '', state_result
