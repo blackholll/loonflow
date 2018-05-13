@@ -46,7 +46,7 @@ class ConstantService(BaseService):
 
         self.TICKET_BASE_FIELD_LIST = ['id', 'sn', 'title', 'state_id', 'parent_ticket_id', 'parent_ticket_state_id',
                                        'participant_type_id', 'participant', 'workflow_id', 'ticket_type_id',
-                                       'creator', 'is_deleted', 'created_at', 'updated_at']
+                                       'creator', 'is_deleted', 'gmt_created', 'gmt_modified']
 
 
 CONSTANT_SERVICE = ConstantService()

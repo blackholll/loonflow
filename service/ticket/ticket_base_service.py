@@ -149,11 +149,11 @@ class TicketBaseService(BaseService):
             return False, msg
         # 获取初始状态必填字段 及允许更新的字段
         state_field_dict = json.loads(start_state.state_field_str)
-        require_field_list, update_filed_list = [], []
+        require_field_list, update_field_list = [], []
         for key, value in state_field_dict.items():
             if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_REQUIRED:
                 require_field_list.append(key)
-            update_filed_list.append(key)
+            update_field_list.append(key)
         # 校验是否所有必填字段都有提供，如果transition_id对应设置为不校验必填则直接通过
         req_transition_obj, msg = WorkflowTransitionService.get_workflow_transition_by_id(transition_id)
         if req_transition_obj.field_require_check:
@@ -363,34 +363,33 @@ class TicketBaseService(BaseService):
         for key, value in update_dict.items():
             if key in custom_field_key_list:
                 # 判断是否存在，如果存在则更新，如果不存在则新增
-                ticket_custom_filed_queryset = TicketCustomField.objects.filter(ticket_id=ticket_id, filed_key=key).all()
+                ticket_custom_filed_queryset = TicketCustomField.objects.filter(ticket_id=ticket_id, filed_key=key)
                 field_type_id = format_custom_field_dict[key]['field_type_id']
                 if ticket_custom_filed_queryset:
                     if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
-                        ticket_custom_filed_queryset.char_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(char_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
-                        ticket_custom_filed_queryset.int_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(int_value=int(update_dict.get(key)))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
-                        ticket_custom_filed_queryset.float_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(float_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
-                        ticket_custom_filed_queryset.bool_value = int(update_dict.get(key))
+                        ticket_custom_filed_queryset.update(bool_value=int(update_dict.get(key)))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
-                        ticket_custom_filed_queryset.date_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(date_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
-                        ticket_custom_filed_queryset.datetime_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(datetime_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
-                        ticket_custom_filed_queryset.radio_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(radio_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
-                        ticket_custom_filed_queryset.checkbox_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(checkbox_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
-                        ticket_custom_filed_queryset.select_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(select_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
-                        ticket_custom_filed_queryset.multi_select_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(multi_select_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
-                        ticket_custom_filed_queryset.text_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.update(text_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
-                        ticket_custom_filed_queryset.username_value = update_dict.get(key)
-                    ticket_custom_filed_queryset.save()
+                        ticket_custom_filed_queryset.update(username_value=update_dict.get(key))
                 else:
                     if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
                         new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'], ticket_id=ticket_id, filed_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
@@ -428,6 +427,15 @@ class TicketBaseService(BaseService):
         :param update_dict:
         :return:
         """
+        base_field_dict = {}
+        for key, value in update_dict.items():
+            if key in CONSTANT_SERVICE.TICKET_BASE_FIELD_LIST:
+                base_field_dict[key] = value
+        # 更新工单基础字段的值
+        if base_field_dict:
+            TicketRecord.objects.filter(id=ticket_id, is_deleted=0).update(**base_field_dict)
+        cls.update_ticket_custom_field(ticket_id, update_dict)
+
         return True, ''
 
     @classmethod
@@ -657,7 +665,7 @@ class TicketBaseService(BaseService):
         :param request_data_dict:
         :return:
         """
-        transition_id = request_data_dict.get('request_data_dict', '')
+        transition_id = request_data_dict.get('transition_id', '')
         username = request_data_dict.get('username', '')
         suggestion = request_data_dict.get('suggestion', '')
 
@@ -677,24 +685,28 @@ class TicketBaseService(BaseService):
         if msg['in_add_node']:
             return False, '工单当前处于加签中，只允许加签完成操作'
 
-        state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_obj.id)
+        state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_obj.state_id)
         if not state_obj:
             return False, msg
         state_field_str = state_obj.state_field_str
-        state_field_dict = json.load(state_field_str)
+        state_field_dict = json.loads(state_field_str)
         require_field_list, update_filed_list = [], []
+        update_field_dict = {}
         for key, value in state_field_dict.items():
             if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_REQUIRED:
                 require_field_list.append(key)
             update_filed_list.append(key)
+            if request_data_dict.get(key):
+                update_field_dict[key] = request_data_dict.get(key)
 
         # 校验是否所有必填字段都有提供，如果transition_id对应设置为不校验必填则直接通过
         req_transition_obj, msg = WorkflowTransitionService.get_workflow_transition_by_id(transition_id)
         if req_transition_obj.field_require_check:
+
             request_field_arg_list = [key for key, value in request_data_dict.items() if (key not in ['workflow_id', 'suggestion', 'username'])]
             for require_field in require_field_list:
                 if require_field not in request_field_arg_list:
-                    return False, '此工单的必填字段为:{}'.format(','.join(request_field_arg_list))
+                    return False, '此工单的必填字段为:{}'.format(','.join(require_field_list))
 
         # 获取transition_id对应的下个状态的信息:
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)
@@ -767,7 +779,7 @@ class TicketBaseService(BaseService):
                 request_update_dict[key] = value
 
 
-        update_ticket_custom_field_result, msg = cls.update_ticket_custom_field(ticket_id, request_update_dict)
+        update_ticket_custom_field_result, msg = cls.update_ticket_field_value(ticket_id, update_field_dict)
         # 更新工单流转记录，执行必要的脚本，通知消息
         cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                      participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
