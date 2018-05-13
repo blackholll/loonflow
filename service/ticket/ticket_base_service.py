@@ -202,6 +202,8 @@ class TicketBaseService(BaseService):
                 approver, msg = AccountBaseService.get_user_dept_approver(username)
                 if len(approver.split(',')) > 1:
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+                else:
+                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
                 destination_participant = approver
         # 生成流水号
         ticket_sn, msg = cls.gen_ticket_sn()
