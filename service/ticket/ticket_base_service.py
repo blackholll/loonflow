@@ -482,8 +482,8 @@ class TicketBaseService(BaseService):
         field_list.append(dict(field_key='state.state_name', name=u'状态名', value=state_name, order_id=41, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
 
         # 工单所有自定义字段
-        custom_filed_dict, msg = WorkflowCustomFieldService.get_workflow_custom_field(ticket_obj.workflow_id)
-        for key, value in custom_filed_dict.items():
+        custom_field_dict, msg = WorkflowCustomFieldService.get_workflow_custom_field(ticket_obj.workflow_id)
+        for key, value in custom_field_dict.items():
             field_type_id = value['field_type_id']
             ticket_custom_field_obj = TicketCustomField.objects.filter(filed_key=key, is_deleted=0).first()
             if not ticket_custom_field_obj:
@@ -515,10 +515,10 @@ class TicketBaseService(BaseService):
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
                     field_value = ticket_custom_field_obj.username_value
 
-            field_list.append(dict(field_key=key, field_name=custom_filed_dict[key]['field_name'], field_value=field_value, order_id=custom_filed_dict[key]['order_id'],
-                                   field_type_id=custom_filed_dict[key]['field_type_id'],
+            field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=field_value, order_id=custom_field_dict[key]['order_id'],
+                                   field_type_id=custom_field_dict[key]['field_type_id'],
                                    field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO,
-                                   field_choice=json.loads(custom_filed_dict[key]['field_choice']),
+                                   field_choice=json.loads(custom_field_dict[key]['field_choice']),
                                    ))
 
         new_field_list = []
