@@ -316,29 +316,29 @@ class TicketBaseService(BaseService):
             value = None
         else:
             if field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_STR:
-                value = ticket_custom_field_obj.value_char
+                value = ticket_custom_field_obj.char_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_INT:
-                value = ticket_custom_field_obj.value_int
+                value = ticket_custom_field_obj.int_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_FLOAT:
-                value = ticket_custom_field_obj.value_float
+                value = ticket_custom_field_obj.float_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_BOOL:
-                value = ticket_custom_field_obj.value_bool
+                value = ticket_custom_field_obj.bool_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_DATE:
-                value = str(ticket_custom_field_obj.value_date)
+                value = str(ticket_custom_field_obj.date_value)
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_DATETIME:
-                value = str(ticket_custom_field_obj.value_datetime)
+                value = str(ticket_custom_field_obj.datetime_value)
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_RADIO:
-                value = ticket_custom_field_obj.value_radio
+                value = ticket_custom_field_obj.radio_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_CHECKBOX:
-                value = ticket_custom_field_obj.value_checkbox
+                value = ticket_custom_field_obj.checkbox_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_SELECT:
-                value = ticket_custom_field_obj.value_select
+                value = ticket_custom_field_obj.select_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_MULTI_SELECT:
-                value = ticket_custom_field_obj.value_multi_select
+                value = ticket_custom_field_obj.multi_select_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_TEXT:
-                value = ticket_custom_field_obj.value_text
+                value = ticket_custom_field_obj.text_value
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_USERNAME:
-                value = ticket_custom_field_obj.value_username
+                value = ticket_custom_field_obj.username_value
         return value, ''
 
     @classmethod
@@ -481,29 +481,29 @@ class TicketBaseService(BaseService):
             else:
                 #根据字段类型 获取对应列的值
                 if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
-                    field_value = ticket_custom_field_obj.value_char
+                    field_value = ticket_custom_field_obj.char_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
-                    field_value = ticket_custom_field_obj.value_int
+                    field_value = ticket_custom_field_obj.int_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
-                    field_value = ticket_custom_field_obj.value_float
+                    field_value = ticket_custom_field_obj.float_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
-                    field_value = ticket_custom_field_obj.value_bool
+                    field_value = ticket_custom_field_obj.bool_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
-                    field_value = str(ticket_custom_field_obj.value_date)
+                    field_value = str(ticket_custom_field_obj.date_value)
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
-                    field_value = str(ticket_custom_field_obj.value_datetime)
+                    field_value = str(ticket_custom_field_obj.datetime_value)
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
-                    field_value = ticket_custom_field_obj.value_radio
+                    field_value = ticket_custom_field_obj.radio_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
-                    field_value = ticket_custom_field_obj.value_checkbox
+                    field_value = ticket_custom_field_obj.checkbox_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
-                    field_value = ticket_custom_field_obj.value_select
+                    field_value = ticket_custom_field_obj.select_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
-                    field_value = ticket_custom_field_obj.value_multi_select
+                    field_value = ticket_custom_field_obj.multi_select_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
-                    field_value = ticket_custom_field_obj.value_text
+                    field_value = ticket_custom_field_obj.text_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
-                    field_value = ticket_custom_field_obj.value_username
+                    field_value = ticket_custom_field_obj.username_value
 
             field_list.append(dict(field_key=key, field_name=custom_filed_dict[key]['field_name'], field_value=field_value, order_id=custom_filed_dict[key]['order_id'],
                                    field_type_id=custom_filed_dict[key]['field_type_id'],
