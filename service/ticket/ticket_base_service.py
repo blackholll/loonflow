@@ -845,6 +845,8 @@ class TicketBaseService(BaseService):
         """
         # 先获取工单对应工作流的信息
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        if not ticket_obj:
+            return False, '工单不存在或已被删除'
         workflow_id = ticket_obj.workflow_id
         state_objs, msg = WorkflowStateService.get_workflow_states(workflow_id)
         ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all()

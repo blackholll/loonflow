@@ -125,6 +125,9 @@ class TicketFlowlog(View):
         username = request_data.get('username', '')  # 可用于权限控制
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
+        if not username:
+            return api_response(-1, '参数不全，请提供username', '')
+
         result, msg = TicketBaseService.get_ticket_flow_log(ticket_id, username, per_page, page)
 
         if result is not False:
@@ -143,6 +146,9 @@ class TicketFlowStep(View):
         request_data = request.GET
         ticket_id = kwargs.get('ticket_id')
         username = request_data.get('username', '')  # 可用于权限控制
+        if not username:
+            return api_response(-1, '参数不全，请提供username', '')
+
         result, msg = TicketBaseService.get_ticket_flow_step(ticket_id, username)
         if result is not False:
             data = dict(value=result)
