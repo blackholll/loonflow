@@ -866,7 +866,7 @@ class TicketBaseService(BaseService):
         state_step_dict_list = []
         for state_obj in state_objs:
             if state_obj.id == ticket_obj.state_id or (not state_obj.is_hidden):
-                ticket_state_step_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
+                ticket_state_step_dict = dict(state_id=state_obj.id, state_name=state_obj.name, order_id=state_obj.order_id)
                 state_flow_log_list = []
                 for ticket_flow_log in ticket_flow_log_queryset:
                     if ticket_flow_log.state_id == state_obj.id:
