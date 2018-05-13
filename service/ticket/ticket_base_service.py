@@ -387,7 +387,7 @@ class TicketBaseService(BaseService):
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
                         ticket_custom_filed_queryset.text_value = update_dict.get(key)
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
-                        ticket_custom_filed_queryset.char_value = update_dict.get(key)
+                        ticket_custom_filed_queryset.username_value = update_dict.get(key)
                     ticket_custom_filed_queryset.save()
                 else:
                     if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
@@ -413,7 +413,7 @@ class TicketBaseService(BaseService):
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
                         new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, filed_key=key, field_type_id=field_type_id, text_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, filed_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
+                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, filed_key=key, field_type_id=field_type_id, username_value=update_dict.get(key))
                     new_ticket_custom_field_record.save()
         return True, ''
 
