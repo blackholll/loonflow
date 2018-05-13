@@ -38,10 +38,9 @@ class WorkflowBaseService(BaseService):
         workflow_result_object_list = workflow_result_paginator.object_list
         workflow_result_restful_list = []
         for workflow_result_object in workflow_result_object_list:
-            workflow_result_restful_list.append(dict(name=workflow_result_object.name, description=workflow_result_object.description,
+            workflow_result_restful_list.append(dict(id=workflow_result_object.id, name=workflow_result_object.name, description=workflow_result_object.description,
                                                      creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19]))
         return workflow_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
-
 
     @classmethod
     @auto_log
