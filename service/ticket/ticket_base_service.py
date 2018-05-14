@@ -765,7 +765,7 @@ class TicketBaseService(BaseService):
             add_relation = destination_participant
 
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
-        new_relation = ','.join(set((ticket_obj.relation + add_relation).split(',')))  # 去重
+        new_relation = ','.join(set(ticket_obj.relation.split(',') + add_relation.split(',')))  # 去重
         ticket_obj.state_id = destination_state_id
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.participant = destination_participant

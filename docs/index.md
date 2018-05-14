@@ -19,7 +19,7 @@ python manage.py migrate
 ```
 - 创建初始账户: python manage.py createsuperuser
 - 启动开发环境: python manage.py runserver 如果需要启动在其他端口:python manage.py runserver 8888
-- 启动celery任务: celery -A loontask worker -l info -Q loonflow
+- 启动celery任务: celery -A tasks worker -l info -Q loonflow
 
 ## 生产环境部署
 - 创建数据库并修改settings/pro.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)
@@ -34,7 +34,7 @@ python manage.py migrate
 - 创建初始账户: python manage.py createsuperuser
 - python manage.py collectstatic
 - 建议使用nginx+uwsgi部署
-- 启动celery任务: celery -A loontask worker -l -c 8 info -Q loonflow   # -c参数为启动的celery进程数，可自行视情况调整
+- 启动celery任务: celery -A tasks worker -l -c 8 info -Q loonflow   # -c参数为启动的celery进程数，可自行视情况调整
 
 
 ## 术语定义 
