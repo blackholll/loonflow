@@ -77,7 +77,7 @@ class TicketCustomField(models.Model):
     工单自定义字段， 工单自定义字段实际的值。
     """
     name = models.CharField(u'字段名', max_length=50)
-    filed_key = models.CharField(u'字段标识', max_length=50)
+    field_key = models.CharField(u'字段标识', max_length=50)
     ticket_id = models.IntegerField(u'工单id')
     field_type_id = models.IntegerField(u'字段类型', help_text='见service.constant_service中定义')
     char_value = models.CharField('字符串值', max_length=1000, default='', blank=True)

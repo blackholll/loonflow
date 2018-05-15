@@ -64,7 +64,7 @@ def stdoutIO(stdout=None):
 
 
 @app.task
-def run_flow_task(script_name, ticket_id, state_id, action_from='loonrobot'):
+def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
     """
     执行工作流脚本
     :param script_name:
@@ -74,7 +74,7 @@ def run_flow_task(script_name, ticket_id, state_id, action_from='loonrobot'):
     :return:
     """
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-    if ticket_obj.paticipant == script_name and ticket_obj.paticipant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+    if ticket_obj.participant == script_name and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
         ## 校验脚本是否合法
         script_obj = WorkflowScript.objects.filter(saved_name=script_name, is_deleted=False, is_active=True).first()
         if not script_obj:
@@ -92,7 +92,7 @@ def run_flow_task(script_name, ticket_id, state_id, action_from='loonrobot'):
             # script_result_msg = ''.join(s.buflist)
             script_result_msg = ''.join(s.getvalue())
         except Exception as e:
-            app.logger.error(traceback.format_exc())
+            logger.error(traceback.format_exc())
             script_result = False
             script_result_msg = e.__str__()
 

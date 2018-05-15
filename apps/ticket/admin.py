@@ -24,7 +24,7 @@ class TicketStateLastManAdmin(LoonModelBaseAdmin):
 
 class TicketCustomFieldAdmin(LoonModelBaseAdmin):
     search_fields = ('name',)
-    list_display = ('ticket_id', 'name', 'filed_key') + LoonModelBaseAdmin.list_display
+    list_display = ('ticket_id', 'name', 'field_key') + LoonModelBaseAdmin.list_display
 
 
 admin.site.register(TicketRecord, TicketRecordAdmin)
