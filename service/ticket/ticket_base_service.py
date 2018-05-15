@@ -763,6 +763,10 @@ class TicketBaseService(BaseService):
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
                 destination_participant = approver
             add_relation = destination_participant
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+            add_relation = ''
+        else:
+            add_relation = destination_participant
 
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
         new_relation = ','.join(set(ticket_obj.relation.split(',') + add_relation.split(',')))  # 去重
@@ -936,7 +940,7 @@ class TicketBaseService(BaseService):
         permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
         if not permission:
             return False, msg
-        if msg['current_participant_count'] > 1:
+        if msg['need_accept']:
             ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
             ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             ticket_obj.participant = username
