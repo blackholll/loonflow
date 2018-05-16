@@ -253,7 +253,9 @@ class TicketDeliver(View):
         ticket_id = kwargs.get('ticket_id')
         username = request_data_dict.get('username', '')
         target_username = request_data_dict.get('target_username', '')
-        result, msg = TicketBaseService.deliver_ticket(ticket_id, username, target_username)
+        suggestion = request_data_dict.get('suggestion', '')
+
+        result, msg = TicketBaseService.deliver_ticket(ticket_id, username, target_username, suggestion)
         if result:
             code, msg, data = 0, msg, result
         else:
@@ -277,7 +279,8 @@ class TicketAddNode(View):
         ticket_id = kwargs.get('ticket_id')
         username = request_data_dict.get('username', '')
         target_username = request_data_dict.get('target_username', '')
-        result, msg = TicketBaseService.add_node_ticket(ticket_id, username, target_username)
+        suggestion = request_data_dict.get('suggestion', '')
+        result, msg = TicketBaseService.add_node_ticket(ticket_id, username, target_username, suggestion)
         if result:
             code, msg, data = 0, msg, result
         else:

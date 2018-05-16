@@ -843,7 +843,16 @@ class TicketBaseService(BaseService):
                 transition_name = transition_obj.name
             else:
                 # 考虑到人工干预修改工单状态， transition_id为0
-                transition_name = ticket_flow_log.suggestion
+                if ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_DELIVER:
+                    transition_name = '转交操作'
+                elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE:
+                    transition_name = '加签操作'
+                elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE_END:
+                    transition_name = '加签完成操作'
+                elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT:
+                    transition_name = '接单操作'
+                else:
+                    transition_name = '未知操作'
 
             state_info_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
             transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name)
@@ -950,6 +959,7 @@ class TicketBaseService(BaseService):
             ticket_obj.save()
             # 记录处理日志
             ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='接单处理', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                        intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT,
                                         participant=username, state_id=ticket_obj.state_id, creator=username)
             cls.add_ticket_flow_log(ticket_flow_log_dict)
             return True, ''
@@ -958,12 +968,13 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def deliver_ticket(cls, ticket_id, username, target_username):
+    def deliver_ticket(cls, ticket_id, username, target_username, suggestion):
         """
         转交工单
         :param ticket_id:
         :param username: 操作人
         :param target_username: 转交目标人
+        :param suggestion: 处理意见
         :return:
         """
         permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
@@ -974,19 +985,21 @@ class TicketBaseService(BaseService):
         ticket_obj.participant = target_username
         ticket_obj.save()
         # 记录处理日志
-        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='转交工单', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                    intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_DELIVER,
                                     participant=username, state_id=ticket_obj.state_id, creator=username)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
 
     @classmethod
     @auto_log
-    def add_node_ticket(cls, ticket_id, username, target_username):
+    def add_node_ticket(cls, ticket_id, username, target_username, suggestion):
         """
         加签工单
         :param ticket_id:
         :param username:
         :param target_username: 加签目标人
+        :param suggestion: 处理意见
         :return:
         """
         permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
@@ -999,18 +1012,20 @@ class TicketBaseService(BaseService):
         ticket_obj.add_node_man = username
         ticket_obj.save()
         # 记录处理日志
-        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='加签工单', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                    intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE,
                                     participant=username, state_id=ticket_obj.state_id, creator=username)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
 
     @classmethod
     @auto_log
-    def add_node_ticket_end(cls, ticket_id, username):
+    def add_node_ticket_end(cls, ticket_id, username, suggestion):
         """
         加签工单完成
         :param ticket_id:
         :param username:
+        :param suggestion:
         :return:
         """
         permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
@@ -1023,7 +1038,8 @@ class TicketBaseService(BaseService):
         ticket_obj.add_node_man = ''
         ticket_obj.save()
         # 记录处理日志
-        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='加签处理完成', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                    intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE_END,
                                     participant=username, state_id=ticket_obj.state_id, creator=username)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''

@@ -41,6 +41,7 @@ class TicketFlowLog(models.Model):
     participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
     participant = models.CharField('处理人', max_length=50, default='', blank=True)
     state_id = models.IntegerField('当前状态id', default=0, blank=True)
+    intervene_type_id = models.IntegerField('干预类型', default=0, help_text='0.非人为干预的流转，1.转交操作 2.加签操作 3.加签处理完成')
     ticket_data = models.CharField('工单数据', max_length=10000, default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
 
     creator = models.CharField(u'创建人', max_length=50, default='admin')
