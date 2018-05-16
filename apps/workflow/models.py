@@ -11,7 +11,7 @@ class Workflow(models.Model):
     description = models.CharField('描述', max_length=50)
     flowchart = models.FileField('流程图', upload_to='flowchart', blank=True, help_text='工作流的流程图')
     # notice_type = models.CharField('通知方式',default='',blank=True, max_length=50)  # 逗号隔开: 1
-    view_permission_check = models.BooleanField('查看权限校验', default=1, help_text='开启后，只允许工单的关联人(创建人、曾经的处理人)有权限查看工单')
+    view_permission_check = models.BooleanField('查看权限校验', default=True, help_text='开启后，只允许工单的关联人(创建人、曾经的处理人)有权限查看工单')
 
     # 限制周期({'period':24} 24小时), 限制次数({'count':1}在限制周期内只允许提交1次), 限制级别({'level':1} 针对(1特定用户 2全局)限制周期限制次数)
     # 允许特定人员提交({'allow_person':'zhangsan'}只允许张三提交工单,{'allow_dept':1}只允许部门id的用户提交工单，{'allow_role':1}只允许角色id为1的用户提交工单)

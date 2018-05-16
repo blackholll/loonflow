@@ -84,7 +84,7 @@ class TicketCustomField(models.Model):
     char_value = models.CharField('字符串值', max_length=1000, default='', blank=True)
     int_value = models.IntegerField('整形值', default=0, blank=True)
     float_value = models.FloatField('浮点值', default=0.0, blank=True)
-    bool_value = models.BooleanField('布尔值', default=0, blank=True)
+    bool_value = models.BooleanField('布尔值', default=False, blank=True)
     # date_value = models.DateField('日期值', default='0001-01-01', blank=True)
     date_value = models.DateField('日期值', default=datetime.datetime.strptime('0001-01-01', "%Y-%m-%d"), blank=True)
     # datetime_value = models.DateTimeField('日期时间值', default='0001-01-01 00:00:00', blank=True)
