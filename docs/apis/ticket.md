@@ -235,6 +235,7 @@ post
 ---|---|---|---
 username | varchar | 是 | 请求用户的用户名
 target_username | varchar | 是 | 转交对象的用户名
+suggestion | varchar | 否 | 转交意见
 ### 返回内容
 ```
 {
@@ -256,6 +257,7 @@ post
 ---|---|---|---
 username | varchar | 是 | 请求用户的用户名
 add_node_to | varchar | 是 | 加签对象
+suggestion | varchar | 否 | 加签意见
 ### 返回结果
 ```
 {
@@ -265,15 +267,18 @@ add_node_to | varchar | 是 | 加签对象
 }
 ```
 
-#加签完成
+# 加签完成
 ### URL
 api/v1.0/tickets/{ticket_id}/add_node_end
 ### method
 post
+### 使用场景
+当A将工单加签给B.B在处理工单时候，界面将只显示“完成“按钮，点击后后端调用此接口，将工单基础表中的is_add_node设置为false
 ### 请求参数
 参数名 | 类型 | 必填 | 说明
 ---|---|---|---
 username | varchar | 是 | 请求用户的用户名
+suggestion | varchar | 否 | 加签完成意见
 ### 返回结果
 ```
 {
