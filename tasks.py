@@ -140,7 +140,7 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
             destination_participant_type_id = tar_state_obj.participant_type_id
             destination_participant = tar_state_obj.participant
 
-        ticket_obj.paticipant = destination_participant
+        ticket_obj.participant = destination_participant
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.state_id = tar_state_obj.id
         ticket_obj.save()
