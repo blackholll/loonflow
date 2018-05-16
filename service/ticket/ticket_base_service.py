@@ -856,9 +856,9 @@ class TicketBaseService(BaseService):
 
             state_info_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
             transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name)
-            ticket_flow_log_restful_list.append(dict(ticket_id=ticket_id, state=state_info_dict, transition=transition_info_dict, participant_type_id=ticket_flow_log.participant_type_id, participant=ticket_flow_log.participant, suggestion=ticket_flow_log.suggestion,
-                                                     gmt_created=str(ticket_flow_log.gmt_created)[:19], gmt_modified=str(ticket_flow_log.gmt_modified)[:19]
-            ))
+            ticket_flow_log_restful_list.append(dict(id=ticket_flow_log.id, ticket_id=ticket_id, state=state_info_dict, transition=transition_info_dict, intervene_type_id=ticket_flow_log.intervene_type_id, participant_type_id=ticket_flow_log.participant_type_id,
+                                                     participant=ticket_flow_log.participant, suggestion=ticket_flow_log.suggestion, gmt_created=str(ticket_flow_log.gmt_created)[:19], gmt_modified=str(ticket_flow_log.gmt_modified)[:19]
+                                                     ))
 
         return ticket_flow_log_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
 
@@ -886,7 +886,23 @@ class TicketBaseService(BaseService):
                 state_flow_log_list = []
                 for ticket_flow_log in ticket_flow_log_queryset:
                     if ticket_flow_log.state_id == state_obj.id:
-                        state_flow_log_list.append(dict(id=ticket_flow_log.id, suggestion=ticket_flow_log.suggestion, state_id=ticket_flow_log.state_id, gmt_created=str(ticket_flow_log.gmt_created)[:19]))
+                        # 此部分和get_ticket_flow_log代码冗余，后续会简化下
+                        if ticket_flow_log.transition_id:
+                            transition_obj, msg = WorkflowTransitionService.get_workflow_transition_by_id(ticket_flow_log.transition_id)
+                            transition_name = transition_obj.name
+                        else:
+                            if ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_DELIVER:
+                                transition_name = '转交操作'
+                            elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE:
+                                transition_name = '加签操作'
+                            elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE_END:
+                                transition_name = '加签完成操作'
+                            elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT:
+                                transition_name = '接单操作'
+                            else:
+                                transition_name = '未知操作'
+                        state_flow_log_list.append(dict(id=ticket_flow_log.id, transition=dict(transition_name=transition_name, transition_id=ticket_flow_log.transition_id), participant_type_id=ticket_flow_log.participant_type_id,
+                                                        participant=ticket_flow_log.participant, intervene_type_id=ticket_flow_log.intervene_type_id, suggestion=ticket_flow_log.suggestion, state_id=ticket_flow_log.state_id, gmt_created=str(ticket_flow_log.gmt_created)[:19]))
                 ticket_state_step_dict['state_flow_log_list'] = state_flow_log_list
                 state_step_dict_list.append(ticket_state_step_dict)
         return state_step_dict_list, ''

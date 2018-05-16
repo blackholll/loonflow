@@ -36,7 +36,7 @@ class State(models.Model):
     name = models.CharField('名称', max_length=50)
     workflow_id = models.IntegerField('工作流')
     sub_workflow_id = models.IntegerField('子工作流id(如果需要在此状态启用子工单的话)', default=0, blank=True)
-    is_hidden = models.BooleanField('是否隐藏', default=0, help_text='设置为True时,工单步骤中不显示此状态(当前处于此状态时除外)')
+    is_hidden = models.BooleanField('是否隐藏', default=False, help_text='设置为True时,工单步骤中不显示此状态(当前处于此状态时除外)')
     order_id = models.IntegerField('状态顺序', default=0, help_text='用于工单步骤接口时，step上状态的顺序(因为存在网状情况，所以需要人为设定顺序),值越小越靠前')
     type_id = models.IntegerField('状态类型id', default=0, help_text='0.普通类型 1.初始状态(用于新建工单时,获取对应的字段必填及transition信息) 2.结束状态(此状态下的工单不得再处理，即没有对应的transition)')
 
