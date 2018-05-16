@@ -847,7 +847,7 @@ class TicketBaseService(BaseService):
 
             state_info_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
             transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name)
-            ticket_flow_log_restful_list.append(dict(ticket_id=ticket_id, state=state_info_dict, transition=transition_info_dict, suggestion=ticket_flow_log.suggestion,
+            ticket_flow_log_restful_list.append(dict(ticket_id=ticket_id, state=state_info_dict, transition=transition_info_dict, participant_type_id=ticket_flow_log.participant_type_id, participant=ticket_flow_log.participant, suggestion=ticket_flow_log.suggestion,
                                                      gmt_created=str(ticket_flow_log.gmt_created)[:19], gmt_modified=str(ticket_flow_log.gmt_modified)[:19]
             ))
 
