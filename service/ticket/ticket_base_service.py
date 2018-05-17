@@ -15,7 +15,6 @@ from service.workflow.workflow_state_service import WorkflowStateService
 from service.workflow.workflow_transition_service import WorkflowTransitionService
 
 
-
 class TicketBaseService(BaseService):
     """
     工单基础服务
@@ -185,14 +184,16 @@ class TicketBaseService(BaseService):
             if not field_value:
                 return False, msg
             destination_participant = field_value
+            destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(field_value.split(',')) > 1:
                 # 多人的情况
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
-        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
 
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
             destination_participant, msg = cls.get_ticket_field_value(parent_ticket_id, destination_participant)
             if len(destination_participant.split(',')) > 1:
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD
+
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_VARIABLE:
             if destination_participant == 'creator':
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
@@ -741,12 +742,14 @@ class TicketBaseService(BaseService):
             if not field_value:
                 return False, msg
             destination_participant = field_value
+            destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             add_relation = destination_participant
             if len(field_value.split(',')) > 1:
                 # 多人的情况
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
             destination_participant, msg = cls.get_ticket_field_value(ticket_obj.parent_ticket_id, destination_participant)
+            destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD
             add_relation = destination_participant
@@ -758,10 +761,9 @@ class TicketBaseService(BaseService):
             elif destination_participant == 'creator_tl':
                 # 获取用户的tl或审批人(优先审批人)
                 approver, msg = AccountBaseService.get_user_dept_approver(username)
+                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
                 if len(approver.split(',')) > 1:
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
-                else:
-                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
                 destination_participant = approver
             add_relation = destination_participant
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
