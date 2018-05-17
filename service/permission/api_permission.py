@@ -12,14 +12,14 @@ class ApiPermissionCheck(MiddlewareMixin):
     def process_request(self, request):
         if request.path.startswith('/api/'):
             # api开头的为接口调用，需要额外验证权限
-            flag, msg = self.tocket_permission_check(request)
+            flag, msg = self.token_permission_check(request)
             if not flag:
                 return HttpResponse(json.dumps(dict(code=-1, msg='权限校验失败：{}'.format(msg), data=[])))
 
-    def tocket_permission_check(self, request):
-        signature = request.META.get('SIGNATURE')
-        timestamp = request.META.get('TIMESTAMP')
-        app_name = request.META.get('APPNAME')
+    def token_permission_check(self, request):
+        signature = request.META.get('HTTP_SIGNATURE')
+        timestamp = request.META.get('HTTP_TIMESTAMP')
+        app_name = request.META.get('HTTP_APPNAME')
 
         if not app_name:
             return False, '未提供appname'
