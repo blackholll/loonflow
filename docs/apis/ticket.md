@@ -256,7 +256,7 @@ post
 参数名 | 类型 | 必填 | 说明
 ---|---|---|---
 username | varchar | 是 | 请求用户的用户名
-add_node_to | varchar | 是 | 加签对象
+target_username | varchar | 是 | 加签对象
 suggestion | varchar | 否 | 加签意见
 ### 返回结果
 ```
