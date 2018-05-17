@@ -179,10 +179,10 @@ class TicketBaseService(BaseService):
         destination_participant_type_id = destination_state.participant_type_id
         destination_participant = destination_state.participant
         if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
-            # 获取工单字段的值
-            field_value, msg = cls.get_ticket_field_value(destination_participant)
+            # 获取工单字段的值, 因为是新建工单,记录还没实际生成，所以从请求的数据中获取
+            field_value = request_data_dict.get(destination_participant, '')
             if not field_value:
-                return False, msg
+                return False, '请求数据中无此字段的值,或值为空:{}'.format(destination_participant)
             destination_participant = field_value
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(field_value.split(',')) > 1:
@@ -738,7 +738,7 @@ class TicketBaseService(BaseService):
             add_relation = ','.join(username_list)
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
             # 获取工单字段的值
-            field_value, msg = cls.get_ticket_field_value(destination_participant)
+            field_value, msg = cls.get_ticket_field_value(ticket_id, destination_participant)
             if not field_value:
                 return False, msg
             destination_participant = field_value
