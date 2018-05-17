@@ -191,6 +191,7 @@ class TicketBaseService(BaseService):
 
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
             destination_participant, msg = cls.get_ticket_field_value(parent_ticket_id, destination_participant)
+            destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD
 
@@ -201,10 +202,9 @@ class TicketBaseService(BaseService):
             elif destination_participant == 'creator_tl':
                 # 获取用户的tl或审批人(优先审批人)
                 approver, msg = AccountBaseService.get_user_dept_approver(username)
+                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
                 if len(approver.split(',')) > 1:
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
-                else:
-                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
                 destination_participant = approver
         # 生成流水号
         ticket_sn, msg = cls.gen_ticket_sn()
