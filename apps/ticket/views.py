@@ -303,7 +303,8 @@ class TicketAddNodeEnd(View):
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
         username = request_data_dict.get('username', '')
-        result, msg = TicketBaseService.add_node_ticket_end(ticket_id, username)
+        suggestion = request_data_dict.get('suggestion', '')
+        result, msg = TicketBaseService.add_node_ticket_end(ticket_id, username, suggestion)
         if result:
             code, msg, data = 0, msg, result
         else:
