@@ -44,7 +44,7 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def checkout_new_permission(cls, username, workflow_id):
+    def check_new_permission(cls, username, workflow_id):
         """
         判断用户是否有新建工单的权限
         :param username:

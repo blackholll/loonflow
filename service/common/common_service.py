@@ -34,3 +34,20 @@ class CommonService(BaseService):
             msg = '签名校验失败'
         return False, msg
 
+    @classmethod
+    @auto_log
+    def get_model_field(cls, app_name, model_name):
+        """
+        获取model的字段信息
+        :param app_name:
+        :param model_name:
+        :return:
+        """
+        from django.apps import apps
+        model_obj = apps.get_model(app_name, model_name)
+        fields = model_obj._meta.fields
+        field_dict = {}
+        for field0 in fields:
+            field_dict[field0.name] = field0.verbose_name
+
+        return field_dict

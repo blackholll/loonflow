@@ -138,7 +138,7 @@ class TicketBaseService(BaseService):
         request_field_arg_list = [key for key, value in request_data_dict.items() if (key not in ['workflow_id', 'suggestion', 'username'])]
 
         # 判断用户是否有权限新建该工单
-        has_permission, msg = WorkflowBaseService.checkout_new_permission(username, workflow_id)
+        has_permission, msg = WorkflowBaseService.check_new_permission(username, workflow_id)
         if not has_permission:
             return False, msg
         # 获取工单必填信息
@@ -299,6 +299,23 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
+    def get_ticket_format_custom_field_key_dict(cls, ticket_id):
+        """
+        获取工单的自定义字段的格式化dict信息
+        :param ticket_id:
+        :return:
+        """
+        ticket_obj = TicketRecord.query.filter_by(id=ticket_id, is_deleted=0).first()
+        custom_field_queryset = CustomField.objects.filter(is_deleted=0, workflow_id=ticket_obj.workflow_id).all()
+        format_field_key_dict = {}
+        for custom_field in custom_field_queryset:
+            format_field_key_dict[custom_field.field_key] = dict(field_type_id=custom_field.field_type_id, name=custom_field.name, placeholder=custom_field.placeholder, bool_field_display=custom_field.bool_field_display,
+                                                                 field_choice=custom_field.field_choice, field_from='custom')
+
+        return format_field_key_dict, ''
+
+    @classmethod
+    @auto_log
     def get_ticket_custom_field_value(cls, ticket_id, field_key):
         """
         获取工单的自定义字段的值
@@ -306,12 +323,10 @@ class TicketBaseService(BaseService):
         :param field_key:
         :return:
         """
-        ticket_obj = TicketRecord.query.filter_by(id=ticket_id, is_deleted=0).first()
-        custom_field_queryset = CustomField.objects.filter(is_deleted=0, workflow_id=ticket_id.workflow_id).all()
-        format_field_key_dict = {}
-        for custom_field in custom_field_queryset:
-            format_field_key_dict[custom_field.field_key] = dict(field_type_id=custom_field.field_type_id, name=custom_field.name, placeholder=custom_field.placeholder, bool_field_display=custom_field.bool_field_display,
-                                                                     field_choice=custom_field.field_choice, field_from='custom')
+        format_field_key_dict, msg = cls.get_ticket_format_custom_field_key_dict(ticket_id)
+        if not format_field_key_dict:
+            return False, msg   # 这里不好区分是出错了，还是这个field_key对应的值确实是False. 后续想想有没什么好的方法
+
         field_type_id = format_field_key_dict[field_key]['field_type_id']
         ticket_custom_field_obj = TicketCustomField.query.filter_by(field_key=field_key, ticket_id=ticket_id, is_deleted=0).first()
 
@@ -344,6 +359,39 @@ class TicketBaseService(BaseService):
             elif field_type_id == CONSTANT_SERVICE.WORKFLOW_FIELD_TYPE_USERNAME:
                 value = ticket_custom_field_obj.username_value
         return value, ''
+
+    @classmethod
+    @auto_log
+    def get_ticket_field_name(cls, ticket_id, field_key):
+        """
+        获取工单的字段名称
+        :param ticket_id:
+        :param field_key:
+        :return:
+        """
+        if field_key in CONSTANT_SERVICE.TICKET_BASE_FIELD_LIST:
+            pass
+        else:
+            field_name, msg = cls.get_ticket_custom_field_name(ticket_id, field_key)
+
+        return field_name, ''
+
+    @classmethod
+    @auto_log
+    def get_ticket_custom_field_name(cls, ticket_id, field_key):
+        """
+        获取工单自定义字段的名称
+        :param ticket_id:
+        :param field_key:
+        :return:
+        """
+        format_field_key_dict, msg = cls.get_ticket_format_custom_field_key_dict(ticket_id)
+        field_name = format_field_key_dict['field_key']['field_name']
+        return field_name, ''
+
+
+
+
 
     @classmethod
     @auto_log
@@ -541,10 +589,19 @@ class TicketBaseService(BaseService):
                 if field['field_key'] in display_form_field_list:
                     new_field_list.append(field)
 
+        # 处理人详细信息
+        format_participant = ticket_obj.participant
+        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+            dept_obj, msg = AccountBaseService.get_dept_by_id(int(ticket_obj.participant))
+            format_participant = dept_obj.name
+        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+            role_obj, msg = AccountBaseService.get_role_by_id(int(ticket_obj.participant))
+            format_participant = role_obj.name
+
         return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
                     participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
                     creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created)[:19], gmt_modified=str(ticket_obj.gmt_modified)[:19],
-                    field_list=new_field_list), ''
+                    field_list=new_field_list, format_participant=format_participant), ''
 
     @classmethod
     @auto_log
