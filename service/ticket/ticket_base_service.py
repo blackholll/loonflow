@@ -814,10 +814,10 @@ class TicketBaseService(BaseService):
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_VARIABLE:
             if destination_participant == 'creator':
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
-                destination_participant = username
+                destination_participant = ticket_obj.creator
             elif destination_participant == 'creator_tl':
                 # 获取用户的tl或审批人(优先审批人)
-                approver, msg = AccountBaseService.get_user_dept_approver(username)
+                approver, msg = AccountBaseService.get_user_dept_approver(ticket_obj.creator)
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
                 if len(approver.split(',')) > 1:
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
