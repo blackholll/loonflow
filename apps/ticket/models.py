@@ -97,6 +97,7 @@ class TicketCustomField(models.Model):
     multi_select_value = models.CharField('多选下拉列表值', default='', max_length=50, blank=True, help_text='逗号隔开多个选项')
     text_value = models.TextField('文本值', default='', blank=True)
     username_value = models.CharField('用户名', max_length=50, default='', blank=True)
+    multi_username_value = models.CharField('多选用户名', max_length=1000, default='', blank=True)
 
     creator = models.CharField(u'创建人', max_length=50, default='admin')
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
