@@ -76,11 +76,13 @@ class TicketBaseService(BaseService):
             duty_query_expression = Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username)
             duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT, participant__in=user_dept_id_str_list)
             duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE, participant__in=user_role_id_str_list)
-            query_params &= duty_query_expression
-            ticeket_query_set1 = TicketRecord.objects.filter(query_params)
+
             # 多人的情况，逗号隔开，需要用extra查询实现, 这里会存在注入问题，后续改进下
-            ticeket_query_set2 = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", participant)'.format(username), 'participant_type_id={}'.format(CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI)])
-            ticket_objects = (ticeket_query_set1 | ticeket_query_set2).order_by(order_by_str)
+            ticket_query_set1 = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", participant)'.format(username), 'participant_type_id={}'.format(CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI)])
+            query_params &= duty_query_expression
+            ticket_query_set2 = TicketRecord.objects.filter(query_params)
+
+            ticket_objects = (ticket_query_set1 | ticket_query_set2).order_by(order_by_str)
 
         elif category == 'relation':
             ticket_objects = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", relation)'.format(username)]).order_by(order_by_str)
