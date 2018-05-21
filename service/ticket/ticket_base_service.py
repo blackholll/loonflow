@@ -568,7 +568,7 @@ class TicketBaseService(BaseService):
         field_list.append(dict(field_key='sn', name=u'流水号', value=ticket_obj.sn, order_id=0, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='title', name=u'标题', value=ticket_obj.title, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='state_id', name=u'状态id', value=ticket_obj.state_id, order_id=40, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='format_participant', name=u'当前处理人', value=format_participant, order_id=50, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='participant.format_participant', name=u'当前处理人', value=format_participant, order_id=50, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='creator', name=u'创建人', value=ticket_obj.creator, order_id=80, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='gmt_created', name=u'创建时间', value=str(ticket_obj.gmt_created)[:19], order_id=100, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='gmt_modified', name=u'更新时间', value=str(ticket_obj.gmt_modified)[:19], order_id=120, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
