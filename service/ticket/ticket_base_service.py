@@ -879,13 +879,10 @@ class TicketBaseService(BaseService):
             add_relation = destination_participant
 
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
-        new_relation_set = set(ticket_obj.relation.split(',') + add_relation.split(','))  # 去重， 但是可能存在空元素
-        new_relation_list = [new_relation0 for new_relation0 in new_relation_set if new_relation0]  # 去掉空元素
-        new_relation = ','.join(new_relation_list)  # 去重
+        cls.add_ticket_relation(ticket_id, add_relation)  # 更新关系人信息
         ticket_obj.state_id = destination_state_id
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.participant = destination_participant
-        ticket_obj.relation = new_relation
         ticket_obj.save()
 
         # 只更新需要更新的字段
@@ -921,6 +918,23 @@ class TicketBaseService(BaseService):
 
         # 通知消息
         return True, ''
+
+    @classmethod
+    @auto_log
+    def add_ticket_relation(cls, ticket_id, user_str):
+        """
+        新增工单关系人
+        :param ticket_id:
+        :param user_str: 逗号隔开的
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
+
+        new_relation_set = set(ticket_obj.relation.split(',') + user_str.split(','))  # 去重， 但是可能存在空元素
+        new_relation_list = [new_relation0 for new_relation0 in new_relation_set if new_relation0]  # 去掉空元素
+        new_relation = ','.join(new_relation_list)  # 去重
+        ticket_obj.relation = new_relation
+        ticket_obj.save()
 
     @classmethod
     @auto_log
@@ -1078,6 +1092,9 @@ class TicketBaseService(BaseService):
         if not permission:
             return False, msg
         if msg['need_accept']:
+            # 更新工单关系人
+            cls.add_ticket_relation(ticket_id, username)
+
             ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
             ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             ticket_obj.participant = username
@@ -1105,6 +1122,8 @@ class TicketBaseService(BaseService):
         permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
         if not permission:
             return False, msg
+
+        cls.add_ticket_relation(ticket_id, target_username)  # 更新工单关系人
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = target_username
@@ -1130,6 +1149,8 @@ class TicketBaseService(BaseService):
         permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
         if not permission:
             return False, msg
+
+        cls.add_ticket_relation(ticket_id, target_username)  # 更新工单关系人
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = target_username
