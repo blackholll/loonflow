@@ -19,45 +19,37 @@ category | varchar | 是 | 类型('all':所有工单, 'owner':我创建的工单
 
 ```
 {
-  code: 0,
-  msg: "",
-  data: {
-    per_page: 10,
-    total: 2,
-    page: 1,
-    value: [{
-      title: "title",
-      participant_type_id: 1,
-      state:{
-        state_id: 1,
-        state_name: 发起人-编辑中
-      }
-      parent_ticket_id: 0,
-      gmt_modified: "2018-04-10 16:48:43",
-      workflow_id: 1,
-      sn: "loonflow201804010001",
-      parent_ticket_state_id: 0,
-      gmt_created: "2018-04-10 16:48:43",
-      creator: "admin",
-      participant: "admin"
-    },
-    {
-      title: "dfdsfsfsdf",
-      participant_type_id: 0,
-      state:{
-        state_id: 1,
-        state_name: 发起人-编辑中
-      }
-      parent_ticket_id: 0,
-      gmt_modified: "2018-04-10 16:43:20",
-      workflow_id: 1,
-      sn: "loonflow201804010002",
-      parent_ticket_state_id: 0,
-      gmt_created: "2018-04-10 16:43:20",
-      creator: "zhangsan",
-      participant: "zhangsan"
-    }
-    ]}
+	"msg": "",
+	"code": 0,
+	"data": {
+		"value": [{
+			"participant_info": {
+				"participant_type_id": 3,
+				"participant": "1",
+				"participant_name": "总部",
+				"participant_type_name": "部门"
+			},
+			"gmt_created": "2018-05-15 07:16:38",
+			"parent_ticket_state_id": 0,
+			"state": {
+				"state_name": "发起人-确认中",
+				"state_id": 10
+			},
+			"creator": "lilei",
+			"parent_ticket_id": 0,
+			"title": "vpn申请",
+			"gmt_modified": "2018-05-22 07:26:54",
+			"workflow": {
+				"workflow_name": "vpn申请",
+				"workflow_id": 2
+			},
+			"sn": "loonflow_201805150001",
+			"id": 17
+		}],
+		"total": 1,
+		"page": 1,
+		"per_page": 10
+	}
 }
 ```
 

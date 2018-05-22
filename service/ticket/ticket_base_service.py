@@ -105,15 +105,18 @@ class TicketBaseService(BaseService):
         for ticket_result_object in ticket_result_object_list:
             state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_result_object.state_id)
             state_name = state_obj.name
+            participant_info, msg = cls.get_ticket_format_participant_info(ticket_result_object.id)
+
+            workflow_obj, msg = WorkflowBaseService.get_by_id(ticket_result_object.workflow_id)
+            workflow_info_dict = dict(workflow_id=workflow_obj.id, workflow_name=workflow_obj.name)
             ticket_result_restful_list.append(dict(id=ticket_result_object.id,
                                                    title=ticket_result_object.title,
-                                                   workflow_id=ticket_result_object.workflow_id,
+                                                   workflow=workflow_info_dict,
                                                    sn=ticket_result_object.sn,
                                                    state=dict(state_id=ticket_result_object.state_id, state_name=state_name),
                                                    parent_ticket_id=ticket_result_object.parent_ticket_id,
                                                    parent_ticket_state_id=ticket_result_object.parent_ticket_state_id,
-                                                   participant_type_id=ticket_result_object.participant_type_id,
-                                                   participant=ticket_result_object.participant,
+                                                   participant_info=participant_info,
                                                    creator=ticket_result_object.creator,
                                                    gmt_created=str(ticket_result_object.gmt_created)[:19],
                                                    gmt_modified=str(ticket_result_object.gmt_modified)[:19],
@@ -564,11 +567,16 @@ class TicketBaseService(BaseService):
 
         # 工单基础字段及属性
         field_list = []
-        format_participant, msg = cls.get_ticket_format_participant(ticket_id)
+        participant_info_dict, msg = cls.get_ticket_format_participant_info(ticket_id)
+        workflow_obj, msg = WorkflowBaseService.get_by_id(ticket_obj.workflow_id)
+        workflow_name = workflow_obj.name
+
         field_list.append(dict(field_key='sn', name=u'流水号', value=ticket_obj.sn, order_id=0, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='title', name=u'标题', value=ticket_obj.title, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='state_id', name=u'状态id', value=ticket_obj.state_id, order_id=40, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='participant.format_participant', name=u'当前处理人', value=format_participant, order_id=50, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='participant_info.participant_name', name=u'当前处理人', value=participant_info_dict['participant_name'], order_id=50, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='workflow.workflow_name', name=u'工作流名称', value=workflow_name, order_id=60, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+
         field_list.append(dict(field_key='creator', name=u'创建人', value=ticket_obj.creator, order_id=80, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='gmt_created', name=u'创建时间', value=str(ticket_obj.gmt_created)[:19], order_id=100, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='gmt_modified', name=u'更新时间', value=str(ticket_obj.gmt_modified)[:19], order_id=120, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
@@ -619,21 +627,31 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_format_participant(cls, ticket_id):
+    def get_ticket_format_participant_info(cls, ticket_id):
         """
-        工单参与人信息, 因为参与人中变量、字段、父工单字段的参与人在处理过程中会计算为实际值，所以工单的参与人不存在这几种情况
+        获取工单参与人信息
         :param ticket_id:
         :return:
         """
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
-        format_participant = ticket_obj.participant
-        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+        participant = ticket_obj.participant
+        participant_name = ticket_obj.participant
+        participant_type_id= ticket_obj.participant_type_id
+        participant_type_name = ''
+        if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+            participant_type_name = '个人'
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
+            participant_type_name = '多人'
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+            participant_type_name = '部门'
             dept_obj, msg = AccountBaseService.get_dept_by_id(int(ticket_obj.participant))
-            format_participant = dept_obj.name
-        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+            participant_name = dept_obj.name
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+            participant_type_name = '角色'
             role_obj, msg = AccountBaseService.get_role_by_id(int(ticket_obj.participant))
-            format_participant = role_obj.name
-        return format_participant, ''
+            participant_name = role_obj.name
+        # 工单基础表中不存在参与人为其他类型的情况
+        return dict(participant=participant, participant_name=participant_name, participant_type_id=participant_type_id, participant_type_name=participant_type_name), ''
 
     @classmethod
     @auto_log
