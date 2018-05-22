@@ -545,6 +545,8 @@ class TicketBaseService(BaseService):
             for field in field_list:
                 if field['field_key'] in display_form_field_list:
                     new_field_list.append(field)
+        # 字段排序
+        new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
 
         return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
                     participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
