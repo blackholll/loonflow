@@ -76,7 +76,7 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
     if ticket_obj.participant == script_name and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
         ## 校验脚本是否合法
-        script_obj = WorkflowScript.objects.filter(saved_name=script_name, is_deleted=False, is_active=True).first()
+        script_obj = WorkflowScript.objects.filter(saved_name='workflow_script/{}'.format(script_name), is_deleted=False, is_active=True).first()
         if not script_obj:
             return False, '脚本未注册或非激活状态'
 
