@@ -125,6 +125,8 @@ class WorkflowStateService(BaseService):
                 field0['field_attribute'] = state_field_dict[field0['field_key']]
                 new_field_list.append(field0)
 
+        # 字段排序
+        new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
         state_info_dict = dict(id=init_state_obj.id, name=init_state_obj.name, workflow_id=init_state_obj.workflow_id,
                                sub_workflow_id=init_state_obj.sub_workflow_id, distribute_type_id=init_state_obj.distribute_type_id,
                                is_hidden=init_state_obj.is_hidden, order_id=init_state_obj.order_id, type_id=init_state_obj.type_id,
