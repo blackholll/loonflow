@@ -34,7 +34,7 @@ python manage.py migrate
 - 创建初始账户: python manage.py createsuperuser
 - python manage.py collectstatic
 - 建议使用nginx+uwsgi部署
-- 启动celery任务: celery -A tasks worker -l -c 8 info -Q loonflow   # -c参数为启动的celery进程数，可自行视情况调整
+- 启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid   # -c参数为启动的celery进程数， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整
 
 
 ## 术语定义 
