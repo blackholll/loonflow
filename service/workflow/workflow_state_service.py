@@ -1,13 +1,15 @@
+# import json
 import json
 
 from django.db.models import QuerySet
 
+from apps.ticket.models import TicketCustomField
 from apps.workflow.models import State
 from service.base_service import BaseService
 from service.common.constant_service import CONSTANT_SERVICE
 from service.common.log_service import auto_log
+from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
 from service.workflow.workflow_transition_service import WorkflowTransitionService
-
 
 class WorkflowStateService(BaseService):
     def __init__(self):
@@ -63,7 +65,6 @@ class WorkflowStateService(BaseService):
                                    )
             return state_info_dict, ''
 
-
     @classmethod
     @auto_log
     def get_workflow_start_state(cls, workflow_id):
@@ -103,11 +104,34 @@ class WorkflowStateService(BaseService):
         transition_info_list = []
         for transition in transition_queryset:
             transition_info_list.append(dict(transition_id=transition.id, transition_name=transition.name))
+
+        # 工单基础字段及属性
+        field_list = []
+        field_list.append(dict(field_key='title', name=u'标题', value=None, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        custom_field_dict, msg = WorkflowCustomFieldService.get_workflow_custom_field(workflow_id)
+        for key, value in custom_field_dict.items():
+            field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=None, order_id=custom_field_dict[key]['order_id'],
+                                   field_type_id=custom_field_dict[key]['field_type_id'],
+                                   field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO,
+                                   field_choice=json.loads(custom_field_dict[key]['field_choice']),
+                                   ))
+
+        state_field_dict = json.loads(init_state_obj.state_field_str)
+        state_field_key_list = state_field_dict.keys()
+
+        new_field_list = []
+        for field0 in field_list:
+            if field0['field_key'] in state_field_key_list:
+                field0['field_attribute'] = state_field_dict[field0['field_key']]
+                new_field_list.append(field0)
+
+        # 字段排序
+        new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
         state_info_dict = dict(id=init_state_obj.id, name=init_state_obj.name, workflow_id=init_state_obj.workflow_id,
                                sub_workflow_id=init_state_obj.sub_workflow_id, distribute_type_id=init_state_obj.distribute_type_id,
                                is_hidden=init_state_obj.is_hidden, order_id=init_state_obj.order_id, type_id=init_state_obj.type_id,
                                participant_type_id=init_state_obj.participant_type_id, participant=init_state_obj.participant,
-                               state_field=json.loads(init_state_obj.state_field_str), label=json.loads(init_state_obj.label),
+                               field_list=new_field_list, label=json.loads(init_state_obj.label),
                                creator=init_state_obj.creator, gmt_created=str(init_state_obj.gmt_created)[:19],
                                transition=transition_info_list
                                )

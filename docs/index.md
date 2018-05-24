@@ -19,7 +19,7 @@ python manage.py migrate
 ```
 - 创建初始账户: python manage.py createsuperuser
 - 启动开发环境: python manage.py runserver 如果需要启动在其他端口:python manage.py runserver 8888
-- 启动celery任务: celery -A loontask worker -l info -Q loonflow
+- 启动celery任务: celery -A tasks worker -l info -Q loonflow
 
 ## 生产环境部署
 - 创建数据库并修改settings/pro.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)
@@ -34,7 +34,7 @@ python manage.py migrate
 - 创建初始账户: python manage.py createsuperuser
 - python manage.py collectstatic
 - 建议使用nginx+uwsgi部署
-- 启动celery任务: celery -A loontask worker -l -c 8 info -Q loonflow   # -c参数为启动的celery进程数，可自行视情况调整
+- 启动celery任务: celery -A tasks worker -l -c 8 info -Q loonflow   # -c参数为启动的celery进程数，可自行视情况调整
 
 
 ## 术语定义 
@@ -114,7 +114,8 @@ loonflow后台管理系统分为三个部分(为了早点上线开源，所有�
     45: 下拉列表
     50: 多选的下拉列表
     55: 文本域
-    60: 用户名(此类型也可使用字符串类型代替,不过需要调用方系统自行处理用户列表，loonflow只保存用户名)
+    60: 用户名(需要调用方系统自行处理用户列表，loonflow只保存用户名)
+    70: 多选用户名(需要调用方系统自行处理用户列表，loonflow只保存用户名，多人的情况使用逗号隔开)
   字段属性:
     1: 只读 调用新建或处理工单的接口时如果传了设置为只读的字段的值，loonflow将忽略，不会更新工单此字段的值
     2: 必填 调用新建或处理工单的接口时必须传递此字段的值，如果未提供则新建或处理工单接口将调用失败

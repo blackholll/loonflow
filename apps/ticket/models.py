@@ -41,6 +41,7 @@ class TicketFlowLog(models.Model):
     participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
     participant = models.CharField('处理人', max_length=50, default='', blank=True)
     state_id = models.IntegerField('当前状态id', default=0, blank=True)
+    intervene_type_id = models.IntegerField('干预类型', default=0, help_text='0.非人为干预的流转，1.转交操作 2.加签操作 3.加签处理完成')
     ticket_data = models.CharField('工单数据', max_length=10000, default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
 
     creator = models.CharField(u'创建人', max_length=50, default='admin')
@@ -77,13 +78,13 @@ class TicketCustomField(models.Model):
     工单自定义字段， 工单自定义字段实际的值。
     """
     name = models.CharField(u'字段名', max_length=50)
-    filed_key = models.CharField(u'字段标识', max_length=50)
+    field_key = models.CharField(u'字段标识', max_length=50)
     ticket_id = models.IntegerField(u'工单id')
     field_type_id = models.IntegerField(u'字段类型', help_text='见service.constant_service中定义')
     char_value = models.CharField('字符串值', max_length=1000, default='', blank=True)
     int_value = models.IntegerField('整形值', default=0, blank=True)
     float_value = models.FloatField('浮点值', default=0.0, blank=True)
-    bool_value = models.BooleanField('布尔值', default=0, blank=True)
+    bool_value = models.BooleanField('布尔值', default=False, blank=True)
     # date_value = models.DateField('日期值', default='0001-01-01', blank=True)
     date_value = models.DateField('日期值', default=datetime.datetime.strptime('0001-01-01', "%Y-%m-%d"), blank=True)
     # datetime_value = models.DateTimeField('日期时间值', default='0001-01-01 00:00:00', blank=True)
@@ -96,6 +97,7 @@ class TicketCustomField(models.Model):
     multi_select_value = models.CharField('多选下拉列表值', default='', max_length=50, blank=True, help_text='逗号隔开多个选项')
     text_value = models.TextField('文本值', default='', blank=True)
     username_value = models.CharField('用户名', max_length=50, default='', blank=True)
+    multi_username_value = models.CharField('多选用户名', max_length=1000, default='', blank=True)
 
     creator = models.CharField(u'创建人', max_length=50, default='admin')
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)

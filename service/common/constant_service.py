@@ -24,6 +24,12 @@ class ConstantService(BaseService):
         self.TRANSITION_TYPE_COMMON = 1  # 常规流转
         self.TRANSITION_TYPE_TIMER = 2  # 定时器流转
 
+        self.TRANSITION_INTERVENE_TYPE_DELIVER = 1  # 转交操作
+        self.TRANSITION_INTERVENE_TYPE_ADD_NODE = 2  # 加签操作
+        self.TRANSITION_INTERVENE_TYPE_ADD_NODE_END = 3  # 加签处理完成
+        self.TRANSITION_INTERVENE_TYPE_ACCEPT = 4  # 接单操作
+
+
         self.FIELD_TYPE_STR = 5  # 字符串类型
         self.FIELD_TYPE_INT = 10  # 整形类型
         self.FIELD_TYPE_FLOAT = 15  # 浮点类型
@@ -35,7 +41,8 @@ class ConstantService(BaseService):
         self.FIELD_TYPE_SELECT = 45  # 下拉列表
         self.FIELD_TYPE_MULTI_SELECT = 50  # 多选下拉列表
         self.FIELD_TYPE_TEXT = 55  # 文本域
-        self.FIELD_TYPE_USERNAME = 60  # 用户名,多人情况逗号隔开，前端展现时需要调用方系统获取用户列表。loonflow只保存用户名
+        self.FIELD_TYPE_USERNAME = 60  # 用户名，前端展现时需要调用方系统获取用户列表。loonflow只保存用户名
+        self.FIELD_TYPE_MULTI_USERNAME = 70  # 多选用户名,多人情况逗号隔开，前端展现时需要调用方系统获取用户列表。loonflow只保存用户名
 
         self.FIELD_ATTRIBUTE_RO = 1  # 只读
         self.FIELD_ATTRIBUTE_REQUIRED = 2  # 必填

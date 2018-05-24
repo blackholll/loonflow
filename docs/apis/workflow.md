@@ -53,33 +53,91 @@ username | varchar | 是 | 请求用户的用户名,用于做必要的权限控�
 ### 返回数据
 ```
 {
-	"data": {
-		"transition": [{ # 初始状态可以做的操作，也就是新建工单时的提交路径
-			"transition_name": "提交",
-			"transition_id": 1
-		}, {
-			"transition_name": "保存",
-			"transition_id": 2
-		}],
-		"state_field": {  # 提交工单时候需要的字段 及每个字段的读写属性
-			"model": 1
-		},
-		"order_id": 0,
-		"participant_type_id": 1,
-		"sub_workflow_id": 0,
-		"is_hidden": false,
-		"participant": "wangfei",
-		"workflow_id": 1,
-		"id": 1,
-		"creator": "admin",
-		"type_id": 1,
-		"label": {},
-		"distribute_type_id": 1,
-		"name": "新建中",
-		"gmt_created": "2018-04-23 20:53:33"
-	},
 	"msg": "",
-	"code": 0
+	"code": 0,
+	"data": {
+		"order_id": 0,
+		"workflow_id": 1,
+		"name": "新建中",
+		"participant_type_id": 1,
+		"distribute_type_id": 1,
+		"participant": "wangfei",
+		"is_hidden": false,
+		"type_id": 1,
+		"gmt_created": "2018-04-23 20:53:33",
+		"id": 1,
+		"transition": [{
+			"transition_id": 1,
+			"transition_name": "提交"
+		}, {
+			"transition_id": 2,
+			"transition_name": "保存"
+		}],
+		"sub_workflow_id": 0,
+		"creator": "admin",
+		"label": {},
+		"field_list": [{
+			"order_id": 20,
+			"field_key": "title",
+			"field_attribute": 2,
+			"value": null,
+			"name": "标题",
+			"field_type_id": 5
+		}, {
+			"order_id": 35,
+			"field_key": "leave_proxy",
+			"field_attribute": 2,
+			"field_type_id": 60,
+			"field_value": null,
+			"field_name": "代理人",
+			"field_choice": {}
+		}, {
+			"order_id": 25,
+			"field_key": "leave_end",
+			"field_attribute": 2,
+			"field_type_id": 30,
+			"field_value": null,
+			"field_name": "结束时间",
+			"field_choice": {}
+		}, {
+			"order_id": 20,
+			"field_key": "leave_start",
+			"field_attribute": 2,
+			"field_type_id": 30,
+			"field_value": null,
+			"field_name": "开始时间",
+			"field_choice": {}
+		}, {
+			"order_id": 40,
+			"field_key": "leave_type",
+			"field_attribute": 2,
+			"field_type_id": 40,
+			"field_value": null,
+			"field_name": "请假类型",
+			"field_choice": {
+				"1": "年假",
+				"2": "调休",
+				"3": "病假",
+				"4": "婚假"
+			}
+		}, {
+			"order_id": 45,
+			"field_key": "leave_reason",
+			"field_attribute": 2,
+			"field_type_id": 55,
+			"field_value": null,
+			"field_name": "请假原因及相关附件",
+			"field_choice": {}
+		}, {
+			"order_id": 30,
+			"field_key": "leave_days",
+			"field_attribute": 2,
+			"field_type_id": 5,
+			"field_value": null,
+			"field_name": "请假天数(0.5的倍数)",
+			"field_choice": {}
+		}]
+	}
 }
 ```
 

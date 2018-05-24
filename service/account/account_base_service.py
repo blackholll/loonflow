@@ -1,4 +1,4 @@
-from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept
+from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 
@@ -145,3 +145,23 @@ class AccountBaseService(BaseService):
         for username in username_queryset:
             username_list.append(username)
         return username_list, ''
+
+    @classmethod
+    @auto_log
+    def get_dept_by_id(cls, dept_id):
+        """
+        获取部门信息
+        :param dept_id:
+        :return:
+        """
+        return LoonDept.objects.filter(id=dept_id, is_deleted=False).first(), ''
+
+    @classmethod
+    @auto_log
+    def get_role_by_id(cls, role_id):
+        """
+        获取角色信息
+        :param role_id:
+        :return:
+        """
+        return LoonRole.objects.filter(id=role_id, is_deleted=False).first(), ''

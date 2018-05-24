@@ -4,6 +4,24 @@ import os
 import sys
 import traceback
 import logging
+from celery import Celery
+
+
+# set the default Django settings module for the 'celery' program.
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings.dev')
+import django
+django.setup()
+
+app = Celery('loonflow')
+# Using a string here means the worker doesn't have to serialize
+# the configuration object to child processes.
+# - namespace='CELERY' means all celery-related configuration keys
+#   should have a `CELERY_` prefix.
+app.config_from_object('django.conf:settings', namespace='CELERY')
+
+# Load task modules from all registered Django app configs.
+app.autodiscover_tasks()
+
 
 from apps.ticket.models import TicketRecord
 from apps.workflow.models import Transition, State, WorkflowScript
@@ -15,23 +33,9 @@ try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-from celery import Celery
 
 logger = logging.getLogger('django')
 
-# set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings.dev')
-
-app = Celery('loonflow')
-
-# Using a string here means the worker doesn't have to serialize
-# the configuration object to child processes.
-# - namespace='CELERY' means all celery-related configuration keys
-#   should have a `CELERY_` prefix.
-app.config_from_object('django.conf:settings', namespace='CELERY')
-
-# Load task modules from all registered Django app configs.
-app.autodiscover_tasks()
 
 
 @app.task(bind=True)
@@ -60,7 +64,7 @@ def stdoutIO(stdout=None):
 
 
 @app.task
-def run_flow_task(script_name, ticket_id, state_id, action_from='loonrobot'):
+def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
     """
     执行工作流脚本
     :param script_name:
@@ -70,9 +74,9 @@ def run_flow_task(script_name, ticket_id, state_id, action_from='loonrobot'):
     :return:
     """
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-    if ticket_obj.paticipant == script_name and ticket_obj.paticipant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+    if ticket_obj.participant == script_name and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
         ## 校验脚本是否合法
-        script_obj = WorkflowScript.objects.filter(saved_name=script_name, is_deleted=False, is_active=True).first()
+        script_obj = WorkflowScript.objects.filter(saved_name='workflow_script/{}'.format(script_name), is_deleted=False, is_active=True).first()
         if not script_obj:
             return False, '脚本未注册或非激活状态'
 
@@ -88,7 +92,7 @@ def run_flow_task(script_name, ticket_id, state_id, action_from='loonrobot'):
             # script_result_msg = ''.join(s.buflist)
             script_result_msg = ''.join(s.getvalue())
         except Exception as e:
-            app.logger.error(traceback.format_exc())
+            logger.error(traceback.format_exc())
             script_result = False
             script_result_msg = e.__str__()
 
@@ -136,7 +140,7 @@ def run_flow_task(script_name, ticket_id, state_id, action_from='loonrobot'):
             destination_participant_type_id = tar_state_obj.participant_type_id
             destination_participant = tar_state_obj.participant
 
-        ticket_obj.paticipant = destination_participant
+        ticket_obj.participant = destination_participant
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.state_id = tar_state_obj.id
         ticket_obj.save()

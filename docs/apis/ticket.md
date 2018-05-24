@@ -19,45 +19,37 @@ category | varchar | 是 | 类型('all':所有工单, 'owner':我创建的工单
 
 ```
 {
-  code: 0,
-  msg: "",
-  data: {
-    per_page: 10,
-    total: 2,
-    page: 1,
-    value: [{
-      title: "title",
-      participant_type_id: 1,
-      state:{
-        state_id: 1,
-        state_name: 发起人-编辑中
-      }
-      parent_ticket_id: 0,
-      gmt_modified: "2018-04-10 16:48:43",
-      workflow_id: 1,
-      sn: "loonflow201804010001",
-      parent_ticket_state_id: 0,
-      gmt_created: "2018-04-10 16:48:43",
-      creator: "admin",
-      participant: "admin"
-    },
-    {
-      title: "dfdsfsfsdf",
-      participant_type_id: 0,
-      state:{
-        state_id: 1,
-        state_name: 发起人-编辑中
-      }
-      parent_ticket_id: 0,
-      gmt_modified: "2018-04-10 16:43:20",
-      workflow_id: 1,
-      sn: "loonflow201804010002",
-      parent_ticket_state_id: 0,
-      gmt_created: "2018-04-10 16:43:20",
-      creator: "zhangsan",
-      participant: "zhangsan"
-    }
-    ]}
+	"msg": "",
+	"code": 0,
+	"data": {
+		"value": [{
+			"participant_info": {
+				"participant_type_id": 3,
+				"participant": "1",
+				"participant_name": "总部",
+				"participant_type_name": "部门"
+			},
+			"gmt_created": "2018-05-15 07:16:38",
+			"parent_ticket_state_id": 0,
+			"state": {
+				"state_name": "发起人-确认中",
+				"state_id": 10
+			},
+			"creator": "lilei",
+			"parent_ticket_id": 0,
+			"title": "vpn申请",
+			"gmt_modified": "2018-05-22 07:26:54",
+			"workflow": {
+				"workflow_name": "vpn申请",
+				"workflow_id": 2
+			},
+			"sn": "loonflow_201805150001",
+			"id": 17
+		}],
+		"total": 1,
+		"page": 1,
+		"per_page": 10
+	}
 }
 ```
 
@@ -235,6 +227,7 @@ post
 ---|---|---|---
 username | varchar | 是 | 请求用户的用户名
 target_username | varchar | 是 | 转交对象的用户名
+suggestion | varchar | 否 | 转交意见
 ### 返回内容
 ```
 {
@@ -255,7 +248,8 @@ post
 参数名 | 类型 | 必填 | 说明
 ---|---|---|---
 username | varchar | 是 | 请求用户的用户名
-add_node_to | varchar | 是 | 加签对象
+target_username | varchar | 是 | 加签对象
+suggestion | varchar | 否 | 加签意见
 ### 返回结果
 ```
 {
@@ -265,15 +259,18 @@ add_node_to | varchar | 是 | 加签对象
 }
 ```
 
-#加签完成
+# 加签完成
 ### URL
 api/v1.0/tickets/{ticket_id}/add_node_end
 ### method
 post
+### 使用场景
+当A将工单加签给B.B在处理工单时候，界面将只显示“完成“按钮，点击后后端调用此接口，将工单基础表中的is_add_node设置为false
 ### 请求参数
 参数名 | 类型 | 必填 | 说明
 ---|---|---|---
 username | varchar | 是 | 请求用户的用户名
+suggestion | varchar | 否 | 加签完成意见
 ### 返回结果
 ```
 {
