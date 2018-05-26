@@ -81,11 +81,27 @@ LOONFLOW 分为两部分:
 - 上传必要的脚本(如自动赋权、自动开通账号等脚本，可用于实现工单审批通过后自动赋权、自动开通账号)
 
 - 新建工作流
-
+![admin_homapage](/docs/images/workflow_config.png)
 - 上传工作流脚本
-- 新建工作流的自定义字段(如果需要的话):工单默认只提供id、流水号、标题、当前状态、当前处理人类型、当前处理人、创建时间、修改时间等字段。不同类型的工单可能需要不同的自定义字段，可以在此处给相应的工作流配置自定义字段
-- 设置工作流的状态: 工作流对应多个字段（发起人新建中、领导审批中、技术人员处理中、已结束等等）。 如果状态需要配置子工作流，必须设置该状态的处理人类型为1，处理人为loonrobot
+
+    loonflow支持给状态配置脚本处理(见“设置工作流状态”)，当工单流转到该状态时将自动执行脚本任务
+![admin_homapage](/docs/images/workflow_script.png)
+- 新建工作流的自定义字段
+
+    工单默认只提供id、流水号、标题、当前状态、当前处理人类型、当前处理人、创建时间、修改时间等字段。不同类型的工单可能需要不同的自定义字段，可以在此处给相应的工作流配置自定义字段
+    ![admin_homapage](/docs/images/workflow_custom_field.jpg)
+    ![admin_homapage](/docs/images/workflow_custom_field2.jpg)
+
+- 设置工作流的状态
+    工作流对应多个字段（发起人新建中、领导审批中、技术人员处理中、已结束等等）。 如果状态需要配置子工作流，必须设置该状态的处理人类型为1，处理人为loonrobot
+    ![admin_homapage](/docs/images/workflow_state1.jpg)
+    ![admin_homapage](/docs/images/workflow_state2.jpg)
+    ![admin_homapage](/docs/images/workflow_state3.jpg)
+
 - 设置工作流流转: 工作流流转控制工单状态的变化，流转的名称即工单处理中的按钮的名称，用户点击工单后，系统通过此表中的配置获取到下个状态信息，以更新工单的状态以及做相应的其他操作(执行脚本、通知相关人员等等)
+![admin_homapage](/docs/images/workflow_transition1.jpg)
+![admin_homapage](/docs/images/workflow_transition2.jpg)
+![admin_homapage](/docs/images/workflow_transition3.jpg)
 
 #### 注意
 -  当某个状态的参与人配置为脚本时，其直连下个状态只能有一个。因为脚本执行完成后会只获取一个下个状态来自动流转
