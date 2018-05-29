@@ -13,16 +13,31 @@ api调用:
 ```
 import requests
 
-header = dict(signature=signature, timestamp=timestamp, appname=app_name) # header不允许设置参数名包含'-'
-header.update({'Content-Type': 'application/json; charset=UTF-8'})
+headers = dict(signature=signature, timestamp=timestamp, appname=app_name) # header不允许设置参数名包含'-'
 
-r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets')
+# get
+get_data = dict(username='zhangsan', per_page=20, category='all')
+r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets', headers=headers)
+result = r.json()
+
+# post
+data = dict(username='zhangsan', target_username='lisi', suggestion='请协助提供更多信息')
+r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets/{ticket_id}/add_node', headers=headers, json=data)
 result = r.json()
 
 ```
+
 ## API
 [工单相关接口](./ticket.md)
 [工作流相关接口](./workflow.md)
+
+## API调用逻辑
+#### 新建工单
+![admin_homapage](/docs/images/new_ticket.jpg)
+
+#### 处理工单
+![admin_homapage](/docs/images/handle_ticket.jpg)
+
 
 
 ## 常量定义
