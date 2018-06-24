@@ -1,5 +1,5 @@
-# Loonflow v0.1 api
-Loonflow作为工作流引擎，正确是的使用姿势是各个系统通过http api调用按照各自的需求来完成工单展示、工单新建、工单处理逻辑
+# Loonflow v0.1.1 api
+Loonflow作为工作流引擎，正确是的使用姿势是各个系统的后端通过http api调用按照各自的需求来完成工单展示、工单新建、工单处理逻辑
 ## 调用授权
 在loonflow的管理后台中"账户-调用token"中新新增记录.填写调用方app_name新增后会生成一个签名token.调用方将签名信息写到http header中来调用具体的api
 签名算法如下:
