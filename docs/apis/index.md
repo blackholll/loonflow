@@ -17,7 +17,7 @@ headers = dict(signature=signature, timestamp=timestamp, appname=app_name) # hea
 
 # get
 get_data = dict(username='zhangsan', per_page=20, category='all')
-r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets', headers=headers)
+r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets', headers=headers, params=get_data)
 result = r.json()
 
 # post
