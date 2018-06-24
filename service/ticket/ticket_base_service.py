@@ -157,7 +157,10 @@ class TicketBaseService(BaseService):
         for key, value in state_field_dict.items():
             if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_REQUIRED:
                 require_field_list.append(key)
-            update_field_list.append(key)
+                update_field_list.append(key)
+            if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_OPTIONAL:
+                update_field_list.append(key)
+
         # 校验是否所有必填字段都有提供，如果transition_id对应设置为不校验必填则直接通过
         req_transition_obj, msg = WorkflowTransitionService.get_workflow_transition_by_id(transition_id)
         if req_transition_obj.field_require_check:
@@ -223,7 +226,7 @@ class TicketBaseService(BaseService):
         # 新增自定义字段，只保存required_field
         request_data_dict_allow = {}
         for key, value in request_data_dict.items():
-            if key in require_field_list:
+            if key in update_field_list:
                 request_data_dict_allow[key] = value
 
         update_ticket_custom_field_result, msg = cls.update_ticket_custom_field(new_ticket_obj.id, request_data_dict_allow)
