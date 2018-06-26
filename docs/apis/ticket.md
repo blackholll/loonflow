@@ -63,6 +63,7 @@ POST
 参数名 | 类型 | 必填 | 说明
 ---|---|---|---
 workflow_id | int | 是 | 工作流id(工单关联的工作流的id)
+transition_id | int | 是 | 新建工单时候的流转id（通过workflow/{id}/init_state接口可以获取新建工单时允许的transition）
 username | varchar | 是 | 新建工单的用户名
 parent_ticket_id| int | 否 | 父工单的id(用于子工单的逻辑，如果新建的工单是某个工单的子工单需要填写父工单的id)
 parent_ticket_state_id | varchar | 否 | 父工单的状态（子工单是和父工单的某个状态关联的）
