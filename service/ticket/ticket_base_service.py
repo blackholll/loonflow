@@ -1080,7 +1080,7 @@ class TicketBaseService(BaseService):
         state_info_dict, msg = WorkflowStateService.get_states_info_by_state_id_list(ticket_state_id_list)
         new_result = {}
         for key, value in ticket_state_id_dict.items():
-            new_result[key] = dict(state_id=key, state_name=state_info_dict[value])
+            new_result[key] = dict(state_id=value, state_name=state_info_dict[value])
         return new_result, msg
 
     @classmethod
