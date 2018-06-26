@@ -13,7 +13,7 @@ api调用:
 ```
 import requests
 
-headers = dict(signature=signature, timestamp=timestamp, appname=app_name) # header不允许设置参数名包含'-'
+headers = dict(signature=signature, timestamp=timestamp, appname=app_name)
 
 # get
 get_data = dict(username='zhangsan', per_page=20, category='all')
@@ -24,8 +24,11 @@ result = r.json()
 data = dict(username='zhangsan', target_username='lisi', suggestion='请协助提供更多信息')
 r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets/{ticket_id}/add_node', headers=headers, json=data)
 result = r.json()
-
 ```
+
+## 注意
+settings/dev中将签名校验部分(service.permission.api_permission.ApiPermissionCheck)注释掉了。settings/pro中开启的
+
 
 ## API
 [工单相关接口](./ticket.md)
