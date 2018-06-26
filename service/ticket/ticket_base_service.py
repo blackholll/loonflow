@@ -113,7 +113,7 @@ class TicketBaseService(BaseService):
                                                    title=ticket_result_object.title,
                                                    workflow=workflow_info_dict,
                                                    sn=ticket_result_object.sn,
-                                                   state=dict(state_id=ticket_result_object.state_id, state_name=state_name),
+                                                   state=dict(state_id=ticket_result_object.state_id, state_name=state_name, state_label=json.loads(state_obj.label)),
                                                    parent_ticket_id=ticket_result_object.parent_ticket_id,
                                                    parent_ticket_state_id=ticket_result_object.parent_ticket_state_id,
                                                    participant_info=participant_info,
