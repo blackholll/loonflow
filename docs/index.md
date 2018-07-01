@@ -104,8 +104,14 @@ LOONFLOW 分为两部分:
 ![admin_homapage](/docs/images/workflow_transition3.jpg)
 
 #### 注意
--  当某个状态的参与人配置为脚本时，其直连下个状态只能有一个。因为脚本执行完成后会只获取一个下个状态来自动流转
+- 当某个状态的参与人配置为脚本时，其直连下个状态只能有一个。因为脚本执行完成后会只获取一个下个状态来自动流转
 - 当状态下配置了子工作流,其处理人类型需要为个人，处理人为'loonrobot',.且其直连下个状态只能一个，因为所有子工单都结束后会自动流转到下个状态(只取一个)
+- 一些内置字段不得作为工作流自定义字段,在设置自定义字段时，字段名字尽量特殊点,如yw_username, oa_title等。这些字段包括但不限于以下:
+```
+title,workflow_id, sn, state_id, parent_ticket_id, parent_ticket_state_id, participant_type_id, participant, relation, in_add_node, add_node_man, transition_id, suggestion, usernane, creator, gmt_created, gmt_modified, is_deleted
+```
+
+- 设置为部门处理时， 该部门的下级部门的相关人员也会自动包含在内
 
 ## 常量定义
 
