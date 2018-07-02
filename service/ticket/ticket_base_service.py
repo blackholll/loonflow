@@ -884,10 +884,12 @@ class TicketBaseService(BaseService):
             add_relation = destination_participant
 
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
-        cls.add_ticket_relation(ticket_id, add_relation)  # 更新关系人信息
+        new_relation, msg = cls.add_ticket_relation(ticket_id, add_relation)  # 更新关系人信息
         ticket_obj.state_id = destination_state_id
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.participant = destination_participant
+        if new_relation is not False:
+            ticket_obj.relation = new_relation
         ticket_obj.save()
 
         # 只更新需要更新的字段
@@ -940,6 +942,7 @@ class TicketBaseService(BaseService):
         new_relation = ','.join(new_relation_list)  # 去重
         ticket_obj.relation = new_relation
         ticket_obj.save()
+        return new_relation, ''
 
     @classmethod
     @auto_log
