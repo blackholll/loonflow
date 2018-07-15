@@ -10,6 +10,12 @@ GET
 
 参数名 | 类型 | 必填 | 说明
 ---|---|---|---
+sn | varchar | 否 | 流水号，支持根据sn的前几位模糊查询
+title | varchar | 否 | 工单标题，模糊查询
+create_start | varchar | 否 | 创建时间起
+create_end | varchar | 否 | 创建时间止
+workflow_ids | varchar | 否 | 工作流ids，逗号隔开多个工作流id
+reverse | varchar | 否 | 是否按照创建时间倒序，0或者1
 page| int | 否 | 页码，默认1
 per_page| int | 否 | 每页个数，默认10
 username | varchar | 是 | 用户名
@@ -24,10 +30,11 @@ category | varchar | 是 | 类型('all':所有工单, 'owner':我创建的工单
 	"data": {
 		"value": [{
 			"participant_info": {
-				"participant_type_id": 3,
+				"participant_type_id": 1,
 				"participant": "1",
-				"participant_name": "总部",
-				"participant_type_name": "部门"
+				"participant_name": "zhangsan",
+				"participant_type_name": "个人",
+        "participant_alias": "张三"
 			},
 			"gmt_created": "2018-05-15 07:16:38",
 			"parent_ticket_state_id": 0,
@@ -112,7 +119,15 @@ username | varchar | 是 | 请求用户的用户名
         order_id: 0,
         field_type_id: 1,
         field_key: "model"
-      }],
+      },
+      {
+        field_attribute: 1,
+        order_id: 55,
+        name: "当前处理人",
+        value: "轨迹,王五",
+        field_key: "participant_info.participant_alias",
+        field_type_id: 5
+        }],
       participant_type_id: 0,
       title: "dfdsfsfsdf",
       participant: "zhangsan",
