@@ -142,8 +142,8 @@ class AccountBaseService(BaseService):
             return [], ''
         username_queryset = LoonUser.objects.filter(id__in=(user_id_list)).all()
         username_list = []
-        for username in username_queryset:
-            username_list.append(username)
+        for username_obj in username_queryset:
+            username_list.append(username_obj.username)
         return username_list, ''
 
     @classmethod
