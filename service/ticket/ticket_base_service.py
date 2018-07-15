@@ -580,6 +580,8 @@ class TicketBaseService(BaseService):
         field_list.append(dict(field_key='title', name=u'标题', value=ticket_obj.title, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='state_id', name=u'状态id', value=ticket_obj.state_id, order_id=40, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
         field_list.append(dict(field_key='participant_info.participant_name', name=u'当前处理人', value=participant_info_dict['participant_name'], order_id=50, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='participant_info.participant_alias', name=u'当前处理人', value=participant_info_dict['participant_alias'], order_id=55, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+
         field_list.append(dict(field_key='workflow.workflow_name', name=u'工作流名称', value=workflow_name, order_id=60, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
 
         field_list.append(dict(field_key='creator', name=u'创建人', value=ticket_obj.creator, order_id=80, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
@@ -641,22 +643,35 @@ class TicketBaseService(BaseService):
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         participant = ticket_obj.participant
         participant_name = ticket_obj.participant
-        participant_type_id= ticket_obj.participant_type_id
+        participant_type_id = ticket_obj.participant_type_id
         participant_type_name = ''
+        participant_alias = ''
         if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
             participant_type_name = '个人'
+            participant_user_obj, msg = AccountBaseService.get_user_by_username(participant)
+            participant_alias = participant_user_obj.alias
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
             participant_type_name = '多人'
+            # 依次获取人员信息
+            participant_name_list = participant_name.split(',')
+            participant_alias_list = []
+            for participant_name0 in participant_name_list:
+                participant_user_obj, msg = AccountBaseService.get_user_by_username(participant_name0)
+                participant_alias_list.append(participant_user_obj.alias)
+            participant_alias = ','.join(participant_alias_list)
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
             dept_obj, msg = AccountBaseService.get_dept_by_id(int(ticket_obj.participant))
             participant_name = dept_obj.name
+            participant_alias = participant_name
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
             participant_type_name = '角色'
             role_obj, msg = AccountBaseService.get_role_by_id(int(ticket_obj.participant))
             participant_name = role_obj.name
+            participant_alias = participant_name
         # 工单基础表中不存在参与人为其他类型的情况
-        return dict(participant=participant, participant_name=participant_name, participant_type_id=participant_type_id, participant_type_name=participant_type_name), ''
+        return dict(participant=participant, participant_name=participant_name, participant_type_id=participant_type_id,
+                    participant_type_name=participant_type_name, participant_alias=participant_alias), ''
 
     @classmethod
     @auto_log

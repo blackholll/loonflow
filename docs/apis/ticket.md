@@ -24,10 +24,11 @@ category | varchar | 是 | 类型('all':所有工单, 'owner':我创建的工单
 	"data": {
 		"value": [{
 			"participant_info": {
-				"participant_type_id": 3,
+				"participant_type_id": 1,
 				"participant": "1",
-				"participant_name": "总部",
-				"participant_type_name": "部门"
+				"participant_name": "zhangsan",
+				"participant_type_name": "个人",
+        "participant_alias": "张三"
 			},
 			"gmt_created": "2018-05-15 07:16:38",
 			"parent_ticket_state_id": 0,
@@ -112,7 +113,15 @@ username | varchar | 是 | 请求用户的用户名
         order_id: 0,
         field_type_id: 1,
         field_key: "model"
-      }],
+      },
+      {
+        field_attribute: 1,
+        order_id: 55,
+        name: "当前处理人",
+        value: "轨迹,王五",
+        field_key: "participant_info.participant_alias",
+        field_type_id: 5
+        }],
       participant_type_id: 0,
       title: "dfdsfsfsdf",
       participant: "zhangsan",
