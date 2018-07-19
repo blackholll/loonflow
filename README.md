@@ -4,14 +4,7 @@ a workflow engine base on django
 
 欢迎访问我的博客了解我的设计思路 http://loonapp.com/blog/27/
 
-<<<<<<< HEAD
-非开源版本demo见: http://loonflow.loonapp.com/    账号密码: guest/loon1234  (基于之前公司在用版本稍微修改了下，有些报错，暂时忽略，大家看下大概样式和功能就好)
-
-正式版本见tags中(目前v0.1.0已经发布,可以直接通过此链接下载https://github.com/blackholll/loonflow/releases，或者git checkout v0.1.0)
-v0.2.0版本已经开始开发中，最新代码建见develop分支
-=======
 最新代码见develop分支，正式版本见release中,推荐使用最新的版本.可以直接通过此链接下载https://github.com/blackholll/loonflow/releases，或者git checkout vx.x.x（具体的版本号，如v0.1.4）拉取代码
->>>>>>> hotfix
 
 ## 前言
 本人2011年开始接触工作流，2013年开始开发工作流第一版本，至今经历了多个版本。目前着手开发一个开源版本，致力于提供企业统一工作流引擎方案
