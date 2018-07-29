@@ -167,3 +167,25 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
         return True, ''
     else:
         return False, '工单当前处理人为非脚本，不执行脚本'
+
+
+@app.task
+def timer_transition(ticket_id, state_id, date_time, transition_id):
+    """
+    定时器流转
+    :param ticket_id:
+    :param state_id:
+    :param date_time:
+    :param transition_id:
+    :return:
+    """
+    # 需要满足工单此状态后续无其他操作才自动流转
+    # 查询该工单此状态所有操作
+    flow_log_set, msg = TicketBaseService().get_ticket_flow_log(ticket_id, per_page=1000)
+    for flow_log in flow_log_set:
+        if flow_log.state_id == state_id and flow_log.gmt_created > date_time:
+            return True, '后续有操作，定时器失效'
+    # 执行流转
+    handle_ticket_data = dict(transition_id=transition_id, username='loonrobot', suggestion='定时器流转')
+    TicketBaseService().handle_ticket(ticket_id, handle_ticket_data, True)
+
