@@ -1,5 +1,5 @@
 import json
-
+import datetime
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.conf import settings
@@ -248,6 +248,10 @@ class TicketBaseService(BaseService):
         if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
             from tasks import run_flow_task # 放在文件开头会存在循环引用
             run_flow_task.apply_async(args=[new_ticket_obj.id, destination_participant, destination_state_id], queue='loonflow')
+
+
+        # 定时器处理逻辑
+        cls.handle_timer_transition(new_ticket_obj.id, destination_state_id)
 
         # 父工单逻辑处理
         if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and new_ticket_obj.parent_ticket_id and new_ticket_obj.parent_ticket_state_id:
@@ -680,11 +684,12 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def ticket_handle_permission_check(cls, ticket_id, username):
+    def ticket_handle_permission_check(cls, ticket_id, username, by_timer=False):
         """
         处理权限校验: 获取当前状态是否需要处理， 该用户是否有权限处理
         :param ticket_id:
         :param username:
+        :param by_timer:是否为定时器流转
         :return:
         """
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
@@ -697,6 +702,10 @@ class TicketBaseService(BaseService):
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_state_id)
         if not state_obj:
             return False, '工单当前状态id不存在或已被删除'
+        if by_timer and username == 'loonrobot':
+            # 定时器流转，有权限
+            return True, '定时器流转，放开处理权限'
+
         participant_type_id = ticket_obj.participant_type_id
         participant = ticket_obj.participant
 
@@ -791,12 +800,13 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def handle_ticket(cls, ticket_id, request_data_dict):
+    def handle_ticket(cls, ticket_id, request_data_dict, by_timer=False):
         """
         处理工单:校验必填参数,获取当前状态必填字段，更新工单基础字段，更新工单自定义字段， 更新工单流转记录，执行必要的脚本，通知消息
         此处逻辑和新建工单有较多重复，下个版本会拆出来
         :param ticket_id:
         :param request_data_dict:
+        :param by_timer: 是否通过定时器触发的流转
         :return:
         """
         transition_id = request_data_dict.get('transition_id', '')
@@ -811,7 +821,7 @@ class TicketBaseService(BaseService):
             return False, '工单不存在或已被删除'
 
         # 判断用户是否有权限处理该工单
-        has_permission, msg = cls.ticket_handle_permission_check(ticket_id, username)
+        has_permission, msg = cls.ticket_handle_permission_check(ticket_id, username, by_timer)
         if not has_permission:
             return False, msg
         if msg['need_accept']:
@@ -918,12 +928,14 @@ class TicketBaseService(BaseService):
             if key in update_field_list:
                 request_update_dict[key] = value
 
-
         update_ticket_custom_field_result, msg = cls.update_ticket_field_value(ticket_id, update_field_dict)
         # 更新工单流转记录，执行必要的脚本，通知消息
         cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                      participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
                                      state_id=source_ticket_state_id, creator=username))
+
+        # 定时器逻辑
+        cls.handle_timer_transition(ticket_id, destination_state_id)
 
         if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and ticket_obj.parent_ticket_id and ticket_obj.parent_ticket_state_id:
             # 如果存在父工单，判断是否该父工单的下属子工单都已经结束状态，如果都是结束状态则自动流转父工单到下个状态
@@ -1216,4 +1228,22 @@ class TicketBaseService(BaseService):
                                     intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE_END,
                                     participant=username, state_id=ticket_obj.state_id, creator=username)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def handle_timer_transition(cls, ticket_id, destination_state_id):
+        """
+        定时器处理
+        :param ticket_id:
+        :param destination_state_id:
+        :return:
+        """
+        # 定时器处理逻辑，如果新的状态所属transition有配置定时器，那么创建一个定时器流转的任务
+        destination_transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(destination_state_id)
+        if destination_transition_queryset:
+            for destination_transition in destination_transition_queryset:
+                if destination_transition.transition_type_id == CONSTANT_SERVICE.TRANSITION_TYPE_TIMER:
+                    from tasks import timer_transition
+                    timer_transition.apply_async(args=[ticket_id.id, destination_state_id, datetime.datetime.now(), destination_transition.id], countdown=destination_transition.timer)
         return True, ''

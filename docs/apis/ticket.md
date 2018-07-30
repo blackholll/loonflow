@@ -515,3 +515,23 @@ ticket_ids | str | 是 | 工单ids,逗号隔开的字符串
   msg: ""
 }
 ```
+
+# 修改工单字段的值
+### URL
+api/v1.0/tickets/{ticket_id}/fields
+### method
+patch
+### 请求参数
+参数名 | 类型 | 必填 | 说明
+username | varchar | 是 | 请求用户的用户名,用于做必要的权限控制
+需要修改值的字段的key1 | varchar | 是 | 如需要修改标题，则就是title
+需要修改值的字段的key2 | varchar | 是 | 如需要修改标题，则就是title
+### 返回数据
+```
+{
+  msg: "",
+  data: "",
+  code: 0
+}
+```
+

@@ -36,6 +36,10 @@ python manage.py migrate
 - 建议使用nginx+uwsgi部署
 - 启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid   # -c参数为启动的celery进程数， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整
 
+## 版本升级
+从v0.1.x-v.2.x升级。需要一些DDL操作
+- workflow.models.Transition新增字段timer
+
 
 ## 术语定义 
 工单：具体的待处理事项，用户新建的是工单，工单按照工作流的设计来实现不同状态不同处理人之间的流转

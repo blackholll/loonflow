@@ -63,7 +63,8 @@ class Transition(models.Model):
     """
     name = models.CharField('操作', max_length=50)
     workflow_id = models.IntegerField('工作流id')
-    transition_type_id = models.IntegerField('流转类型', default=1, help_text='1.常规流转，2.定时器流转(v0.2版本支持)') #常规流转，定时器流转，选择定时器后需要设置定时器时间，同时不得设置条件，不得设置弹窗信息
+    transition_type_id = models.IntegerField('流转类型', default=1, help_text='1.常规流转，2.定时器流转,需要设置定时器时间')
+    timer = models.IntegerField('定时器(单位秒)', default=0, help_text='流转类型设置为定时器流转时生效,单位秒。处于源状态X秒后如果状态都没有过变化则自动流转到目标状态')
     source_state_id = models.IntegerField('源状态id')
     destination_state_id = models.IntegerField('目的状态id')
     field_require_check = models.BooleanField('是否校验必填项', default=True, help_text='默认在用户点击操作的时候需要校验工单表单的必填项,如果设置为否则不检查。用于如"退回"属性的操作，不需要填写表单内容')
