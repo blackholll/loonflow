@@ -312,10 +312,25 @@ class TicketAddNodeEnd(View):
         return api_response(code, msg, data)
 
 
+class TicketField(View):
+    def patch(self, request, *args, **kwargs):
+        """
+        修改工单字段
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data_dict.get('username', '')
 
-
-def ticketlist(response):
-    if response.method == 'POST':
-        return HttpResponse('postssss')
-    else:
-        return HttpResponse('getsss')
+        result, msg = TicketBaseService.update_ticket_field_value(ticket_id, request_data_dict)
+        if result:
+            code, msg, data = 0, msg, result
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)
