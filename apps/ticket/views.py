@@ -21,6 +21,7 @@ class TicketListView(View):
         create_start = request_data.get('create_start', '')
         create_end = request_data.get('create_end', '')
         workflow_ids = request_data.get('workflow_ids', '')
+        ticket_ids = request_data.get('ticket_ids', '')
         reverse = int(request_data.get('reverse', 1))
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
@@ -28,7 +29,7 @@ class TicketListView(View):
         category = request_data.get('category')
         ticket_result_restful_list, msg = TicketBaseService.get_ticket_list(sn=sn, title=title, username=username,
                                                                             create_start=create_start, create_end=create_end,
-                                                                            workflow_ids=workflow_ids,category=category, reverse=reverse, per_page=per_page, page=page)
+                                                                            workflow_ids=workflow_ids, ticket_ids=ticket_ids, category=category, reverse=reverse, per_page=per_page, page=page)
         if ticket_result_restful_list is not False:
             data = dict(value=ticket_result_restful_list, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
             code, msg,  = 0, ''
