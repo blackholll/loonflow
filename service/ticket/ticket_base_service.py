@@ -318,11 +318,11 @@ class TicketBaseService(BaseService):
         :param ticket_id:
         :return:
         """
-        ticket_obj = TicketRecord.query.filter_by(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         custom_field_queryset = CustomField.objects.filter(is_deleted=0, workflow_id=ticket_obj.workflow_id).all()
         format_field_key_dict = {}
         for custom_field in custom_field_queryset:
-            format_field_key_dict[custom_field.field_key] = dict(field_type_id=custom_field.field_type_id, name=custom_field.name, placeholder=custom_field.placeholder, bool_field_display=custom_field.bool_field_display,
+            format_field_key_dict[custom_field.field_key] = dict(field_type_id=custom_field.field_type_id, name=custom_field.field_name, placeholder=custom_field.placeholder, bool_field_display=custom_field.bool_field_display,
                                                                  field_choice=custom_field.field_choice, field_from='custom')
 
         return format_field_key_dict, ''
@@ -341,7 +341,7 @@ class TicketBaseService(BaseService):
             return False, msg   # 这里不好区分是出错了，还是这个field_key对应的值确实是False. 后续想想有没什么好的方法
 
         field_type_id = format_field_key_dict[field_key]['field_type_id']
-        ticket_custom_field_obj = TicketCustomField.query.filter_by(field_key=field_key, ticket_id=ticket_id, is_deleted=0).first()
+        ticket_custom_field_obj = TicketCustomField.objects.filter(field_key=field_key, ticket_id=ticket_id, is_deleted=0).first()
 
         if not ticket_custom_field_obj:
             # 因为有可能该字段还没赋值
