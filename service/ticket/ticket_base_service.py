@@ -322,11 +322,11 @@ class TicketBaseService(BaseService):
         :param ticket_id:
         :return:
         """
-        ticket_obj = TicketRecord.query.filter_by(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         custom_field_queryset = CustomField.objects.filter(is_deleted=0, workflow_id=ticket_obj.workflow_id).all()
         format_field_key_dict = {}
         for custom_field in custom_field_queryset:
-            format_field_key_dict[custom_field.field_key] = dict(field_type_id=custom_field.field_type_id, name=custom_field.name, placeholder=custom_field.placeholder, bool_field_display=custom_field.bool_field_display,
+            format_field_key_dict[custom_field.field_key] = dict(field_type_id=custom_field.field_type_id, name=custom_field.field_name, bool_field_display=custom_field.boolean_field_display,
                                                                  field_choice=custom_field.field_choice, field_from='custom')
 
         return format_field_key_dict, ''
@@ -345,7 +345,7 @@ class TicketBaseService(BaseService):
             return False, msg   # 这里不好区分是出错了，还是这个field_key对应的值确实是False. 后续想想有没什么好的方法
 
         field_type_id = format_field_key_dict[field_key]['field_type_id']
-        ticket_custom_field_obj = TicketCustomField.query.filter_by(field_key=field_key, ticket_id=ticket_id, is_deleted=0).first()
+        ticket_custom_field_obj = TicketCustomField.objects.filter(field_key=field_key, ticket_id=ticket_id, is_deleted=0).first()
 
         if not ticket_custom_field_obj:
             # 因为有可能该字段还没赋值
@@ -389,7 +389,7 @@ class TicketBaseService(BaseService):
         :return:
         """
         if field_key in CONSTANT_SERVICE.TICKET_BASE_FIELD_LIST:
-            pass
+            return field_key, ''
         else:
             field_name, msg = cls.get_ticket_custom_field_name(ticket_id, field_key)
 
@@ -405,7 +405,8 @@ class TicketBaseService(BaseService):
         :return:
         """
         format_field_key_dict, msg = cls.get_ticket_format_custom_field_key_dict(ticket_id)
-        field_name = format_field_key_dict['field_key']['field_name']
+        field_name = format_field_key_dict[field_key]['field_name']
+
         return field_name, ''
 
     @classmethod
@@ -585,18 +586,18 @@ class TicketBaseService(BaseService):
         workflow_obj, msg = WorkflowBaseService.get_by_id(ticket_obj.workflow_id)
         workflow_name = workflow_obj.name
 
-        field_list.append(dict(field_key='sn', name=u'流水号', value=ticket_obj.sn, order_id=0, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='title', name=u'标题', value=ticket_obj.title, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='state_id', name=u'状态id', value=ticket_obj.state_id, order_id=40, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='participant_info.participant_name', name=u'当前处理人', value=participant_info_dict['participant_name'], order_id=50, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='participant_info.participant_alias', name=u'当前处理人', value=participant_info_dict['participant_alias'], order_id=55, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='sn', field_name=u'流水号', field_value=ticket_obj.sn, order_id=0, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的流水号', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
+        field_list.append(dict(field_key='title', field_name=u'标题', field_value=ticket_obj.title, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的标题', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
+        field_list.append(dict(field_key='state_id', field_name=u'状态id', field_value=ticket_obj.state_id, order_id=40, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单当前状态的id', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
+        field_list.append(dict(field_key='participant_info.participant_name', field_name=u'当前处理人', field_value=participant_info_dict['participant_name'], order_id=50, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的当前处理人', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
+        field_list.append(dict(field_key='participant_info.participant_alias', field_name=u'当前处理人', field_value=participant_info_dict['participant_alias'], order_id=55, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单当前处理人(alias)', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
 
-        field_list.append(dict(field_key='workflow.workflow_name', name=u'工作流名称', value=workflow_name, order_id=60, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='workflow.workflow_name', field_name=u'工作流名称', field_value=workflow_name, order_id=60, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单所属工作流的名称', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
 
-        field_list.append(dict(field_key='creator', name=u'创建人', value=ticket_obj.creator, order_id=80, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='gmt_created', name=u'创建时间', value=str(ticket_obj.gmt_created)[:19], order_id=100, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='gmt_modified', name=u'更新时间', value=str(ticket_obj.gmt_modified)[:19], order_id=120, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
-        field_list.append(dict(field_key='state.state_name', name=u'状态名', value=state_name, order_id=41, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='creator', field_name=u'创建人', field_value=ticket_obj.creator, order_id=80, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的创建人', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
+        field_list.append(dict(field_key='gmt_created', field_name=u'创建时间', field_value=str(ticket_obj.gmt_created)[:19], order_id=100, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的创建时间', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
+        field_list.append(dict(field_key='gmt_modified', field_name=u'更新时间', field_value=str(ticket_obj.gmt_modified)[:19], order_id=120, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的更新时间', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
+        field_list.append(dict(field_key='state.state_name', field_name=u'状态名', field_value=state_name, order_id=41, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单当前状态的名称', field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
 
         # 工单所有自定义字段
         custom_field_dict, msg = WorkflowCustomFieldService.get_workflow_custom_field(ticket_obj.workflow_id)
@@ -637,7 +638,12 @@ class TicketBaseService(BaseService):
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=field_value, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
                                    field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO,
+                                   default_value=custom_field_dict[key]['default_value'],
+                                   description=custom_field_dict[key]['description'],
+                                   field_template=custom_field_dict[key]['field_template'],
+                                   boolean_field_display=json.loads(custom_field_dict[key]['boolean_field_display']) if custom_field_dict[key]['boolean_field_display'] else {},  # 之前model允许为空了，为了兼容先这么写
                                    field_choice=json.loads(custom_field_dict[key]['field_choice']),
+
                                    ))
         return field_list, ''
 
@@ -880,9 +886,12 @@ class TicketBaseService(BaseService):
             add_relation = ','.join(username_list)
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
             # 获取工单字段的值
-            field_value, msg = cls.get_ticket_field_value(ticket_id, destination_participant)
+            # 考虑到处理工单时 可能会编辑工单字段，所有优先从请求数据中获取，如果没有再去数据库中获取
+            field_value = request_data_dict.get('destination_participant')
             if not field_value:
-                return False, msg
+                field_value, msg = cls.get_ticket_field_value(ticket_id, destination_participant)
+                if not field_value:
+                    return False, msg
             destination_participant = field_value
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             add_relation = destination_participant
