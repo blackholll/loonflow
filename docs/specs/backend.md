@@ -78,7 +78,7 @@ def auto_log(func):
 migrations目录下除了__init__.py以外文件不要提交，否则多人提交，导致本地数据库同步会有问题
 
 ### 更加Pythonic的模型写法
-通用字段使用CommonModel抽象模型，如：
+通用字段使用CommonModel抽象模型，如：（不过因为此方法定义的model，migrate生成的数据库，字段顺序不好灵活控制，暂时未实际遵循）
 ```python
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -109,77 +109,5 @@ class TicketRecord(CommonModel):
 
     class Meta:
         db_table = 'ticket_record'
-
-```
-
-使用`ViewSet`编写视图demo
-```python
-from rest_framework.viewsets import ViewSet
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import AllowAny
-
-from django.shortcuts import get_object_or_404
-from flow.models import WorkFlow
-from flow.serializers import WorkFlowSerializer, WithoutCreatorWorkFlowSerializer
-
-
-class WorkflowViewSet(ViewSet):
-    permission_classes = [AllowAny]
-    authentication_classes = [TokenAuthentication]
-    queryset = WorkFlow.objects.all()
-
-    def list(self, request):
-        creator = request.query_params.get('creator')
-        if creator:
-            queryset = self.queryset.filter(creator=creator)
-        else:
-            queryset = self.queryset
-        serializer = WorkFlowSerializer(queryset, many=True)
-        return Response({'code': status.HTTP_200_OK, 'data': serializer.data, 'msg': None})
-
-    def retrieve(self, request, pk=None):
-        workflow = get_object_or_404(self.queryset, pk=pk)
-        serializer = WorkFlowSerializer(workflow)
-        return Response({'code': status.HTTP_200_OK, 'data': serializer.data, 'msg': None})
-
-    def update(self, request, pk=None):
-        workflow = get_object_or_404(self.queryset, pk=pk)
-        serializer = WithoutCreatorWorkFlowSerializer(workflow, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'code': status.HTTP_200_OK, 'data': serializer.data, 'msg': None},
-                            status=status.HTTP_200_OK)
-        else:
-            return Response({'code': status.HTTP_400_BAD_REQUEST, 'data': '', 'msg': serializer.errors},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-    def create(self, request):
-        request.data['creator'] = request.user.username or 'admin'
-        serializer = WorkFlowSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'code': status.HTTP_201_CREATED, 'data': serializer.data, 'msg': None}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'code': status.HTTP_400_BAD_REQUEST, 'data': '', 'msg': serializer.errors},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-    def partial_update(self, request, pk=None):
-        workflow = get_object_or_404(self.queryset, pk=pk)
-        serializer = WorkFlowSerializer(workflow, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'code': status.HTTP_201_CREATED, 'data': serializer.data, 'msg': None},
-                        status=status.HTTP_201_CREATED)
-        else:
-            return Response({'code': status.HTTP_400_BAD_REQUEST, 'data': '', 'msg': serializer.errors},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-    def destroy(self, request, pk=None):
-        workflow = get_object_or_404(self.queryset, pk=pk)
-        workflow.delete()
-        return Response({'code': status.HTTP_204_NO_CONTENT, 'data': '', 'msg': None},
-                        status=status.HTTP_204_NO_CONTENT)
 
 ```

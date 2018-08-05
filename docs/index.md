@@ -10,7 +10,7 @@ a workflow engine base django
 ## 运行开发环境
 - 创建数据库并修改settings/dev.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)
 - 创建python虚拟环境: python3.5
-- 安装依赖包: pip install -r backend/requirements/dev.txt
+- 安装依赖包: pip install -r requirements/dev.txt
 - 启动redis
 - 初始化数据库: 
 ```
@@ -24,7 +24,7 @@ python manage.py migrate
 ## 生产环境部署
 - 创建数据库并修改settings/pro.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)
 - 创建python虚拟环境:python3.5
-- 按照依赖包: pip install -r backend/requirements/pro.txt
+- 按照依赖包: pip install -r requirements/pro.txt
 - 启动redis
 - 初始化数据库:
 ```
