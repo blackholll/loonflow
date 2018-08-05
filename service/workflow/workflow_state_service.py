@@ -107,12 +107,19 @@ class WorkflowStateService(BaseService):
 
         # 工单基础字段及属性
         field_list = []
-        field_list.append(dict(field_key='title', name=u'标题', value=None, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO))
+        field_list.append(dict(field_key='title', field_name=u'标题', field_value=None, order_id=20,
+                               field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR,
+                               field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的标题',
+                               field_choice={}, boolean_field_display={}, default_value=None, field_template=''))
         custom_field_dict, msg = WorkflowCustomFieldService.get_workflow_custom_field(workflow_id)
         for key, value in custom_field_dict.items():
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=None, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
                                    field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO,
+                                   default_value=custom_field_dict[key]['default_value'],
+                                   description=custom_field_dict[key]['description'],
+                                   field_template=custom_field_dict[key]['field_template'],
+                                   boolean_field_display=json.loads(custom_field_dict[key]['boolean_field_display']) if custom_field_dict[key]['boolean_field_display'] else {},  # 之前model允许为空了，为了兼容先这么写,
                                    field_choice=json.loads(custom_field_dict[key]['field_choice']),
                                    ))
 
