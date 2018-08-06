@@ -29,6 +29,25 @@ class TicketRecord(models.Model):
         verbose_name = '工单记录'
         verbose_name_plural = '工单记录'
 
+    def get_to_dict(self):
+        return dict(
+            title=self.title,
+            workflow_id=self.workflow_id,
+            sn=self.sn,
+            state_id=self.state_id,
+            parent_ticket_id=self.parent_ticket_id,
+            parent_ticket_state_id=self.parent_ticket_state_id,
+            participant_type_id=self.participant_type_id,
+            participant=self.participant,
+            relation=self.relation,
+            in_add_node=self.in_add_node,
+            add_node_man=self.add_node_man,
+            creator=self.creator,
+            gmt_created=self.gmt_created,
+            gmt_modified=self.gmt_modified,
+            is_deleted=self.is_deleted,
+        )
+
 
 class TicketFlowLog(models.Model):
     """

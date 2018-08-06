@@ -242,9 +242,12 @@ class TicketBaseService(BaseService):
         if not update_ticket_custom_field_result:
             return False, msg
         # 新增流转记录
+        ## 获取工单所有字段的值
+        all_ticket_data, msg = cls.get_ticket_all_field_value(new_ticket_obj.id)
+        all_ticket_data_json = json.dumps(all_ticket_data)
         new_ticket_flow_log_dict = dict(ticket_id=new_ticket_obj.id, transition_id=transition_id, suggestion=suggestion,
                                         participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
-                                        state_id=start_state.id)
+                                        state_id=start_state.id, ticket_data=all_ticket_data_json)
         add_ticket_flow_log_result, msg = cls.add_ticket_flow_log(new_ticket_flow_log_dict)
         if not add_ticket_flow_log_result:
             return False, msg
@@ -943,9 +946,10 @@ class TicketBaseService(BaseService):
 
         update_ticket_custom_field_result, msg = cls.update_ticket_field_value(ticket_id, update_field_dict)
         # 更新工单流转记录，执行必要的脚本，通知消息
+        ticket_all_data, msg = cls.get_ticket_all_field_value(ticket_id)
         cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                      participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
-                                     state_id=source_ticket_state_id, creator=username))
+                                     state_id=source_ticket_state_id, creator=username, ticket_data=json.dumps(ticket_all_data)))
 
         # 定时器逻辑
         cls.handle_timer_transition(ticket_id, destination_state_id)
@@ -1260,3 +1264,30 @@ class TicketBaseService(BaseService):
                     from tasks import timer_transition
                     timer_transition.apply_async(args=[ticket_id.id, destination_state_id, datetime.datetime.now(), destination_transition.id], countdown=destination_transition.timer)
         return True, ''
+
+    @classmethod
+    @auto_log
+    def get_ticket_all_field_value(cls, ticket_id):
+        """
+        工单所有字段的值
+        :param ticket:
+        :return:
+        """
+        # 工单基础字段、工单自定义字段
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
+        if not ticket_obj:
+            return False, '工单已被删除或者不存在'
+        # 获取工单基础表中的字段中的字段信息
+        field_info_dict = ticket_obj.get_to_dict()
+        # 获取自定义字段的值
+        ## 获取工单自定义字段
+        ticket_custom_field_list, msg = WorkflowCustomFieldService.get_workflow_custom_field_name_list(ticket_obj.workflow_id)
+        if ticket_custom_field_list is False:
+            return False, msg
+
+        for field_key in ticket_custom_field_list:
+            field_value, msg = cls.get_ticket_field_value(ticket_id, field_key)
+            if field_value is False:
+                return False, msg
+            field_info_dict[field_key] = field_value
+        return field_info_dict, ''

@@ -24,3 +24,14 @@ class WorkflowCustomFieldService(BaseService):
                                                  field_template=custom_field.field_template, boolean_field_display=custom_field.boolean_field_display,
                                                  field_choice=custom_field.field_choice)
         return format_custom_field_dict, ''
+
+    @classmethod
+    @auto_log
+    def get_workflow_custom_field_name_list(cls, workflow_id):
+        """
+        获取工作流自定义字段list
+        :param workflow_id:
+        :return:
+        """
+        custom_field_queryset = CustomField.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
+        return [custom_field.field_key for custom_field in custom_field_queryset], ''
