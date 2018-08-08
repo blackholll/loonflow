@@ -44,7 +44,7 @@ class AccountBaseService(BaseService):
             return False, '用户信息不存在'
 
         user_role_queryset = LoonUserRole.objects.filter(user_id=user_obj.id, is_deleted=0).all()
-        user_role_id_list = [user_role.id for user_role in user_role_queryset]
+        user_role_id_list = [user_role.role_id for user_role in user_role_queryset]
         return user_role_id_list, ''
 
     @classmethod
