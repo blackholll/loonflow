@@ -74,25 +74,6 @@ class TicketFlowLog(models.Model):
         verbose_name_plural = '工单流转日志'
 
 
-class TicketStateLastMan(models.Model):
-    """
-    记录工单每个状态的最后处理人，用于回退时候定位到上次处理的人
-    """
-    state_id = models.IntegerField('状态id')
-    ticket_id = models.IntegerField('工单id')
-    participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
-    participant = models.CharField(u'处理人', max_length=100, default='')
-
-    creator = models.CharField(u'创建人', max_length=50, default='admin')
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
-
-    class Meta:
-        verbose_name = '工单状态处理人'
-        verbose_name_plural = '工单状态处理人'
-
-
 class TicketCustomField(models.Model):
     """
     工单自定义字段， 工单自定义字段实际的值。

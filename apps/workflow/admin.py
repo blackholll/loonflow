@@ -12,7 +12,7 @@ class WorkflowAdmin(LoonModelBaseAdmin):
 
 class StateAdmin(LoonModelBaseAdmin):
     search_fields = ('name',)
-    list_display = ('id', 'name', 'order_id', 'type_id', 'workflow_id', 'sub_workflow_id', 'distribute_type_id', 'is_hidden', ) + LoonModelBaseAdmin.list_display
+    list_display = ('id', 'name', 'order_id', 'type_id', 'remember_last_man_enable', 'workflow_id', 'sub_workflow_id', 'distribute_type_id', 'is_hidden', ) + LoonModelBaseAdmin.list_display
 
 
 class TransitionAdmin(LoonModelBaseAdmin):

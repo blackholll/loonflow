@@ -929,6 +929,14 @@ class TicketBaseService(BaseService):
         else:
             add_relation = destination_participant
 
+        # 如果开启了了记忆最后处理人，那么处理人为之前的处理人
+        if destination_state.remember_last_man_enable:
+            ## 获取此状态的最后处理人
+            state_last_man, msg = cls.get_ticket_state_last_man(ticket_id, destination_state.id)
+            if state_last_man:
+                destination_participant_type_id = 1
+                destination_participant = state_last_man
+
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
         new_relation, msg = cls.add_ticket_relation(ticket_id, add_relation)  # 更新关系人信息
         ticket_obj.state_id = destination_state_id
@@ -1312,3 +1320,22 @@ class TicketBaseService(BaseService):
 
         from tasks import run_flow_task  # 放在文件开头会存在循环引用问题
         run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id, '{}_retry'.format(username)], queue='loonflow')
+
+    @classmethod
+    @auto_log
+    def get_ticket_state_last_man(cls, ticket_id, state_id):
+        """
+        获取工单状态最后一次的处理人
+        :param ticket_id:
+        :param state_id:
+        :return:
+        """
+        flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, state_id=state_id, is_deleted=0).order_by('-id')
+        if flow_log_queryset:
+            last_flow_log = flow_log_queryset[0]
+            if last_flow_log.participant_type_id == 1:
+                # 为个人时才生效
+                return last_flow_log.participant, ''
+            else:
+                return '', 'handle_man is not personal'
+        return '', 'the state has not handle man before'

@@ -40,6 +40,8 @@ python manage.py migrate
 从v0.1.x-v.2.x升级。需要一些DDL操作
 - workflow.models.Transition新增字段timer
 - ticket.modles.TicketRecord新增script_run_last_result字段
+- 删除ticket.modles.TicketStateLastMan
+- workfow.models.State新增remember_last_man_enable字段
 
 
 ## 术语定义 
