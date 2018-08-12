@@ -336,3 +336,25 @@ class TicketField(View):
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
+
+
+class TicketScriptRetry(View):
+    def post(self, request, *args, **kwargs):
+        """
+        重新执行工单脚本(用于脚本执行出错的情况)
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data_dict.get('username', '')
+        if not username:
+            api_response(-1, 'need arg username', '')
+        result, msg = TicketBaseService.retry_ticket_script(ticket_id, username)
+        if result:
+            code, msg, data = 0, 'Ticket script retry start successful', ''
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)

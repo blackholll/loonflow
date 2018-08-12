@@ -571,7 +571,7 @@ class TicketBaseService(BaseService):
         return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
                     participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
                     creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created)[:19], gmt_modified=str(ticket_obj.gmt_modified)[:19],
-                    field_list=new_field_list), ''
+                    script_run_last_result=ticket_obj.script_run_last_result, field_list=new_field_list), ''
 
     @classmethod
     @auto_log
@@ -1291,3 +1291,24 @@ class TicketBaseService(BaseService):
                 return False, msg
             field_info_dict[field_key] = field_value
         return field_info_dict, ''
+
+    @classmethod
+    @auto_log
+    def retry_ticket_script(cls, ticket_id, username):
+        """
+        重新执行工单脚本
+        :param ticket_id:
+        :return:
+        """
+        # 判断工单表记录中最后一次脚本是否执行失败了，即script_run_last_result的值
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        if not ticket_obj:
+            return False, 'Ticket is not existed or has been deleted'
+        if ticket_obj.participant_type_id is not CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+            return False, "The ticket's participant_type is not robot, do not allow retry"
+        # 先重置上次执行结果
+        ticket_obj.script_run_last_result = True
+        ticket_obj.save()
+
+        from tasks import run_flow_task  # 放在文件开头会存在循环引用问题
+        run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id, '{}_retry'.format(username)], queue='loonflow')

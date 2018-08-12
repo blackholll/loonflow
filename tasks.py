@@ -109,7 +109,9 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
 
         TicketBaseService.add_ticket_flow_log(new_ticket_flow_dict)
         if not script_result:
-            # 脚本执行失败，状态不更新
+            # 脚本执行失败，状态不更新,标记任务执行结果
+            ticket_obj.script_run_last_result = False
+            ticket_obj.save()
             return False, script_result_msg
         # 自动执行流转
         tar_state_obj = State.objects.filter(id=transition_obj.destination_state_id, is_deleted=False).first()

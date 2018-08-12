@@ -39,6 +39,7 @@ python manage.py migrate
 ## 版本升级
 从v0.1.x-v.2.x升级。需要一些DDL操作
 - workflow.models.Transition新增字段timer
+- ticket.modles.TicketRecord新增script_run_last_result字段
 
 
 ## 术语定义 
