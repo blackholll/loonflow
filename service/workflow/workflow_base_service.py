@@ -1,9 +1,9 @@
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import Workflow
-
 from service.base_service import BaseService
 from service.common.log_service import auto_log
+from service.account.account_base_service import AccountBaseService
 
 
 class WorkflowBaseService(BaseService):
@@ -15,17 +15,21 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_workflow_list(cls, name, page, per_page):
+    def get_workflow_list(cls, name, page, per_page, workflow_id_list):
         """
         获取工作流列表
         :param name:
         :param page:
         :param per_page:
+        :param workflow_id_list:工作流id list
         :return:
         """
         query_params = Q(is_deleted=False)
         if name:
             query_params &= Q(name__contains=name)
+
+        query_params &= Q(workflow_id__in=workflow_id_list)
+
         workflow_querset = Workflow.objects.filter(query_params).order_by('id')
         paginator = Paginator(workflow_querset, per_page)
         try:

@@ -52,7 +52,7 @@ LOGGING = {
             'file_handler': {
                 'level': 'DEBUG',
                 'class': 'logging.FileHandler',
-                'filename': '/Users/wangfei/arun.log',
+                'filename': '~/loonflow.log',
                 'formatter': 'standard'
             },
             # 'console': {

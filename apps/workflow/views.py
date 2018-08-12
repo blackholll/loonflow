@@ -18,8 +18,12 @@ class WorkflowView(View):
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
         username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        app_name = request.META.get('HTTP_APPNAME')
 
-        workflow_result_restful_list, msg = WorkflowBaseService.get_workflow_list(name, page, per_page)
+        from service.account.account_base_service import AccountBaseService
+        permission_workflow_id_list, msg = AccountBaseService.app_workflow_permission_list(app_name)
+
+        workflow_result_restful_list, msg = WorkflowBaseService.get_workflow_list(name, page, per_page, permission_workflow_id_list)
         if workflow_result_restful_list is not False:
             data = dict(value=workflow_result_restful_list, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
             code, msg,  = 0, ''
@@ -40,6 +44,14 @@ class WorkflowInitView(View):
         workflow_id = kwargs.get('workflow_id')
         request_data = request.GET
         username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+
+        app_name = request.META.get('HTTP_APPNAME')
+        from service.account.account_base_service import AccountBaseService
+        # 判断是否有工作流的权限
+        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name,
+                                                                               request_data.get('workflow_id'))
+        if not app_permission:
+            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
 
         if not (workflow_id and username):
             return api_response(-1, '请提供username', '')

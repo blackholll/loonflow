@@ -165,3 +165,52 @@ class AccountBaseService(BaseService):
         :return:
         """
         return LoonRole.objects.filter(id=role_id, is_deleted=False).first(), ''
+
+    @classmethod
+    @auto_log
+    def app_workflow_permission_list(cls, app_name):
+        """
+        应用有权限的workflow_id list
+        :param app_name:
+        :return:
+        """
+        app_token_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
+        if not app_token_obj:
+            return False, 'app is invalid'
+        workflow_ids = app_token_obj.workflow_ids
+        workflow_id_list = workflow_ids.split(',')
+        return workflow_id_list, ''
+
+    @classmethod
+    @auto_log
+    def app_workflow_permission_check(cls, app_name, workflow_id):
+        """
+        app是否有某类工作流的相关权限的校验
+        :param app_name:
+        :param workflow_id:
+        :return:
+        """
+        app_workflow_permission_list, msg = cls.app_workflow_permission_list(app_name)
+        if app_workflow_permission_list and workflow_id in app_workflow_permission_list:
+            return True, ''
+        else:
+            return False, 'the app has no permission to the workflow_id'
+
+    @classmethod
+    @auto_log
+    def app_ticket_permission_check(cls, app_name, ticket_id):
+        """
+        获取调用app是否有某个工单的权限
+        :param app_name:
+        :param ticket_id:
+        :return:
+        """
+        from service.ticket.ticket_base_service import TicketBaseService
+        ticket_obj, msg = TicketBaseService.get_ticket_by_id(ticket_id)
+        if not ticket_obj:
+            return False, msg
+        workflow_id = ticket_obj.workflow_id
+        permission_check, msg = cls.app_workflow_permission_check(app_name, workflow_id)
+        if not permission_check:
+            return False, msg
+        return True, ''

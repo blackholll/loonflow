@@ -134,9 +134,9 @@ class AppToken(models.Model):
     """
     App token,用于api调用方授权
     """
-    app_name = models.CharField(u'应用名称', max_length=50)
-    token = models.CharField(u'签名令牌', max_length=50, help_text='后端自动生成')
-
+    app_name = models.CharField('应用名称', max_length=50)
+    token = models.CharField('签名令牌', max_length=50, help_text='后端自动生成')
+    workflow_ids = models.CharField('工作流权限id', default='', blank=True, max_length=2000, help_text='有权限的工作流ids,逗号隔开,如1,2,3')
     creator = models.CharField('创建人', max_length=50)
     gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
     gmt_modified = models.DateTimeField('更新时间', auto_now=True)
@@ -145,11 +145,3 @@ class AppToken(models.Model):
     class Meta:
         verbose_name = '调用token'
         verbose_name_plural = '调用token'
-
-
-
-
-
-
-
-

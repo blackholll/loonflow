@@ -1,5 +1,6 @@
 import json
 import datetime
+import functools
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.conf import settings
@@ -24,7 +25,21 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='',workflow_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1):
+    def get_ticket_by_id(cls, ticket_id):
+        """
+        获取工单对象
+        :param ticket_id:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        if ticket_obj:
+            return ticket_obj, ''
+        else:
+            return False, 'ticket is not existed or has been deleted'
+
+    @classmethod
+    @auto_log
+    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='',workflow_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1, app_name=app_name):
         """
         工单列表
         :param sn:
@@ -37,13 +52,21 @@ class TicketBaseService(BaseService):
         :param reverse: 按照创建时间倒序
         :param per_page:
         :param page:
+        :param app_name:
         :return:
         """
         category_list = ['all', 'owner', 'duty', 'relation']
         if category not in category_list:
             return False, '查询类别错误'
-
         query_params = Q(is_deleted=False)
+
+        # 获取app_name 有权限的workflow_id_list
+        permission_workflow_id_list, msg = AccountBaseService.app_workflow_permission_list(app_name)
+        if not permission_workflow_id_list:
+            return False, 'This app_name have not workflow permission'
+        else:
+            query_params &= Q(workflow_id__in=permission_workflow_id_list)
+
         if sn:
             query_params &= Q(sn__startswith=sn)
         if title:
@@ -138,11 +161,13 @@ class TicketBaseService(BaseService):
         """
         新建工单
         :param request_data_dict:
+        :param app_name:调用源app_name
         :return:
         """
+        workflow_id = request_data_dict.get('workflow_id')
         transition_id = request_data_dict.get('transition_id')
         username = request_data_dict.get('username')
-        workflow_id = request_data_dict.get('workflow_id')
+
         parent_ticket_id = request_data_dict.get('parent_ticket_id', 0)
         parent_ticket_state_id = request_data_dict.get('parent_ticket_state_id', 0)
         suggestion = request_data_dict.get('suggestion', '')
