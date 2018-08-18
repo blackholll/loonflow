@@ -1364,3 +1364,29 @@ class TicketBaseService(BaseService):
             else:
                 return '', 'handle_man is not personal'
         return '', 'the state has not handle man before'
+
+    @classmethod
+    @auto_log
+    def get_ticket_count_by_args(cls, workflow_id=0, username='', period=0):
+        """
+        获取工单的个数
+        :param workflow_id:
+        :param username:
+        :param period: 周期， 单位小时,即多少小时内
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if workflow_id:
+            query_params &= Q(workflow_id=workflow_id)
+        if username:
+            query_params &= Q(creator=username)
+        if period:
+            query_params &= Q(creator=username)
+            datetime_now = datetime.datetime.now()
+            datetime_start = datetime_now + datetime.timedelta(hours=period)
+            query_params &= Q(gmt_created__gte=datetime_start)
+        count_result = TicketRecord.objects.filter(query_params).count()
+        return count_result, ''
+
+
+

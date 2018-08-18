@@ -12,10 +12,7 @@ class Workflow(models.Model):
     flowchart = models.FileField('流程图', upload_to='flowchart', blank=True, help_text='工作流的流程图,为了方便别人')
     # notice_type = models.CharField('通知方式',default='',blank=True, max_length=50)  # 逗号隔开: 1
     view_permission_check = models.BooleanField('查看权限校验', default=True, help_text='开启后，只允许工单的关联人(创建人、曾经的处理人)有权限查看工单')
-
-    # 限制周期({'period':24} 24小时), 限制次数({'count':1}在限制周期内只允许提交1次), 限制级别({'level':1} 针对(1特定用户 2全局)限制周期限制次数)
-    # 允许特定人员提交({'allow_person':'zhangsan'}只允许张三提交工单,{'allow_dept':1}只允许部门id的用户提交工单，{'allow_role':1}只允许角色id为1的用户提交工单)
-    # limit_expression = models.CharField('限制表达式', max_length=100, default='', blank=True)
+    limit_expression = models.CharField('限制表达式', max_length=1000, default='{}', blank=True, help_text='限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)')
     display_form_str = models.CharField('展现表单字段', max_length=10000, default='[]', blank=True, help_text='默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')
     # default_notice_to = models.CharField('默认通知人', max_length=50, default='', blank=True, help_text='表单创建及结束时会发送相应通知信息')
 
