@@ -52,7 +52,7 @@ LOGGING = {
             'file_handler': {
                 'level': 'DEBUG',
                 'class': 'logging.FileHandler',
-                'filename': '~/loonflow.log',
+                'filename': os.environ['HOME'] + '/loonflow.log',
                 'formatter': 'standard'
             },
             # 'console': {

@@ -39,7 +39,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='',workflow_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1, app_name=app_name):
+    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='', workflow_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1, app_name=''):
         """
         工单列表
         :param sn:
