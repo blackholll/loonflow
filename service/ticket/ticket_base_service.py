@@ -220,13 +220,23 @@ class TicketBaseService(BaseService):
         # 获取目标状态的信息
         destination_participant_type_id = destination_state.participant_type_id
         destination_participant = destination_state.participant
-        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
+
+        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+            username_list, msg = AccountBaseService.get_dept_username_list(int(destination_participant_type_id))
+            add_relation = ','.join(username_list)
+
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+            username_list, msg = AccountBaseService.get_role_username_list(int(destination_participant))
+            add_relation = ','.join(username_list)
+
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
             # 获取工单字段的值, 因为是新建工单,记录还没实际生成，所以从请求的数据中获取
             field_value = request_data_dict.get(destination_participant, '')
             if not field_value:
                 return False, '请求数据中无此字段的值,或值为空:{}'.format(destination_participant)
             destination_participant = field_value
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+            add_relation = destination_participant
             if len(field_value.split(',')) > 1:
                 # 多人的情况
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
@@ -234,6 +244,7 @@ class TicketBaseService(BaseService):
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
             destination_participant, msg = cls.get_ticket_field_value(parent_ticket_id, destination_participant)
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+            add_relation = destination_participant
             if len(destination_participant.split(',')) > 1:
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD
 
@@ -248,6 +259,13 @@ class TicketBaseService(BaseService):
                 if len(approver.split(',')) > 1:
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
                 destination_participant = approver
+            add_relation = destination_participant
+
+        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+            add_relation = ''
+        else:
+            add_relation = destination_participant
+
         # 生成流水号
         ticket_sn, msg = cls.gen_ticket_sn()
         if not ticket_sn:
@@ -257,6 +275,8 @@ class TicketBaseService(BaseService):
                                       state_id=destination_state_id, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id, participant=destination_participant,
                                       participant_type_id=destination_participant_type_id, relation=username, creator=username)
         new_ticket_obj.save()
+        # 更新工单关系人
+        new_relation, msg = cls.add_ticket_relation(new_ticket_obj.id, add_relation)  # 更新关系人信息
         # 新增自定义字段，只保存required_field
         request_data_dict_allow = {}
         for key, value in request_data_dict.items():
@@ -967,9 +987,9 @@ class TicketBaseService(BaseService):
         ticket_obj.state_id = destination_state_id
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.participant = destination_participant
-        if new_relation is not False:
-            ticket_obj.relation = new_relation
         ticket_obj.save()
+        # 更新工单信息：基础字段及自定义字段， add_relation字段 需要考虑下个处理人是部门、角色等的情况
+        new_relation, msg = cls.add_ticket_relation(ticket_id, add_relation)  # 更新关系人信息
 
         # 只更新需要更新的字段
         request_update_dict = {}
