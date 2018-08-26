@@ -24,7 +24,7 @@ app.autodiscover_tasks()
 
 
 from apps.ticket.models import TicketRecord
-from apps.workflow.models import Transition, State, WorkflowScript
+from apps.workflow.models import Transition, State, WorkflowScript, Workflow, CustomNotice
 from service.account.account_base_service import AccountBaseService
 from service.common.constant_service import CONSTANT_SERVICE
 from service.ticket.ticket_base_service import TicketBaseService
@@ -191,3 +191,55 @@ def timer_transition(ticket_id, state_id, date_time, transition_id):
     handle_ticket_data = dict(transition_id=transition_id, username='loonrobot', suggestion='定时器流转')
     TicketBaseService().handle_ticket(ticket_id, handle_ticket_data, True)
 
+
+@app.task
+def send_ticket_notice(ticket_id):
+    """
+    发送工单通知
+    :param ticket_id:
+    :return:
+    """
+    # 获取工单信息
+    # 获取工作流信息，获取工作流的通知信息
+    # 获取通知信息的标题和内容模板
+    # 将通知内容，通知标题，通知人，作为变量传给通知脚本
+    ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+    if not ticket_obj:
+        return False, 'ticket is not exist or has been deleted'
+    if ticket_obj.participant_type_id not in (CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI):
+        # 个人及多人的情况才需要发送通知
+        return True, 'participant is not people, do not need notice'
+    workflow_id = ticket_obj.workflow_id
+    workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0).first()
+    notices = workflow_obj.notices
+    if not notices:
+        return True, 'no notice defined'
+    notice_str_list = notices.split(',')
+    notice_id_list = [int(notice_str) for notice_str in notice_str_list]
+    for notice_id in notice_id_list:
+        notice_obj = CustomNotice.objects.filter(id=notice_id, is_deleted=0).first()
+        if not notice_obj:
+            continue
+        title_template = notice_obj.title_template
+        content_template = notice_obj.content_template
+        # 获取工单所有字段的变量
+        ticket_value_info, msg = TicketBaseService.get_ticket_all_field_value(ticket_id)
+        if not ticket_value_info:
+            return False, msg
+        title_result = title_template.format(**ticket_value_info)
+        content_result = content_template.format(**ticket_value_info)
+        notice_script_file = notice_obj.script
+
+        globals = {'title_result': title_result, 'content_result': content_result, }
+        try:
+            with stdoutIO() as s:
+                # execfile(script_file, globals)  # for python 2
+                exec(open(notice_script_file).read(), globals)
+            script_result = True
+            # script_result_msg = ''.join(s.buflist)
+            script_result_msg = ''.join(s.getvalue())
+            logger.info('send notice successful for ticket_id: {}, notice_id:{}'.formt(ticket_id, notice_id))
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            script_result = False
+            script_result_msg = e.__str__()

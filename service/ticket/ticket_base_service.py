@@ -1408,5 +1408,3 @@ class TicketBaseService(BaseService):
         count_result = TicketRecord.objects.filter(query_params).count()
         return count_result, ''
 
-
-

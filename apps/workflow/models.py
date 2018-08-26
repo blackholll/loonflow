@@ -1,3 +1,5 @@
+import os
+import uuid
 from django.db import models
 
 # Create your models here.
@@ -10,7 +12,7 @@ class Workflow(models.Model):
     name = models.CharField('名称', max_length=50)
     description = models.CharField('描述', max_length=50)
     flowchart = models.FileField('流程图', upload_to='flowchart', blank=True, help_text='工作流的流程图,为了方便别人')
-    # notice_type = models.CharField('通知方式',default='',blank=True, max_length=50)  # 逗号隔开: 1
+    notices = models.CharField('通知', default='', blank=True, max_length=50, help_text='CustomNotice中的id.逗号隔开多个通知方式')
     view_permission_check = models.BooleanField('查看权限校验', default=True, help_text='开启后，只允许工单的关联人(创建人、曾经的处理人)有权限查看工单')
     limit_expression = models.CharField('限制表达式', max_length=1000, default='{}', blank=True, help_text='限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)')
     display_form_str = models.CharField('展现表单字段', max_length=10000, default='[]', blank=True, help_text='默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')
@@ -122,21 +124,35 @@ class WorkflowScript(models.Model):
         verbose_name_plural = '工作流脚本'
 
 
-# class CustomNotice(models.Model):
-#     """
-#     自定义通知方式，初始化邮件方式，v0.2版本再支持
-#     """
-#     name = models.CharField('名称', max_length=50)
-#     description = models.CharField('描述', max_length=100, null=True, blank=True)
-#     script = models.FileField('通知脚本', upload_to='notice_script', null=True, blank=True)
-#     title_template = models.CharField('标题模板', max_length=50, null=True, blank=True)  # 如果为空就按照默认模板生成
-#     content_template = models.CharField('内容模板', max_length=1000, null=True, blank=True)  # 如果为空就按照默认模板生成
-#
-#     creator = models.CharField('创建人', max_length=50)
-#     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-#     gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-#     is_deleted = models.BooleanField(u'已删除', default=False)
-#
-#     class Meta:
-#         verbose_name = '自定义通知脚本'
-#         verbose_name_plural = '自定义通知脚本'
+def upload_notice_script(instance, filename):
+    """
+    因为通知脚本中可能会存在一些私密信息，如账号密码等，所以重命名文件，避免可以直接下载此文件
+    :param instance:
+    :param filename:
+    :return:
+    """
+    upload_to = 'notice_script'
+    ext = filename.split('.')[-1]
+    if ext != 'py':
+        raise Exception('只支持python脚本')
+    filename = '{}.{}'.format(uuid.uuid1(), ext)
+    return os.path.join(upload_to, filename)
+
+
+class CustomNotice(models.Model):
+    """
+    自定义通知方式
+    """
+    name = models.CharField('名称', max_length=50)
+    description = models.CharField('描述', max_length=100, null=True, blank=True)
+    script = models.FileField('通知脚本', upload_to=upload_notice_script, null=True, blank=True)
+    title_template = models.CharField('标题模板', max_length=50, default='你有一个待办工单:{title}', null=True, blank=True, help_text='')
+    content_template = models.CharField('内容模板', max_length=1000, default='标题:{title}, 创建时间:{gmt_created}', null=True, blank=True, help_text='')
+    creator = models.CharField('创建人', max_length=50)
+    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
+    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
+    is_deleted = models.BooleanField(u'已删除', default=False)
+
+    class Meta:
+        verbose_name = '自定义通知脚本'
+        verbose_name_plural = '自定义通知脚本'
