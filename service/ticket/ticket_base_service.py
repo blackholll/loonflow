@@ -756,7 +756,7 @@ class TicketBaseService(BaseService):
         ticket_state_id = ticket_obj.state_id
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_state_id)
         if not transition_queryset:
-            return False, '工单当前状态无需操作'
+            return None, '工单当前状态无需操作'
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_state_id)
         if not state_obj:
             return False, '工单当前状态id不存在或已被删除'
@@ -939,7 +939,7 @@ class TicketBaseService(BaseService):
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
             # 获取工单字段的值
             # 考虑到处理工单时 可能会编辑工单字段，所有优先从请求数据中获取，如果没有再去数据库中获取
-            field_value = request_data_dict.get('destination_participant')
+            field_value = request_data_dict.get(destination_participant)
             if not field_value:
                 field_value, msg = cls.get_ticket_field_value(ticket_id, destination_participant)
                 if not field_value:
