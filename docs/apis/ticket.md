@@ -14,8 +14,9 @@ sn | varchar | 否 | 流水号，支持根据sn的前几位模糊查询
 title | varchar | 否 | 工单标题，模糊查询
 create_start | varchar | 否 | 创建时间起
 create_end | varchar | 否 | 创建时间止
-workflow_ids | varchar | 否 | 工作流ids，逗号隔开多个工作流id, 如1,2,3
-ticket_ids | varchar | 否 | 工单ids, 逗号隔开多个id，1,2,3
+workflow_ids | varchar | 否 | 工作流ids，逗号隔开多个工作流id, 如"1,2,3"
+state_ids | varchar | 否 | 状态ids,逗号隔开多个状态id,如"1,2,3"
+ticket_ids | varchar | 否 | 工单ids, 逗号隔开多个id，如"1,2,3"
 reverse | varchar | 否 | 是否按照创建时间倒序，0或者1
 page| int | 否 | 页码，默认1
 per_page| int | 否 | 每页个数，默认10
