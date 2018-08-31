@@ -144,6 +144,11 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.state_id = tar_state_obj.id
         ticket_obj.save()
+
+        add_relation, msg = TicketBaseService.get_ticket_dest_relation(destination_participant_type_id, destination_participant)
+        if add_relation:
+            new_relation, msg = TicketBaseService.add_ticket_relation(ticket_id, add_relation)  # 更新关系人信息
+
         logger.info('******脚本执行成功,工单基础信息更新完成, ticket_id:{}******'.format(ticket_id))
 
         # 子工单处理
