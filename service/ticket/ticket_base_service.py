@@ -519,6 +519,9 @@ class TicketBaseService(BaseService):
         :param kwargs:
         :return:
         """
+        # suggestion长度处理,在某些mysql版本默认配置中，如果插入时候字段长度大于字段定义的长度会报错，而不是自动截断
+        if len(kwargs.get('suggestion', '')) > 1000:
+            kwargs['suggestion'] = '{}...(超过字段定义长度,自动截断)'.format(kwargs.get('suggestion', '')[:960])
         new_ticket_flow_log = TicketFlowLog(**kwargs)
         new_ticket_flow_log.save()
         return new_ticket_flow_log.id, ''
