@@ -682,11 +682,15 @@ class TicketBaseService(BaseService):
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
             dept_obj, msg = AccountBaseService.get_dept_by_id(int(ticket_obj.participant))
+            if not dept_obj:
+                return False, 'dept is not existed or has been deleted'
             participant_name = dept_obj.name
             participant_alias = participant_name
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
             participant_type_name = '角色'
             role_obj, msg = AccountBaseService.get_role_by_id(int(ticket_obj.participant))
+            if not role_obj:
+                return False, 'role is not existedor has been deleted'
             participant_name = role_obj.name
             participant_alias = participant_name
         # 工单基础表中不存在参与人为其他类型的情况
