@@ -939,7 +939,7 @@ class TicketBaseService(BaseService):
                                                                     is_deleted=0).all()
             # 所有子工单使用相同的工作流,所以state都一样，检测是否都是ticket_obj.state_id即可判断是否都是结束状态
             other_sub_ticket_state_id_list = [other_sub_ticket.state_id for other_sub_ticket in other_sub_ticket_queryset]
-            if set(other_sub_ticket_state_id_list) == set[ticket_obj.state_id]:
+            if set(other_sub_ticket_state_id_list) == set([ticket_obj.state_id]):
                 parent_ticket_obj = TicketRecord.objects.filter(id=ticket_obj.parent_ticket_id, is_deleted=0).first()
                 parent_ticket_state_id = parent_ticket_obj.state_id
                 parent_ticket_transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(parent_ticket_state_id)
