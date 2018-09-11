@@ -20,6 +20,7 @@ ticket_ids | varchar | 否 | 工单ids, 逗号隔开多个id，如"1,2,3"
 reverse | varchar | 否 | 是否按照创建时间倒序，0或者1
 page| int | 否 | 页码，默认1
 per_page| int | 否 | 每页个数，默认10
+is_end | int | 否 | 是否已经结束的工单,0(未结束),1(已结束)或者不提供(不过滤是否已经结束)
 username | varchar | 是 | 用户名
 category | varchar | 是 | 类型('all':所有工单, 'owner':我创建的工单, 'duty':我的待处理工单, 'relation':我的关联工单[包括我新建的、我处理过的、曾经需要我处理过的工单。注意这里只考虑历史状态，工单将来状态的处理人不考虑])
 

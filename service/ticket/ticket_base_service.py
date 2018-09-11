@@ -39,7 +39,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='', workflow_ids='', state_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1, app_name=''):
+    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='', workflow_ids='', state_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1, app_name='', is_end=''):
         """
         工单列表
         :param sn:
@@ -67,7 +67,11 @@ class TicketBaseService(BaseService):
             return False, 'This app_name have not workflow permission'
         else:
             query_params &= Q(workflow_id__in=permission_workflow_id_list)
-
+        if is_end:
+            if is_end == '0':
+                query_params &= Q(is_end=0)
+            elif is_end == '1':
+                query_params &= Q(is_end=1)
         if sn:
             query_params &= Q(sn__startswith=sn)
         if title:
@@ -260,9 +264,13 @@ class TicketBaseService(BaseService):
         if not ticket_sn:
             return False, msg
         # 新增工单基础表数据
+        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END:
+            is_end= True
+        else:
+            is_end = False
         new_ticket_obj = TicketRecord(sn=ticket_sn, title=request_data_dict.get('title', ''), workflow_id=workflow_id,
                                       state_id=destination_state_id, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id, participant=destination_participant,
-                                      participant_type_id=destination_participant_type_id, relation=username, creator=username)
+                                      participant_type_id=destination_participant_type_id, relation=username, creator=username, is_end=is_end)
         new_ticket_obj.save()
         # 更新工单关系人
         add_relation, msg = cls.get_ticket_dest_relation(destination_participant_type_id, destination_participant)

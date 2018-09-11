@@ -1,7 +1,6 @@
 from django.core.paginator import Paginator
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
-from apps.ticket.models import TicketType
 from service.base_service import BaseService
 
 
