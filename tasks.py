@@ -28,6 +28,7 @@ from apps.workflow.models import Transition, State, WorkflowScript
 from service.account.account_base_service import AccountBaseService
 from service.common.constant_service import CONSTANT_SERVICE
 from service.ticket.ticket_base_service import TicketBaseService
+from django.conf import settings
 
 try:
     from StringIO import StringIO
@@ -80,7 +81,8 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
         if not script_obj:
             return False, '脚本未注册或非激活状态'
 
-        script_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "media/workflow_script"))
+        script_dir = os.path.join(settings.MEDIA_ROOT, "workflow_script")
+
         script_file = os.path.join(script_dir, script_name)
         globals = {'ticket_id': ticket_id, 'action_from': action_from}
         # 如果需要脚本执行完成后，工单不往下流转(也就脚本执行失败或调用其他接口失败的情况)，需要在脚本中抛出异常
