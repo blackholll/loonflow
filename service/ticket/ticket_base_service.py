@@ -114,6 +114,13 @@ class TicketBaseService(BaseService):
 
             workflow_obj, msg = WorkflowBaseService.get_by_id(ticket_result_object.workflow_id)
             workflow_info_dict = dict(workflow_id=workflow_obj.id, workflow_name=workflow_obj.name)
+
+            creator_obj, msg = AccountBaseService.get_user_by_username(ticket_result_object.creator)
+            if creator_obj:
+                creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
+                                    is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone)
+            else:
+                creator_info = dict(username=creator_obj.username, alias='', is_active=False, email='', phone='')
             ticket_result_restful_list.append(dict(id=ticket_result_object.id,
                                                    title=ticket_result_object.title,
                                                    workflow=workflow_info_dict,
@@ -123,6 +130,7 @@ class TicketBaseService(BaseService):
                                                    parent_ticket_state_id=ticket_result_object.parent_ticket_state_id,
                                                    participant_info=participant_info,
                                                    creator=ticket_result_object.creator,
+                                                   creator_info=creator_info,
                                                    gmt_created=str(ticket_result_object.gmt_created)[:19],
                                                    gmt_modified=str(ticket_result_object.gmt_modified)[:19],
                                                    ))
@@ -566,10 +574,17 @@ class TicketBaseService(BaseService):
         # 字段排序
         new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
 
+        creator_obj, msg = AccountBaseService.get_user_by_username(ticket_obj.creator)
+        if creator_obj:
+            creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
+                                is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone)
+        else:
+            creator_info = dict(username=creator_obj.username, alias='', is_active=False, email='', phone='')
+
         return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
                     participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
                     creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created)[:19], gmt_modified=str(ticket_obj.gmt_modified)[:19],
-                    field_list=new_field_list), ''
+                    field_list=new_field_list, creator_info=creator_info), ''
 
     @classmethod
     @auto_log
