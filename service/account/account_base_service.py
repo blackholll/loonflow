@@ -178,8 +178,11 @@ class AccountBaseService(BaseService):
         if not app_token_obj:
             return False, 'app is invalid'
         workflow_ids = app_token_obj.workflow_ids
-        workflow_id_list = workflow_ids.split(',')
-        return workflow_id_list, ''
+        if workflow_ids:
+            workflow_id_list = workflow_ids.split(',')
+            return workflow_id_list, ''
+        else:
+            return [], ''
 
     @classmethod
     @auto_log
