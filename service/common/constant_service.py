@@ -43,6 +43,7 @@ class ConstantService(BaseService):
         self.FIELD_TYPE_TEXT = 55  # 文本域
         self.FIELD_TYPE_USERNAME = 60  # 用户名，前端展现时需要调用方系统获取用户列表。loonflow只保存用户名
         self.FIELD_TYPE_MULTI_USERNAME = 70  # 多选用户名,多人情况逗号隔开，前端展现时需要调用方系统获取用户列表。loonflow只保存用户名
+        self.FIELD_TYPE_ATTACHMENT = 80  # 附件，多个附件使用逗号隔开。调用方自己实现上传功能，loonflow只保存文件路径
 
         self.FIELD_ATTRIBUTE_RO = 1  # 只读
         self.FIELD_ATTRIBUTE_REQUIRED = 2  # 必填

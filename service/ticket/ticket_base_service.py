@@ -387,6 +387,8 @@ class TicketBaseService(BaseService):
                 value = ticket_custom_field_obj.username_value
             elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
                 value = ticket_custom_field_obj.multi_username_value
+            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                value = ticket_custom_field_obj.char_value
         return value, ''
 
     @classmethod
@@ -468,7 +470,8 @@ class TicketBaseService(BaseService):
                         ticket_custom_field_queryset.update(username_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
                         ticket_custom_field_queryset.update(multi_username_value=update_dict.get(key))
-
+                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                        ticket_custom_field_queryset.update(char_value=update_dict.get(key))
                 else:
                     if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
                         new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'], ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
@@ -496,6 +499,8 @@ class TicketBaseService(BaseService):
                         new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, username_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
                         new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, multi_username_value=update_dict.get(key))
+                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
                     new_ticket_custom_field_record.save()
         return True, ''
 
@@ -654,6 +659,8 @@ class TicketBaseService(BaseService):
                     field_value = ticket_custom_field_obj.username_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
                     field_value = ticket_custom_field_obj.multi_username_value
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                    field_value = ticket_custom_field_obj.char_value
 
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=field_value, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
