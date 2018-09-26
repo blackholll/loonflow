@@ -24,7 +24,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='',workflow_ids='', category='', reverse=1, per_page=10, page=1):
+    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='',workflow_ids='', state_ids='', category='', reverse=1, per_page=10, page=1):
         """
         工单列表
         :param sn:
@@ -33,6 +33,7 @@ class TicketBaseService(BaseService):
         :param create_start: 创建时间起
         :param create_end: 创建时间止
         :param workflow_ids: 工作流id,str,逗号隔开
+        :param state_ids: 状态ids,str,逗号隔开
         :param category: 查询类别(创建的，待办的，关联的:包括创建的、处理过的、曾经需要处理但是没有处理的)
         :param reverse: 按照创建时间倒序
         :param per_page:
@@ -56,6 +57,10 @@ class TicketBaseService(BaseService):
             workflow_id_str_list = workflow_ids.split(',')
             workflow_id_list = [int(workflow_id_str) for workflow_id_str in workflow_id_str_list]
             query_params &= Q(workflow_id__in=workflow_id_list)
+        if state_ids:
+            state_id_str_list = state_ids.split(',')
+            state_id_list = [int(state_id_str) for state_id_str in state_id_str_list]
+            query_params &= Q(state_id__in=state_id_list)
 
         if reverse:
             order_by_str = '-gmt_created'
