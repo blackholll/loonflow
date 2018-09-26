@@ -73,3 +73,28 @@ class StateView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+
+class WorkflowStateView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        获取工作流拥有的state列表信息
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        request_data = request.GET
+        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        if not username:
+            return api_response(-1, '请提供username', '')
+        result, msg = WorkflowStateService.get_workflow_states_serialize(workflow_id, per_page, page)
+
+        if result is not False:
+            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg,  = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
