@@ -150,6 +150,13 @@ class TicketBaseService(BaseService):
 
             workflow_obj, msg = WorkflowBaseService.get_by_id(ticket_result_object.workflow_id)
             workflow_info_dict = dict(workflow_id=workflow_obj.id, workflow_name=workflow_obj.name)
+
+            creator_obj, msg = AccountBaseService.get_user_by_username(ticket_result_object.creator)
+            if creator_obj:
+                creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
+                                    is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone)
+            else:
+                creator_info = dict(username=creator_obj.username, alias='', is_active=False, email='', phone='')
             ticket_result_restful_list.append(dict(id=ticket_result_object.id,
                                                    title=ticket_result_object.title,
                                                    workflow=workflow_info_dict,
@@ -159,6 +166,7 @@ class TicketBaseService(BaseService):
                                                    parent_ticket_state_id=ticket_result_object.parent_ticket_state_id,
                                                    participant_info=participant_info,
                                                    creator=ticket_result_object.creator,
+                                                   creator_info=creator_info,
                                                    gmt_created=str(ticket_result_object.gmt_created)[:19],
                                                    gmt_modified=str(ticket_result_object.gmt_modified)[:19],
                                                    ))
@@ -311,7 +319,7 @@ class TicketBaseService(BaseService):
                                                                     is_deleted=0).all()
             # 所有子工单使用相同的工作流,所以state都一样，检测是否都是ticket_obj.state_id即可判断是否都是结束状态
             other_sub_ticket_state_id_list = [other_sub_ticket.state_id for other_sub_ticket in other_sub_ticket_queryset]
-            if set(other_sub_ticket_state_id_list) == set[new_ticket_obj.state_id]:
+            if set(other_sub_ticket_state_id_list) == set([new_ticket_obj.state_id]):
                 parent_ticket_obj = TicketRecord.objects.filter(id=new_ticket_obj.parent_ticket_id, is_deleted=0).first()
                 parent_ticket_state_id = parent_ticket_obj.state_id
                 parent_ticket_transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(parent_ticket_state_id)
@@ -428,6 +436,8 @@ class TicketBaseService(BaseService):
                 value = ticket_custom_field_obj.username_value
             elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
                 value = ticket_custom_field_obj.multi_username_value
+            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                value = ticket_custom_field_obj.char_value
         return value, ''
 
     @classmethod
@@ -509,7 +519,8 @@ class TicketBaseService(BaseService):
                         ticket_custom_field_queryset.update(username_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
                         ticket_custom_field_queryset.update(multi_username_value=update_dict.get(key))
-
+                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                        ticket_custom_field_queryset.update(char_value=update_dict.get(key))
                 else:
                     if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
                         new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'], ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
@@ -537,6 +548,8 @@ class TicketBaseService(BaseService):
                         new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, username_value=update_dict.get(key))
                     elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
                         new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, multi_username_value=update_dict.get(key))
+                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
                     new_ticket_custom_field_record.save()
         return True, ''
 
@@ -615,10 +628,17 @@ class TicketBaseService(BaseService):
         # 字段排序
         new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
 
+        creator_obj, msg = AccountBaseService.get_user_by_username(ticket_obj.creator)
+        if creator_obj:
+            creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
+                                is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone)
+        else:
+            creator_info = dict(username=creator_obj.username, alias='', is_active=False, email='', phone='')
+
         return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
                     participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
                     creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created)[:19], gmt_modified=str(ticket_obj.gmt_modified)[:19],
-                    script_run_last_result=ticket_obj.script_run_last_result, field_list=new_field_list), ''
+                    script_run_last_result=ticket_obj.script_run_last_result, field_list=new_field_list, creator_info=creator_info), ''
 
     @classmethod
     @auto_log
@@ -688,6 +708,8 @@ class TicketBaseService(BaseService):
                     field_value = ticket_custom_field_obj.username_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
                     field_value = ticket_custom_field_obj.multi_username_value
+                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                    field_value = ticket_custom_field_obj.char_value
 
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=field_value, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
@@ -1007,7 +1029,7 @@ class TicketBaseService(BaseService):
                                                                     is_deleted=0).all()
             # 所有子工单使用相同的工作流,所以state都一样，检测是否都是ticket_obj.state_id即可判断是否都是结束状态
             other_sub_ticket_state_id_list = [other_sub_ticket.state_id for other_sub_ticket in other_sub_ticket_queryset]
-            if set(other_sub_ticket_state_id_list) == set[ticket_obj.state_id]:
+            if set(other_sub_ticket_state_id_list) == set([ticket_obj.state_id]):
                 parent_ticket_obj = TicketRecord.objects.filter(id=ticket_obj.parent_ticket_id, is_deleted=0).first()
                 parent_ticket_state_id = parent_ticket_obj.state_id
                 parent_ticket_transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(parent_ticket_state_id)

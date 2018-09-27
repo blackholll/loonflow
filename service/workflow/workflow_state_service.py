@@ -2,7 +2,7 @@
 import json
 
 from django.db.models import QuerySet
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.ticket.models import TicketCustomField
 from apps.workflow.models import State
 from service.base_service import BaseService
@@ -29,6 +29,43 @@ class WorkflowStateService(BaseService):
         else:
             workflow_states = State.objects.filter(workflow_id=workflow_id, is_deleted=False).order_by('order_id')
             return workflow_states, ''
+
+    @staticmethod
+    @auto_log
+    def get_workflow_states_serialize(workflow_id, per_page=10, page=1):
+        """
+        获取序列化工作流状态记录
+        :param workflow_id:
+        :param per_page:
+        :param page:
+        :return:
+        """
+        if not workflow_id:
+            return False, 'except workflow_id but not provided'
+        workflow_states = State.objects.filter(workflow_id=workflow_id, is_deleted=False).order_by('order_id')
+
+        paginator = Paginator(workflow_states, per_page)
+
+        try:
+            workflow_states_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            workflow_states_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            workflow_states_result_paginator = paginator.page(paginator.num_pages)
+        workflow_states_object_list = workflow_states_result_paginator.object_list
+        workflow_states_restful_list = []
+        for workflow_states_object in workflow_states_object_list:
+            result_dict = dict(id=id, name=workflow_states_object.name, workflow_id=workflow_states_object.workflow_id,
+                               sub_workflow_id=workflow_states_object.sub_workflow_id, is_hidden=workflow_states_object.is_hidden,
+                               order_id=workflow_states_object.order_id, type_id=workflow_states_object.type_id,
+                               participant_type_id=workflow_states_object.participant_type_id, participant=workflow_states_object.participant,
+                               distribute_type_id=workflow_states_object.distribute_type_id,
+                               state_field_str=json.loads(workflow_states_object.state_field_str), label=json.loads(workflow_states_object.label),
+                               creator=workflow_states_object.creator,
+                               gmt_created=str(workflow_states_object.gmt_created)[:19])
+            workflow_states_restful_list.append(result_dict)
+        return workflow_states_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
 
     @staticmethod
     @auto_log
