@@ -24,11 +24,14 @@ class ConstantService(BaseService):
         self.TRANSITION_TYPE_COMMON = 1  # 常规流转
         self.TRANSITION_TYPE_TIMER = 2  # 定时器流转
 
+        self.TRANSITION_ATTRIBUTE_TYPE_ACCEPT = 1  # 同意
+        self.TRANSITION_ATTRIBUTE_TYPE_REFUSE = 2  # 拒绝
+        self.TRANSITION_ATTRIBUTE_TYPE_OTHER = 3  # 其他
+
         self.TRANSITION_INTERVENE_TYPE_DELIVER = 1  # 转交操作
         self.TRANSITION_INTERVENE_TYPE_ADD_NODE = 2  # 加签操作
         self.TRANSITION_INTERVENE_TYPE_ADD_NODE_END = 3  # 加签处理完成
         self.TRANSITION_INTERVENE_TYPE_ACCEPT = 4  # 接单操作
-
 
         self.FIELD_TYPE_STR = 5  # 字符串类型
         self.FIELD_TYPE_INT = 10  # 整形类型

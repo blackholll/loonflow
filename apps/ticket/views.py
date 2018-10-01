@@ -27,13 +27,15 @@ class TicketListView(View):
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
         is_end = request_data.get('is_end', '')
+        is_rejected = request_data.get('is_rejected', '')
+
         # 待办,关联的,创建
         category = request_data.get('category')
         # app_name
         app_name = request.META.get('HTTP_APPNAME')
 
         ticket_result_restful_list, msg = TicketBaseService.get_ticket_list(sn=sn, title=title, username=username, create_start=create_start, create_end=create_end, workflow_ids=workflow_ids, state_ids=state_ids, ticket_ids=ticket_ids,
-                                                                            category=category, reverse=reverse, per_page=per_page, page=page, app_name=app_name, is_end=is_end)
+                                                                            category=category, reverse=reverse, per_page=per_page, page=page, app_name=app_name, is_end=is_end, is_rejected=is_rejected)
         if ticket_result_restful_list is not False:
             data = dict(value=ticket_result_restful_list, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
             code, msg,  = 0, ''

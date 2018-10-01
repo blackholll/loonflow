@@ -39,7 +39,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='', workflow_ids='', state_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1, app_name='', is_end=''):
+    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='', workflow_ids='', state_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1, app_name='', is_end='', is_rejected=''):
         """
         工单列表
         :param sn:
@@ -54,6 +54,9 @@ class TicketBaseService(BaseService):
         :param per_page:
         :param page:
         :param app_name:
+        :param is_end: 已结束
+        :param is_rejected: 已拒绝
+
         :return:
         """
         category_list = ['all', 'owner', 'duty', 'relation']
@@ -72,6 +75,11 @@ class TicketBaseService(BaseService):
                 query_params &= Q(is_end=0)
             elif is_end == '1':
                 query_params &= Q(is_end=1)
+        if is_rejected and is_rejected == '0':
+            query_params &= Q(is_rejected=0)
+        if is_rejected and is_rejected == '1':
+            query_params &= Q(is_rejected=1)
+
         if sn:
             query_params &= Q(sn__startswith=sn)
         if title:
@@ -998,10 +1006,16 @@ class TicketBaseService(BaseService):
                 destination_participant = state_last_man
 
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
-        new_relation, msg = cls.add_ticket_relation(ticket_id, add_relation)  # 更新关系人信息
         ticket_obj.state_id = destination_state_id
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.participant = destination_participant
+        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END:
+            ticket_obj.is_end = destination_state.is_end
+        if req_transition_obj.attribute_type_id == CONSTANT_SERVICE.TRANSITION_ATTRIBUTE_TYPE_REFUSE:
+            # 如果操作为拒绝操作，则工单状态为被拒绝，否则更新为否
+            ticket_obj.is_rejected = True
+        else:
+            ticket_obj.is_rejected = False
         ticket_obj.save()
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要考虑下个处理人是部门、角色等的情况
         add_relation, msg = cls.get_ticket_dest_relation(destination_participant_type_id, destination_participant)

@@ -40,8 +40,8 @@ python manage.py migrate
 
 ## 版本升级
 从v0.1.x-v.2.x升级。需要一些DDL操作
-- workflow.models.Transition新增字段timer
-- ticket.modles.TicketRecord新增script_run_last_result字段,新增is_end字段
+- workflow.models.Transition新增字段timer,新增字段attribute_type_id
+- ticket.modles.TicketRecord新增script_run_last_result字段,新增is_end字段,新增is_rejected字段
 - 删除ticket.modles.TicketStateLastMan
 - workfow.models.State新增remember_last_man_enable字段
 - account.models.AppToken新增字段workflow_ids字段,用于给每个app授权可以访问的工作流资源(对应工作及对应的工单，升级后需要修改此配置)
@@ -49,6 +49,7 @@ python manage.py migrate
 - workflow.models.workflow新增字段notices，用于关联通知方式
 - workflow.models新增表CustomNotice 用于支持自定义通知方式
 - workflow.models.CustomField新增label字段用于调用方自行扩展
+
 
 
 ## 术语定义 
