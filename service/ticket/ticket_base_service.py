@@ -719,6 +719,7 @@ class TicketBaseService(BaseService):
                                    field_template=custom_field_dict[key]['field_template'],
                                    boolean_field_display=json.loads(custom_field_dict[key]['boolean_field_display']) if custom_field_dict[key]['boolean_field_display'] else {},  # 之前model允许为空了，为了兼容先这么写
                                    field_choice=json.loads(custom_field_dict[key]['field_choice']),
+                                   label=json.loads(custom_field_dict[key]['label'])
 
                                    ))
         return field_list, ''

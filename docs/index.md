@@ -48,7 +48,7 @@ python manage.py migrate
 - workflow.models.Workflow新增字段limit_expression，用于新建工单权限的限制
 - workflow.models.workflow新增字段notices，用于关联通知方式
 - workflow.models新增表CustomNotice 用于支持自定义通知方式
-
+- workflow.models.CustomField新增label字段用于调用方自行扩展
 
 
 ## 术语定义 

@@ -94,7 +94,7 @@ class CustomField(models.Model):
                                              help_text='当为布尔类型时候，可以支持自定义显示形式。{"1":"是",0:"否"}或{"1":"需要","0":"不需要"}，注意数字也需要引号')
     field_choice = models.CharField('radio、checkbox、select的选项', max_length=1000, default='{}', blank=True,
                                     help_text='radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{"1":"中国", "2":"美国"},注意数字也需要引号')
-
+    label = models.CharField('标签', max_length=100, blank=True, default='{}', help_text='自定义标签，json格式，调用方可根据标签自行处理特殊场景逻辑，loonflow只保存文本内容')
     creator = models.CharField('创建人', max_length=50)
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
     gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
