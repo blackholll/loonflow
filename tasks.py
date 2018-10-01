@@ -250,3 +250,4 @@ def send_ticket_notice(ticket_id):
             logger.error(traceback.format_exc())
             script_result = False
             script_result_msg = e.__str__()
+        return script_result, script_result_msg
