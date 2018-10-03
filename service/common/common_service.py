@@ -51,3 +51,46 @@ class CommonService(BaseService):
             field_dict[field0.name] = field0.verbose_name
 
         return field_dict
+
+    @classmethod
+    @auto_log
+    def get_dict_blank_or_false_value_key_list(cls, dict_obj):
+        """
+        获取字典的空值的key的list
+        :param dict_obj:
+        :return:
+        """
+        result_list = []
+        for key, value in dict_obj.items():
+            if not value:
+                result_list.append(key)
+        return result_list, ''
+
+    @classmethod
+    @auto_log
+    def check_dict_has_all_same_value(cls, dict_obj):
+        """
+        判断字段是否所有key的值都相同
+        :param dict_obj:
+        :return:
+        """
+        value_list = []
+        for key, value in dict_obj.items():
+            value_list.append(value)
+        value_set = set(value_list)
+        if len(value_set) == 1:
+            return True, ''
+        else:
+            return False, 'not all dict value is same'
+
+
+
+
+
+
+if __name__ == '__main__':
+    print(CommonService().dict_has_blank_value(dict(a=1, b=2)))
+    print(CommonService().dict_has_blank_value(dict(a=1, b='')))
+    print(CommonService().dict_has_blank_value(dict(a=1, b={})))
+    print(CommonService().dict_has_blank_value(dict(a=1, b=0)))
+    print(CommonService().dict_has_blank_value(dict(a=1, b=dict(a=1,b=2))))

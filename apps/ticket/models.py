@@ -22,6 +22,7 @@ class TicketRecord(models.Model):
     script_run_last_result = models.BooleanField(u'脚本最后一次执行结果', default=True)
     is_end = models.BooleanField('已结束', default=False, help_text='工单是否已处于结束状态')
     is_rejected = models.BooleanField('被拒绝', default=False, help_text='工单是否处于被拒绝状态')
+    multi_all_person = models.CharField('全部处理的结果', max_length=1000, default='{}', blank=True, help_text='需要当前状态处理人全部处理时实际的处理结果，json格式')
 
     creator = models.CharField('创建人', max_length=50, default='admin')
     gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
