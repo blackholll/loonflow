@@ -184,7 +184,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def new_ticket(cls, request_data_dict):
+    def new_ticket(cls, request_data_dict, app_name=''):
         """
         新建工单
         :param request_data_dict:
@@ -249,7 +249,7 @@ class TicketBaseService(BaseService):
         multi_all_person[username] = username
 
         # 生成流水号
-        ticket_sn, msg = cls.gen_ticket_sn()
+        ticket_sn, msg = cls.gen_ticket_sn(app_name)
         if not ticket_sn:
             return False, msg
         # 新增工单基础表数据
@@ -316,7 +316,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def gen_ticket_sn(cls):
+    def gen_ticket_sn(cls, app_name=''):
         redis_host = settings.REDIS_HOST
         redis_db = settings.REDIS_DB
         redis_port = settings.REDIS_PORT
@@ -337,7 +337,13 @@ class TicketBaseService(BaseService):
         new_ticket_day_count = int(ticket_day_count) + 1
         r.set(ticket_day_count_key, new_ticket_day_count, 86400)
         now_day = datetime.datetime.now()
-        return 'loonflow_%04d%02d%02d%04d' % (now_day.year, now_day.month, now_day.day, new_ticket_day_count), ''
+        if not app_name:
+            sn_prefix = 'loonflow'
+        else:
+            app_token_obj, msg = AccountBaseService.get_token_by_app_name(app_name)
+            sn_prefix = app_token_obj.ticket_sn_prefix
+
+        return '{}_%04d%02d%02d%04d' % (sn_prefix, now_day.year, now_day.month, now_day.day, new_ticket_day_count), ''
 
     @classmethod
     @auto_log

@@ -63,7 +63,7 @@ class TicketListView(View):
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to create this workflow ticket'.format(app_name), '')
 
-        new_ticket_result, msg = TicketBaseService.new_ticket(request_data_dict)
+        new_ticket_result, msg = TicketBaseService.new_ticket(request_data_dict, app_name)
         if new_ticket_result:
             code, data = 0, {'ticket_id': new_ticket_result}
         else:
