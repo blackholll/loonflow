@@ -40,7 +40,7 @@ python manage.py migrate
 
 ## 版本升级
 从v0.1.x-v.2.x升级。需要一些DDL操作
-- workflow.models.Transition新增字段timer,新增字段attribute_type_id
+- workflow.models.Transition新增字段timer,新增字段attribute_type_id,condition_expression
 - ticket.modles.TicketRecord新增script_run_last_result字段,新增is_end字段,新增is_rejected字段,新增multi_all_person字段
 - 删除ticket.modles.TicketStateLastMan
 - workfow.models.State新增remember_last_man_enable字段

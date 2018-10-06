@@ -223,24 +223,16 @@ class TicketBaseService(BaseService):
             for require_field in require_field_list:
                 if require_field not in request_field_arg_list:
                     return False, '此工单的必填字段为:{}'.format(','.join(require_field_list))
-        # 获取transition_id对应的下个状态的信息:
-        transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(start_state.id)
-        if transition_queryset is False:
+        flag, msg = cls.get_next_state_id_by_transition_and_ticket_info(0, transition_id, request_data_dict)
+        if flag:
+            destination_state_id = msg.get('destination_state_id')
+        else:
             return False, msg
-        allow_transition_id_list = [transition.id for transition in transition_queryset]
-        if transition_id not in allow_transition_id_list:
-            return False, 'transition_id不合法'
-
-        for transition_obj in transition_queryset:
-            if transition_obj.id == transition_id:
-                destination_state_id = transition_obj.destination_state_id
-                break
 
         destination_state, msg = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
-        if not destination_state:
-            return False, msg
+
         # 获取目标状态的信息
-        flag, participant_info = cls.get_ticket_state_participant_info(destination_state.id, ticket_req_dict=request_data_dict)
+        flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_req_dict=request_data_dict)
         if not flag:
             return False, participant_info
         destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
@@ -938,20 +930,13 @@ class TicketBaseService(BaseService):
                 if require_field not in request_field_arg_list:
                     return False, '此工单的必填字段为:{}'.format(','.join(require_field_list))
 
-        # 获取transition_id对应的下个状态的信息:
-        transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)
-        if transition_queryset is False:
+        flag, msg = cls.get_next_state_id_by_transition_and_ticket_info(ticket_id, transition_id, request_data_dict)
+        if flag:
+            destination_state_id = msg.get('destination_state_id')
+        else:
             return False, msg
-        allow_transition_id_list = [transition.id for transition in transition_queryset]
-        if transition_id not in allow_transition_id_list:
-            return False, 'transition_id不合法'
 
-        # 获取如果正常流转时的下个状态id
-        for transition_obj in transition_queryset:
-            if transition_obj.id == transition_id:
-                destination_state_id = transition_obj.destination_state_id
-                break
-
+        destination_state, msg = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
 
         # 判断当前处理人类似是否为全部处理，如果处理类型为全部处理，且有人未处理，则工单状态不变，只记录处理过程
         multi_all_person = ticket_obj.multi_all_person
@@ -1556,3 +1541,65 @@ class TicketBaseService(BaseService):
             if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_OPTIONAL:
                 update_field_list.append(key)
         return True, dict(require_field_list=require_field_list, update_field_list=update_field_list)
+
+    @auto_log
+    def get_next_state_id_by_transition_and_ticket_info(self, ticket_id=0, ticket_req_dict={}):
+        """
+        获取工单的下个状态id,需要考虑条件流转的情况
+        :param ticket_id:
+        :param ticket_req_dict:
+        :return:
+        """
+        transition_id = ticket_req_dict.get('transition_id', 0)
+        workflow_id = ticket_req_dict.get('workflow_id', 0)
+        if not transition_id:
+            return False, 'transition_id can not be None'
+        if not ticket_id:
+            # 新建工单的情况, 获取初始状态 作为原状态
+            # 获取transition_id对应的下个状态的信息:
+            # 新建工单获取工单的初始状态
+            if not workflow_id:
+                return False, 'new ticket need arg workflow_id'
+            start_state, msg = WorkflowStateService.get_workflow_start_state(workflow_id)
+            if not start_state:
+                return False, msg
+            source_state_id = start_state.id
+        else:
+            # 已经存在的工单，直接获取工单当前状态
+            ticket_obj, msg = self.get_ticket_by_id(ticket_id)
+            source_state_id = ticket_obj.id
+
+        transition_queryset, msg = WorkflowTransitionService.get_transition_by_args(dict(source_state_id=source_state_id, id=transition_id))
+        if not transition_queryset:
+            return False, 'transition_id is invalid'
+
+        transition_obj = transition_queryset[0]
+        condition_expression = transition_obj.condition_expression
+        destination_state_id = transition_obj.destination_state_id
+
+        if condition_expression and json.loads(condition_expression):
+            # 存在条件表达式，需要根据表达式计算下个状态
+            condition_expression_list = json.loads(condition_expression)
+            # 获取工单所有字段的值
+            ticket_all_value_dict, msg  = self.get_ticket_all_field_value(ticket_id)
+            # 更新当前更新的字段的值
+            ticket_all_value_dict.update(ticket_req_dict)
+
+            for condition_expression0 in condition_expression_list:
+                expression = condition_expression0.get('expression')
+                expression_format = expression.format(**ticket_all_value_dict)
+                import datetime, time  # 用于支持条件表达式中对时间的操作
+                if eval(expression_format):
+                    destination_state_id = condition_expression0.get('target_state_id')
+                    break
+
+        return True, dict(destination_state_id=destination_state_id)
+
+
+
+
+
+
+
+
+

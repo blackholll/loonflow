@@ -66,6 +66,7 @@ class Transition(models.Model):
     timer = models.IntegerField('定时器(单位秒)', default=0, help_text='流转类型设置为定时器流转时生效,单位秒。处于源状态X秒后如果状态都没有过变化则自动流转到目标状态')
     source_state_id = models.IntegerField('源状态id')
     destination_state_id = models.IntegerField('目的状态id')
+    condition_expression = models.CharField('条件表达式', max_length=1000, default='[]', help_text='流转条件表达式，根据表达式中的条件来确定流转的下个状态，格式为[{"expression":"{days} > 3 and {days}<10", "target_state_id":11}] 其中{}用于填充工单的字段key,运算时会换算成实际的值，当符合条件下个状态将变为target_state_id中的值,表达式只支持简单的运算或datetime/time运算.loonflow会以首次匹配成功的条件为准，所以多个条件不要有冲突' )
     attribute_type_id = models.IntegerField('属性类型', default=1, help_text='属性类型，1.同意，2.拒绝，3.其他')
     field_require_check = models.BooleanField('是否校验必填项', default=True, help_text='默认在用户点击操作的时候需要校验工单表单的必填项,如果设置为否则不检查。用于如"退回"属性的操作，不需要填写表单内容')
     alert_enable = models.BooleanField('点击弹窗提示', default=False)

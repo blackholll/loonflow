@@ -27,3 +27,14 @@ class WorkflowTransitionService(BaseService):
         :return:
         """
         return Transition.objects.filter(is_deleted=0, id=transition_id).first(), ''
+
+    @classmethod
+    @auto_log
+    def get_transition_by_args(cls, arg_dict):
+        """
+        获取流转
+        :param arg_dict: 条件字典
+        :return:
+        """
+        arg_dict.update(is_deleted=0)
+        return Transition.objects.filter(**arg_dict).all(), ''
