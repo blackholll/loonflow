@@ -749,7 +749,10 @@ class TicketBaseService(BaseService):
             participant_alias0_list = []
             for key, value in multi_all_person_dict.items():
                 participant_user_obj, msg = AccountBaseService.get_user_by_username(key)
-                participant_alias0_list.append('{}({})已处理:{}'.format(participant_user_obj.alias ,key, value.get('transition_name')))
+                if value:
+                    participant_alias0_list.append('{}({})已处理:{}'.format(participant_user_obj.alias, key, value.get('transition_name')))
+                else:
+                    participant_alias0_list.append('{}({})未处理:{}'.format(participant_user_obj.alias, key, value.get('transition_name')))
             participant_alias = ';'.join(participant_alias0_list)
 
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
