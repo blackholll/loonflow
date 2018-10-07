@@ -20,10 +20,13 @@ from django.conf import settings
 from django.urls import path, include
 
 from apps.ticket.views import TicketListView
+from apps.homepage_view import HomepageView
 
 admin.autodiscover()
 
+
 urlpatterns = [
+    path('', HomepageView.as_view()),
     path('admin/', admin.site.urls),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
     path('api/v1.0/workflows', include('apps.workflow.urls')),

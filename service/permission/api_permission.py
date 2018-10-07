@@ -23,7 +23,7 @@ class ApiPermissionCheck(MiddlewareMixin):
 
         if not app_name:
             return False, '未提供appname'
-        app_token, msg = AccountBaseService.get_token_by_app_name(app_name)
-        if not app_token:
+        app_token_obj, msg = AccountBaseService.get_token_by_app_name(app_name)
+        if not app_token_obj:
             return False, 'appname未授权，请联系管理员'
-        return CommonService.signature_check(timestamp, signature, app_token)
+        return CommonService.signature_check(timestamp, signature, app_token_obj.token)

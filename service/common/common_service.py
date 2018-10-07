@@ -36,6 +36,22 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
+    def gen_signature(cls, app_name):
+        """
+        生成签名信息
+        :param app_name:
+        :return:
+        """
+        from apps.account.models import AppToken
+        app_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
+        md5_key = app_obj.token
+        timestamp = str(int(time.time()))
+        ori_str = timestamp + md5_key
+        tar_str = hashlib.md5(ori_str.encode(encoding='utf-8')).hexdigest()
+        return True, dict(signature=tar_str, timestamp=timestamp)
+
+    @classmethod
+    @auto_log
     def get_model_field(cls, app_name, model_name):
         """
         获取model的字段信息
