@@ -1125,6 +1125,8 @@ class TicketBaseService(BaseService):
                     transition_name = '加签完成操作'
                 elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT:
                     transition_name = '接单操作'
+                elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_COMMENT:
+                    transition_name = '新增评论'
                 else:
                     transition_name = '未知操作'
 
@@ -1173,6 +1175,8 @@ class TicketBaseService(BaseService):
                                 transition_name = '加签完成操作'
                             elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT:
                                 transition_name = '接单操作'
+                            elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_COMMENT:
+                                transition_name = '新增评论'
                             else:
                                 transition_name = '未知操作'
                         state_flow_log_list.append(dict(id=ticket_flow_log.id, transition=dict(transition_name=transition_name, transition_id=ticket_flow_log.transition_id), participant_type_id=ticket_flow_log.participant_type_id,
@@ -1601,11 +1605,31 @@ class TicketBaseService(BaseService):
 
         return True, dict(destination_state_id=destination_state_id)
 
+    @classmethod
+    @auto_log
+    def add_comment(cls, ticket_id=0, username='', suggestion=''):
+        """
+        添加评论
+        :param ticket_id:
+        :param username:
+        :param suggestion:
+        :return:
+        """
+        if not (ticket_id and username):
+            return False, 'ticket_id and username should not be null'
+        ticket_field_value_dict, msg = cls.get_ticket_all_field_value(ticket_id)
+        if ticket_field_value_dict is False:
+            return False, msg
+        for key, value in ticket_field_value_dict.items():
+            if type(value) not in [int, str, bool, float]:
+                ticket_field_value_dict[key] = str(ticket_field_value_dict[key])
 
-
-
-
-
-
-
+        new_flow_log = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
+                            participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                            participant=username, state_id=ticket_field_value_dict.get('state_id'), intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_COMMENT,
+                            ticket_data=json.dumps(ticket_field_value_dict), creator=username)
+        flag ,msg = cls.add_ticket_flow_log(new_flow_log)
+        if flag is False:
+            return False, msg
+        return True, ''
 

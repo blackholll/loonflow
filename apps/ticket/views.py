@@ -451,3 +451,27 @@ class TicketScriptRetry(View):
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
+
+
+class TicketComment(View):
+    def post(self, request, *args, **kwargs):
+        """
+        添加评论
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        ticket_id = kwargs.get('ticket_id')
+        username = request_data_dict.get('username', '')
+        suggestion = request_data_dict.get('suggestion', '')
+        result, msg = TicketBaseService.add_comment(ticket_id, username, suggestion)
+        if result:
+            code, msg, data = 0, 'add ticket comment successful', ''
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)

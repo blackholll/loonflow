@@ -149,6 +149,17 @@ class TestTicketView(LoonflowTest):
         result = LoonflowApiCall().api_call('patch', url, dict(username='lilie', title=last_ticket_title))
         self.assertEqual(result.get('code'), 0)
 
+    def test_add_ticket_comment(self):
+        """
+        测试新增评论
+        :return:
+        """
+        from apps.ticket.models import TicketRecord
+        last_ticket_obj = TicketRecord.objects.filter(is_deleted=0).order_by('-id').first()
+        last_ticket_id = last_ticket_obj.id
+        url = '/api/v1.0/tickets/{}/comments'.format(last_ticket_id)
+        result = LoonflowApiCall().api_call('post', url, dict(username='lilie', suggestion='test for commnet'))
+        self.assertEqual(result.get('code'), 0)
 
 
     def get_ticket_list_by_params(self, params):
