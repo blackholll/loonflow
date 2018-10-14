@@ -1526,7 +1526,7 @@ class TicketBaseService(BaseService):
                     multi_all_person_dict[destination_participant_0] = {}
                 multi_all_person = json.dumps(multi_all_person_dict)
 
-        return True, dict(destination_participant_type_id=destination_participant_type_id, destination_participant=destination_participant_type_id,
+        return True, dict(destination_participant_type_id=destination_participant_type_id, destination_participant=destination_participant,
                           multi_all_person=multi_all_person)
 
     @classmethod
