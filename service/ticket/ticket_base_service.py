@@ -223,7 +223,7 @@ class TicketBaseService(BaseService):
             for require_field in require_field_list:
                 if require_field not in request_field_arg_list:
                     return False, '此工单的必填字段为:{}'.format(','.join(require_field_list))
-        flag, msg = cls.get_next_state_id_by_transition_and_ticket_info(0, transition_id, request_data_dict)
+        flag, msg = cls.get_next_state_id_by_transition_and_ticket_info(0, request_data_dict)
         if flag:
             destination_state_id = msg.get('destination_state_id')
         else:
@@ -270,6 +270,11 @@ class TicketBaseService(BaseService):
         # 新增流转记录
         ## 获取工单所有字段的值
         all_ticket_data, msg = cls.get_ticket_all_field_value(new_ticket_obj.id)
+        # date等格式需要转换为str
+        for key, value in all_ticket_data.items():
+            if type(value) not in [int, str, bool, float]:
+                all_ticket_data[key] = str(all_ticket_data[key])
+
         all_ticket_data_json = json.dumps(all_ticket_data)
         new_ticket_flow_log_dict = dict(ticket_id=new_ticket_obj.id, transition_id=transition_id, suggestion=suggestion,
                                         participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
@@ -335,7 +340,7 @@ class TicketBaseService(BaseService):
             app_token_obj, msg = AccountBaseService.get_token_by_app_name(app_name)
             sn_prefix = app_token_obj.ticket_sn_prefix
 
-        return '{}_%04d%02d%02d%04d' % (sn_prefix, now_day.year, now_day.month, now_day.day, new_ticket_day_count), ''
+        return '%s_%04d%02d%02d%04d' % (sn_prefix, now_day.year, now_day.month, now_day.day, new_ticket_day_count), ''
 
     @classmethod
     @auto_log
@@ -930,7 +935,7 @@ class TicketBaseService(BaseService):
                 if require_field not in request_field_arg_list:
                     return False, '此工单的必填字段为:{}'.format(','.join(require_field_list))
 
-        flag, msg = cls.get_next_state_id_by_transition_and_ticket_info(ticket_id, transition_id, request_data_dict)
+        flag, msg = cls.get_next_state_id_by_transition_and_ticket_info(ticket_id, request_data_dict)
         if flag:
             destination_state_id = msg.get('destination_state_id')
         else:
@@ -1466,7 +1471,7 @@ class TicketBaseService(BaseService):
             creator = ticket_req_dict.get('username')
             multi_all_person = {}
 
-        state_obj = WorkflowStateService.get_workflow_state_by_id(state_id)
+        state_obj, msg = WorkflowStateService.get_workflow_state_by_id(state_id)
         participant_type_id, participant = state_obj.participant_type_id, state_obj.participant
 
         if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
@@ -1542,8 +1547,9 @@ class TicketBaseService(BaseService):
                 update_field_list.append(key)
         return True, dict(require_field_list=require_field_list, update_field_list=update_field_list)
 
+    @classmethod
     @auto_log
-    def get_next_state_id_by_transition_and_ticket_info(self, ticket_id=0, ticket_req_dict={}):
+    def get_next_state_id_by_transition_and_ticket_info(cls, ticket_id=0, ticket_req_dict={}):
         """
         获取工单的下个状态id,需要考虑条件流转的情况
         :param ticket_id:
@@ -1566,7 +1572,7 @@ class TicketBaseService(BaseService):
             source_state_id = start_state.id
         else:
             # 已经存在的工单，直接获取工单当前状态
-            ticket_obj, msg = self.get_ticket_by_id(ticket_id)
+            ticket_obj, msg = cls.get_ticket_by_id(ticket_id)
             source_state_id = ticket_obj.id
 
         transition_queryset, msg = WorkflowTransitionService.get_transition_by_args(dict(source_state_id=source_state_id, id=transition_id))
@@ -1581,7 +1587,7 @@ class TicketBaseService(BaseService):
             # 存在条件表达式，需要根据表达式计算下个状态
             condition_expression_list = json.loads(condition_expression)
             # 获取工单所有字段的值
-            ticket_all_value_dict, msg  = self.get_ticket_all_field_value(ticket_id)
+            ticket_all_value_dict, msg = cls.get_ticket_all_field_value(ticket_id)
             # 更新当前更新的字段的值
             ticket_all_value_dict.update(ticket_req_dict)
 

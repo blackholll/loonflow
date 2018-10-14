@@ -180,6 +180,7 @@ class AccountBaseService(BaseService):
         workflow_ids = app_token_obj.workflow_ids
         if workflow_ids:
             workflow_id_list = workflow_ids.split(',')
+            workflow_id_list = [int(workflow_id) for workflow_id in workflow_id_list]
             return workflow_id_list, ''
         else:
             return [], ''
