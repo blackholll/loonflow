@@ -29,7 +29,7 @@ class WorkflowBaseService(BaseService):
         if name:
             query_params &= Q(name__contains=name)
 
-        query_params &= Q(workflow_id__in=workflow_id_list)
+        query_params &= Q(id__in=workflow_id_list)
 
         workflow_querset = Workflow.objects.filter(query_params).order_by('id')
         paginator = Paginator(workflow_querset, per_page)
