@@ -944,9 +944,9 @@ class TicketBaseService(BaseService):
         destination_state, msg = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
 
         # 判断当前处理人类似是否为全部处理，如果处理类型为全部处理，且有人未处理，则工单状态不变，只记录处理过程
-        multi_all_person = ticket_obj.multi_all_person
-        multi_all_person_dict = json.loads(multi_all_person)
         if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
+            multi_all_person = ticket_obj.multi_all_person
+            multi_all_person_dict = json.loads(multi_all_person)
             blank_or_false_value_key_list, msg = CommonService.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
             if blank_or_false_value_key_list:
                 multi_all_person_dict[username] = dict(transition_id=transition_id, transition_name=req_transition_obj.name)
@@ -1017,6 +1017,10 @@ class TicketBaseService(BaseService):
         update_ticket_custom_field_result, msg = cls.update_ticket_field_value(ticket_id, update_field_dict)
         # 更新工单流转记录，执行必要的脚本，通知消息
         ticket_all_data, msg = cls.get_ticket_all_field_value(ticket_id)
+        for key, value in ticket_all_data.items():
+            if type(value) not in [int, str, bool, float]:
+                ticket_all_data[key] = str(ticket_all_data[key])
+
         cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                      participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
                                      state_id=source_ticket_state_id, creator=username, ticket_data=json.dumps(ticket_all_data)))
@@ -1208,9 +1212,17 @@ class TicketBaseService(BaseService):
             ticket_obj.participant = state_obj.participant
             ticket_obj.save()
             # 新增流转记录
+            ## 获取工单所有字段的值
+            all_ticket_data, msg = cls.get_ticket_all_field_value(ticket_id)
+            # date等格式需要转换为str
+            for key, value in all_ticket_data.items():
+                if type(value) not in [int, str, bool, float]:
+                    all_ticket_data[key] = str(all_ticket_data[key])
+
+            all_ticket_data_json = json.dumps(all_ticket_data)
 
             cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0, suggestion='强制修改工单状态', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
-                                         participant=username, state_id=source_state_id))
+                                         participant=username, state_id=source_state_id, ticket_data=all_ticket_data_json))
             return True, '修改工单状态成功'
 
     @classmethod
@@ -1255,9 +1267,19 @@ class TicketBaseService(BaseService):
             ticket_obj.participant = username
             ticket_obj.save()
             # 记录处理日志
+
+            all_ticket_data, msg = cls.get_ticket_all_field_value(ticket_id)
+            # date等格式需要转换为str
+            for key, value in all_ticket_data.items():
+                if type(value) not in [int, str, bool, float]:
+                    all_ticket_data[key] = str(all_ticket_data[key])
+
+            all_ticket_data_json = json.dumps(all_ticket_data)
+
             ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='接单处理', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
                                         intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT,
-                                        participant=username, state_id=ticket_obj.state_id, creator=username)
+                                        participant=username, state_id=ticket_obj.state_id, creator=username,
+                                        ticket_data=all_ticket_data_json)
             cls.add_ticket_flow_log(ticket_flow_log_dict)
             return True, ''
         else:
@@ -1284,9 +1306,18 @@ class TicketBaseService(BaseService):
         ticket_obj.participant = target_username
         ticket_obj.save()
         # 记录处理日志
+        all_ticket_data, msg = cls.get_ticket_all_field_value(ticket_id)
+        # date等格式需要转换为str
+        for key, value in all_ticket_data.items():
+            if type(value) not in [int, str, bool, float]:
+                all_ticket_data[key] = str(all_ticket_data[key])
+
+        all_ticket_data_json = json.dumps(all_ticket_data)
+
         ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
                                     intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_DELIVER,
-                                    participant=username, state_id=ticket_obj.state_id, creator=username)
+                                    participant=username, state_id=ticket_obj.state_id, creator=username,
+                                    ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
 
@@ -1313,9 +1344,17 @@ class TicketBaseService(BaseService):
         ticket_obj.add_node_man = username
         ticket_obj.save()
         # 记录处理日志
+        all_ticket_data, msg = cls.get_ticket_all_field_value(ticket_id)
+        # date等格式需要转换为str
+        for key, value in all_ticket_data.items():
+            if type(value) not in [int, str, bool, float]:
+                all_ticket_data[key] = str(all_ticket_data[key])
+
+        all_ticket_data_json = json.dumps(all_ticket_data)
         ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
                                     intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE,
-                                    participant=username, state_id=ticket_obj.state_id, creator=username)
+                                    participant=username, state_id=ticket_obj.state_id, creator=username,
+                                    ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
 
@@ -1339,9 +1378,18 @@ class TicketBaseService(BaseService):
         ticket_obj.add_node_man = ''
         ticket_obj.save()
         # 记录处理日志
+        all_ticket_data, msg = cls.get_ticket_all_field_value(ticket_id)
+        # date等格式需要转换为str
+        for key, value in all_ticket_data.items():
+            if type(value) not in [int, str, bool, float]:
+                all_ticket_data[key] = str(all_ticket_data[key])
+
+        all_ticket_data_json = json.dumps(all_ticket_data)
+
         ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
                                     intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE_END,
-                                    participant=username, state_id=ticket_obj.state_id, creator=username)
+                                    participant=username, state_id=ticket_obj.state_id, creator=username,
+                                    ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
 
@@ -1477,6 +1525,7 @@ class TicketBaseService(BaseService):
 
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(state_id)
         participant_type_id, participant = state_obj.participant_type_id, state_obj.participant
+        destination_participant_type_id, destination_participant = participant_type_id, participant
 
         if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
             if not ticket_id:
@@ -1577,7 +1626,7 @@ class TicketBaseService(BaseService):
         else:
             # 已经存在的工单，直接获取工单当前状态
             ticket_obj, msg = cls.get_ticket_by_id(ticket_id)
-            source_state_id = ticket_obj.id
+            source_state_id = ticket_obj.state_id
 
         transition_queryset, msg = WorkflowTransitionService.get_transition_by_args(dict(source_state_id=source_state_id, id=transition_id))
         if not transition_queryset:
@@ -1617,17 +1666,19 @@ class TicketBaseService(BaseService):
         """
         if not (ticket_id and username):
             return False, 'ticket_id and username should not be null'
-        ticket_field_value_dict, msg = cls.get_ticket_all_field_value(ticket_id)
-        if ticket_field_value_dict is False:
-            return False, msg
-        for key, value in ticket_field_value_dict.items():
-            if type(value) not in [int, str, bool, float]:
-                ticket_field_value_dict[key] = str(ticket_field_value_dict[key])
 
+        all_ticket_data, msg = cls.get_ticket_all_field_value(ticket_id)
+        # date等格式需要转换为str
+        for key, value in all_ticket_data.items():
+            if type(value) not in [int, str, bool, float]:
+                all_ticket_data[key] = str(all_ticket_data[key])
+
+        all_ticket_data_json = json.dumps(all_ticket_data)
         new_flow_log = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
                             participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
                             participant=username, state_id=ticket_field_value_dict.get('state_id'), intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_COMMENT,
-                            ticket_data=json.dumps(ticket_field_value_dict), creator=username)
+                            ticket_data=all_ticket_data_json, creator=username)
+
         flag ,msg = cls.add_ticket_flow_log(new_flow_log)
         if flag is False:
             return False, msg
