@@ -48,8 +48,7 @@ class WorkflowInitView(View):
         app_name = request.META.get('HTTP_APPNAME')
         from service.account.account_base_service import AccountBaseService
         # 判断是否有工作流的权限
-        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name,
-                                                                               request_data.get('workflow_id'))
+        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
 
