@@ -729,7 +729,10 @@ class TicketBaseService(BaseService):
         if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
             participant_type_name = '个人'
             participant_user_obj, msg = AccountBaseService.get_user_by_username(participant)
-            participant_alias = participant_user_obj.alias
+            if not participant_user_obj:
+                participant_alias = participant
+            else:
+                participant_alias = participant_user_obj.alias
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
             participant_type_name = '多人'
             # 依次获取人员信息
@@ -737,7 +740,10 @@ class TicketBaseService(BaseService):
             participant_alias_list = []
             for participant_name0 in participant_name_list:
                 participant_user_obj, msg = AccountBaseService.get_user_by_username(participant_name0)
-                participant_alias_list.append(participant_user_obj.alias)
+                if not participant_user_obj:
+                    participant_alias_list.append(participant_name0)
+                else:
+                    participant_alias_list.append(participant_user_obj.alias)
             participant_alias = ','.join(participant_alias_list)
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
             participant_type_name = '多人且全部处理'
@@ -746,10 +752,14 @@ class TicketBaseService(BaseService):
             participant_alias0_list = []
             for key, value in multi_all_person_dict.items():
                 participant_user_obj, msg = AccountBaseService.get_user_by_username(key)
-                if value:
-                    participant_alias0_list.append('{}({})已处理:{}'.format(participant_user_obj.alias, key, value.get('transition_name')))
+                if not participant_user_obj:
+                    participant_alias0 = key
                 else:
-                    participant_alias0_list.append('{}({})未处理:{}'.format(participant_user_obj.alias, key, value.get('transition_name')))
+                    participant_alias0 = participant_user_obj.alias
+                if value:
+                    participant_alias0_list.append('{}({})已处理:{}'.format(participant_alias0, key, value.get('transition_name')))
+                else:
+                    participant_alias0_list.append('{}({})未处理:{}'.format(participant_alias0, key, value.get('transition_name')))
             participant_alias = ';'.join(participant_alias0_list)
 
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
@@ -996,7 +1006,7 @@ class TicketBaseService(BaseService):
         ticket_obj.participant = destination_participant
         ticket_obj.multi_all_person = multi_all_person
         if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END:
-            ticket_obj.is_end = destination_state.is_end
+            ticket_obj.is_end = True
         if req_transition_obj.attribute_type_id == CONSTANT_SERVICE.TRANSITION_ATTRIBUTE_TYPE_REFUSE:
             # 如果操作为拒绝操作，则工单状态为被拒绝，否则更新为否
             ticket_obj.is_rejected = True
