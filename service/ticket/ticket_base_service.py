@@ -811,24 +811,24 @@ class TicketBaseService(BaseService):
 
         if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
             if username != participant:
-                return False, '非当前处理人，无权处理'
+                return None, '非当前处理人，无权处理'
         elif participant_type_id in [CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL]:
             if username not in participant.split(','):
-                return False, '非当前处理人，无权处理'
+                return None, '非当前处理人，无权处理'
             current_participant_count = len(participant.split(','))
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
             dept_user_list, msg = AccountBaseService.get_dept_username_list(dept_id=int(participant))
             if username not in dept_user_list:
-                return False, '非当前处理人，无权处理'
+                return None, '非当前处理人，无权处理'
             current_participant_count = len(dept_user_list)
 
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
             role_user_list, msg = AccountBaseService.get_role_username_list(int(participant))
             if username not in role_user_list:
-                return False, '非当前处理人，无权处理'
+                return None, '非当前处理人，无权处理'
             current_participant_count = len(role_user_list)
         else:
-            return False, '非当前处理人，无权处理'
+            return None, '非当前处理人，无权处理'
         # PARTICIPANT_TYPE_VARIABLE, PARTICIPANT_TYPE_FIELD, PARTICIPANT_TYPE_PARENT_FIELD类型会在流转时保存为实际的处理人
 
         if current_participant_count > 1 and state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ACTIVE:
