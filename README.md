@@ -17,11 +17,18 @@ LOONFLOW 分为两部分:
 - 使用django自带的admin来管理工作流的配置信息 
 - 提供http api供各个系统(如果oa、cmdb、运维系统、客服系统)的后端调用以完成各自系统定制化的工单需求
 
-## 效果图
-loonflow只提供后端调用api和工作流的配置后台，下面是youshutong2080帮忙写的一个调用方demo的前端效果图(前端使用vue.js)
+## 效果图/动画
+loonflow只提供后端调用api和工作流的配置后台，感谢youshutong2080(使用vue.js https://github.com/youshutong2080/shutongFlow)和jimmy201602(使用bootstrap, https://github.com/jimmy201602/workflowdemo)分别帮忙写的一个调用方demo.下面是效果图和动画
+
+#### vue版本demo
 ![create_ticket](/docs/images/create-ticket.png)
-![create_ticket](/docs/images/todo-list.png)
-![create_ticket](/docs/images/detail-ticket.png)
+![todo_list](/docs/images/todo-list.png)
+![detail_ticket](/docs/images/detail-ticket.png)
+
+### bootstrap版本demo
+![bootstrap_demo](/docs/images/jimmy201602_demo.gif)
+另外boostrap版本还提供了docker镜像，供新人快速部署:https://hub.docker.com/r/webterminal/workflowdemo/
+
 
 ## 使用文档
 [使用文档](docs/index.md)
