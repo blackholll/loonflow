@@ -237,7 +237,7 @@ def send_ticket_notice(ticket_id):
         content_result = content_template.format(**ticket_value_info)
         notice_script_file = notice_obj.script
 
-        globals = {'title_result': title_result, 'content_result': content_result, }
+        globals = {'title_result': title_result, 'content_result': content_result, 'participant': ticket_obj.participant}
         try:
             with stdoutIO() as s:
                 # execfile(script_file, globals)  # for python 2
