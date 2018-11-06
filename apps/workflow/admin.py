@@ -37,9 +37,9 @@ class CustomNoticeAdmin(LoonModelBaseAdmin):
     def formfield_for_dbfield(self, db_field, **kwargs):
         field = super(CustomNoticeAdmin, self).formfield_for_dbfield(db_field, **kwargs)
         if db_field.name == 'title_template':
-            field.initial = 'dddd'
+            field.initial = '你有一个待办工单:{title}'
         if db_field.name == 'content_template':
-            field.initial = 'fefefe'
+            field.initial = '标题:{title}, 创建时间:{gmt_created}'
         return field
 
 

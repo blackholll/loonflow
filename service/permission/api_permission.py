@@ -22,8 +22,8 @@ class ApiPermissionCheck(MiddlewareMixin):
         app_name = request.META.get('HTTP_APPNAME')
 
         if not app_name:
-            return False, '未提供appname'
+            return False, '未提供appname(调用loonflow接口需要鉴权，请根据文档中"调用授权"部分说明来调用)'
         app_token_obj, msg = AccountBaseService.get_token_by_app_name(app_name)
         if not app_token_obj:
-            return False, 'appname未授权，请联系管理员'
+            return False, 'appname未授权，请联系管理员(调用loonflow接口需要鉴权，请根据文档中"调用授权"部分说明来调用)'
         return CommonService.signature_check(timestamp, signature, app_token_obj.token)
