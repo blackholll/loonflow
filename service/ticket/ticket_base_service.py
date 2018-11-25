@@ -1527,11 +1527,11 @@ class TicketBaseService(BaseService):
                 return False, msg
             parent_ticket_id = ticket_obj.parent_ticket_id
             creator = ticket_obj.creator
-            multi_all_person_dict = json.loads(ticket_obj.multi_all_person)
+            multi_all_person = json.loads(ticket_obj.multi_all_person)
         else:
             parent_ticket_id = ticket_req_dict.get('parent_ticket_id')
             creator = ticket_req_dict.get('username')
-            multi_all_person = {}
+            multi_all_person = "{}"
 
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(state_id)
         participant_type_id, participant = state_obj.participant_type_id, state_obj.participant
@@ -1547,10 +1547,10 @@ class TicketBaseService(BaseService):
                 update_field_list = field_info.get('update_field_list')
                 if participant in update_field_list and ticket_req_dict.get(participant):
                     # 请求数据中包含需要的字段则从请求数据中获取
-                    participant = ticket_req_dict.get(participant)
+                    destination_participant = ticket_req_dict.get(participant)
                 else:
                     # 处理工单时未提供字段的值,则从工单当前字段值中获取
-                    participant, msg = cls.get_ticket_field_value(participant)
+                    destination_participant, msg = cls.get_ticket_field_value(participant)
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
@@ -1572,8 +1572,16 @@ class TicketBaseService(BaseService):
                 if len(approver.split(',')) > 1:
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
                 destination_participant = approver
-        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
-            destination_participant_list = destination_participant.split(',')
+        if destination_participant_type_id in (CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT, CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE) \
+                and state_obj.distribute_type_id in (CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_RANDOM, CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ALL):
+            # 处理人为角色，部门，或者角色都可能是为多个人，需要根据状态的分配方式计算实际的处理人
+            if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
+                destination_participant_list = destination_participant.split(',')
+            elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+                destination_participant_list, msg = AccountBaseService.get_dept_username_list(int(destination_participant))
+            elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+                destination_participant_list, msg = AccountBaseService.get_role_username_list(int(destination_participant))
+
             if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_RANDOM:
                 # 如果是随机处理,则随机设置处理人
                 destination_participant = random.sample(destination_participant_list, 1)
