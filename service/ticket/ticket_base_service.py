@@ -237,8 +237,11 @@ class TicketBaseService(BaseService):
             return False, participant_info
         destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
         destination_participant = participant_info.get('destination_participant', '')
-        multi_all_person = participant_info.get('multi_all_person', {})
-        multi_all_person[username] = username
+        multi_all_person = participant_info.get('multi_all_person', '{}')
+        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
+            multi_all_person_dict = json.loads(multi_all_person)
+            multi_all_person_dict[username] = dict(transition_id=transition_id, transition_name=req_transition_obj.name)
+            multi_all_person = json.dumps(multi_all_person_dict)
 
         # 生成流水号
         ticket_sn, msg = cls.gen_ticket_sn(app_name)
@@ -572,6 +575,8 @@ class TicketBaseService(BaseService):
         # suggestion长度处理,在某些mysql版本默认配置中，如果插入时候字段长度大于字段定义的长度会报错，而不是自动截断
         if len(kwargs.get('suggestion', '')) > 1000:
             kwargs['suggestion'] = '{}...(超过字段定义长度,自动截断)'.format(kwargs.get('suggestion', '')[:960])
+        if not kwargs.get('creator'):
+            kwargs['creator'] = kwargs.get('participant', '')
         new_ticket_flow_log = TicketFlowLog(**kwargs)
         new_ticket_flow_log.save()
         return new_ticket_flow_log.id, ''
@@ -1584,7 +1589,7 @@ class TicketBaseService(BaseService):
 
             if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_RANDOM:
                 # 如果是随机处理,则随机设置处理人
-                destination_participant = random.sample(destination_participant_list, 1)
+                destination_participant = random.sample(destination_participant_list, 1)[0]
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ALL:
                 destination_participant_type_id = CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ALL
