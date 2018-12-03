@@ -986,7 +986,7 @@ class TicketBaseService(BaseService):
             if not destination_state:
                 return False, msg
             # 获取目标状态的信息
-            flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id,
+            flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_id,
                                                                            ticket_req_dict=request_data_dict)
             if not flag:
                 return False, participant_info
@@ -1547,7 +1547,7 @@ class TicketBaseService(BaseService):
                 # ticket_id 不存在，则为新建工单，从请求的数据中获取
                 destination_participant = ticket_req_dict.get(participant, '')
             else:
-                # 工单存在，先判断是否有修改此字段的权限，如果有且字段值有提供，则去提交的值
+                # 工单存在，先判断是否有修改此字段的权限，如果有且字段值有提供，则取提交的值
                 flag, field_info = cls.get_state_field_info(ticket_obj.state_id)
                 update_field_list = field_info.get('update_field_list')
                 if participant in update_field_list and ticket_req_dict.get(participant):
@@ -1555,7 +1555,7 @@ class TicketBaseService(BaseService):
                     destination_participant = ticket_req_dict.get(participant)
                 else:
                     # 处理工单时未提供字段的值,则从工单当前字段值中获取
-                    destination_participant, msg = cls.get_ticket_field_value(participant)
+                    destination_participant, msg = cls.get_ticket_field_value(ticket_id, participant)
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
