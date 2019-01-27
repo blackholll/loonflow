@@ -1,0 +1,55 @@
+{% load static %}
+<aside class="main-sidebar">
+<!-- sidebar: style can be found in sidebar.less -->
+<section class="sidebar">
+  <!-- Sidebar Menu -->
+  <ul class="sidebar-menu" data-widget="tree">
+    
+    <!-- Optionally, you can add icons to the links -->
+    {% if active_nav == 'overview' %}
+    <li class="active"><a href="/manage"><i class="fa fa-dashboard"></i> <span>总览</span></a></li>
+    {% else %}
+    <li><a href="/manage"><i class="fa fa-dashboard"></i> <span>总览</span></a></li>
+    {% endif %}
+
+    {% if active_nav == 'doc' %}
+    <li class="active"><a href="/manage/doc"><i class="fa fa-book"></i> <span>使用文档</span></a></li>
+    {% else %}
+    <li><a href="/manage/doc"><i class="fa fa-book"></i> <span>使用文档</span></a></li>
+    {% endif %}
+
+    {% if active_nav == 'user_manage' or active_nav == 'role_manage' or active_nav == 'dept_manage' or active_nav == 'token_manage' %}
+    <li class="treeview active menu-open">
+      <a href="#"><i class="fa fa-user"></i> <span>用户及权限</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+      </a>
+      <ul class="treeview-menu">
+        <li><a href="/manage/user_manage">用户管理</a></li>
+        <li><a href="#">角色管理</a></li>
+        <li><a href="#">部门管理</a></li>
+        <li><a href="#">调用权限</a></li>
+      </ul>
+    </li>
+    {% else %}
+    <li class="treeview">
+      <a href="#"><i class="fa fa-user"></i> <span>用户及权限</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+      </a>
+      <ul class="treeview-menu">
+        <li><a href="/manage/user_manage">用户管理</a></li>
+        <li><a href="#">角色管理</a></li>
+        <li><a href="#">部门管理</a></li>
+        <li><a href="#">调用权限</a></li>
+      </ul>
+    </li>
+    {% endif %}
+    <li><a href="#"><i class="fa fa-gears"></i> <span>工作流配置</span></a></li>
+  </ul>
+  <!-- /.sidebar-menu -->
+</section>
+<!-- /.sidebar -->
+</aside>

@@ -57,9 +57,44 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+        'libraries':{
+                    'loonflow_filter': 'apps.manage.templatetags.loonflow_filter',
+
+                    }
         },
     },
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    # Put strings here, like "/home/html/static" or "C:/www/django/static".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+
+    #     ("css", os.path.join(STATIC_ROOT,'css')),
+
+
+    ("bower_components", os.path.join(STATIC_ROOT, 'bower_components')),
+    ("dist", os.path.join(STATIC_ROOT, 'dist')),
+
+
+
+    # ("js", os.path.join(STATIC_ROOT, 'js')),
+    # ("image", os.path.join(STATIC_ROOT, 'image')),
+    # ("css", os.path.join(STATIC_ROOT, 'css')),
+    # ("dist", os.path.join(STATIC_ROOT, 'dist')),
+    # ("plugins", os.path.join(STATIC_ROOT, 'plugins')),
+    # ("fonts", os.path.join(STATIC_ROOT, 'fonts')),
+    # ("font-awesome", os.path.join(STATIC_ROOT, 'font-awesome')),
+    # ("img", os.path.join(STATIC_ROOT, 'img')),
+    # ("bootstrap", os.path.join(STATIC_ROOT, 'bootstrap')),
+    # ("apps/ueditor", os.path.join(STATIC_ROOT, 'ueditor')),
+    # ("echarts", os.path.join(STATIC_ROOT, 'echarts')),
+    # ("ueditor", os.path.join(STATIC_ROOT, 'ueditor')),
+    # ("ventor", os.path.join(STATIC_ROOT, 'ventor')),
+)
 
 WSGI_APPLICATION = 'loonflow.wsgi.application'
 
@@ -116,3 +151,4 @@ STATIC_URL = '/static/'
 
 
 FIXTURE_DIRS = ['fixtures/']
+STATIC_FILES_VERSION = '1.0'

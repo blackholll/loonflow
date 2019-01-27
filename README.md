@@ -39,7 +39,7 @@ loonflow只提供后端调用api和工作流的配置后台，感谢youshutong20
 
 
 ## 使用文档
-[使用文档](docs/index.md)
+[使用文档](/docs/index.md)
 
 ## Q&A
 -  为什么没使用django rest framework
