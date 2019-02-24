@@ -30,3 +30,23 @@ def user_manage_view(request):
     :return:
     """
     return render(request, 'user_and_permission/user_manage.html', {'active_nav': 'user_manage'})
+
+
+@login_required
+def role_manage_view(request):
+    """
+    角色管理
+    :param request:
+    :return:
+    """
+    return render(request, 'user_and_permission/role_manage.html', {'active_nav': 'role_manage'})
+
+
+@login_required
+def dept_manage_view(request):
+    """
+    部门管理
+    :param request:
+    :return:
+    """
+    return render(request, 'user_and_permission/dept_manage.html', {'active_nav': 'dept_manage'})

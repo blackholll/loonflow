@@ -12,10 +12,10 @@
 <section class="content-header">
     <h1>
       用户及权限
-      <small>角色列表</small>
+      <small>部门列表</small>
     </h1>
     <ol class="breadcrumb">
-      <li><a href="/manage/role_manage"><i class="fa fa-dashboard"></i> 角色</a></li>
+      <li><a href="/manage/dept_manage"><i class="fa fa-dashboard"></i> 部门</a></li>
     </ol>
   </section>
   <div class="row">
@@ -25,12 +25,14 @@
       </div>
       <div class="col-md-12">
         <div class="box box-default">
-        <table id="user_table" class="table table-striped table-bordered dataTable no-footer" >
+        <table id="dept_table" class="table table-striped table-bordered dataTable no-footer" >
           <thead>
             <tr>
                 <th>ID</th>
-                <th>角色名</th>
-                <th>角色描述</th>
+                <th>部门名</th>
+                <th>上级部门名</th>
+                <th>部门TL</th>
+                <th>部门审批人</th>
                 <th>标签</th>
                 <th>创建人</th>
                 <th>创建时间</th>
@@ -69,15 +71,13 @@
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
 
 <script>
-// $(document).ready( function () {
-
-  $('#user_table').DataTable({
+  $('#dept_table').DataTable({
   ordering: false,
   "serverSide":true,
   "bFilter":true,
   "lengthMenu": [10, 25, 50, 100 ],
   "language": {
-    "searchPlaceholder": "角色名或描述模糊搜索"
+    "searchPlaceholder": "部门名或标签模糊搜索"
   },
 
   ajax: function (data, callback, settings) {
@@ -89,7 +89,7 @@
     console.log(param);    
     $.ajax({
       type: "GET",
-      url: "/api/v1.0/accounts/roles",
+      url: "/api/v1.0/accounts/depts",
       cache: false,  //禁用缓存
       data: param,  //传入组装的参数
       dataType: "json",
@@ -111,7 +111,9 @@
   columns: [
       { "data": "id"},
       { "data": "name" },
-      { "data": "description" },
+      { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
+      { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
+      { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
       { "data": "label" },
       { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
       { "data": "gmt_created" },
@@ -119,6 +121,5 @@
   ]
   
 })
-// })
 </script>
 {% endblock %}

@@ -262,3 +262,60 @@ class AccountBaseService(BaseService):
             user_result_object_format_list.append(user_result_object.get_dict())
 
         return user_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_role_list(cls, search_value, page=1, per_page=10):
+        """
+        获取角色列表
+        :param search_value: 支持根据角色名,角色描述模糊查询
+        :param page:
+        :param per_page:
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if search_value:
+            query_params &= Q(name__contains=search_value) | Q(description__contains=search_value)
+        user_objects = LoonRole.objects.filter(query_params)
+        paginator = Paginator(user_objects, per_page)
+        try:
+            role_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            role_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            role_result_paginator = paginator.page(paginator.num_pages)
+        role_result_object_list = role_result_paginator.object_list
+        role_result_object_format_list = []
+        for role_result_object in role_result_object_list:
+            role_result_object_format_list.append(role_result_object.get_dict())
+
+        return role_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_dept_list(cls, search_value, page=1, per_page=10):
+        """
+        获取部门列表
+        :param search_value: 支持根据部门名,标签模糊查询
+        :param page:
+        :param per_page:
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if search_value:
+            query_params &= Q(name__contains=search_value) | Q(label__contains=search_value)
+        dept_objects = LoonDept.objects.filter(query_params)
+        paginator = Paginator(dept_objects, per_page)
+        try:
+            dept_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            dept_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            dept_result_paginator = paginator.page(paginator.num_pages)
+        dept_result_object_list = dept_result_paginator.object_list
+        dept_result_object_format_list = []
+        for dept_result_object in dept_result_object_list:
+            dept_result_object_format_list.append(dept_result_object.get_dict())
+        return dept_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)

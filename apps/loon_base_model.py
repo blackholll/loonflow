@@ -22,5 +22,8 @@ class BaseModel(models.Model):
                 dict_result[attr] = getattr(self, attr)
         return dict_result
 
+    class Meta:
+        abstract = True
+
 
 
