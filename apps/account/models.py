@@ -234,3 +234,13 @@ class AppToken(BaseModel):
     class Meta:
         verbose_name = '调用token'
         verbose_name_plural = '调用token'
+
+    def get_dict(self):
+        role_dict_info = super().get_dict()
+        creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()
+        if creator_obj:
+            role_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias,
+                                                  creator_username=creator_obj.username)
+        else:
+            role_dict_info['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, 'creator'))
+        return role_dict_info

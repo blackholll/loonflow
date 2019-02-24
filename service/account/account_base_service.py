@@ -319,3 +319,31 @@ class AccountBaseService(BaseService):
         for dept_result_object in dept_result_object_list:
             dept_result_object_format_list.append(dept_result_object.get_dict())
         return dept_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_token_list(cls, search_value, page=1, per_page=10):
+        """
+        获取应用权限token列表
+        :param search_value: 支持应用名模糊查询
+        :param page:
+        :param per_page:
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if search_value:
+            query_params &= Q(app_name__contains=search_value)
+        token_objects = AppToken.objects.filter(query_params)
+        paginator = Paginator(token_objects, per_page)
+        try:
+            token_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            token_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            token_result_paginator = paginator.page(paginator.num_pages)
+        token_result_object_list = token_result_paginator.object_list
+        token_result_object_format_list = []
+        for token_result_object in token_result_object_list:
+            token_result_object_format_list.append(token_result_object.get_dict())
+        return token_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)

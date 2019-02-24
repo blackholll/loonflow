@@ -7,4 +7,5 @@ urlpatterns = [
     path('user_manage', user_manage_view),
     path('role_manage', role_manage_view),
     path('dept_manage', dept_manage_view),
+    path('app_token_manage', app_token_manage_view),
 ]

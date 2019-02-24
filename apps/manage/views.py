@@ -50,3 +50,13 @@ def dept_manage_view(request):
     :return:
     """
     return render(request, 'user_and_permission/dept_manage.html', {'active_nav': 'dept_manage'})
+
+
+@login_required
+def app_token_manage_view(request):
+    """
+    应用调用权限管理
+    :param request:
+    :return:
+    """
+    return render(request, 'user_and_permission/token_manage.html', {'active_nav': 'token_manage'})
