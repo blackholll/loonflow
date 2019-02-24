@@ -29,4 +29,4 @@ def user_manage_view(request):
     :param request:
     :return:
     """
-    return render(request, 'doc/index.html', {'active_nav': 'doc'})
+    return render(request, 'user_and_permission/user_manage.html', {'active_nav': 'user_manage'})

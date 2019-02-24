@@ -1,3 +1,5 @@
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole
 from service.base_service import BaseService
 from service.common.log_service import auto_log
@@ -174,6 +176,17 @@ class AccountBaseService(BaseService):
         :param app_name:
         :return:
         """
+        if not app_name:
+            return False, 'need app_name arg in request header'
+        if app_name == 'loonflow':
+            # loonflow有权限访问所有workflow
+            from apps.workflow.models import Workflow
+            workflow_query_set = Workflow.objects.filter(is_deleted=0).all()
+            workflow_id_list = []
+            for workflow_obj in workflow_query_set:
+                workflow_id_list.append(workflow_obj.id)
+            return workflow_id_list, ''
+
         app_token_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
         if not app_token_obj:
             return False, 'app is invalid'
@@ -194,6 +207,8 @@ class AccountBaseService(BaseService):
         :param workflow_id:
         :return:
         """
+        if app_name == 'loonflow':
+            return True, ''
         app_workflow_permission_list, msg = cls.app_workflow_permission_list(app_name)
         if app_workflow_permission_list and workflow_id in app_workflow_permission_list:
             return True, ''
@@ -218,3 +233,32 @@ class AccountBaseService(BaseService):
         if not permission_check:
             return False, msg
         return True, ''
+
+    @classmethod
+    @auto_log
+    def get_user_list(cls, search_value, page=1, per_page=10):
+        """
+        获取用户列表
+        :param search_value: 支持根据用户名，中文名查询
+        :param page:
+        :param per_page:
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if search_value:
+            query_params &= Q(username__contains=search_value) | Q(alias__contains=search_value)
+        user_objects = LoonUser.objects.filter(query_params)
+        paginator = Paginator(user_objects, per_page)
+        try:
+            user_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            user_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            user_result_paginator = paginator.page(paginator.num_pages)
+        user_result_object_list = user_result_paginator.object_list
+        user_result_object_format_list = []
+        for user_result_object in user_result_object_list:
+            user_result_object_format_list.append(user_result_object.get_dict())
+
+        return user_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)

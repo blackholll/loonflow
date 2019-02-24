@@ -238,7 +238,10 @@ class TicketBaseService(BaseService):
         destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
         destination_participant = participant_info.get('destination_participant', '')
         multi_all_person = participant_info.get('multi_all_person', {})
-        multi_all_person[username] = username
+        if multi_all_person:
+            multi_all_person_dict = json.loads(multi_all_person)
+            multi_all_person_dict[username] = username
+            multi_all_person = json.dumps(multi_all_person_dict)
 
         # 生成流水号
         ticket_sn, msg = cls.gen_ticket_sn(app_name)

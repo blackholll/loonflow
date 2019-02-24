@@ -1,5 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
+import datetime
+from django.forms import model_to_dict
 
 
 class LoonDept(models.Model):
@@ -107,6 +109,41 @@ class LoonUser(AbstractBaseUser):
             return dept_object[0].name
         else:
             return '部门id不存在'
+
+    def get_dict(self):
+        fields = []
+        for field in self._meta.fields:
+            fields.append(field.name)
+
+        dict_result = {}
+        import datetime
+        for attr in fields:
+            if isinstance(getattr(self, attr), datetime.datetime):
+                dict_result[attr] = getattr(self, attr).strftime('%Y-%m-%d %H:%M:%S')
+            elif isinstance(getattr(self, attr), datetime.date):
+                dict_result[attr] = getattr(self, attr).strftime('%Y-%m-%d')
+            elif attr == 'dept_id':
+                dept_obj = LoonDept.objects.filter(id=getattr(self, attr), is_deleted=0).first()
+                dept_name = dept_obj.name if dept_obj else ''
+                dict_result['dept_info'] = dict(dept_id=getattr(self, attr), dept_name=dept_name)
+            elif attr == 'password':
+                pass
+            elif attr == 'creator':
+                creator_obj = LoonUser.objects.filter(username=getattr(self, attr)).first()
+                if creator_obj:
+                    dict_result['creator_info'] = dict(creator_id= creator_obj.id, creator_alias=creator_obj.alias, creator_username=creator_obj.username)
+                else:
+                    dict_result['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, attr))
+            else:
+                dict_result[attr] = getattr(self, attr)
+
+        return dict_result
+
+    def get_json(self):
+        import json
+        dict_result = self.get_dict()
+        return json.dumps(dict_result)
+
 
     class Meta:
         verbose_name = '用户'

@@ -29,6 +29,7 @@ urlpatterns = [
     path('', HomepageView.as_view()),
     path('admin/', admin.site.urls),
     path('manage/', include('apps.manage.urls')),
+    path('api/v1.0/accounts', include('apps.account.urls')),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
     path('api/v1.0/workflows', include('apps.workflow.urls')),
 

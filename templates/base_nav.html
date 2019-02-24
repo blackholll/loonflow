@@ -26,10 +26,26 @@
           </span>
       </a>
       <ul class="treeview-menu">
+        {% if active_nav == 'user_manage' %}  
+        <li class="active"><a href="/manage/user_manage">用户管理</a></li>
+        {% else %}
         <li><a href="/manage/user_manage">用户管理</a></li>
+        {% endif %}
+        {% if active_nav == 'role_manage' %}
+        <li class="active"><a href="#">角色管理</a></li>
+        {% else %}
         <li><a href="#">角色管理</a></li>
+        {% endif %}
+        {% if active_nav == 'role_manage' %}
+        <li class="active"><a href="#">部门管理</a></li>
+        {% else %}
         <li><a href="#">部门管理</a></li>
+        {% endif %}
+        {% if active_nav == 'token_manage' %}
+        <li class="active"><a href="#">调用权限</a></li>
+        {% else %}
         <li><a href="#">调用权限</a></li>
+        {% endif %}
       </ul>
     </li>
     {% else %}
