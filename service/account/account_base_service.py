@@ -347,3 +347,54 @@ class AccountBaseService(BaseService):
         for token_result_object in token_result_object_list:
             token_result_object_format_list.append(token_result_object.get_dict())
         return token_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def add_token_record(cls, app_name, ticket_sn_prefix, workflow_ids, username):
+        """
+        新增token记录
+        :param app_name:
+        :param ticket_sn_prefix:
+        :param workflows_ids:
+        :return:
+        """
+        import uuid
+        token = uuid.uuid1()
+        app_token_obj = AppToken(app_name=app_name, ticket_sn_prefix=ticket_sn_prefix, workflow_ids=workflow_ids, token=token, creator=username)
+        app_token_obj.save()
+        return True, app_token_obj.id
+
+    @classmethod
+    @auto_log
+    def update_token_record(cls, app_token_id, app_name, ticket_sn_prefix, workflow_ids):
+        """
+        更新token记录
+        :param app_token_id:
+        :param app_name:
+        :param ticket_sn_prefix:
+        :param workflow_ids:
+        :return:
+        """
+        app_token_obj = AppToken.objects.filter(id=app_token_id, is_deleted=0).first()
+        if not app_token_obj:
+            return False, 'record is not exist or has been deleted'
+        app_token_obj.app_name = app_name
+        app_token_obj.ticket_sn_prefix = ticket_sn_prefix
+        app_token_obj.workflow_ids = workflow_ids
+        app_token_obj.save()
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def del_token_record(cls, app_token_id):
+        """
+        删除token记录
+        :param app_token_id:
+        :return:
+        """
+        app_token_obj = AppToken.objects.filter(id=app_token_id, is_deleted=0).first()
+        if not app_token_obj:
+            return False, 'record is not exist or has been deleted'
+        app_token_obj.is_deleted = True
+        app_token_obj.save()
+        return True, ''

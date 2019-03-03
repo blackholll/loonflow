@@ -1,3 +1,4 @@
+import json
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib.auth.decorators import login_required
@@ -95,4 +96,82 @@ class LoonAppTokenView(View):
             code, msg, = 0, ''
         else:
             code, data = -1, ''
+        return api_response(code, msg, data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        新增调用权限记录
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        app_name = request_data_dict.get('app_name', '')
+        ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
+        workflow_ids = request_data_dict.get('workflow_ids', '')
+        username = request.user.username
+        flag, msg = AccountBaseService().add_token_record(app_name, ticket_sn_prefix, workflow_ids, username)
+        if flag is False:
+            code, data = -1, {}
+        else:
+            code, data = 0, {'id': msg}
+
+        return api_response(code, msg, data)
+
+
+@method_decorator(login_required, name='dispatch')
+class LoonAppTokenDetailView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        获取token详情
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        app_token_id = kwargs.get('app_token_id')
+        pass
+
+    def patch(self, request, *args, **kwargs):
+        """
+        编辑token
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        app_token_id = kwargs.get('app_token_id')
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'patch参数为空', {})
+        request_data_dict = json.loads(json_str)
+        app_name = request_data_dict.get('app_name', '')
+        ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
+        workflow_ids = request_data_dict.get('workflow_ids', '')
+        flag, msg = AccountBaseService.update_token_record(app_token_id, app_name, ticket_sn_prefix, workflow_ids)
+        if flag is False:
+            code, data = -1, {}
+        else:
+            code, data = 0, {}
+
+        return api_response(code, msg, data)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        删除记录
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        app_token_id = kwargs.get('app_token_id')
+        flag, msg = AccountBaseService.del_token_record(app_token_id)
+        if flag is False:
+            code, data = -1, {}
+        else:
+            code, data = 0, {}
         return api_response(code, msg, data)
