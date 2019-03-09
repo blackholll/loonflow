@@ -236,8 +236,7 @@ def send_ticket_notice(ticket_id):
         title_result = title_template.format(**ticket_value_info)
         content_result = content_template.format(**ticket_value_info)
         notice_script_file_name = notice_obj.script.name
-        notice_script_dir = os.path.join(settings.MEDIA_ROOT, "notice_script")
-        notice_script_file = os.path.join(notice_script_dir, notice_script_file_name)
+        notice_script_file = os.path.join(settings.MEDIA_ROOT, notice_script_file_name)
 
         globals = {'title_result': title_result, 'content_result': content_result, 'participant': ticket_obj.participant}
         try:
