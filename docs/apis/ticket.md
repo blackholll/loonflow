@@ -217,7 +217,7 @@ username | varchar | 是 | 请求用户的用户名
 
 # 接单
 ### URL
-/api/v1.0/ticket/{ticket_id}/accept
+/api/v1.0/tickets/{ticket_id}/accept
 ### method
 post
 ### 使用场景
@@ -527,6 +527,7 @@ api/v1.0/tickets/{ticket_id}/fields
 patch
 ### 请求参数
 参数名 | 类型 | 必填 | 说明
+--- | --- | --- | ---
 username | varchar | 是 | 请求用户的用户名,用于做必要的权限控制
 需要修改值的字段的key1 | varchar | 是 | 如需要修改标题，则就是title
 需要修改值的字段的key2 | varchar | 是 | 如需要修改标题，则就是title
@@ -548,6 +549,7 @@ api/v1.0/tickets/{ticket_id}/retry_script
 post
 ### 请求参数
 参数名 | 类型 | 必填 | 说明
+--- | --- | --- |---
 username | varchar | 是 | 请求用户的用户名,用于做必要的权限控制
 ### 返回数据
 ```
