@@ -1,6 +1,7 @@
 from django.views import View
 from service.format_response import api_response
 from service.workflow.workflow_base_service import WorkflowBaseService
+from service.workflow.workflow_runscript_service import WorkflowRunScriptService
 from service.workflow.workflow_state_service import WorkflowStateService
 
 
@@ -106,6 +107,34 @@ class WorkflowStateView(View):
         if result is not False:
             data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
             code, msg,  = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+
+class WorkflowRunScriptView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        获取工作流执行脚本列表
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        if not username:
+            username = request.user.username
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        if not username:
+            return api_response(-1, '请提供username', '')
+        result, msg = WorkflowRunScriptService.get_run_script_list(search_value, per_page, page)
+
+        if result is not False:
+            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg, = 0, ''
         else:
             code, data = -1, ''
         return api_response(code, msg, data)

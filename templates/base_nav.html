@@ -63,7 +63,52 @@
       </ul>
     </li>
     {% endif %}
-    <li><a href="#"><i class="fa fa-gears"></i> <span>工作流配置</span></a></li>
+    <!-- {% if active_nav == 'workflow_manage'%}
+    <li class="active"><a href="/manage/workflow_manage"><i class="fa fa-gears"></i> <span>工作流管理</span></a></li>
+    {% else %}
+    <li><a href="/manage/workflow_manage"><i class="fa fa-gears"></i> <span>工作流管理</span></a></li>
+    {% endif %} -->
+    {% if active_nav == 'workflow_manage' or active_nav == 'run_script_manage' or active_nav == 'notice_manage' %}
+    <li class="treeview active menu-open">
+      <a href="#"><i class="fa fa-user"></i> <span>工作流管理</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+      </a>
+      <ul class="treeview-menu">
+        {% if active_nav == 'workflow_manage' %}  
+        <li class="active"><a href="/manage/workflow_manage">工作流配置</a></li>
+        {% else %}
+        <li><a href="/manage/workflow_manage">工作流配置</a></li>
+        {% endif %}
+        {% if active_nav == 'run_script_manage' %}
+        <li class="active"><a href="/manage/run_script_manage">执行脚本</a></li>
+        {% else %}
+        <li><a href="/manage/run_script_manage">执行脚本</a></li>
+        {% endif %}
+        {% if active_nav == 'notice_manage' %}
+        <li class="active"><a href="/manage/notice_manage">通知管理</a></li>
+        {% else %}
+        <li><a href="/manage/notice_manage">通知管理</a></li>
+        {% endif %}
+      </ul>
+    </li>
+    {% else %}
+    <li class="treeview">
+      <a href="#"><i class="fa fa-user"></i> <span>工作流管理</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+      </a>
+      <ul class="treeview-menu">
+        <li><a href="/manage/workflow_manage">工作流配置</a></li>
+        <li><a href="/manage/run_script_manage">执行脚本</a></li>
+        <li><a href="/manage/notice_manage">通知管理</a></li>
+      </ul>
+    </li>
+    {% endif %}
+
+
   </ul>
   <!-- /.sidebar-menu -->
 </section>

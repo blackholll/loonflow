@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      工作流管理
+      <small>执行脚本管理</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="/manage/workflow_manage"><i class="fa fa-dashboard"></i> 工作流管理</a></li>
+    </ol>
+  </section>
+  <div class="row">
+    <section class="content-header">
+
+      <div class="col-md-12">
+
+                  <div class="box box-default">
+                      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#appTokenModal">
+                          新增
+                      </button>
+                    <table id="dept_table" class="table table-striped table-bordered dataTable no-footer" >
+                      <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>名称</th>
+                            <th>描述</th>
+                            <th>存储文件名</th>
+                            <th>创建人</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                
+                      </tbody>
+                    </table>
+                  
+                  </div>
+                  
+            </div>
+      </div>
+      <div class="modal fade" id="appTokenModal">
+          <div class="modal-dialog" style="width: 980px;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">工作流</h4>
+              </div>
+              <div class="modal-body">
+                  <form class="form-horizontal" action='/api/v1.0/accounts/app_token' method="post" id='token_form'>
+                      <div class="box-body">
+                        <div class="form-group">
+                          <label for="inputAppName" class="col-sm-3 control-label">名称</label> 
+                          <div class="col-sm-9">
+                            <input type="text" class="form-control" id="inputAppName" placeholder="请输入工作流名称">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputAppName" class="col-sm-3 control-label">描述</label> 
+                            <div class="col-sm-9">
+                              <input type="text" class="form-control" id="inputAppName" placeholder="请输入工作流描述">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="noticeScriptSelect" class="col-sm-3 control-label">选择通知脚本</label>
+                            <div class="col-sm-9">
+                              <select class="form-control select2" multiple="multiple" id="noticeScriptSelect" data-placeholder="选择该应用有权限的工作流"
+                                      style="width: 100%;">                            
+                              </select>
+                              <p class="help-block">如果配置通知脚本，则当工单流转的时，loonflow将调用通知脚本来通知工单的待办人，具体请参考通知脚本配置的说明</p>
+                            </div>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                              <input type="checkbox"> 工单查看权限校验
+                              <p class="help-block">开启后，以工单的关联人(创建人、曾经的处理人)的名义调用工单详情接口才可以返回详情信息</p>
+                            </label>
+                          </div>
+
+                        <div class="form-group">
+                          <label for="ticketSnPrefix" class="col-sm-3 control-label" >限制表达式</label>
+                          <div class="col-sm-9">
+                            <input type="text" class="form-control" id="ticketSnPrefix" placeholder="请输入字典对象json后格式的限制表达式">
+                            <p class="help-block">限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)</p>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ticketSnPrefix" class="col-sm-3 control-label" >展现表单</label>
+                            <div class="col-sm-9">
+                              <input type="text" class="form-control" id="ticketSnPrefix" placeholder="请输入字典对象json后格式的限制表达式">
+                              <p class="help-block">默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称</p>
+                            </div>
+                          <input type="text" class="form-control" id="appTokenId" style="display:none">
+                      </div>
+                      <!-- /.box-body -->
+                      <div class="box-footer">
+                        <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                        <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitAppToken();" />
+                      </div>
+                      <!-- /.box-footer -->
+                    </form>
+              </div>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+      </div>
+
+
+      
+    </section>
+      <!-- /.box -->
+  </div>
+  </section>
+      <!-- /.col -->
+   
+  <!-- /.content -->
+  
+</div>
+
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+<script src="{% static 'bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+
+<script>
+  $('#noticeScriptSelect').select2({placeholderOption: "first", allowClear:true});
+  $('#dept_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "名称或描述模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/workflows/run_scripts",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "name" },
+      { "data": "description" },
+      { "data": "saved_name" },
+      { "data": "creator" },
+      { "data": "gmt_created" },
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delAppToken(' + full.id + ')' + '"'+  '>删除</a>/<a>配置</a>/<a>查看流程图</a></div>')}}
+      // { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
+      // { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
+      // { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
+      // { "data": "label" },
+      // { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
+
+  ]
+  
+})
+</script>
+{% endblock %}

@@ -60,3 +60,33 @@ def app_token_manage_view(request):
     :return:
     """
     return render(request, 'user_and_permission/token_manage.html', {'active_nav': 'token_manage'})
+
+
+@login_required
+def workflow_manage_view(request):
+    """
+    工作流管理
+    :param request:
+    :return:
+    """
+    return render(request, 'workflow/workflow_manage.html', {'active_nav': 'workflow_manage'})
+
+
+@login_required
+def run_script_manage_view(request):
+    """
+    执行脚本管理
+    :param request:
+    :return:
+    """
+    return render(request, 'workflow/run_script_manage.html', {'active_nav': 'run_script_manage'})
+
+
+@login_required
+def notice_manage_view(request):
+    """
+    通知管理
+    :param request:
+    :return:
+    """
+    return render(request, 'workflow/notice_manage.html', {'active_nav': 'notice_manage'})

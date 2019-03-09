@@ -1,12 +1,13 @@
 from django.urls import path
 
-from apps.workflow.views import StateView, WorkflowView, WorkflowInitView, WorkflowStateView
+from apps.workflow.views import StateView, WorkflowView, WorkflowInitView, WorkflowStateView, WorkflowRunScriptView
 
 urlpatterns = [
     path('', WorkflowView.as_view()),
     path('/<int:workflow_id>/init_state', WorkflowInitView.as_view()),
     path('/<int:workflow_id>/states', WorkflowStateView.as_view()),
     path('/states/<int:state_id>', StateView.as_view()),
+    path('/run_scripts', WorkflowRunScriptView.as_view()),
 
 
 ]
