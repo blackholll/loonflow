@@ -56,7 +56,7 @@ class WorkflowStateService(BaseService):
         workflow_states_object_list = workflow_states_result_paginator.object_list
         workflow_states_restful_list = []
         for workflow_states_object in workflow_states_object_list:
-            result_dict = dict(id=id, name=workflow_states_object.name, workflow_id=workflow_states_object.workflow_id,
+            result_dict = dict(id=workflow_states_object.id, name=workflow_states_object.name, workflow_id=workflow_states_object.workflow_id,
                                sub_workflow_id=workflow_states_object.sub_workflow_id, is_hidden=workflow_states_object.is_hidden,
                                order_id=workflow_states_object.order_id, type_id=workflow_states_object.type_id,
                                participant_type_id=workflow_states_object.participant_type_id, participant=workflow_states_object.participant,
