@@ -1662,8 +1662,10 @@ class TicketBaseService(BaseService):
         if condition_expression and json.loads(condition_expression):
             # 存在条件表达式，需要根据表达式计算下个状态
             condition_expression_list = json.loads(condition_expression)
-            # 获取工单所有字段的值
-            ticket_all_value_dict, msg = cls.get_ticket_all_field_value(ticket_id)
+            ticket_all_value_dict = {}
+            if ticket_id:
+                # 获取工单所有字段的值
+                ticket_all_value_dict, msg = cls.get_ticket_all_field_value(ticket_id)
             # 更新当前更新的字段的值
             ticket_all_value_dict.update(ticket_req_dict)
 
