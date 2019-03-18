@@ -239,7 +239,7 @@ def send_ticket_notice(ticket_id):
         notice_script_file = os.path.join(settings.MEDIA_ROOT, notice_script_file_name)
 
         globals = {'title_result': title_result, 'content_result': content_result, 'participant': ticket_obj.participant,
-                   'participant_type_id': ticket_obj.participant_type_id}
+                   'participant_type_id': ticket_obj.participant_type_id, 'multi_all_person':ticket_obj.multi_all_person}
         try:
             with stdoutIO() as s:
                 # execfile(script_file, globals)  # for python 2
