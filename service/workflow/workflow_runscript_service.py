@@ -42,3 +42,52 @@ class WorkflowRunScriptService(BaseService):
             run_script_result_restful_list.append(dict(id=run_script_result_object.id, name=run_script_result_object.name, description=run_script_result_object.description,
                                                        saved_name=run_script_result_object.saved_name.name, is_active=run_script_result_object.is_active, creator=run_script_result_object.creator, gmt_created=str(run_script_result_object.gmt_created)[:19]))
         return run_script_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def add_run_script(cls, name, saved_name, description, is_active, creator):
+        """
+        新增工作流脚本
+        :param name:
+        :param saved_name:
+        :param description:
+        :param is_active:
+        :param creator:
+        :return:
+        """
+        script_obj = WorkflowScript(name=name, saved_name=saved_name, description=description, is_active=is_active, creator=creator)
+        script_obj.save()
+        return True, script_obj.id
+
+    @classmethod
+    @auto_log
+    def edit_run_script(cls, id, name, saved_name, description, is_active):
+        """
+        新增工作流脚本
+        :param name:
+        :param saved_name:
+        :param description:
+        :param is_active:
+        :return:
+        """
+        script_obj = WorkflowScript.objects.filter(id=id, is_deleted=0)
+        if saved_name:
+            script_obj.update(name=name, saved_name=saved_name, description=description, is_active=is_active)
+        else:
+            script_obj.update(name=name, description=description, is_active=is_active)
+        return True, script_obj.first().id
+
+    @classmethod
+    @auto_log
+    def del_run_script(cls, id):
+        """
+        删除脚本
+        :id: 
+        :return:
+        """
+        script_obj = WorkflowScript.objects.filter(id=id, is_deleted=0)
+        if script_obj:
+            script_obj.update(is_deleted=True)
+            return True, ''
+        else:
+            return False, 'the record is not exist or has been deleted'

@@ -3,7 +3,8 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 {% endblock %}
 
@@ -24,10 +25,10 @@
       <div class="col-md-12">
 
                   <div class="box box-default">
-                      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#appTokenModal">
+                      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#noticeModal">
                           新增
                       </button>
-                    <table id="dept_table" class="table table-striped table-bordered dataTable no-footer" >
+                    <table id="notice_table" class="table table-striped table-bordered dataTable no-footer" >
                       <thead>
                         <tr>
                             <th>ID</th>
@@ -47,73 +48,66 @@
                   
             </div>
       </div>
-      <div class="modal fade" id="appTokenModal">
-          <div class="modal-dialog" style="width: 980px;">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">工作流</h4>
-              </div>
-              <div class="modal-body">
-                  <form class="form-horizontal" action='/api/v1.0/accounts/app_token' method="post" id='token_form'>
-                      <div class="box-body">
-                        <div class="form-group">
-                          <label for="inputAppName" class="col-sm-3 control-label">名称</label> 
-                          <div class="col-sm-9">
-                            <input type="text" class="form-control" id="inputAppName" placeholder="请输入工作流名称">
-                          </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="inputAppName" class="col-sm-3 control-label">描述</label> 
-                            <div class="col-sm-9">
-                              <input type="text" class="form-control" id="inputAppName" placeholder="请输入工作流描述">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="noticeScriptSelect" class="col-sm-3 control-label">选择通知脚本</label>
-                            <div class="col-sm-9">
-                              <select class="form-control select2" multiple="multiple" id="noticeScriptSelect" data-placeholder="选择该应用有权限的工作流"
-                                      style="width: 100%;">                            
-                              </select>
-                              <p class="help-block">如果配置通知脚本，则当工单流转的时，loonflow将调用通知脚本来通知工单的待办人，具体请参考通知脚本配置的说明</p>
-                            </div>
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                              <input type="checkbox"> 工单查看权限校验
-                              <p class="help-block">开启后，以工单的关联人(创建人、曾经的处理人)的名义调用工单详情接口才可以返回详情信息</p>
-                            </label>
-                          </div>
-
-                        <div class="form-group">
-                          <label for="ticketSnPrefix" class="col-sm-3 control-label" >限制表达式</label>
-                          <div class="col-sm-9">
-                            <input type="text" class="form-control" id="ticketSnPrefix" placeholder="请输入字典对象json后格式的限制表达式">
-                            <p class="help-block">限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)</p>
-                          </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="ticketSnPrefix" class="col-sm-3 control-label" >展现表单</label>
-                            <div class="col-sm-9">
-                              <input type="text" class="form-control" id="ticketSnPrefix" placeholder="请输入字典对象json后格式的限制表达式">
-                              <p class="help-block">默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称</p>
-                            </div>
-                          <input type="text" class="form-control" id="appTokenId" style="display:none">
-                      </div>
-                      <!-- /.box-body -->
-                      <div class="box-footer">
-                        <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-                        <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitAppToken();" />
-                      </div>
-                      <!-- /.box-footer -->
-                    </form>
-              </div>
+      <div class="modal fade" id="noticeModal">
+        <div class="modal-dialog" style="width: 980px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">工作流通知</h4>
             </div>
-            <!-- /.modal-content -->
+            <div class="modal-body">
+                <form class="form-horizontal" id='run_script_form'>
+                    <div class="box-body">
+                      <div class="form-group">
+                        <label for="noticeName" class="col-sm-3 control-label">名称</label> 
+                        <div class="col-sm-9">
+                          <input type="text" class="form-control" id="noticeName" placeholder="请输入通知名称">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                          <label for="noticeDesc" class="col-sm-3 control-label">描述</label> 
+                          <div class="col-sm-9">
+                            <input type="text" class="form-control" id="noticeDesc" placeholder="请输入通知描述">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label for="noticeScriptFile" class="col-sm-3 control-label">选择脚本</label>
+                          <div class="col-sm-9">
+                            <input type="file" id="noticeScriptFile" accept=".py">
+                            <p class="help-block" id=nowNoticeFile></p>   
+                            <p class="help-block">仅支持python脚本,loonflow会将标题、内容、参与人信息作为全局变量传给通知脚本，脚本中直接使用这些参数，通过各自的发送消息逻辑将信息发送出去</p>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="titleTemplate" class="col-sm-3 control-label">标题模板</label> 
+                        <div class="col-sm-9">
+                          <input type="text" class="form-control" id="titleTemplate" value="你有一个待办工单:{title}">
+                          <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="contentTemplate" class="col-sm-3 control-label">内容模板</label> 
+                      <div class="col-sm-9">
+                        <input type="text" class="form-control" id="contentTemplate" value="标题:{title}, 创建时间:{gmt_created}">
+                        <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}</p>
+                      </div>
+                      <input type="text" class="form-control" id="noticeId" style="display:none">
+                  </div>
+                    </div>
+                    <!-- /.box-body -->
+                    <div class="box-footer">
+                      <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                      <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitNotice();" />
+                    </div>
+                    <!-- /.box-footer -->
+                  </form>
+            </div>
           </div>
-          <!-- /.modal-dialog -->
+          <!-- /.modal-content -->
         </div>
+        <!-- /.modal-dialog -->
+      </div>
       </div>
 
 
@@ -144,8 +138,19 @@
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
 
 <script>
-  $('#noticeScriptSelect').select2({placeholderOption: "first", allowClear:true});
-  $('#dept_table').DataTable({
+  $("#noticeModal").on("hidden.bs.modal", function() {
+    $(this).removeData("bs.modal");
+    // $("#run_script_form")[0].reset();  发现这个不生效，先逐个清空吧
+    $("#noticeName").attr("value",'');
+    $("#noticeDesc").attr("value",'');
+    $("#nowNoticeFile").html('');
+    $("#title_template").html('');
+    $("#content_template").html('');
+    $("#NoticeId").attr("value", null);
+    
+});
+
+  $('#notice_table').DataTable({
   ordering: false,
   "serverSide":true,
   "bFilter":true,
@@ -163,7 +168,7 @@
     console.log(param);    
     $.ajax({
       type: "GET",
-      url: "/api/v1.0/workflows",
+      url: "/api/v1.0/workflows/custom_notices",
       cache: false,  //禁用缓存
       data: param,  //传入组装的参数
       dataType: "json",
@@ -188,7 +193,7 @@
       { "data": "description" },
       { "data": "creator" },
       { "data": "gmt_created" },
-      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delAppToken(' + full.id + ')' + '"'+  '>删除</a>/<a>配置</a>/<a>查看流程图</a></div>')}}
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delAppToken(' + full.id + ')' + '"'+  '>删除</a>')}}
       // { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
       // { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
       // { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
@@ -198,5 +203,103 @@
   ]
   
 })
+
+function showEditForm(data){
+    $("#noticeName").attr("value",data.name);
+    $("#noticeDesc").attr("value",data.description);
+    $("#titleTemplate").attr("value",data.title_template);
+    $("#contentTemplate").attr("value",data.content_template);
+    // $("#WorkflowScriptFile").attr("value",data.saved_name);
+    nowNoticeFileContent= "<a href=" + "/media/" + data.script + ">" + data.script + "</a>";
+    $("#nowNoticeFile").html(nowNoticeFileContent);
+    $("#NoticeId").attr("value",data.id);
+    
+    $('#noticeModal').modal('show');
+  }
+
+function submitNotice(){
+    let noticeId = document.getElementById("noticeId").value;
+    if (!noticeId){
+      addNotice()
+    }
+    else{
+      // 编辑
+      editNotice();
+    }
+  };
+  function addNotice() {
+    var form_data = new FormData();
+    var file_info = $('#noticeScriptFile')[0].files[0];
+    var noticeName = $("#noticeName").val()
+    var noticeDesc = $("#noticeDesc").val()
+    var titleTemplate = $("#titleTemplate").val()
+    var contentTemplate = $("#contentTemplate").val()
+
+    form_data.append('file',file_info);
+    form_data.append('notice_name',noticeName);
+    form_data.append('notice_desc',noticeDesc);
+    form_data.append('title_template',titleTemplate);
+    form_data.append('content_template',contentTemplate);
+
+    if(file_info===undefined){
+      alert('请选择python文件');
+      return false
+    }
+    // 提交ajax的请求
+    $.ajax({
+        url:"/api/v1.0/workflows/custom_notices",
+        type:'POST',
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function(callback) {
+          $('#noticeModal').modal('hide')
+          swal({
+              title: "编辑成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+          $('#notice_table').dataTable()._fnAjaxUpdate(); 
+        }
+    }); // end ajax
+  }
+
+  function editNotice() {
+    var form_data = new FormData();
+    var file_info = $('#noticeScriptFile')[0].files[0];
+    var noticeName = $("#noticeName").val()
+    var noticeDesc = $("#noticeDesc").val()
+    var titleTemplate = $("#titleTemplate").val()
+    var contentTemplate = $("#contentTemplate").val()
+
+    form_data.append('file',file_info);
+    form_data.append('notice_name',noticeName);
+    form_data.append('notice_desc',noticeDesc);
+    form_data.append('title_template',titleTemplate);
+    form_data.append('content_template',contentTemplate);
+    
+    // 提交ajax的请求
+    $.ajax({
+        url:"/api/v1.0/workflows/custom_notices/" + WorkflowScriptId,
+        type:'POST', // 本来准备用patch的。但是发现非json提交过来获取不到数据(因为要传文件，所以不能用json)
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function(callback) {
+          $('#noticeModal').modal('hide')
+          swal({
+              title: "编辑成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+          $('#notice_table').dataTable()._fnAjaxUpdate(); 
+        }
+    }); // end ajax
+  };
+
 </script>
 {% endblock %}

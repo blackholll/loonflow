@@ -3,7 +3,8 @@
 
 {% block css %}
 <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 {% endblock %}
 
@@ -20,92 +21,76 @@
   </section>
   <div class="row">
     <section class="content-header">
-
       <div class="col-md-12">
-
-                  <div class="box box-default">
-                      <button type="button" class="btn btn-success" data-toggle="modal" data-target="#appTokenModal">
-                          新增
-                      </button>
-                    <table id="dept_table" class="table table-striped table-bordered dataTable no-footer" >
-                      <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>名称</th>
-                            <th>描述</th>
-                            <th>存储文件名</th>
-                            <th>创建人</th>
-                            <th>创建时间</th>
-                            <th>操作</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                
-                      </tbody>
-                    </table>
-                  
-                  </div>
-                  
-            </div>
+        <div class="box box-default">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#runScriptModal">
+                新增
+            </button>
+          <table id="run_script_table" class="table table-striped table-bordered dataTable no-footer" >
+            <thead>
+              <tr>
+                  <th>ID</th>
+                  <th>名称</th>
+                  <th>描述</th>
+                  <th>存储文件名</th>
+                  <th>可用</th>
+                  <th>创建人</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>   
+            </tbody>
+          </table>      
+        </div>                
+      <!-- </div> -->
       </div>
-      <div class="modal fade" id="appTokenModal">
+      <div class="modal fade" id="runScriptModal">
           <div class="modal-dialog" style="width: 980px;">
             <div class="modal-content">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">工作流</h4>
+                <h4 class="modal-title">工作流脚本</h4>
               </div>
               <div class="modal-body">
-                  <form class="form-horizontal" action='/api/v1.0/accounts/app_token' method="post" id='token_form'>
+                  <form class="form-horizontal" id='run_script_form'>
                       <div class="box-body">
                         <div class="form-group">
-                          <label for="inputAppName" class="col-sm-3 control-label">名称</label> 
+                          <label for="scriptName" class="col-sm-3 control-label">名称</label> 
                           <div class="col-sm-9">
-                            <input type="text" class="form-control" id="inputAppName" placeholder="请输入工作流名称">
+                            <input type="text" class="form-control" id="scriptName" placeholder="请输入工作流名称">
                           </div>
                         </div>
                         <div class="form-group">
-                            <label for="inputAppName" class="col-sm-3 control-label">描述</label> 
+                            <label for="scriptDesc" class="col-sm-3 control-label">描述</label> 
                             <div class="col-sm-9">
-                              <input type="text" class="form-control" id="inputAppName" placeholder="请输入工作流描述">
+                              <input type="text" class="form-control" id="scriptDesc" placeholder="请输入工作流描述">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="noticeScriptSelect" class="col-sm-3 control-label">选择通知脚本</label>
+                            <label for="WorkflowScriptFile" class="col-sm-3 control-label">选择脚本</label>
                             <div class="col-sm-9">
-                              <select class="form-control select2" multiple="multiple" id="noticeScriptSelect" data-placeholder="选择该应用有权限的工作流"
-                                      style="width: 100%;">                            
-                              </select>
-                              <p class="help-block">如果配置通知脚本，则当工单流转的时，loonflow将调用通知脚本来通知工单的待办人，具体请参考通知脚本配置的说明</p>
+                              <input type="file" id="WorkflowScriptFile" accept=".py">
+                              <p class="help-block" id=nowScriptFile></p>   
+                              <p class="help-block">仅支持python脚本,media/workflow_script/demo_script.py为示例脚本，请参考编写</p>
                             </div>
                         </div>
                         <div class="checkbox">
-                            <label>
-                              <input type="checkbox"> 工单查看权限校验
-                              <p class="help-block">开启后，以工单的关联人(创建人、曾经的处理人)的名义调用工单详情接口才可以返回详情信息</p>
+                            <label for="isActive" class="col-sm-3 control-label">可用</label>
+                              <div class="col-sm-9">
+                                <input type="checkbox" id='isActive' checked>
+                                <p class="help-block">开启后，该脚本才可以被选择和被实际执行</p>
+                              </div>
+                              <input type="text" class="form-control" id="WorkflowScriptId" style="display:none">
+                              
                             </label>
                           </div>
-
-                        <div class="form-group">
-                          <label for="ticketSnPrefix" class="col-sm-3 control-label" >限制表达式</label>
-                          <div class="col-sm-9">
-                            <input type="text" class="form-control" id="ticketSnPrefix" placeholder="请输入字典对象json后格式的限制表达式">
-                            <p class="help-block">限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)</p>
-                          </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="ticketSnPrefix" class="col-sm-3 control-label" >展现表单</label>
-                            <div class="col-sm-9">
-                              <input type="text" class="form-control" id="ticketSnPrefix" placeholder="请输入字典对象json后格式的限制表达式">
-                              <p class="help-block">默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称</p>
-                            </div>
-                          <input type="text" class="form-control" id="appTokenId" style="display:none">
                       </div>
                       <!-- /.box-body -->
                       <div class="box-footer">
                         <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-                        <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitAppToken();" />
+                        <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitWorkflowScript();" />
                       </div>
                       <!-- /.box-footer -->
                     </form>
@@ -145,8 +130,125 @@
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
 
 <script>
+  $("#runScriptModal").on("hidden.bs.modal", function() {
+    $(this).removeData("bs.modal");
+    // $("#run_script_form")[0].reset();  发现这个不生效，先逐个清空吧
+    $("#scriptName").attr("value",'');
+    $("#scriptDesc").attr("value",'');
+    $("#nowScriptFile").html('');
+    $("#WorkflowScriptId").attr("value", null);
+    $("#isActive").attr("value",false);
+    
+});
   $('#noticeScriptSelect').select2({placeholderOption: "first", allowClear:true});
-  $('#dept_table').DataTable({
+  function submitWorkflowScript(){
+    let WorkflowScriptId = document.getElementById("WorkflowScriptId").value;
+    if (!WorkflowScriptId){
+      addWorkflowScript()
+    }
+    else{
+      // 编辑
+      editWorkflowScript();
+    }
+  };
+  function addWorkflowScript() {
+    var form_data = new FormData();
+    var file_info = $('#WorkflowScriptFile')[0].files[0];
+    var scriptName = $("#scriptName").val()
+    var scriptDesc = $("#scriptDesc").val()
+    var is_active = 0
+
+    // if ($('#isActive').attr('checked')) {  // 发现用此方法获取后值有问题
+    if (document.getElementById("isActive").checked) {
+      is_active = 1
+    }
+    form_data.append('file',file_info);
+    form_data.append('script_name',scriptName);
+    form_data.append('script_desc',scriptDesc);
+    form_data.append('is_active',is_active);
+    if(file_info===undefined){
+      alert('请选择python文件');
+      return false
+    }
+    // 提交ajax的请求
+    $.ajax({
+        url:"/api/v1.0/workflows/run_scripts",
+        type:'POST',
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function(callback) {
+          $('#runScriptModal').modal('hide')
+          swal({
+              title: "编辑成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+          $('#run_script_table').dataTable()._fnAjaxUpdate(); 
+        }
+    }); // end ajax
+  }
+
+  function editWorkflowScript() {
+    var form_data = new FormData();
+    var file_info = $('#WorkflowScriptFile')[0].files[0];
+    var scriptName = $("#scriptName").val()
+    var scriptDesc = $("#scriptDesc").val()
+    var WorkflowScriptId = $("#WorkflowScriptId").val()
+    var is_active = 0
+
+    // if ($('#isActive').attr('checked')) {  // 发现用此方法获取后值有问题
+    if (document.getElementById("isActive").checked) {
+      is_active = 1
+    }
+    form_data.append('file',file_info);
+    form_data.append('script_name',scriptName);
+    form_data.append('script_desc',scriptDesc);
+    form_data.append('is_active',is_active);
+    
+    // 提交ajax的请求
+    $.ajax({
+        url:"/api/v1.0/workflows/run_scripts/" + WorkflowScriptId,
+        type:'POST', // 本来准备用patch的。但是发现非json提交过来获取不到数据(因为要传文件，所以不能用json)
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function(callback) {
+          $('#runScriptModal').modal('hide')
+          swal({
+              title: "编辑成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+          $('#run_script_table').dataTable()._fnAjaxUpdate(); 
+        }
+    }); // end ajax
+  };
+
+
+
+  function showEditForm(data){
+    $("#scriptName").attr("value",data.name);
+    $("#scriptDesc").attr("value",data.description);
+    // $("#WorkflowScriptFile").attr("value",data.saved_name);
+    nowScriptFileContent= "<a href=" + "/media/" + data.saved_name + ">" + data.saved_name + "</a>";
+    $("#nowScriptFile").html(nowScriptFileContent);
+    $("#WorkflowScriptId").attr("value",data.id);
+    
+    $("#isActive").attr("value",data.is_active);
+    if (data.is_active) {
+      $('#isActive').attr('checked', true);
+    } else {
+      $('#isActive').attr('checked', false);
+    };
+    $('#runScriptModal').modal('show');
+  }
+
+  $('#run_script_table').DataTable({
   ordering: false,
   "serverSide":true,
   "bFilter":true,
@@ -188,9 +290,10 @@
       { "data": "name" },
       { "data": "description" },
       { "data": "saved_name" },
+      { "data": "is_active", render: function(data, type, full){if(data){return '是'}return '否'}},
       { "data": "creator" },
       { "data": "gmt_created" },
-      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delAppToken(' + full.id + ')' + '"'+  '>删除</a>/<a>配置</a>/<a>查看流程图</a></div>')}}
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delRunScript(' + full.id + ')' + '"'+  '>删除</a></div>')}}
       // { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
       // { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
       // { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
@@ -200,5 +303,41 @@
   ]
   
 })
+
+function delRunScript(runScriptId){
+    swal({
+      title: "是否真的要删除此记录?",
+      text: "本删除操作只标记记录的删除状态，脚本文件不会实际删除",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        // 删除操作
+        $.ajax({
+        type: "DELETE",
+        url: "/api/v1.0/workflows/run_scripts/" + runScriptId,
+        cache: false,  //禁用缓存
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          if (result.code===0){
+            // 刷新数据
+            $('#run_script_table').dataTable()._fnAjaxUpdate(); 
+            // 关闭modal
+            swal({
+              title: "删除成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+            }
+          }
+        });
+      }
+    });
+  }
 </script>
 {% endblock %}

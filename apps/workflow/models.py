@@ -107,12 +107,27 @@ class CustomField(models.Model):
         verbose_name_plural = '工作流自定义字段'
 
 
+def upload_workflow_script(instance, filename):
+    """
+    因为脚本中可能会存在一些私密信息，如账号密码等，所以重命名文件，避免可以直接下载此文件
+    :param instance:
+    :param filename:
+    :return:
+    """
+    upload_to = 'workflow_script'
+    ext = filename.split('.')[-1]
+    if ext != 'py':
+        raise Exception('只支持python脚本')
+    filename = '{}.{}'.format(uuid.uuid1(), ext)
+    return os.path.join(upload_to, filename)
+
+
 class WorkflowScript(models.Model):
     """
     流程中执行的脚本
     """
     name = models.CharField('名称', max_length=50)
-    saved_name = models.FileField('存储的文件名', upload_to='workflow_script', help_text='请上传python脚本,media/workflow_script/demo_script.py为示例脚本，请参考编写')
+    saved_name = models.FileField('存储的文件名', upload_to=upload_workflow_script, help_text='请上传python脚本,media/workflow_script/demo_script.py为示例脚本，请参考编写')
     description = models.CharField('描述', max_length=100, null=True, blank=True)
     is_active = models.BooleanField('可用', default=True, help_text='此处可用时，才允许实际执行')
 
