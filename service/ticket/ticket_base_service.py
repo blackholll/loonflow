@@ -237,10 +237,10 @@ class TicketBaseService(BaseService):
             return False, participant_info
         destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
         destination_participant = participant_info.get('destination_participant', '')
-        multi_all_person = participant_info.get('multi_all_person', {})
-        if multi_all_person:
+        multi_all_person = participant_info.get('multi_all_person', '{}')
+        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
             multi_all_person_dict = json.loads(multi_all_person)
-            multi_all_person_dict[username] = username
+            multi_all_person_dict[username] = dict(transition_id=transition_id, transition_name=req_transition_obj.name)
             multi_all_person = json.dumps(multi_all_person_dict)
 
         # 生成流水号
@@ -575,6 +575,8 @@ class TicketBaseService(BaseService):
         # suggestion长度处理,在某些mysql版本默认配置中，如果插入时候字段长度大于字段定义的长度会报错，而不是自动截断
         if len(kwargs.get('suggestion', '')) > 1000:
             kwargs['suggestion'] = '{}...(超过字段定义长度,自动截断)'.format(kwargs.get('suggestion', '')[:960])
+        if not kwargs.get('creator'):
+            kwargs['creator'] = kwargs.get('participant', '')
         new_ticket_flow_log = TicketFlowLog(**kwargs)
         new_ticket_flow_log.save()
         return new_ticket_flow_log.id, ''
@@ -748,22 +750,22 @@ class TicketBaseService(BaseService):
                 else:
                     participant_alias_list.append(participant_user_obj.alias)
             participant_alias = ','.join(participant_alias_list)
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
-            participant_type_name = '多人且全部处理'
-            # 从multi_all_person中获取处理人信息
-            multi_all_person_dict = json.loads(ticket_obj.multi_all_person)
-            participant_alias0_list = []
-            for key, value in multi_all_person_dict.items():
-                participant_user_obj, msg = AccountBaseService.get_user_by_username(key)
-                if not participant_user_obj:
-                    participant_alias0 = key
-                else:
-                    participant_alias0 = participant_user_obj.alias
-                if value:
-                    participant_alias0_list.append('{}({})已处理:{}'.format(participant_alias0, key, value.get('transition_name')))
-                else:
-                    participant_alias0_list.append('{}({})未处理:{}'.format(participant_alias0, key, value.get('transition_name')))
-            participant_alias = ';'.join(participant_alias0_list)
+        # elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
+        #     participant_type_name = '多人且全部处理'
+        #     # 从multi_all_person中获取处理人信息
+        #     multi_all_person_dict = json.loads(ticket_obj.multi_all_person)
+        #     participant_alias0_list = []
+        #     for key, value in multi_all_person_dict.items():
+        #         participant_user_obj, msg = AccountBaseService.get_user_by_username(key)
+        #         if not participant_user_obj:
+        #             participant_alias0 = key
+        #         else:
+        #             participant_alias0 = participant_user_obj.alias
+        #         if value:
+        #             participant_alias0_list.append('{}({})已处理:{}'.format(participant_alias0, key, value.get('transition_name')))
+        #         else:
+        #             participant_alias0_list.append('{}({})未处理:{}'.format(participant_alias0, key, value.get('transition_name')))
+        #     participant_alias = ';'.join(participant_alias0_list)
 
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
@@ -779,6 +781,24 @@ class TicketBaseService(BaseService):
                 return False, 'role is not existedor has been deleted'
             participant_name = role_obj.name
             participant_alias = participant_name
+        if ticket_obj.multi_all_person:
+            participant_type_name = '多人且全部处理'
+            # 从multi_all_person中获取处理人信息
+            multi_all_person_dict = json.loads(ticket_obj.multi_all_person)
+            participant_alias0_list = []
+            for key, value in multi_all_person_dict.items():
+                participant_user_obj, msg = AccountBaseService.get_user_by_username(key)
+                if not participant_user_obj:
+                    participant_alias0 = key
+                else:
+                    participant_alias0 = participant_user_obj.alias
+                if value:
+                    participant_alias0_list.append(
+                        '{}({})已处理:{}'.format(participant_alias0, key, value.get('transition_name')))
+                else:
+                    participant_alias0_list.append(
+                        '{}({})未处理:{}'.format(participant_alias0, key, value.get('transition_name')))
+            participant_alias = ';'.join(participant_alias0_list)
         # 工单基础表中不存在参与人为其他类型的情况
         return dict(participant=participant, participant_name=participant_name, participant_type_id=participant_type_id,
                     participant_type_name=participant_type_name, participant_alias=participant_alias), ''
@@ -957,7 +977,7 @@ class TicketBaseService(BaseService):
         destination_state, msg = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
 
         # 判断当前处理人类似是否为全部处理，如果处理类型为全部处理，且有人未处理，则工单状态不变，只记录处理过程
-        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
+        if ticket_obj.multi_all_person:
             multi_all_person = ticket_obj.multi_all_person
             multi_all_person_dict = json.loads(multi_all_person)
             blank_or_false_value_key_list, msg = CommonService.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
@@ -974,7 +994,7 @@ class TicketBaseService(BaseService):
                     destination_participant = participant_info.get('destination_participant', '')
                 else:
                     # 处理人没有没有全部处理完成或者处理动作不一致
-                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL
+                    destination_participant_type_id = ticket_obj.participant_type_id
                     next_blank_or_false_value_key_list, msg = CommonService.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
                     destination_participant = ','.join(next_blank_or_false_value_key_list)
 
@@ -984,7 +1004,7 @@ class TicketBaseService(BaseService):
             if not destination_state:
                 return False, msg
             # 获取目标状态的信息
-            flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id,
+            flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_id,
                                                                            ticket_req_dict=request_data_dict)
             if not flag:
                 return False, participant_info
@@ -1545,7 +1565,7 @@ class TicketBaseService(BaseService):
                 # ticket_id 不存在，则为新建工单，从请求的数据中获取
                 destination_participant = ticket_req_dict.get(participant, '')
             else:
-                # 工单存在，先判断是否有修改此字段的权限，如果有且字段值有提供，则去提交的值
+                # 工单存在，先判断是否有修改此字段的权限，如果有且字段值有提供，则取提交的值
                 flag, field_info = cls.get_state_field_info(ticket_obj.state_id)
                 update_field_list = field_info.get('update_field_list')
                 if participant in update_field_list and ticket_req_dict.get(participant):
@@ -1553,7 +1573,7 @@ class TicketBaseService(BaseService):
                     destination_participant = ticket_req_dict.get(participant)
                 else:
                     # 处理工单时未提供字段的值,则从工单当前字段值中获取
-                    destination_participant, msg = cls.get_ticket_field_value(participant)
+                    destination_participant, msg = cls.get_ticket_field_value(ticket_id, participant)
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
@@ -1587,10 +1607,10 @@ class TicketBaseService(BaseService):
 
             if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_RANDOM:
                 # 如果是随机处理,则随机设置处理人
-                destination_participant = random.sample(destination_participant_list, 1)
+                destination_participant = random.sample(destination_participant_list, 1)[0]
                 destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ALL:
-                destination_participant_type_id = CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ALL
+                # destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL  # 不新增类型，直接用原来的类型。这样方便待办查询
                 multi_all_person_dict = {}
                 for destination_participant_0 in destination_participant_list:
                     multi_all_person_dict[destination_participant_0] = {}
@@ -1660,8 +1680,10 @@ class TicketBaseService(BaseService):
         if condition_expression and json.loads(condition_expression):
             # 存在条件表达式，需要根据表达式计算下个状态
             condition_expression_list = json.loads(condition_expression)
-            # 获取工单所有字段的值
-            ticket_all_value_dict, msg = cls.get_ticket_all_field_value(ticket_id)
+            ticket_all_value_dict = {}
+            if ticket_id:
+                # 获取工单所有字段的值
+                ticket_all_value_dict, msg = cls.get_ticket_all_field_value(ticket_id)
             # 更新当前更新的字段的值
             ticket_all_value_dict.update(ticket_req_dict)
 

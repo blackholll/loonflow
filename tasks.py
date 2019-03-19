@@ -235,9 +235,11 @@ def send_ticket_notice(ticket_id):
             return False, msg
         title_result = title_template.format(**ticket_value_info)
         content_result = content_template.format(**ticket_value_info)
-        notice_script_file = notice_obj.script
+        notice_script_file_name = notice_obj.script.name
+        notice_script_file = os.path.join(settings.MEDIA_ROOT, notice_script_file_name)
 
-        globals = {'title_result': title_result, 'content_result': content_result, 'participant': ticket_obj.participant}
+        globals = {'title_result': title_result, 'content_result': content_result, 'participant': ticket_obj.participant,
+                   'participant_type_id': ticket_obj.participant_type_id, 'multi_all_person':ticket_obj.multi_all_person}
         try:
             with stdoutIO() as s:
                 # execfile(script_file, globals)  # for python 2
@@ -245,7 +247,7 @@ def send_ticket_notice(ticket_id):
             script_result = True
             # script_result_msg = ''.join(s.buflist)
             script_result_msg = ''.join(s.getvalue())
-            logger.info('send notice successful for ticket_id: {}, notice_id:{}'.formt(ticket_id, notice_id))
+            logger.info('send notice successful for ticket_id: {}, notice_id:{}'.format(ticket_id, notice_id))
         except Exception as e:
             logger.error(traceback.format_exc())
             script_result = False
