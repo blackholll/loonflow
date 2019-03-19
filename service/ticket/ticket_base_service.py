@@ -238,10 +238,6 @@ class TicketBaseService(BaseService):
         destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
         destination_participant = participant_info.get('destination_participant', '')
         multi_all_person = participant_info.get('multi_all_person', '{}')
-        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
-            multi_all_person_dict = json.loads(multi_all_person)
-            multi_all_person_dict[username] = dict(transition_id=transition_id, transition_name=req_transition_obj.name)
-            multi_all_person = json.dumps(multi_all_person_dict)
 
         # 生成流水号
         ticket_sn, msg = cls.gen_ticket_sn(app_name)
@@ -781,7 +777,8 @@ class TicketBaseService(BaseService):
                 return False, 'role is not existedor has been deleted'
             participant_name = role_obj.name
             participant_alias = participant_name
-        if ticket_obj.multi_all_person:
+
+        if json.loads(ticket_obj.multi_all_person):
             participant_type_name = '多人且全部处理'
             # 从multi_all_person中获取处理人信息
             multi_all_person_dict = json.loads(ticket_obj.multi_all_person)
@@ -976,8 +973,8 @@ class TicketBaseService(BaseService):
 
         destination_state, msg = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
 
-        # 判断当前处理人类似是否为全部处理，如果处理类型为全部处理，且有人未处理，则工单状态不变，只记录处理过程
-        if ticket_obj.multi_all_person:
+        # 判断当前处理人类似是否为全部处理，如果处理类型为全部处理（根据json.loads(ticket_obj.multi_all_person)来判断），且有人未处理，则工单状态不变，只记录处理过程
+        if json.loads(ticket_obj.multi_all_person):
             multi_all_person = ticket_obj.multi_all_person
             multi_all_person_dict = json.loads(multi_all_person)
             blank_or_false_value_key_list, msg = CommonService.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
