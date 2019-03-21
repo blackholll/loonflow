@@ -57,7 +57,7 @@
               <h4 class="modal-title">工作流通知</h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal" id='run_script_form'>
+                <form class="form-horizontal" id='notice_form'>
                     <div class="box-body">
                       <div class="form-group">
                         <label for="noticeName" class="col-sm-3 control-label">名称</label> 
@@ -140,14 +140,9 @@
 <script>
   $("#noticeModal").on("hidden.bs.modal", function() {
     $(this).removeData("bs.modal");
-    // $("#run_script_form")[0].reset();  发现这个不生效，先逐个清空吧
-    $("#noticeName").attr("value",'');
-    $("#noticeDesc").attr("value",'');
+    $("#notice_form")[0].reset();
     $("#nowNoticeFile").html('');
-    $("#title_template").html('');
-    $("#content_template").html('');
-    $("#NoticeId").attr("value", null);
-    
+    $("#noticeId").val("");    
 });
 
   $('#notice_table').DataTable({
@@ -193,27 +188,23 @@
       { "data": "description" },
       { "data": "creator" },
       { "data": "gmt_created" },
-      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delAppToken(' + full.id + ')' + '"'+  '>删除</a>')}}
-      // { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
-      // { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
-      // { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
-      // { "data": "label" },
-      // { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
-
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delNotice(' + full.id + ')' + '"'+  '>删除</a>')}}
   ]
   
 })
 
 function showEditForm(data){
-    $("#noticeName").attr("value",data.name);
-    $("#noticeDesc").attr("value",data.description);
-    $("#titleTemplate").attr("value",data.title_template);
-    $("#contentTemplate").attr("value",data.content_template);
-    // $("#WorkflowScriptFile").attr("value",data.saved_name);
-    nowNoticeFileContent= "<a href=" + "/media/" + data.script + ">" + data.script + "</a>";
-    $("#nowNoticeFile").html(nowNoticeFileContent);
-    $("#NoticeId").attr("value",data.id);
-    
+    $("#noticeName").val(data.name);
+    $("#noticeDesc").val(data.description);
+    $("#titleTemplate").val(data.title_template);
+    $("#contentTemplate").val(data.content_template);
+    $("#WorkflowScriptFile").attr("value",data.saved_name);
+    $("#nowNoticeFile").html('');
+    if (data.script) {
+      nowNoticeFileContent= "<a href=" + "/media/" + data.script + ">" + data.script + "</a>";
+      $("#nowNoticeFile").html(nowNoticeFileContent);
+    }
+    $("#noticeId").val(data.id);
     $('#noticeModal').modal('show');
   }
 
@@ -271,6 +262,7 @@ function submitNotice(){
     var file_info = $('#noticeScriptFile')[0].files[0];
     var noticeName = $("#noticeName").val()
     var noticeDesc = $("#noticeDesc").val()
+    var noticeId = $("#noticeId").val()
     var titleTemplate = $("#titleTemplate").val()
     var contentTemplate = $("#contentTemplate").val()
 
@@ -282,7 +274,7 @@ function submitNotice(){
     
     // 提交ajax的请求
     $.ajax({
-        url:"/api/v1.0/workflows/custom_notices/" + WorkflowScriptId,
+        url:"/api/v1.0/workflows/custom_notices/" + noticeId,
         type:'POST', // 本来准备用patch的。但是发现非json提交过来获取不到数据(因为要传文件，所以不能用json)
         data: form_data,
         processData: false,
@@ -300,6 +292,42 @@ function submitNotice(){
         }
     }); // end ajax
   };
+  
+  function delNotice(noticeId) {
+    swal({
+      title: "是否真的要删除此记录?",
+      text: "本删除操作只标记记录的删除状态，脚本文件不会实际删除",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        // 删除操作
+        $.ajax({
+        type: "DELETE",
+        url: "/api/v1.0/workflows/custom_notices/" + noticeId,
+        cache: false,  //禁用缓存
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          if (result.code===0){
+            // 刷新数据
+            $('#notice_table').dataTable()._fnAjaxUpdate(); 
+            // 关闭modal
+            swal({
+              title: "删除成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+            }
+          }
+        });
+      }
+    });
+  }
 
 </script>
 {% endblock %}

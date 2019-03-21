@@ -132,12 +132,12 @@
 <script>
   $("#runScriptModal").on("hidden.bs.modal", function() {
     $(this).removeData("bs.modal");
-    // $("#run_script_form")[0].reset();  发现这个不生效，先逐个清空吧
-    $("#scriptName").attr("value",'');
-    $("#scriptDesc").attr("value",'');
+    $("#run_script_form")[0].reset();
+    // $("#scriptName").attr("value",'');
+    // $("#scriptDesc").attr("value",'');
     $("#nowScriptFile").html('');
     $("#WorkflowScriptId").attr("value", null);
-    $("#isActive").attr("value",false);
+    // $("#isActive").attr("value",false);
     
 });
   $('#noticeScriptSelect').select2({placeholderOption: "first", allowClear:true});

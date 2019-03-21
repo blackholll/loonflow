@@ -12,7 +12,7 @@ urlpatterns = [
     path('/run_scripts', WorkflowRunScriptView.as_view()),
     path('/run_scripts/<int:run_script_id>', WorkflowRunScriptDetailView.as_view()),
     path('/custom_notices', WorkflowCustomNoticeView.as_view()),
-    path('/custom_notices/<int:custom_notice_id>', WorkflowCustomNoticeDetailView.as_view()),
+    path('/custom_notices/<int:notice_id>', WorkflowCustomNoticeDetailView.as_view()),
 
 
 ]
