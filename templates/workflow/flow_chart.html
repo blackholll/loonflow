@@ -1,0 +1,157 @@
+<!doctype html>
+
+<meta charset="utf-8">
+<title>Dagre D3 Demo: Clusters</title>
+{%load staticfiles%}
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'bower_components/dagre-d3/demo.css' %}">
+<script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+<link rel="stylesheet" href="{% static 'bower_components/dagre-d3/tipsy.css' %}">
+<script src="{% static 'bower_components/dagre-d3/tipsy.js' %}"></script>
+<script src="{% static 'bower_components/dagre-d3/dagre-d3.js' %}"></script>
+
+<style id="css">
+  body {
+    font: 300 14px 'Helvetica Neue', Helvetica;
+  }
+  
+  .node rect,
+  .node circle,
+  .node ellipse {
+    stroke: #333;
+    fill: #fff;
+    stroke-width: 1px;
+  }
+  g.type-start > rect {
+  fill: #00ffd0;
+  }
+  g.type-end > rect {
+  fill: red;
+  }
+
+  .edgePath path {
+    stroke: #333;
+    fill: #333;
+    stroke-width: 1.5px;
+  }
+  </style>
+  
+  <h1 id='h1'></h1>
+  <p id='workflow_desc'></p>
+  
+  <svg width=1024 height=768><g/></svg>
+  <!-- <svg><g/></svg> -->
+  <script id="js">
+    // Create a new directed graph
+    // Create the input graph
+    var g = new dagreD3.graphlib.Graph()
+    .setGraph({})
+    .setDefaultEdgeLabel(function() { return {}; });
+    
+
+    // 获取工作流详情
+    // 获取工作流的状态
+    // 获取工作流的流转
+    $.ajax({
+        url:"/api/v1.0/workflows/"+ "{{ workflow_id }}",
+        type:'GET',
+        processData: false,
+        contentType: "application/json; charset=utf-8",
+        success: function(result) {
+          console.log('sss');
+          $(document).attr("title",'流程图-' + result.data.name);
+          $("#h1").html('流程图-' + result.data.name);
+          var workflow_desc = '创建人:'+ result.data.creator + ' 展现表单:' + result.data.display_form_str +' 限制表达式:' + result.data.limit_expression +' 通知脚本:' + result.data.notices + ' 查看权限校验:' + result.data.view_permission_check
+          $("#workflow_desc").html(workflow_desc);
+        }
+    });
+    $.ajax({
+      url:"/api/v1.0/workflows/"+ "{{ workflow_id }}" + "/states",
+        type:'GET',
+        processData: false,
+        contentType: "application/json; charset=utf-8",
+        data: {per_page:200}, //200应该够获取全部状态了
+        success: function(result) {
+          if (result.code === 0) {
+            state_list = result.data.value;
+            state_list.forEach(function(state0){
+              if (state0.type_id ==1){
+                g.setNode(state0.id, {label: state0.name, class:"type-start", description:state0.description});
+              }
+              else if (state0.type_id ==2){
+                g.setNode(state0.id, {label: state0.name, class:"type-end", description:state0.description});
+              }
+              else {
+                g.setNode(state0.id, {label: state0.name, description:state0.description});
+              }
+              
+            });
+            g.nodes().forEach(function(v) {
+            var node = g.node(v);
+            // Round the corners of the nodes
+            node.rx = node.ry = 5;
+            });
+            //获取transiton
+            $.ajax({
+            url:"/api/v1.0/workflows/"+ "{{ workflow_id }}" + "/transitions",
+              type:'GET',
+              processData: false,
+              contentType: "application/json; charset=utf-8",
+              data: {per_page:200}, //200应该够获取全部状态了
+              success: function(result) {
+                if (result.code === 0) {
+                  transition_list = result.data.value;
+                  transition_list.forEach(function(transition0){
+                    g.setEdge(transition0.source_state_id, transition0.destination_state_id, {label: transition0.name});
+                  })
+                  // Create the renderer
+                  var render = new dagreD3.render();
+
+                  // Set up an SVG group so that we can translate the final graph.
+                  var svg = d3.select("svg"),
+                      svgGroup = svg.append("g");
+                  // // Run the renderer. This is what draws the final graph.
+                  // render(d3.select("svg g"), g);
+
+
+                  // Center the graph
+                  var xCenterOffset = (svg.attr("width") - g.graph().width) / 2;
+                  svgGroup.attr("transform", "translate(" + xCenterOffset + ", 20)");
+                  svg.attr("height", g.graph().height + 40);
+
+                  var styleTooltip = function(name, description) {
+                    return "<p class='name'>" + name + "</p><p class='description'>" + description + "</p>";
+                  };
+
+
+                  d3.select("svg g").selectAll("g.node")
+                  .attr("title", function(v) { return styleTooltip(v, 'fdsfdsfdsfs') })
+                  .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });
+
+                  var zoom = d3.zoom()
+                      .on("zoom", function() {
+                        console.log('zoom');
+                        svgGroup.attr("transform", d3.event.transform);
+                      });
+                  svg.call(zoom);
+
+                  // Run the renderer. This is what draws the final graph.
+                  render(d3.select("svg g"), g);
+
+                  console.log(svg.attr("width"));
+                  var initialScale = 0.75;
+                  svg.call(zoom.transform, d3.zoomIdentity.translate((svg.attr("width") - g.graph().width * initialScale) / 2, 20).scale(initialScale));
+
+                  svg.attr('height', g.graph().height * initialScale + 40);
+
+                }
+                
+              }
+            });            
+          }
+          
+        }
+    })
+    
+    
+</script>

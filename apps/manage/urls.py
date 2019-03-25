@@ -11,4 +11,6 @@ urlpatterns = [
     path('workflow_manage', workflow_manage_view),
     path('run_script_manage', run_script_manage_view),
     path('notice_manage', notice_manage_view),
+    path('workflow_flow_chart/<int:workflow_id>', workflow_flow_chart_view),
+    # path('workflow_flow_chart', workflow_flow_chart_view),
 ]

@@ -4,6 +4,7 @@ from service.workflow.workflow_base_service import WorkflowBaseService
 from service.workflow.workflow_custom_notice_service import WorkflowCustomNoticeService
 from service.workflow.workflow_runscript_service import WorkflowRunScriptService
 from service.workflow.workflow_state_service import WorkflowStateService
+from service.workflow.workflow_transition_service import WorkflowTransitionService
 
 
 class WorkflowView(View):
@@ -64,6 +65,60 @@ class WorkflowInitView(View):
         return api_response(code, msg, data)
 
 
+class WorkflowDetailView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        获取工作流详情
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        from service.account.account_base_service import AccountBaseService
+        # 判断是否有工作流的权限
+        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        if not app_permission:
+            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
+        workflow_result, msg = WorkflowBaseService.get_by_id(workflow_id)
+        if not workflow_result:
+            code, msg, data = -1, msg, {}
+        else:
+            data = dict(name=workflow_result.name, description=workflow_result.description,
+                        notices=workflow_result.notices, view_permission_check=workflow_result.view_permission_check,
+                        limit_expression=workflow_result.limit_expression,
+                        display_form_str=workflow_result.display_form_str, creator=workflow_result.creator,
+                        gmt_created=str(workflow_result.gmt_created)[:19])
+            code = 0
+        return api_response(code, msg, data)
+
+
+class WorkflowTransitionView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        获取流转
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        request_data = request.GET
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        # if not username:
+        #     return api_response(-1, '请提供username', '')
+        result, msg = WorkflowTransitionService.get_transitions_serialize_by_workflow_id(workflow_id, per_page, page)
+
+        if result is not False:
+            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+
 class StateView(View):
     def get(self, request, *args, **kwargs):
         """
@@ -101,8 +156,8 @@ class WorkflowStateView(View):
         username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
-        if not username:
-            return api_response(-1, '请提供username', '')
+        # if not username:
+        #     return api_response(-1, '请提供username', '')
         result, msg = WorkflowStateService.get_workflow_states_serialize(workflow_id, per_page, page)
 
         if result is not False:

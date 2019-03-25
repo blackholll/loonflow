@@ -90,3 +90,14 @@ def notice_manage_view(request):
     :return:
     """
     return render(request, 'workflow/notice_manage.html', {'active_nav': 'notice_manage'})
+
+
+@login_required
+def workflow_flow_chart_view(request, workflow_id):
+    """
+    工作流流程图
+    :param request:
+    :return:
+    """
+    print(workflow_id)
+    return render(request, 'workflow/flow_chart.html', {'active_nav': 'workflow_manage', 'workflow_id':workflow_id})

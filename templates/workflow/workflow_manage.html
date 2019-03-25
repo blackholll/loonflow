@@ -188,7 +188,7 @@
       { "data": "description" },
       { "data": "creator" },
       { "data": "gmt_created" },
-      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delAppToken(' + full.id + ')' + '"'+  '>删除</a>/<a>配置</a>/<a>查看流程图</a></div>')}}
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delAppToken(' + full.id + ')' + '"'+  '>删除</a>/<a>配置</a>/<a target="_blank" href="/manage/workflow_flow_chart/'+ full.id + '"'+ '>查看流程图</a></div>')}}
       // { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
       // { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
       // { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
