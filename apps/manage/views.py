@@ -99,5 +99,4 @@ def workflow_flow_chart_view(request, workflow_id):
     :param request:
     :return:
     """
-    print(workflow_id)
     return render(request, 'workflow/flow_chart.html', {'active_nav': 'workflow_manage', 'workflow_id':workflow_id})
