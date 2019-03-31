@@ -71,6 +71,14 @@ def workflow_manage_view(request):
     """
     return render(request, 'workflow/workflow_manage.html', {'active_nav': 'workflow_manage'})
 
+@login_required
+def workflow_manage_edit_view(request, workflow_id):
+    """
+    工作流编辑
+    :param request:
+    :return:
+    """
+    return render(request, 'workflow/workflow_manage_edit.html', {'active_nav': 'workflow_manage', 'workflow_id': workflow_id})
 
 @login_required
 def run_script_manage_view(request):
@@ -97,6 +105,7 @@ def workflow_flow_chart_view(request, workflow_id):
     """
     工作流流程图
     :param request:
+    :param workflow_id:
     :return:
     """
-    return render(request, 'workflow/flow_chart.html', {'active_nav': 'workflow_manage', 'workflow_id':workflow_id})
+    return render(request, 'workflow/flow_chart.html', {'active_nav': 'workflow_manage', 'workflow_id': workflow_id})

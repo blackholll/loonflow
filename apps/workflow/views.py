@@ -3,6 +3,7 @@ import json
 from django.views import View
 from service.format_response import api_response
 from service.workflow.workflow_base_service import WorkflowBaseService
+from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
 from service.workflow.workflow_custom_notice_service import WorkflowCustomNoticeService
 from service.workflow.workflow_runscript_service import WorkflowRunScriptService
 from service.workflow.workflow_state_service import WorkflowStateService
@@ -195,12 +196,106 @@ class WorkflowTransitionView(View):
         request_data = request.GET
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        query_value = request_data.get('search_value', '')
         # if not username:
         #     return api_response(-1, '请提供username', '')
-        result, msg = WorkflowTransitionService.get_transitions_serialize_by_workflow_id(workflow_id, per_page, page)
+        result, msg = WorkflowTransitionService.get_transitions_serialize_by_workflow_id(workflow_id, per_page, page, query_value)
 
         if result is not False:
             data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        新增流转
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        workflow_id = kwargs.get('workflow_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        username = request.META.get('HTTP_USERNAME')
+        name = request_data_dict.get('name', '')
+        transition_type_id = int(request_data_dict.get('transition_type_id', 0))
+        timer = int(request_data_dict.get('timer', 0))
+        source_state_id = int(request_data_dict.get('source_state_id', 0))
+        destination_state_id = int(request_data_dict.get('destination_state_id', 0))
+        condition_expression = request_data_dict.get('condition_expression', '')
+        attribute_type_id = int(request_data_dict.get('attribute_type_id', 0))
+        field_require_check = int(request_data_dict.get('field_require_check', 0))
+        alert_enable = int(request_data_dict.get('alert_enable', 0))
+        alert_text = request_data_dict.get('alert_text', '')
+        result, msg = WorkflowTransitionService.add_workflow_transition(workflow_id, name, transition_type_id, timer, source_state_id,
+                                               destination_state_id, condition_expression, attribute_type_id,
+                                               field_require_check, alert_enable, alert_text, username)
+        if result is not False:
+            data = dict(value=dict(transition_id=result))
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+
+class WorkflowTransitionDetailView(View):
+    def patch(self, request, *args, **kwargs):
+        """
+        编辑
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        workflow_id = kwargs.get('workflow_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        username = request.META.get('HTTP_USERNAME')
+        name = request_data_dict.get('name', '')
+        transition_type_id = int(request_data_dict.get('transition_type_id', 0))
+        timer = int(request_data_dict.get('timer', 0))
+        source_state_id = int(request_data_dict.get('source_state_id', 0))
+        destination_state_id = int(request_data_dict.get('destination_state_id', 0))
+        condition_expression = request_data_dict.get('condition_expression', '')
+        attribute_type_id = int(request_data_dict.get('attribute_type_id', 0))
+        field_require_check = int(request_data_dict.get('field_require_check', 0))
+        alert_enable = int(request_data_dict.get('alert_enable', 0))
+        alert_text = request_data_dict.get('alert_text', '')
+        transition_id = kwargs.get('transition_id')
+        result, msg = WorkflowTransitionService.edit_workflow_transition(transition_id, workflow_id, name, transition_type_id, timer,
+                                                                        source_state_id,
+                                                                        destination_state_id, condition_expression,
+                                                                        attribute_type_id,
+                                                                        field_require_check, alert_enable, alert_text,
+                                                                        )
+        if result is not False:
+            data = dict(value=dict(transition_id=result))
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        删除transition
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        transition_id = kwargs.get('transition_id')
+        result, msg = WorkflowTransitionService.del_workflow_transition(transition_id)
+        if result is not False:
+            data = dict(value=dict(transition_id=result))
             code, msg, = 0, ''
         else:
             code, data = -1, ''
@@ -242,17 +337,113 @@ class WorkflowStateView(View):
         workflow_id = kwargs.get('workflow_id')
         request_data = request.GET
         username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         # if not username:
         #     return api_response(-1, '请提供username', '')
-        result, msg = WorkflowStateService.get_workflow_states_serialize(workflow_id, per_page, page)
+        result, msg = WorkflowStateService.get_workflow_states_serialize(workflow_id, per_page, page, search_value)
 
         if result is not False:
             data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
             code, msg,  = 0, ''
         else:
             code, data = -1, ''
+        return api_response(code, msg, data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        新增状态
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        workflow_data = {}
+        app_name = request.META.get('HTTP_APPNAME')
+        username = request.META.get('HTTP_USERNAME')
+        name = request_data_dict.get('name', '')
+        sub_workflow_id = request_data_dict.get('sub_workflow_id', 0)
+        is_hidden = request_data_dict.get('is_hidden', 0)
+        order_id = int(request_data_dict.get('order_id', 0))
+        type_id = int(request_data_dict.get('type_id', 0))
+        remember_last_man_enable = int(request_data_dict.get('remember_last_man_enable', 0))
+        participant_type_id = int(request_data_dict.get('participant_type_id', 0))
+
+        participant = request_data_dict.get('participant', '')
+        distribute_type_id = int(request_data_dict.get('distribute_type_id', 1))
+        state_field_str = request_data_dict.get('state_field_str', '')
+        label = request_data_dict.get('label', '')
+        workflow_id = kwargs.get('workflow_id')
+
+        result, msg = WorkflowStateService.add_workflow_state(workflow_id, name, sub_workflow_id, is_hidden, order_id, type_id, remember_last_man_enable,
+                           participant_type_id, participant, distribute_type_id, state_field_str, label, username)
+        if not result:
+            code, msg, data = -1, msg, {}
+        else:
+            code, msg, data = 0, '', {'workflow_id': result}
+        return api_response(code, msg, data)
+
+class WorkflowStateDetailView(View):
+    def patch(self, request, *args, **kwargs):
+        """
+        编辑状态
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        workflow_data = {}
+        app_name = request.META.get('HTTP_APPNAME')
+        username = request.META.get('HTTP_USERNAME')
+        name = request_data_dict.get('name', '')
+        sub_workflow_id = request_data_dict.get('sub_workflow_id', 0)
+        is_hidden = request_data_dict.get('is_hidden', 0)
+        order_id = int(request_data_dict.get('order_id', 0))
+        type_id = int(request_data_dict.get('type_id', 0))
+        remember_last_man_enable = int(request_data_dict.get('remember_last_man_enable', 0))
+        participant_type_id = int(request_data_dict.get('participant_type_id', 0))
+
+        participant = request_data_dict.get('participant', '')
+        distribute_type_id = int(request_data_dict.get('distribute_type_id', 1))
+        state_field_str = request_data_dict.get('state_field_str', '')
+        label = request_data_dict.get('label', '')
+        workflow_id = kwargs.get('workflow_id')
+        state_id = kwargs.get('state_id')
+
+        result, msg = WorkflowStateService.edit_workflow_state(state_id, workflow_id, name, sub_workflow_id, is_hidden,
+                                                               order_id, type_id, remember_last_man_enable,
+                                                               participant_type_id, participant, distribute_type_id,
+                                                               state_field_str, label, username)
+        if not result:
+            code, msg, data = -1, msg, {}
+        else:
+            code, msg, data = 0, '', {'workflow_id': result}
+        return api_response(code, msg, data)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        删除状态
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        app_name = request.META.get('HTTP_APPNAME')
+        state_id = kwargs.get('state_id')
+        result, msg = WorkflowStateService.del_workflow_state(state_id)
+        if not result:
+            code, msg, data = -1, msg, {}
+        else:
+            code, msg, data = 0, '', {'workflow_id': result}
         return api_response(code, msg, data)
 
 
@@ -468,4 +659,136 @@ class WorkflowCustomNoticeDetailView(View):
             code, msg, data = 0, '', {}
         else:
             code, data = -1, {}
+        return api_response(code, msg, data)
+
+
+class WorkflowCustomFieldView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        获取工作流自定义字段列表
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        if not username:
+            username = request.user.username
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        if not username:
+            return api_response(-1, '请提供username', '')
+        result, msg = WorkflowCustomFieldService.get_workflow_custom_field_list(kwargs.get('workflow_id'), search_value, page, per_page)
+
+        if result is not False:
+            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        新增工作流自定义字段
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        app_name = request.META.get('HTTP_APPNAME')
+        username = request.META.get('HTTP_USERNAME')
+        workflow_id = kwargs.get('workflow_id')
+        # 判断是否有工作流的权限
+        from service.account.account_base_service import AccountBaseService
+        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        if not app_permission:
+            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        field_key = request_data_dict.get('field_key', '')
+        field_name = request_data_dict.get('field_name', '')
+        field_type_id = request_data_dict.get('field_type_id', '')
+        order_id = int(request_data_dict.get('order_id', 0))
+        label = request_data_dict.get('label', '')
+        description = request_data_dict.get('description', '')
+        field_template = request_data_dict.get('field_template', '')
+        default_value = request_data_dict.get('default_value', '')
+        boolean_field_display = request_data_dict.get('boolean_field_display', '')
+        field_choice = request_data_dict.get('field_choice', '')
+        result, msg = WorkflowCustomFieldService.add_record(workflow_id, field_type_id, field_key, field_name, order_id,
+                                                            default_value, description, field_template,
+                                                            boolean_field_display, field_choice, label, username)
+
+        if result is not False:
+            data = dict(value={'custom_field_id': result})
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+
+class WorkflowCustomFieldDetailView(View):
+    def patch(self, request, *args, **kwargs):
+        """
+        更新自定义字段
+        :param request: 
+        :param args: 
+        :param kwargs: 
+        :return: 
+        """
+        custom_field_id = kwargs.get('custom_field_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        username = request.META.get('HTTP_USERNAME')
+        workflow_id = kwargs.get('workflow_id')
+        # 判断是否有工作流的权限
+        from service.account.account_base_service import AccountBaseService
+        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        if not app_permission:
+            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        field_key = request_data_dict.get('field_key', '')
+        field_name = request_data_dict.get('field_name', '')
+        field_type_id = request_data_dict.get('field_type_id', '')
+        order_id = int(request_data_dict.get('order_id', 0))
+        label = request_data_dict.get('label', '')
+        description = request_data_dict.get('description', '')
+        field_template = request_data_dict.get('field_template', '')
+        default_value = request_data_dict.get('default_value', '')
+        boolean_field_display = request_data_dict.get('boolean_field_display', '')
+        field_choice = request_data_dict.get('field_choice', '')
+        result, msg = WorkflowCustomFieldService.edit_record(custom_field_id, workflow_id, field_type_id, field_key, field_name, order_id,
+                                                            default_value, description, field_template,
+                                                            boolean_field_display, field_choice, label, username)
+
+        if result is not False:
+            data = dict(value={'custom_field_id': result})
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+    def delete(self, request, *args, **kwargs):
+        """删除记录"""
+        app_name = request.META.get('HTTP_APPNAME')
+        username = request.META.get('HTTP_USERNAME')
+        workflow_id = kwargs.get('workflow_id')
+        custom_field_id = kwargs.get('custom_field_id')
+        # 判断是否有工作流的权限
+        from service.account.account_base_service import AccountBaseService
+        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        if not app_permission:
+            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
+        result, msg = WorkflowCustomFieldService.delete_record(custom_field_id)
+        if result is not False:
+            data = dict(value={'custom_field_id': result})
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
         return api_response(code, msg, data)

@@ -14,7 +14,7 @@
 <section class="content-header">
     <h1>
       工作流管理
-      <small>工作流配置</small>
+      <small><a href="/manage/workflow_manage">工作流配置</a></small>
     </h1>
     <ol class="breadcrumb">
       <li><a href="/manage/workflow_manage"><i class="fa fa-dashboard"></i> 工作流管理</a></li>
@@ -213,7 +213,7 @@
       {render: function(data, type, full){if (full.view_permission_check){return "是"}return "否"}},
       { "data": "creator" },
       { "data": "gmt_created" },
-      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delWorkflow(' + full.id + ')' + '"'+  '>删除</a>/<a>配置</a>/<a target="_blank" href="/manage/workflow_flow_chart/'+ full.id + '"'+ '>查看流程图</a></div>')}}
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delWorkflow(' + full.id + ')' + '"'+  '>删除</a>/<a target="_blank" href="/manage/workflow_manage/'+ full.id + '"'+ '>配置</a>/<a target="_blank" href="/manage/workflow_flow_chart/'+ full.id + '"'+ '>查看流程图</a></div>')}}
   ]
   
 })

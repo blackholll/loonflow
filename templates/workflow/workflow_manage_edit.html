@@ -1,0 +1,1426 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      工作流管理
+      <small><a href="/manage/workflow_manage">工作流配置</a></small>
+      <small><a id="workflowName"></a></small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="/manage/workflow_manage"><i class="fa fa-dashboard"></i> 工作流管理</a></li>
+    </ol>
+  </section>
+
+      
+  <section class="content">
+      <div class="callout callout-info">
+          请依次按照自定义字段、状态、流转的顺序来完成工作流的配置,配置完成后可以通过点击<a href="/manage/workflow_flow_chart/{{workflow_id}}" target="_blank">此链接</a>>查看对应流程图检验配置是否正确
+        </div>
+      <div class="row">
+        <div class="col-xs-12">
+            <section class="content">
+                <div class="row">
+                  <div class="col-xs-12">
+                    <div class="nav-tabs-custom">
+                      <ul class="nav nav-tabs">
+                        <li class="active"><a href="#customFieldAnchor" data-toggle="tab">自定义字段</a></li>
+                        <li><a href="#stateAnchor" data-toggle="tab">状态</a></li>
+                        <li><a href="#transitionAnchor" data-toggle="tab">流转</a></li>
+                      </ul>
+                      <div class="tab-content">
+                        <!-- Font Awesome Icons -->
+                        <div class="tab-pane active" id="customFieldAnchor">
+                          <section id="new">
+                            <div class="box box-default">
+                                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#customFieldModal">
+                                    新增
+                                </button>
+                              <table id="custom_field_table" class="table table-striped table-bordered dataTable no-footer" >
+                                <thead>
+                                  <tr>
+                                      <th>ID</th>
+                                      <th>字段标识</th>
+                                      <th>字段名称</th>
+                                      <th>字段类型</th>
+                                      <th>顺序ID</th>
+                                      <th>字段描述</th>
+                                      <th>创建人</th>
+                                      <th>创建时间</th>
+                                      <th>操作</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                              </table>
+                          </div>
+                          <div class="modal fade" id="customFieldModal">
+                              <div class="modal-dialog" style="width: 980px;">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title">工作流自定义字段</h4>
+                                  </div>
+                                  <div class="modal-body">
+                                      <form class="form-horizontal"  id='workflow_custom_field_form'>
+                                          <div class="box-body">
+                                            <div class="form-group">
+                                              <label for="fieldKey" class="col-sm-3 control-label">字段标识</label> 
+                                              <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="fieldKey" placeholder="请输入字段的标识,要求英文字母及下划线组成，以字母开头，且不得使用工单基础字段如(sn、title、state_id等字符)">
+                                              </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="fieldName" class="col-sm-3 control-label">字段名称</label> 
+                                                <div class="col-sm-9">
+                                                  <input type="text" class="form-control" id="fieldName" placeholder="请输入字段的名称，建议中文，如请假原因、服务器规格等">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="fieldDesc" class="col-sm-3 control-label">字段描述</label> 
+                                                <div class="col-sm-9">
+                                                  <input type="text" class="form-control" id="fieldDesc" placeholder="请输入字段的描述信息">
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="fieldType" class="col-sm-3 control-label">字段类型</label>
+                                                <div class="col-sm-9">
+                                                  <select class="form-control select2" id="fieldType" data-placeholder="选择该应用有权限的工作流"
+                                                    style="width: 100%;">
+                                                    <option value="5">字符型</option>
+                                                    <option value="10">整型</option>
+                                                    <option value="15">浮点型</option>
+                                                    <option value="20">布尔</option>
+                                                    <option value="25">日期</option>
+                                                    <option value="30">日期时间</option>
+                                                    <option value="35">单选框</option>
+                                                    <option value="40">多选框</option>
+                                                    <option value="45">下拉列表</option>
+                                                    <option value="50">多选下拉列表</option>
+                                                    <option value="55">文本域</option>
+                                                    <option value="60">用户名</option>
+                                                    <option value="70">多选用户名</option>
+                                                    <option value="80">附件</option>
+          
+          
+                                                  </select>
+                                                  <p class="help-block">如果你需要的类型不在此范围内，可以选择字符型或者文本域，然后指定label字段，实现自定义</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="orderId" class="col-sm-3 control-label">顺序ID</label> 
+                                                <div class="col-sm-9">
+                                                  <input type="number" class="form-control" id="orderId" placeholder="输入顺序ID,用于在展示工单详情的时候排序,越小越靠前">
+                                                  <p class="help-block">内置字段顺序为:  sn:10, title:20, state_id:40, state.state_name:41,participant_info.participant_name:50</p>
+                                                  <p class="help-block">,participant_info.participant_alias:55,workflow.workflow_name:60,creator:80,gmt_created:100, gmt_modified:120 </p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="defaultValue" class="col-sm-3 control-label">默认值</label> 
+                                                <div class="col-sm-9">
+                                                  <input type="text" class="form-control" id="defaultValue"  placeholder="前端展示时，可以将此内容作为表单中的该字段的默认值">
+          
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="booleanFieldDisplay" class="col-sm-3 control-label">布尔显示定义</label> 
+                                                <div class="col-sm-9">
+                                                  <input type="text" class="form-control" id="booleanFieldDisplay" value="{}" placeholder="请输入字段的名称，建议中文，如请假原因、服务器规格等">
+                                                  <p class="help-block">当为布尔类型时候，可以支持自定义显示形式。{"1":"是",0:"否"}或{"1":"需要","0":"不需要"}，注意数字也需要引号</p>
+          
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="fieldChoice" class="col-sm-3 control-label">选项</label> 
+                                                <div class="col-sm-9">
+                                                  <input type="text" class="form-control" id="fieldChoice"  value="{}" placeholder="请输入字段的名称，建议中文，如请假原因、服务器规格等">
+                                                  <p class="help-block">radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{"1":"中国", "2":"美国"},注意数字也需要引号</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="label" class="col-sm-3 control-label">标签</label> 
+                                                <div class="col-sm-9">
+                                                  <input type="text" class="form-control" id="label" placeholder="请输入标签内容" value="{}">
+                                                  <p class="help-block">自定义标签，json格式，调用方可根据标签自行处理特殊场景逻辑，loonflow只保存文本内容</p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="fieldTemplate" class="col-sm-3 control-label">模板</label> 
+                                                <div class="col-sm-9">
+                                                    <textarea class="form-control" id="fieldTemplate" rows="3" ></textarea>
+                                                    <p class="help-block">文本域类型字段前端显示时可以将此内容作为字段的placeholder或默认值</p>
+                                                </div>
+                                            </div>
+                                            <input type="text" class="form-control" id="customFieldId" style="display:none">
+                                            
+                                            
+                                          <!-- /.box-body -->
+                                          <div class="box-footer">
+                                            <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                                            <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitCustomField();" />
+                                          </div>
+                                          <!-- /.box-footer -->
+                                        </form>
+                                  </div>
+                                </div>
+                                <!-- /.modal-content -->
+                              </div>
+                              <!-- /.modal-dialog -->
+                          </div>                            
+
+                          </section>  
+                        </div>
+          
+                        <div class="tab-pane" id="stateAnchor">
+                            <section id="new2">
+                                <div class="box box-default">
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#stateModal">
+                                        新增
+                                    </button>
+                                  <table id="state_table" class="table table-striped table-bordered dataTable no-footer" >
+                                    <thead>
+                                      <tr>
+                                          <th>ID</th>
+                                          <th>名称</th>
+                                          <th>是否隐藏</th>
+                                          <th>顺序ID</th>
+                                          <th>类型</th>
+                                          <th>参与人类型</th>
+                                          <th>参与人</th>
+                                          <th>分配方式</th>
+                                          <th>创建人</th>
+                                          <th>创建时间</th>
+                                          <th>操作</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                  </table>
+                              </div>
+                              <div class="modal fade" id="stateModal">
+                                  <div class="modal-dialog" style="width: 980px;">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title">工作流状态</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                          <form class="form-horizontal"  id='workflow_custom_field_form'>
+                                              <div class="box-body">
+                                                <div class="form-group">
+                                                  <label for="stateName" class="col-sm-3 control-label">名称</label> 
+                                                  <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="stateName" placeholder="请输入状态的名称,如发起人编辑中，发起人tl审批中，结束等">
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="subWorkflowId" class="col-sm-3 control-label">子工作流</label>
+                                                    <div class="col-sm-9">
+                                                      <select class="form-control select2" id="subWorkflowId" data-placeholder="选择需要关联的子工作流" style="width: 100%;">
+                                                        <option value="0">无</option>
+                                                      </select>
+                                                      <p class="help-block">子工作流用于比较特殊的情况，如项目及应用生命周期，当项目处于开发中，每个关联应用可能处于代码编写中、静态扫描、单元测试等状态</p>
+                                                  </div>
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label for="isHidden" class="col-sm-3 control-label">是否隐藏</label>
+                                                      <div class="col-sm-9">
+                                                        <input type="checkbox" id='isHidden'>
+                                                        <p class="help-block">开启时,获取工单步骤api中不显示此状态(当前处于此状态时除外)</p>
+                                                      </div>
+                                                      
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="stateOrderId" class="col-sm-3 control-label">顺序ID</label> 
+                                                    <div class="col-sm-9">
+                                                      <input type="number" class="form-control" id="stateOrderId" placeholder="输入顺序ID" value=0>
+                                                      <p class="help-block">此顺序id,用于获取工单step记录的排序用,因为step是顺序的，而loonflow的工作流是网状的，所以需要指定顺序id以便排序,数字越小越靠前</p>
+                                                  
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="stateTypeId" class="col-sm-3 control-label">状态类型</label>
+                                                    <div class="col-sm-9">
+                                                      <select class="form-control select2" id="stateTypeId" data-placeholder="选择该应用有权限的工作流"
+                                                        style="width: 100%;">
+                                                        <option value="0">普通状态</option>
+                                                        <option value="1">初始状态</option>
+                                                        <option value="2">结束状态</option>
+                                                        
+              
+                                                      </select>
+                                                      <p class="help-block">如果你需要的类型不在此范围内，可以选择字符型或者文本域，然后指定label字段，实现自定义</p>
+                                                    </div>
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label for="RememberLastManEnable" class="col-sm-3 control-label">是否记忆最后处理人</label>
+                                                      <div class="col-sm-9">
+                                                        <input type="checkbox" id='RememberLastManEnable'>
+                                                        <p class="help-block">开启后，到达此状态时会先检查之前是否有人在此状态处理过，如果有则处理人为最后一次处理的人</p>
+                                                      </div>
+                                                      
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="stateParticipantTypeId" class="col-sm-3 control-label">参与人类型</label>
+                                                    <div class="col-sm-9">
+                                                      <select class="form-control select2" id="stateParticipantTypeId" data-placeholder="选择该应用有权限的工作流"
+                                                        style="width: 100%;">
+                                                        <option value="1">个人</option>
+                                                        <option value="2">多人</option>
+                                                        <option value="3">部门</option>
+                                                        <option value="4">角色</option>
+                                                        <option value="5">变量</option>
+                                                        <option value="6">脚本</option>
+                                                        <option value="7">工单字段</option>
+                                                        <option value="8">父工单字段</option>
+                                                        <option value="0">无</option>
+                                                        
+              
+                                                      </select>
+                                                      <p class="help-block">如果你需要的类型不在此范围内，可以选择字符型或者文本域，然后指定label字段，实现自定义</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="stateParticipant" class="col-sm-3 control-label">参与人</label> 
+                                                    <div class="col-sm-9">
+                                                      <input type="text" class="form-control" id="stateParticipant" placeholder="请根据参与人类型填写相应的参与人">
+                                                      <p class="help-block">可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator,creator_tl)\脚本文件名(不包含上传后的路径)等，包含子工作流的需要设置处理人为loonrobot</p>
+
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="stateDistributeTypeId" class="col-sm-3 control-label">分配方式</label>
+                                                    <div class="col-sm-9">
+                                                      <select class="form-control select2" id="stateDistributeTypeId" data-placeholder="选择该应用有权限的工作流"
+                                                        style="width: 100%;">
+                                                        <option value="2">直接处理</option>
+                                                        <option value="1">主动接单</option>
+                                                        <option value="3">随机分配</option>
+                                                        <option value="4">全部处理</option>
+                                                        
+              
+                                                      </select>
+                                                      <p class="help-block">如果你需要的类型不在此范围内，可以选择字符型或者文本域，然后指定label字段，实现自定义</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="stateFieldStr" class="col-sm-3 control-label">表单字段</label> 
+                                                    <div class="col-sm-9">
+                                                      <input type="text" class="form-control" id="stateFieldStr" value='{"title":2}' placeholder="当工单处于此状态，且用户有该工单的处理权限时，工单详情界面将按照此处的配置来显示">
+                                                      <p class="help-block">json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"gmt_created":1,"title":2, "sn":1}, 内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="stateLabel" class="col-sm-3 control-label">状态标签</label> 
+                                                    <div class="col-sm-9">
+                                                      <input type="text" class="form-control" id="stateLabel" placeholder="请输入标签" value="{}">
+                                                      <p class="help-block">json格式,可以使用此配置实现不同状态各种定制化需求，如在服务器申请工单的tl审批阶段显示发起人拥有的所有服务器权限列表</p>
+                                                    </div>
+                                                </div>
+
+
+                                                
+                                                <input type="text" class="form-control" id="stateId" style="display:none">
+                                                
+                                                
+                                              <!-- /.box-body -->
+                                              <div class="box-footer">
+                                                <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                                                <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitState();" />
+                                              </div>
+                                              <!-- /.box-footer -->
+                                            </form>
+                                      </div>
+                                    </div>
+                                    <!-- /.modal-content -->
+                                  </div>
+                                  <!-- /.modal-dialog -->
+                              </div>                            
+    
+                              </section>  
+                        </div>
+                        <div class="tab-pane" id="transitionAnchor">
+                            <section id="new2">
+                                <div class="box box-default">
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#transitionModal">
+                                        新增
+                                    </button>
+                                  <table id="transition_table" class="table table-striped table-bordered dataTable no-footer" >
+                                    <thead>
+                                      <tr>
+                                          <th>ID</th>
+                                          <th>名称</th>
+                                          <th>流转类型</th>
+                                          <th>定时器(单位秒)</th>
+                                          <th>源状态</th>
+                                          <th>目的状态</th>
+                                          <th>条件表达式</th>
+                                          <th>属性类型</th>
+                                          <th>是否校验必填项</th>
+                                          <th>点击弹窗提示</th>
+                                          <th>创建人</th>
+                                          <th>创建时间</th>
+                                          <th>操作</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                  </table>
+                              </div>
+                              <div class="modal fade" id="transitionModal">
+                                  <div class="modal-dialog" style="width: 980px;">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title">工作流流转</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                          <form class="form-horizontal"  id='workflow_custom_field_form'>
+                                              <div class="box-body">
+                                                <div class="form-group">
+                                                  <label for="transitionName" class="col-sm-3 control-label">名称</label> 
+                                                  <div class="col-sm-9">
+                                                    <input type="text" class="form-control" id="transitionName" placeholder="请输入流转名称,如提交、保存、同意等">
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="transitionTypeId" class="col-sm-3 control-label">流转类型</label>
+                                                    <div class="col-sm-9">
+                                                      <select class="form-control select2" id="transitionTypeId" data-placeholder="选择需要关联的子工作流" style="width: 100%;">
+                                                        <option value="1">常规流转</option>
+                                                        <option value="2">定时器流转(选择此类型时，需要设置定时器时间)</option>
+                                                      </select>
+                                                      <p class="help-block">子工作流用于比较特殊的情况，如项目及应用生命周期，当项目处于开发中，每个关联应用可能处于代码编写中、静态扫描、单元测试等状态</p>
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="timer" class="col-sm-3 control-label">定时器(单位秒)</label> 
+                                                    <div class="col-sm-9">
+                                                      <input type="number" class="form-control" id="timer" placeholder="请输入定时的时间" value=0>
+                                                      <p class="help-block">流转类型设置为定时器流转时生效,单位秒。处于源状态X秒后如果状态都没有过变化则自动流转到目标状态</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="sourceStateId" class="col-sm-3 control-label">源状态</label>
+                                                    <div class="col-sm-9">
+                                                      <select class="form-control select2" id="sourceStateId" data-placeholder="选择需要关联的子工作流" style="width: 100%;">
+                                                      </select>
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="destinationStateId" class="col-sm-3 control-label">目标状态</label>
+                                                    <div class="col-sm-9">
+                                                      <select class="form-control select2" id="destinationStateId" data-placeholder="选择需要关联的子工作流" style="width: 100%;">
+                                                      </select>
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="conditionExpression" class="col-sm-3 control-label">条件表达式</label> 
+                                                    <div class="col-sm-9">
+                                                      <input type="text" class="form-control" id="conditionExpression" value="[]" placeholder="如有需要,请输入条件表达式">
+                                                      <p class="help-block">流转条件表达式，根据表达式中的条件来确定流转的下个状态，格式为[{"expression":"{days} > 3 and {days}<10", "target_state_id":11}] 其中{}用于填充工单的字段key,运算时会换算成实际的值，当符合条件下个状态将变为target_state_id中的值,表达式只支持简单的运算或datetime/time运算.loonflow会以首次匹配成功的条件为准，所以多个条件不要有冲突</p>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="attributeTypeId" class="col-sm-3 control-label">属性类型</label>
+                                                    <div class="col-sm-9">
+                                                      <select class="form-control select2" id="attributeTypeId" data-placeholder="选择需要关联的子工作流" style="width: 100%;">
+                                                        <option value="1">同意</option>
+                                                        <option value="2">拒绝</option>
+                                                        <option value="3">其他</option>
+                                                      </select>
+                                                      <p class="help-block">因为别的审批系统中对于每个操作都需要是同意还是拒绝，所以此处加个属性用于与其他审批系统对接</p>
+                                                  </div>
+                                                </div>
+
+
+                                                <div class="checkbox">
+                                                    <label for="fieldRequireCheck" class="col-sm-3 control-label">是否校验必填项</label>
+                                                      <div class="col-sm-9">
+                                                        <input type="checkbox" id='fieldRequireCheck'>
+                                                        <p class="help-block">默认在用户点击操作的时候需要校验工单表单的必填项,如果设置为否则不检查。用于如"退回"属性的操作，不需要填写表单内容</p>
+                                                      </div>
+                                                      
+                                                    </label>
+                                                </div>
+                                                <div class="checkbox">
+                                                    <label for="alertEnable" class="col-sm-3 control-label">点击弹窗提示</label>
+                                                      <div class="col-sm-9">
+                                                        <input type="checkbox" id='alertEnable'>
+                                                        <p class="help-block">可以用于当用户在处理工单时做特定操作时，弹窗提示信息。 如用户点击"拒绝"时弹窗提示要求用户确认是否真的拒绝，避免点错</p>
+                                                      </div>
+                                                      
+                                                    </label>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="alertText" class="col-sm-3 control-label">弹窗内容</label> 
+                                                    <div class="col-sm-9">
+                                                      <input type="text" class="form-control" id="alertText" placeholder="弹窗中的内容,仅当'点击弹窗提示'开启时有效'">
+                                                    </div>
+                                                </div>
+                                                <input type="text" class="form-control" id="transitionId" style="display:none">
+                                                
+                                                
+                                              <!-- /.box-body -->
+                                              <div class="box-footer">
+                                                <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                                                <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitTransiton();" />
+                                              </div>
+                                              <!-- /.box-footer -->
+                                            </form>
+                                      </div>
+                                    </div>
+                                    <!-- /.modal-content -->
+                                  </div>
+                                  <!-- /.modal-dialog -->
+                              </div>                            
+    
+                              </section>  
+                            
+                          </div>
+                        <!-- /#ion-icons -->
+          
+                      </div>
+                      <!-- /.tab-content -->
+                    </div>
+                    <!-- /.nav-tabs-custom -->
+                  </div>
+                  <!-- /.col -->
+                </div>
+                <!-- /.row -->
+              </section>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </section>
+   
+  <!-- /.content -->
+  
+</div>
+
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+<script src="{% static 'bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+
+<script>
+  $('#fieldType').select2({placeholderOption: "first", allowClear:true});
+  $('#sourceStateId').select2({placeholderOption: "first", allowClear:true});
+  $('#destinationStateId').select2({placeholderOption: "first", allowClear:true});
+
+  $( document ).ready(function() {
+    // 获取工作流详情
+    $.ajax({
+        type: "GET",
+        url: "/api/v1.0/workflows/"+ "{{ workflow_id }}",
+        cache: false,  //禁用缓存
+        dataType: "json",
+        success: function (result) {
+          if (result.code===0){
+            $("#workflowName").append(result.data.name);            
+            }
+          }
+        });
+  });
+  $('#custom_field_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "名称或描述模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/workflows/"+ "{{ workflow_id }}" + "/custom_fields",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "field_key"},
+      { "data": "field_name"},
+      {render: function(data, type, full){
+        if (full.field_type_id === 5){
+          return "字符型"
+          } else if (full.field_type_id === 10){
+            return "整型"
+          } else if (full.field_type_id === 15){
+            return "浮点型"
+          } else if (full.field_type_id === 20){
+            return "布尔型"
+          } else if (full.field_type_id === 25){
+            return "日期型"
+          } else if (full.field_type_id === 30){
+            return "日期时间型"
+          } else if (full.field_type_id === 35){
+            return "单选框"
+          } else if (full.field_type_id === 40){
+            return "多选框"
+          } else if (full.field_type_id === 45){
+            return "下拉列表"
+          } else if (full.field_type_id === 50){
+            return "下拉列表多选"
+          } else if (full.field_type_id === 55){
+            return "文本域"
+          } else if (full.field_type_id === 60){
+            return "用户名"
+          } else if (full.field_type_id === 70){
+            return "多选用户名"
+          } else if (full.field_type_id === 80){
+            return "附件"
+          }
+        return "未知";
+
+        }},
+      
+      { "data": "order_id"},
+      { "data": "description"},
+      { "data": "creator"},
+      { "data": "gmt_created"},
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delCustomField(' + full.id + ')' + '"'+  '>删除</a></div>')}}
+
+  ]
+})
+  $('#state_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "名称或描述模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/workflows/"+ "{{ workflow_id }}" + "/states",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        
+        // 填充新增流转记录表单中可选的源和目标状态
+        result.data.value.map(function(currentValue,index,arr){$("#sourceStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
+        result.data.value.map(function(currentValue,index,arr){$("#destinationStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "name"},
+      { "data": "is_hidden"},
+      { "data": "order_id"},
+      {render: function(data, type, full){
+        if (full.type_id === 0){
+          return "普通状态"
+          } else if  (full.type_id === 1){
+          return "初始状态"
+          } else if  (full.type_id === 2){
+          return "结束状态"
+          }
+          return "未知"
+        }
+        },
+      {render: function(data, type, full){
+        if (full.participant_type_id === 1){
+          return "个人"
+          } else if  (full.participant_type_id === 2){
+          return "多人"
+          } else if  (full.participant_type_id === 3){
+          return "部门"
+          } else if  (full.participant_type_id=== 4){
+          return "角色"
+          } else if  (full.participant_type_id=== 5){
+          return "变量"
+          } else if  (full.participant_type_id=== 6){
+          return "脚本"
+          } else if  (full.participant_type_id=== 7){
+          return "工单字段"
+          } else if  (full.participant_type_id=== 8){
+          return "父工单字段"
+          } else if  (full.participant_type_id=== 0){
+          return "N/A"
+          }
+          return "未知"
+        }
+        },
+      {render: function(data, type, full){return full.participant_info.participant_alias}},
+      {render: function(data, type, full){
+          if (full.distribute_type_id === 1) {
+            return '主动接单'
+          } else if (full.distribute_type_id === 2) {
+            return '直接处理'
+          } else if (full.distribute_type_id === 3) {
+            return '随机分配'
+          } else if (full.distribute_type_id === 4) {
+            return '全部处理'
+          }
+        }
+      },
+      { "data": "creator"},
+      { "data": "gmt_created"},
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditStateForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delState(' + full.id + ')' + '"'+  '>删除</a></div>')}}
+      
+  ]
+})
+  $('#transition_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "名称或描述模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/workflows/"+ "{{ workflow_id }}" + "/transitions",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "name"},
+      {render: function(data, type, full){
+        console.log(full.transition_type_id);
+        if (full.transition_type_id === 1){
+          return "常规流转"
+          } else if  (full.transition_type_id === 2){
+          return "定时器流转"
+          }
+          return "未知"
+        }
+        },
+      { "data": "timer"},
+      {render: function(data, type, full){return full.source_state_info.name}},
+      {render: function(data, type, full){return full.destination_state_info.name}},
+      
+      { "data": "condition_expression"},
+      {render: function(data, type, full){
+        if (full.attribute_type_id===1){
+          return '同意'
+        } else if (full.attribute_type_id===2){
+          return '拒绝'
+        } else if (full.attribute_type_id===3){
+          return '其他'
+        }
+      }},
+      { "data": "field_require_check"},
+      { "data": "alert_enable"},
+      { "data": "creator"},
+      { "data": "gmt_created"},
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditTransitionForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delTransition(' + full.id + ')' + '"'+  '>删除</a></div>')}}
+      
+  ]
+})
+
+  function fieldChoiceFormatCheck(str){
+    if (str.startsWith('{') && isJsonCheck(str)){
+      return true;
+    }
+    return false
+  }
+
+  function booleanFieldDisplayFormatCheck(str){
+    if (str.startsWith('{') && isJsonCheck(str)){
+      return true;
+    }
+    return false
+  }
+  function labelFormatCheck(str){
+    if (str.startsWith('{') && isJsonCheck(str)){
+      return true;
+    }
+    return false
+  }
+  function isJsonCheck(str) {
+    try {
+        $.parseJSON(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+  $("#workflowModal").on("hidden.bs.modal", function() {
+    document.getElementById("workflow_form").reset(); //此操作无法清空select2中的内容
+    $("#customNoticeSelect").val('').trigger('change')
+  });
+
+  function showEditForm(data){
+    $("#fieldKey").val(data.field_key);
+    $("#fieldName").val(data.field_name);
+    // $("#fieldType").val(data.field_type_id);
+    $("#fieldType").val(data.field_type_id).trigger("change"); 
+    $("#orderId").val(data.order_id);
+    $("#defaultValue").val(data.default_value);
+    $("#fieldDesc").val(data.description);
+    $("#label").val(JSON.stringify(data.label));
+    $("#booleanFieldDisplay").val(JSON.stringify(data.boolean_field_display));
+    $("#fieldChoice").val(JSON.stringify(data.field_choice));
+    $("#fieldTemplate").val(data.field_template);
+    $("#customFieldId").val(data.id);
+    $('#customFieldModal').modal('show');
+  }
+
+  function submitCustomField(){
+    let customFieldId = $('#customFieldId').val();
+    if(!customFieldId){
+      addCustomField();
+    }
+    else{
+      editCustomField();
+    }
+  }
+  function addCustomField(){
+    var fieldKey = $("#fieldKey").val();
+    var fieldName = $("#fieldName").val();
+    var fieldType = $("#fieldType").val()
+    var orderId = $("#orderId").val();
+    var defaultValue = $("#defaultValue").val();
+    var fieldDesc = $("#fieldDesc").val();
+    var label = $("#label").val();
+    var booleanFieldDisplay = $("#booleanFieldDisplay").val();
+    var fieldChoice = $("#fieldChoice").val();
+    var fieldTemplate = $("#fieldTemplate").val();
+
+    if (!fieldChoiceFormatCheck(fieldChoice)){
+      swal({
+        title: "字段选项内容不合法!",
+        text: "字段选项必须是字典对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!booleanFieldDisplayFormatCheck(booleanFieldDisplay)){
+      swal({
+        title: "布尔显示定义内容不合法!",
+        text: "布尔显示定义必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!labelFormatCheck(label)){
+      swal({
+        title: "标签定义内容不合法!",
+        text: "标签定义定义必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    paramData = {
+      field_key: fieldKey,
+      field_name: fieldName,
+      field_type_id: fieldType,
+      order_id: orderId,
+      default_value: defaultValue,
+      description: fieldDesc,
+      label: label,
+      field_template: fieldTemplate,
+      boolean_field_display: booleanFieldDisplay,
+      field_choice: fieldChoice,  
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/custom_fields",
+      type: "POST",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#customFieldModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#custom_field_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+  };
+  function editCustomField(){
+    var fieldKey = $("#fieldKey").val();
+    var fieldName = $("#fieldName").val();
+    var fieldType = $("#fieldType").val()
+    var orderId = $("#orderId").val();
+    var defaultValue = $("#defaultValue").val();
+    var fieldDesc = $("#fieldDesc").val();
+    var label = $("#label").val();
+    var booleanFieldDisplay = $("#booleanFieldDisplay").val();
+    var fieldChoice = $("#fieldChoice").val();
+    var fieldTemplate = $("#fieldTemplate").val();
+    let customFieldId = $('#customFieldId').val();
+    if (!fieldChoiceFormatCheck(fieldChoice)){
+      swal({
+        title: "字段选项内容不合法!",
+        text: "字段选项必须是字典对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!booleanFieldDisplayFormatCheck(booleanFieldDisplay)){
+      swal({
+        title: "布尔显示定义内容不合法!",
+        text: "布尔显示定义必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!labelFormatCheck(label)){
+      swal({
+        title: "标签定义内容不合法!",
+        text: "标签定义定义必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    paramData = {
+      field_key: fieldKey,
+      field_name: fieldName,
+      field_type_id: fieldType,
+      order_id: orderId,
+      default_value: defaultValue,
+      description: fieldDesc,
+      label: label,
+      field_template: fieldTemplate,
+      boolean_field_display: booleanFieldDisplay,
+      field_choice: fieldChoice,  
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/custom_fields/" + customFieldId,
+      type: "PATCH",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#customFieldModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#custom_field_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+
+  };
+  
+  function delCustomField(customFieldId){
+    swal({
+      title: "是否真的要删除此记录?",
+      text: "请确认此字段未被使用(包括历史工单)后再删除，否则包含此类工单的工单列表及工单详情都会有问题，慎重！！！",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        // 删除操作
+        $.ajax({
+        type: "DELETE",
+        url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/custom_fields/" + customFieldId,
+        cache: false,  //禁用缓存
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          if (result.code===0){
+            // 刷新数据
+            $('#custom_field_table').dataTable()._fnAjaxUpdate(); 
+            // 关闭modal
+            swal({
+              title: "删除成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+            }
+          }
+        });
+      }
+    });
+  }
+  
+  function showEditStateForm(data){
+    $("#stateName").val(data.name);
+    $("#subWorkflowId").val(data.sub_workflow_id);
+    $("#isHidden").val(data.is_hidden);
+    $("#stateOrderId").val(data.order_id);
+    $("#stateTypeId").val(data.type_id);
+    $("#RememberLastManEnable").val(data.remember_last_man_enable);
+    $("#stateParticipantTypeId").val(data.participant_type_id);
+    $("#stateParticipant").val(data.participant);
+    $("#stateDistributeTypeId").val(data.distribute_type_id);
+    $("#stateFieldStr").val(JSON.stringify(data.state_field_str));
+    $("#stateLabel").val(JSON.stringify(data.label));
+    $("#stateId").val(data.id);
+    $('#stateModal').modal('show');
+  }
+  function submitState(){
+    let stateId = $('#stateId').val();
+    if(!stateId){
+      addState();
+    }
+    else{
+      editState();
+    }
+  }
+  function addState(){
+    var stateName = $("#stateName").val();
+    var subWorkflowId = $("#subWorkflowId").val();
+    var isHidden = $("#isHidden").val();
+    var stateOrderId = $("#stateOrderId").val();
+    var stateTypeId = $("#stateTypeId").val();
+    var RememberLastManEnable = $("#RememberLastManEnable").val();
+    var stateParticipantTypeId = $("#stateParticipantTypeId").val();
+    var stateParticipant = $("#stateParticipant").val();
+    var stateDistributeTypeId = $("#stateDistributeTypeId").val();
+    var stateFieldStr = $("#stateFieldStr").val();
+    var stateLabel = $("#stateLabel").val();
+
+    var RememberLastManEnable = 0
+    if ($("#RememberLastManEnable").checked){
+      RememberLastManEnable = 1;
+    };
+    var isHidden = 0
+    if ($("#isHidden").checked){
+      isHidden = 1;
+    };
+
+    if (!isJsonCheck(stateFieldStr)){
+      swal({
+        title: "状态字段内容不合法!",
+        text: "状态字段选项必须是字典对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!isJsonCheck(stateLabel)){
+      swal({
+        title: "状态标签内容不合法!",
+        text: "状态标签必须是字典对象(可以为空字典)的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+   
+    paramData = {
+      name: stateName,
+      sub_workflow_id: subWorkflowId,
+      is_hidden: isHidden,
+      order_id: stateOrderId,
+      type_id: stateTypeId,
+      remember_last_man_enable: RememberLastManEnable,
+      participant_type_id: stateParticipantTypeId,
+      participant: stateParticipant,
+      distribute_type_id: stateDistributeTypeId,
+      state_field_str: stateFieldStr,  
+      label: stateLabel,  
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/states",
+      type: "POST",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#stateModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#state_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+  };
+  function editState(){
+    var stateName = $("#stateName").val();
+    var subWorkflowId = $("#subWorkflowId").val();
+    var isHidden = $("#isHidden").val();
+    var stateOrderId = $("#stateOrderId").val();
+    var stateTypeId = $("#stateTypeId").val();
+    var RememberLastManEnable = $("#RememberLastManEnable").val();
+    var stateParticipantTypeId = $("#stateParticipantTypeId").val();
+    var stateParticipant = $("#stateParticipant").val();
+    var stateDistributeTypeId = $("#stateDistributeTypeId").val();
+    var stateFieldStr = $("#stateFieldStr").val();
+    var stateLabel = $("#stateLabel").val();
+    var stateId = $("#stateId").val();
+
+    var RememberLastManEnable = 0
+    if ($("#RememberLastManEnable").checked){
+      RememberLastManEnable = 1;
+    };
+    var isHidden = 0
+    if ($("#isHidden").checked){
+      isHidden = 1;
+    };
+
+    if (!isJsonCheck(stateFieldStr)){
+      swal({
+        title: "状态字段内容不合法!",
+        text: "状态字段选项必须是字典对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!isJsonCheck(stateLabel)){
+      swal({
+        title: "状态标签内容不合法!",
+        text: "状态标签必须是字典对象(可以为空字典)的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+   
+    paramData = {
+      name: stateName,
+      sub_workflow_id: subWorkflowId,
+      is_hidden: isHidden,
+      order_id: stateOrderId,
+      type_id: stateTypeId,
+      remember_last_man_enable: RememberLastManEnable,
+      participant_type_id: stateParticipantTypeId,
+      participant: stateParticipant,
+      distribute_type_id: stateDistributeTypeId,
+      state_field_str: stateFieldStr,  
+      label: stateLabel,  
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/states/" + stateId,
+      type: "PATCH",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#stateModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#state_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+
+  };
+  function delState(stateId){
+    swal({
+      title: "是否真的要删除此状态记录?",
+      text: "请确认此状态未被使用(包括历史工单)后再删除，否则包含此类工单的工单列表及工单详情都会有问题，慎重！！！",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        // 删除操作
+        $.ajax({
+        type: "DELETE",
+        url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/states/" + stateId,
+        cache: false,  //禁用缓存
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          if (result.code===0){
+            // 刷新数据
+            $('#state_table').dataTable()._fnAjaxUpdate(); 
+            // 关闭modal
+            swal({
+              title: "删除成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+            }
+          }
+        });
+      }
+    });
+  }
+  
+  function showEditTransitionForm(data){
+    $("#transitionName").val(data.name);
+    $("#transitionTypeId").val(data.transition_type_id);
+    $("#timer").val(data.timer);
+    $("#sourceStateId").val(data.source_state_id);
+    $("#destinationStateId").val(data.destination_state_id);
+    $("#conditionExpression").val(data.condition_expression);
+    $("#attributeTypeId").val(data.attribute_type_id);
+    $("#fieldRequireCheck").val(data.field_require_check);
+    $("#alertEnable").val(data.alert_enable);
+    $("#alertText").val(JSON.stringify(data.alert_text));
+    $("#transitionId").val(data.id);
+    $('#transitionModal').modal('show');
+  }
+  function submitTransiton(){
+    let transitionId = $('#transitionId').val();
+    if(!transitionId){
+      addTransition();
+    }
+    else{
+      editTransition();
+    }
+  }
+  function addTransition(){
+    var transitionName = $("#transitionName").val();
+    var transitionTypeId = $("#transitionTypeId").val();
+    var timer = $("#timer").val();
+    var sourceStateId = $("#sourceStateId").val();
+    var destinationStateId = $("#destinationStateId").val();
+    var conditionExpression = $("#conditionExpression").val();
+    var attributeTypeId = $("#attributeTypeId").val();
+    var alertText = $("#alertText").val();
+
+    var fieldRequireCheck = 0
+    if ($("#fieldRequireCheck").checked){
+      fieldRequireCheck = 1;
+    };
+    var alertEnable = 0
+    if ($("#alertEnable").checked){
+      alertEnable = 1;
+    };
+
+    if (!isJsonCheck(conditionExpression)){
+      swal({
+        title: "条件表达式内容不合法!",
+        text: "条件表达式必须是数组对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+   
+    paramData = {
+      name: transitionName,
+      transition_type_id: transitionTypeId,
+      timer: timer,
+      source_state_id: sourceStateId,
+      destination_state_id: destinationStateId,
+      condition_expression: conditionExpression,
+      attribute_type_id: attributeTypeId,
+      alert_text: alertText,
+      field_require_check: fieldRequireCheck,  
+      alert_enable: alertEnable,  
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/transitions",
+      type: "POST",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#transitionModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#transition_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+  };
+  function editTransition(){
+    var transitionName = $("#transitionName").val();
+    var transitionTypeId = $("#transitionTypeId").val();
+    var timer = $("#timer").val();
+    var sourceStateId = $("#sourceStateId").val();
+    var destinationStateId = $("#destinationStateId").val();
+    var conditionExpression = $("#conditionExpression").val();
+    var attributeTypeId = $("#attributeTypeId").val();
+    var alertText = $("#alertText").val();
+    var transitionId = $("#transitionId").val();
+
+    var fieldRequireCheck = 0
+    if ($("#fieldRequireCheck").checked){
+      fieldRequireCheck = 1;
+    };
+    var alertEnable = 0
+    if ($("#alertEnable").checked){
+      alertEnable = 1;
+    };
+
+    if (!isJsonCheck(conditionExpression)){
+      swal({
+        title: "条件表达式内容不合法!",
+        text: "条件表达式必须是数组对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+   
+    paramData = {
+      name: transitionName,
+      transition_type_id: transitionTypeId,
+      timer: timer,
+      source_state_id: sourceStateId,
+      destination_state_id: destinationStateId,
+      condition_expression: conditionExpression,
+      attribute_type_id: attributeTypeId,
+      alert_text: alertText,
+      field_require_check: fieldRequireCheck,  
+      alert_enable: alertEnable,  
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/transitions/" + transitionId,
+      type: "PATCH",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#transitionModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#transition_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+  };
+  function delTransition(transtionId){
+    swal({
+      title: "是否真的要删除此流转记录?",
+      text: "",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        // 删除操作
+        $.ajax({
+        type: "DELETE",
+        url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/transitions/" + transtionId,
+        cache: false,  //禁用缓存
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          if (result.code===0){
+            // 刷新数据
+            $('#transition_table').dataTable()._fnAjaxUpdate(); 
+            // 关闭modal
+            swal({
+              title: "删除成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+            }
+          }
+        });
+      }
+    });
+  }
+  
+</script>
+{% endblock %}
