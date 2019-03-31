@@ -44,6 +44,8 @@ class WorkflowBaseService(BaseService):
         workflow_result_restful_list = []
         for workflow_result_object in workflow_result_object_list:
             workflow_result_restful_list.append(dict(id=workflow_result_object.id, name=workflow_result_object.name, description=workflow_result_object.description,
+                                                     notices=workflow_result_object.notices, view_permission_check=workflow_result_object.view_permission_check,
+                                                     limit_expression=workflow_result_object.limit_expression, display_form_str=workflow_result_object.display_form_str,
                                                      creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19]))
         return workflow_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
 
@@ -122,3 +124,56 @@ class WorkflowBaseService(BaseService):
         if not workflow_obj:
             return False, '工作流不存在'
         return workflow_obj, ''
+
+    @classmethod
+    @auto_log
+    def add_workflow(cls, name, description, notices, view_permission_check, limit_expression, display_form_str, creator):
+        """
+        新增工作流
+        :param name:
+        :param description:
+        :param notices:
+        :param view_permission_check:
+        :param limit_expression:
+        :param display_form_str:
+        :param creator:
+        :return:
+        """
+        workflow_obj = Workflow(name=name, description=description, notices=notices, view_permission_check=view_permission_check,
+                                limit_expression=limit_expression,display_form_str=display_form_str, creator=creator)
+        workflow_obj.save()
+
+        return workflow_obj.id, ''
+
+    @classmethod
+    @auto_log
+    def edit_workflow(cls, workflow_id, name, description, notices, view_permission_check, limit_expression, display_form_str):
+        """
+        更新工作流
+        :param workflow_id:
+        :param name:
+        :param description:
+        :param notices:
+        :param view_permission_check:
+        :param limit_expression:
+        :param display_form_str:
+        :return:
+        """
+        workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0)
+        if workflow_obj:
+            workflow_obj.update(name=name, description=description, notices=notices, view_permission_check=view_permission_check,
+                                limit_expression=limit_expression, display_form_str=display_form_str)
+        return workflow_obj.id, ''
+
+    @classmethod
+    @auto_log
+    def delete_workflow(cls, workflow_id):
+        """
+        删除工作流
+        :param workflow_id:
+        :return:
+        """
+        workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0)
+        if workflow_obj:
+            workflow_obj.update(is_deleted=True)
+        return workflow_id, ''

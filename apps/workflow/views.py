@@ -1,3 +1,5 @@
+import json
+
 from django.views import View
 from service.format_response import api_response
 from service.workflow.workflow_base_service import WorkflowBaseService
@@ -33,6 +35,36 @@ class WorkflowView(View):
         else:
             code, data = -1, ''
         return api_response(code, msg, data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        新增工作流
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        workflow_data = {}
+        app_name = request.META.get('HTTP_APPNAME')
+        name = request_data_dict.get('name', '')
+        description = request_data_dict.get('description', '')
+        notices = request_data_dict.get('notices', '')
+        view_permission_check = request_data_dict.get('view_permission_check', 1)
+        limit_expression = request_data_dict.get('limit_expression', '')
+        display_form_str = request_data_dict.get('display_form_str', '')
+        creator = request.META.get('HTTP_USERNAME', '')
+        result, msg = WorkflowBaseService.add_workflow(name, description, notices, view_permission_check, limit_expression,
+                                                       display_form_str, creator)
+        if not result:
+            code, msg, data = -1, msg, {}
+        else:
+            code, msg, data = 0, '', {'workflow_id': result}
+        return api_response(code, msg, data)
+
 
 
 class WorkflowInitView(View):
@@ -91,6 +123,62 @@ class WorkflowDetailView(View):
                         display_form_str=workflow_result.display_form_str, creator=workflow_result.creator,
                         gmt_created=str(workflow_result.gmt_created)[:19])
             code = 0
+        return api_response(code, msg, data)
+
+    def patch(self, request, *args, **kwargs):
+        """
+        修改工作流
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        app_name = request.META.get('HTTP_APPNAME')
+        workflow_id = kwargs.get('workflow_id')
+        from service.account.account_base_service import AccountBaseService
+        # 判断是否有工作流的权限
+        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        if not app_permission:
+            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
+        name = request_data_dict.get('name', '')
+        description = request_data_dict.get('description', '')
+        notices = request_data_dict.get('notices', '')
+        view_permission_check = request_data_dict.get('view_permission_check', 1)
+        limit_expression = request_data_dict.get('limit_expression', '')
+        display_form_str = request_data_dict.get('display_form_str', '')
+
+        result, msg = WorkflowBaseService.edit_workflow(workflow_id, name, description, notices, view_permission_check,
+                                                        limit_expression, display_form_str)
+        if not result:
+            code, msg, data = -1, msg, {}
+        else:
+            code, msg, data = 0, '', {'workflow_id': result}
+        return api_response(code, msg, data)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        删除工作流
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        app_name = request.META.get('HTTP_APPNAME')
+        workflow_id = kwargs.get('workflow_id')
+        from service.account.account_base_service import AccountBaseService
+        # 判断是否有工作流的权限
+        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        if not app_permission:
+            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
+        result, msg = WorkflowBaseService.delete_workflow(workflow_id)
+        if not result:
+            code, msg, data = -1, msg, {}
+        else:
+            code, msg, data = 0, '', {'workflow_id': result}
         return api_response(code, msg, data)
 
 

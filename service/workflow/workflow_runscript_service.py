@@ -63,7 +63,7 @@ class WorkflowRunScriptService(BaseService):
     @auto_log
     def edit_run_script(cls, id, name, saved_name, description, is_active):
         """
-        新增工作流脚本
+        更新工作流脚本
         :param name:
         :param saved_name:
         :param description:
