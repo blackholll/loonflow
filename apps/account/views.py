@@ -113,7 +113,8 @@ class LoonAppTokenView(View):
         app_name = request_data_dict.get('app_name', '')
         ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
         workflow_ids = request_data_dict.get('workflow_ids', '')
-        username = request.user.username
+        # username = request.user.username
+        username = request.META.get('HTTP_USERNAME')
         flag, msg = AccountBaseService().add_token_record(app_name, ticket_sn_prefix, workflow_ids, username)
         if flag is False:
             code, data = -1, {}

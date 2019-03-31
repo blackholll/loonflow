@@ -17,7 +17,8 @@ class TicketListView(View):
         request_data = request.GET
         sn = request_data.get('sn', '')
         title = request_data.get('title', '')
-        username = request_data.get('username', '')
+        # username = request_data.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
         create_start = request_data.get('create_start', '')
         create_end = request_data.get('create_end', '')
         workflow_ids = request_data.get('workflow_ids', '')
@@ -88,7 +89,8 @@ class TicketView(View):
         if not app_permission_check:
             return api_response(-1, msg, '')
 
-        username = request_data.get('username', '')
+        # username = request_data.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
         if not username:
             return api_response(-1, '参数不全，请提供username', '')
         result, msg = TicketBaseService.get_ticket_detail(ticket_id, username)
@@ -133,7 +135,8 @@ class TicketTransition(View):
     def get(self, request, *args, **kwargs):
         request_data = request.GET
         ticket_id = kwargs.get('ticket_id')
-        username = request_data.get('username', '')
+        # username = request_data.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
         from service.account.account_base_service import AccountBaseService
         app_name = request.META.get('HTTP_APPNAME')
         app_permission_check, msg = AccountBaseService.app_ticket_permission_check(app_name, ticket_id)
@@ -157,7 +160,8 @@ class TicketFlowlog(View):
     def get(self, request, *args, **kwargs):
         request_data = request.GET
         ticket_id = kwargs.get('ticket_id')
-        username = request_data.get('username', '')  # 可用于权限控制
+        # username = request_data.get('username', '')  # 可用于权限控制
+        username = request.META.get('HTTP_USERNAME')
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
         from service.account.account_base_service import AccountBaseService
@@ -186,7 +190,8 @@ class TicketFlowStep(View):
     def get(self, request, *args, **kwargs):
         request_data = request.GET
         ticket_id = kwargs.get('ticket_id')
-        username = request_data.get('username', '')  # 可用于权限控制
+        # username = request_data.get('username', '')  # 可用于权限控制
+        username = request.META.get('HTTP_USERNAME')
 
         from service.account.account_base_service import AccountBaseService
         app_name = request.META.get('HTTP_APPNAME')
@@ -255,7 +260,8 @@ class TicketsStates(View):
         :return:
         """
         request_data = request.GET
-        username = request_data.get('username', '')  # 可用于权限控制
+        # username = request_data.get('username', '')  # 可用于权限控制
+        username = request.META.get('HTTP_USERNAME')
         ticket_ids = request_data.get('ticket_ids')  # 逗号隔开
         ticket_id_list = ticket_ids.split(',')
         ticket_id_list = [int(ticket_id) for ticket_id in ticket_id_list]

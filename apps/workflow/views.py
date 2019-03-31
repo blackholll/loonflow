@@ -23,7 +23,8 @@ class WorkflowView(View):
         name = request_data.get('name', '')
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
-        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        username = request.META.get('HTTP_USERNAME')
         app_name = request.META.get('HTTP_APPNAME')
 
         from service.account.account_base_service import AccountBaseService
@@ -79,7 +80,8 @@ class WorkflowInitView(View):
         """
         workflow_id = kwargs.get('workflow_id')
         request_data = request.GET
-        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        username = request.META.get('HTTP_USERNAME')
 
         app_name = request.META.get('HTTP_APPNAME')
         from service.account.account_base_service import AccountBaseService
@@ -313,7 +315,8 @@ class StateView(View):
         """
         state_id = kwargs.get('state_id')
         request_data = request.GET
-        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        username = request.META.get('HTTP_USERNAME')
         if not username:
             return api_response(-1, '请提供username', '')
 
@@ -336,7 +339,8 @@ class WorkflowStateView(View):
         """
         workflow_id = kwargs.get('workflow_id')
         request_data = request.GET
-        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        username = request.META.get('HTTP_USERNAME')
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
@@ -457,7 +461,8 @@ class WorkflowRunScriptView(View):
         :return:
         """
         request_data = request.GET
-        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        username = request.META.get('HTTP_USERNAME')
         if not username:
             username = request.user.username
         search_value = request_data.get('search_value', '')
@@ -563,7 +568,8 @@ class WorkflowCustomNoticeView(View):
         :return:
         """
         request_data = request.GET
-        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        username = request.META.get('HTTP_USERNAME')
         if not username:
             username = request.user.username
         search_value = request_data.get('search_value', '')
@@ -672,7 +678,8 @@ class WorkflowCustomFieldView(View):
         :return:
         """
         request_data = request.GET
-        username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        username = request.META.get('HTTP_USERNAME')
         if not username:
             username = request.user.username
         search_value = request_data.get('search_value', '')
