@@ -117,11 +117,12 @@ class WorkflowStateService(BaseService):
         :param workflow_id:
         :return:
         """
-        workflow_state_queryset = State.objects.filter(is_deleted=0, workflow_id=workflow_id).all()
-        for workflow_state in workflow_state_queryset:
-            if workflow_state.type_id == CONSTANT_SERVICE.STATE_TYPE_START:
-                return workflow_state, ''
-        return False, '该工作流未配置初始状态，请检查工作流配置'
+        workflow_state_obj = State.objects.filter(
+            is_deleted=0, workflow_id=workflow_id, type_id=CONSTANT_SERVICE.STATE_TYPE_START).first()
+        if workflow_state_obj:
+            return workflow_state_obj, ''
+        else:
+            return None, '该工作流未配置初始状态，请检查工作流配置'
 
     @classmethod
     @auto_log
