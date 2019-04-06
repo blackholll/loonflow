@@ -109,3 +109,13 @@ def workflow_flow_chart_view(request, workflow_id):
     :return:
     """
     return render(request, 'workflow/flow_chart.html', {'active_nav': 'workflow_manage', 'workflow_id': workflow_id})
+
+
+def user_login_view(request):
+    """
+    用户登录
+    :param request:
+    :return:
+    """
+    next_url = request.GET.get("next")
+    return render(request, 'login.html', {'active_nav': 'user_manage', 'next_url': next_url})

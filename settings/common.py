@@ -78,6 +78,7 @@ STATICFILES_DIRS = (
 
     ("bower_components", os.path.join(STATIC_ROOT, 'bower_components')),
     ("dist", os.path.join(STATIC_ROOT, 'dist')),
+    ("plugins", os.path.join(STATIC_ROOT, 'plugins')),
 
 
 
@@ -152,3 +153,5 @@ STATIC_URL = '/static/'
 
 FIXTURE_DIRS = ['fixtures/']
 STATIC_FILES_VERSION = '1.0'
+
+LOGIN_URL = '/manage/login'

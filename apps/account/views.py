@@ -1,6 +1,9 @@
 import json
+
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from service.account.account_base_service import AccountBaseService
 from service.format_response import api_response
@@ -176,3 +179,39 @@ class LoonAppTokenDetailView(View):
         else:
             code, data = 0, {}
         return api_response(code, msg, data)
+
+
+class LoonLoginView(View):
+    def post(self, request, *args, **kwargs):
+        """
+        登录验证
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'patch参数为空', {})
+        request_data_dict = json.loads(json_str)
+        username = request_data_dict.get('username', '')
+        password = request_data_dict.get('password', '')
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return api_response(0, '', {})
+        else:
+            return api_response(0, 'username or password is invalid', {})
+
+
+class LoonLogoutView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        注销
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        logout(request)
+        return redirect('/manage')
