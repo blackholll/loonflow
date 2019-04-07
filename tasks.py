@@ -237,9 +237,13 @@ def send_ticket_notice(ticket_id):
         content_result = content_template.format(**ticket_value_info)
         notice_script_file_name = notice_obj.script.name
         notice_script_file = os.path.join(settings.MEDIA_ROOT, notice_script_file_name)
+        # 获取工单最后一条操作记录
+        flow_log_list, msg = TicketBaseService.get_ticket_flow_log(ticket_id, 'loonrobot')
+        last_flow_log = flow_log_list[0]
 
         globals = {'title_result': title_result, 'content_result': content_result, 'participant': ticket_obj.participant,
-                   'participant_type_id': ticket_obj.participant_type_id, 'multi_all_person':ticket_obj.multi_all_person}
+                   'participant_type_id': ticket_obj.participant_type_id, 'multi_all_person':ticket_obj.multi_all_person,
+                   'ticket_value_info': ticket_value_info, 'last_flow_log': last_flow_log}
         try:
             with stdoutIO() as s:
                 # execfile(script_file, globals)  # for python 2
