@@ -155,3 +155,5 @@ FIXTURE_DIRS = ['fixtures/']
 STATIC_FILES_VERSION = '1.0'
 
 LOGIN_URL = '/manage/login'
+
+APPEND_SLASH = False  # disable urls.W002 warning
