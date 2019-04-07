@@ -1526,7 +1526,7 @@ class TicketBaseService(BaseService):
         if period:
             query_params &= Q(creator=username)
             datetime_now = datetime.datetime.now()
-            datetime_start = datetime_now + datetime.timedelta(hours=period)
+            datetime_start = datetime_now - datetime.timedelta(hours=period)
             query_params &= Q(gmt_created__gte=datetime_start)
         count_result = TicketRecord.objects.filter(query_params).count()
         return count_result, ''
