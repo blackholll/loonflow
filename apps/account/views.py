@@ -214,7 +214,7 @@ class LoonLogoutView(View):
         :return:
         """
         logout(request)
-        return redirect('/manage')
+        return redirect('/manage/')
 
 
 class LoonUserRoleView(View):
