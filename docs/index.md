@@ -1,4 +1,4 @@
-# LOONFLOW V0.2 使用文档
+# LOONFLOW V0.3 使用文档
 a workflow engine base django
 基于django的工作流引擎系统,通过http接口调用。 可以作为企业内部统一的工作流引擎，提供诸如权限申请、资源申请、发布申请、请假、报销、it服务等所有工作流场景的服务。如果有一定的开发能力建议只使用后端引擎功能，前端根据场景定制开发可分散于各个内部后台管理系统(如人事、运维、监控、cmdb等等)。
 
@@ -6,6 +6,10 @@ a workflow engine base django
 本人2011年开始接触工作流，2013年开始开发工作流第一版本，至今经历了多个版本。目前着手开发一个开源版本，致力于提供企业统一工作流引擎方案
 
 欢迎加入qq群一起交流工作流相关技术: 558788490
+
+## 操作系统支持
+- 支持所有类unix操作系统
+- windows操作系统会有两个问题:1.需要修改配置文件中日志路径(settings目录下相应部署或启动时使用的配置文件)。2.因为celery4以后不再支持windows,所以脚本执行，通知发送将无法使用
 
 ## 运行开发环境
 - 创建数据库并修改settings/dev.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)
@@ -39,6 +43,7 @@ python manage.py migrate
 - 启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid   # -c参数为启动的celery进程数， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整
 
 ## 版本升级
+#### v0.1.x-v.2.x
 从v0.1.x-v.2.x升级。需要一些DDL操作
 - workflow.models.Transition新增字段timer,新增字段attribute_type_id,condition_expression
 - ticket.modles.TicketRecord新增script_run_last_result字段,新增is_end字段,新增is_rejected字段,新增multi_all_person字段
@@ -50,6 +55,9 @@ python manage.py migrate
 - workflow.models新增表CustomNotice 用于支持自定义通知方式
 - workflow.models.CustomField新增label字段用于调用方自行扩展
 
+#### v0.2.x-v.3.x
+- 因为v0.3版本中username参数改成从header中获取，所以接口调用时需要将username通过header方式传递
+- 为了脚本安全考虑,当状态的参与人类型为脚本时，参与人需要设置为脚本记录的id。 迁移时需要将这些状态的参与人从脚本名称改成脚本记录的id
 
 
 
@@ -76,48 +84,40 @@ python manage.py migrate
 
 ## 基本架构
 LOONFLOW 分为两部分:
-- 使用django自带的admin来管理工作流的配置信息: http://127.0.0.1:8000/admin 
-- 提供http api共各个系统(如果oa、cmdb、运维系统、客服系统)调用以完成各自系统定制化的工单需求
+- 工作流配置的管理后台
+- 提供http api供各个系统(如果oa、cmdb、运维系统、客服系统)调用以完成各自系统定制化的工单需求
 
 ## 工作流配置（V0.3版本将弃用django自带的admin后台)
 1. 登录后台
-- 使用部署过程中创建的用户名密码 http://127.0.0.1:8000/admin (或生产部署后的地址http://www.xxx.com/admin) 
-2. 管理后台基本功能
+- 使用部署过程中创建的(python manage.py creatsuperuser)用户名密码 登录http://host_ip:port 
 
-    loonflow后台管理系统分为三个部分(为了早点上线开源，所有后台管理系统使用了django admin。将在v0.3版本重写管理界面):
-- 工作流:工作流的配置,包括工作流记录、工作流的流转配置、工作流状态的配置、工作流自定义字段的配置、自定义通知脚本(用于工单流转过程中的消息通知相关人员)
-
-- 工单:具体的工单记录，此部分正常情况下是不需要修改的，只有在需要人工干预工单流转的时候可以修改（当然你也可以直接修改数据库）
-- 账户:用户信息,包括用户、用户角色、角色、部门以及调用token（用于api调用的授权）。在开始具体的工作流配置时，需要将你所在单位的用户、角色、用户角色、部门信息同步到loonflow中(建议写个脚本定时同步)
-![admin_homapage](/docs/images/admin_homapage.png)
-3. 工作流配置
+2. 工作流配置
 - 同步账户中用户、角色、用户角色(用户具有的角色)、部门信息
 
     请根据相关表结构自行编写定时任务脚来同步你所在企业的账户信息
-- 上传必要的脚本(如自动赋权、自动开通账号等脚本，可用于实现工单审批通过后自动赋权、自动开通账号)
-
+- 上传必要的脚本(包括执行脚本和通知脚本.如自动赋权、自动开通账号等脚本，可用于实现工单审批通过后自动赋权、自动开通账号)
+![run_script](/docs/images/run_script.png)
+![notice_manage](/docs/images/notice_manage.png)
 - 新建工作流
-![admin_homapage](/docs/images/workflow_config.png)
-- 上传工作流脚本
+![new_workflow](/docs/images/new_workflow.png)
 
-    loonflow支持给状态配置脚本处理(见“设置工作流状态”)，当工单流转到该状态时将自动执行脚本任务
-![admin_homapage](/docs/images/workflow_script.png)
+- 进入工作流的具体配置页面
+![workflow_config_entry](/docs/images/workflow_config_entry.png)
+
 - 新建工作流的自定义字段
-
-    工单默认只提供id、流水号、标题、当前状态、当前处理人类型、当前处理人、创建时间、修改时间等字段。不同类型的工单可能需要不同的自定义字段，可以在此处给相应的工作流配置自定义字段
-    ![admin_homapage](/docs/images/workflow_custom_field.jpg)
-    ![admin_homapage](/docs/images/workflow_custom_field2.jpg)
+![workflow_custom_field_config](/docs/images/workflow_custom_field_config.png)
 
 - 设置工作流的状态
-    工作流对应多个字段（发起人新建中、领导审批中、技术人员处理中、已结束等等）。 如果状态需要配置子工作流，必须设置该状态的处理人类型为1，处理人为loonrobot
-    ![admin_homapage](/docs/images/workflow_state1.jpg)
-    ![admin_homapage](/docs/images/workflow_state2.jpg)
-    ![admin_homapage](/docs/images/workflow_state3.jpg)
+![workflow_state_config](/docs/images/workflow_state_config.png)
 
 - 设置工作流流转: 工作流流转控制工单状态的变化，流转的名称即工单处理中的按钮的名称，用户点击工单后，系统通过此表中的配置获取到下个状态信息，以更新工单的状态以及做相应的其他操作(执行脚本、通知相关人员等等)
-![admin_homapage](/docs/images/workflow_transition1.jpg)
-![admin_homapage](/docs/images/workflow_transition2.jpg)
-![admin_homapage](/docs/images/workflow_transition3.jpg)
+![workflow_state_config](/docs/images/workflow_state_config.png)
+
+- 校验配置是否正确
+![flow_chart_entry1](/docs/images/flow_chart_entry1.png)
+![flow_chart_entry2](/docs/images/flow_chart_entry2.png)
+![flow_chart](/docs/images/flowchart.png)
+
 
 #### 注意
 - 当某个状态的参与人配置为脚本时，其直连下个状态只能有一个。因为脚本执行完成后会只获取一个下个状态来自动流转
@@ -166,6 +166,7 @@ title,workflow_id, sn, state_id, parent_ticket_id, parent_ticket_state_id, parti
     55: 文本域
     60: 用户名(需要调用方系统自行处理用户列表，loonflow只保存用户名)
     70: 多选用户名(需要调用方系统自行处理用户列表，loonflow只保存用户名，多人的情况使用逗号隔开)
+    80: 附件，多个附件使用逗号隔开。调用方自己实现上传功能，loonflow只保存文件路径
   字段属性:
     1: 只读 调用新建或处理工单的接口时如果传了设置为只读的字段的值，loonflow将忽略，不会更新工单此字段的值
     2: 必填 调用新建或处理工单的接口时必须传递此字段的值，如果未提供则新建或处理工单接口将调用失败
@@ -179,4 +180,39 @@ title,workflow_id, sn, state_id, parent_ticket_id, parent_ticket_state_id, parti
 [接口文档](./apis/index.md)
 
 
+## Q&A
+-  为什么没使用django rest framework
 
+    因为不使用外键(为什么不使用？可以百度搜下)且使用框架不够用灵活
+
+- 为什么使用http api方式提供服务
+
+    loonflow的理念是:工单应该是嵌入到各个系统中(如oa,cmdb,运维平台、客服系统等等), 这些系统通过后端api调用loonflow。所以loonflow只有管理界面(v0.1版本直接使用django admin,后面会重写管理界面)。后续会提供几个调用方demo供大家参考。感谢@youshutong帮忙写的调用方demo(vue+django):
+    https://github.com/youshutong2080/shutongFlow
+
+- 为何不建议调用方前端直接调用loonflow
+
+    调用方和loonflow之前需要做权限验证，签名算法考虑到安全只能写在调用方后端;作为引擎,loonflow不提供用户登录验证功能,只校验调用方的合法性，所以登录验证需要做在调用方自己的后端;每个调用方除了纯粹的工单的功能，还会需要一些额外的功能，比如根据自定义字段筛选工单列表，loonflow提供了工单列表的接，但是因为loonflow的自定义字段是纵表形式存储的，无法提供根据这些字段来筛选工单列表。如果需要自定义字段的筛选，需要调用方自己保存一份工单数据，用于筛选;比如需要做一个项目全生命周期管理的系统，需要用到工作流。 但是还有比如发布,获取人员信息、和其他系统交互、日志查看、项目数据统计等等功能。这些需要做在自己的后端
+
+- 调用方是否需要保存工单的基础数据
+
+    根据情况而定，如果调用方在显示工单数据的时候需要显示更多相关信息，可以本地保存一份附属信息与loonflow中对应关系。针对本地保存的情况，如果涉及工单流转的字段(如参与人等)，在本地修改时需要同时调用loonflow修改loonflow中保存的字段的值(v0.2版本会提供修改工单字段值的接口)
+
+- 如何限制用户查看工单权限
+  
+    默认会限制工单的查看权限(通过api获取工单详情时,只有username参数是工单相关人员时才能获取到数据)。如果需要放开限制，可以修改工作流配置中的“查看权限校验”为否。权限配置只针对工作流的，多个类型的工作流需要单独配置
+
+- 为何需要同步用户及部门信息到loonflow
+
+    因为工单流转涉及到较多的用户信息获取，所以需要将用户信息(包括部门)同步到loonflow的账户系统中。同步部门信息的时候，如果发现部门被删除，建议修改部门名字，如前面加个 “已废弃:”,否则如果该部门存在某个工单的当前处理人的时候会有问题。用户离职的情况设置is_active=0.另外用户密码请随便填写(为了不允许普通用户登录)。管理员账户请通过python manage.py creatsuperuser来创建。只需要管理员实现一个同步脚本定时执行即可,其他调用方不用考虑此问题
+
+- 如何支持根据工单的自定义字段查询
+
+    loonflow只提供工单基础字段的查询，如果需要针对自定义字段的查询，请在自己系统中保存一份工单数据(注意工单处理过程中，如果有字段修改，也需要更新自己系统中的数据)
+    
+- 工单列表支持排序
+
+    只支持根据创建时间排序。其他字段排序可以在调用方系统中保存一份数据来自己实现排序，然后只有在获取工单详情的时候调用loonflow接口
+
+- 工单类型需要支持多级
+    比如需要支持“运维-权限申请-vpn权限申请”。 因为loonflow的工作流只有一级，如果需要支持多级类型,需要在调用方保存一份工单类型与loonflow工作流关联的数据。表字段可以如下：type_id, type_name, up_type_id, loonflow_workflow_id
