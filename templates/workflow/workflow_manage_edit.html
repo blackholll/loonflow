@@ -121,7 +121,7 @@
                                             <div class="form-group">
                                                 <label for="orderId" class="col-sm-3 control-label">顺序ID</label> 
                                                 <div class="col-sm-9">
-                                                  <input type="number" class="form-control" id="orderId" placeholder="输入顺序ID,用于在展示工单详情的时候排序,越小越靠前">
+                                                  <input type="number" class="form-control" id="orderId" value=0 placeholder="输入顺序ID,用于在展示工单详情的时候排序,越小越靠前">
                                                   <p class="help-block">内置字段顺序为:  sn:10, title:20, state_id:40, state.state_name:41,participant_info.participant_name:50</p>
                                                   <p class="help-block">,participant_info.participant_alias:55,workflow.workflow_name:60,creator:80,gmt_created:100, gmt_modified:120 </p>
                                                 </div>
@@ -217,7 +217,7 @@
                                         <h4 class="modal-title">工作流状态</h4>
                                       </div>
                                       <div class="modal-body">
-                                          <form class="form-horizontal"  id='workflow_custom_field_form'>
+                                          <form class="form-horizontal"  id='workflow_state_form'>
                                               <div class="box-body">
                                                 <div class="form-group">
                                                   <label for="stateName" class="col-sm-3 control-label">名称</label> 
@@ -390,7 +390,7 @@
                                         <h4 class="modal-title">工作流流转</h4>
                                       </div>
                                       <div class="modal-body">
-                                          <form class="form-horizontal"  id='workflow_custom_field_form'>
+                                          <form class="form-horizontal"  id='workflow_transiton_form'>
                                               <div class="box-body">
                                                 <div class="form-group">
                                                   <label for="transitionName" class="col-sm-3 control-label">名称</label> 
@@ -536,6 +536,22 @@
   $('#sourceStateId').select2({placeholderOption: "first", allowClear:true});
   $('#destinationStateId').select2({placeholderOption: "first", allowClear:true});
 
+  $("#stateModal").on("hidden.bs.modal", function() {
+    $(this).removeData("bs.modal");
+    $("#workflow_state_form")[0].reset();
+    $("#stateId").val("");    
+  });
+  $("#transitionModal").on("hidden.bs.modal", function() {
+    $(this).removeData("bs.modal");
+    $("#workflow_transiton_form")[0].reset();
+    $("#transitionId").val("");    
+  });
+  $("#customFieldModal").on("hidden.bs.modal", function() {
+    $(this).removeData("bs.modal");
+    $("#workflow_custom_field_form")[0].reset();
+    $("#customFieldId").val("");  
+    $("#fieldType").val('').trigger('change')
+  });
   $( document ).ready(function() {
     // 获取工作流详情
     $.ajax({
@@ -832,10 +848,7 @@
     }
     return true;
 }
-  $("#workflowModal").on("hidden.bs.modal", function() {
-    document.getElementById("workflow_form").reset(); //此操作无法清空select2中的内容
-    $("#customNoticeSelect").val('').trigger('change')
-  });
+
 
   function showEditForm(data){
     $("#fieldKey").val(data.field_key);
@@ -1041,10 +1054,19 @@
   function showEditStateForm(data){
     $("#stateName").val(data.name);
     $("#subWorkflowId").val(data.sub_workflow_id);
-    $("#isHidden").val(data.is_hidden);
+    if (data.is_hidden) {
+      $("#isHidden").attr('checked', true);
+    } else {
+      $("#isHidden").attr('checked', false);
+    }
+    if (data.remember_last_man_enable) {
+      $("#RememberLastManEnable").attr('checked', true);
+    } else {
+      $("#RememberLastManEnable").attr('checked', false);
+    }
+
     $("#stateOrderId").val(data.order_id);
     $("#stateTypeId").val(data.type_id);
-    $("#RememberLastManEnable").val(data.remember_last_man_enable);
     $("#stateParticipantTypeId").val(data.participant_type_id);
     $("#stateParticipant").val(data.participant);
     $("#stateDistributeTypeId").val(data.distribute_type_id);
@@ -1076,11 +1098,11 @@
     var stateLabel = $("#stateLabel").val();
 
     var RememberLastManEnable = 0
-    if ($("#RememberLastManEnable").checked){
+    if ($("#RememberLastManEnable").prop('checked')){
       RememberLastManEnable = 1;
     };
     var isHidden = 0
-    if ($("#isHidden").checked){
+    if ($("#isHidden").prop('checked')){
       isHidden = 1;
     };
 
@@ -1137,10 +1159,8 @@
   function editState(){
     var stateName = $("#stateName").val();
     var subWorkflowId = $("#subWorkflowId").val();
-    var isHidden = $("#isHidden").val();
     var stateOrderId = $("#stateOrderId").val();
     var stateTypeId = $("#stateTypeId").val();
-    var RememberLastManEnable = $("#RememberLastManEnable").val();
     var stateParticipantTypeId = $("#stateParticipantTypeId").val();
     var stateParticipant = $("#stateParticipant").val();
     var stateDistributeTypeId = $("#stateDistributeTypeId").val();
@@ -1149,11 +1169,11 @@
     var stateId = $("#stateId").val();
 
     var RememberLastManEnable = 0
-    if ($("#RememberLastManEnable").checked){
+    if ($("#RememberLastManEnable").prop('checked')){
       RememberLastManEnable = 1;
     };
     var isHidden = 0
-    if ($("#isHidden").checked){
+    if ($("#isHidden").prop('checked')){
       isHidden = 1;
     };
 
@@ -1248,14 +1268,26 @@
     $("#transitionName").val(data.name);
     $("#transitionTypeId").val(data.transition_type_id);
     $("#timer").val(data.timer);
-    $("#sourceStateId").val(data.source_state_id);
-    $("#destinationStateId").val(data.destination_state_id);
+    $("#sourceStateId").val(data.source_state_id).trigger("change");
+    $("#destinationStateId").val(data.destination_state_id).trigger("change");
     $("#conditionExpression").val(data.condition_expression);
     $("#attributeTypeId").val(data.attribute_type_id);
-    $("#fieldRequireCheck").val(data.field_require_check);
-    $("#alertEnable").val(data.alert_enable);
-    $("#alertText").val(JSON.stringify(data.alert_text));
+    $("#alertText").val(data.alert_text);
     $("#transitionId").val(data.id);
+
+
+    if (data.field_require_check) {
+      $('#fieldRequireCheck').attr('checked', true);
+    } else {
+      $('#fieldRequireCheck').attr('checked', false);
+    };
+    if (data.alert_enable) {
+      $('#alertEnable').attr('checked', true);
+    } else {
+      $('#alertEnable').attr('checked', false);
+    };
+
+
     $('#transitionModal').modal('show');
   }
   function submitTransiton(){
@@ -1278,11 +1310,11 @@
     var alertText = $("#alertText").val();
 
     var fieldRequireCheck = 0
-    if ($("#fieldRequireCheck").checked){
+    if ($("#fieldRequireCheck").prop('checked')){
       fieldRequireCheck = 1;
     };
     var alertEnable = 0
-    if ($("#alertEnable").checked){
+    if ($("#RememberLastManEnable").prop('alertEnable')){
       alertEnable = 1;
     };
 
@@ -1338,11 +1370,11 @@
     var transitionId = $("#transitionId").val();
 
     var fieldRequireCheck = 0
-    if ($("#fieldRequireCheck").checked){
+    if ($("#fieldRequireCheck").prop('checked')){
       fieldRequireCheck = 1;
     };
     var alertEnable = 0
-    if ($("#alertEnable").checked){
+    if ($("#alertEnable").prop('checked')){
       alertEnable = 1;
     };
 

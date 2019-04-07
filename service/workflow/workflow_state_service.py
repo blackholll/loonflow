@@ -70,6 +70,7 @@ class WorkflowStateService(BaseService):
                                distribute_type_id=workflow_states_object.distribute_type_id,
                                state_field_str=json.loads(workflow_states_object.state_field_str), label=json.loads(workflow_states_object.label),
                                creator=workflow_states_object.creator, participant_info=participant_info,
+                               remember_last_man_enable=1 if workflow_states_object.remember_last_man_enable else 0,
                                gmt_created=str(workflow_states_object.gmt_created)[:19])
             workflow_states_restful_list.append(result_dict)
         return workflow_states_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
