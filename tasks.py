@@ -65,25 +65,25 @@ def stdoutIO(stdout=None):
 
 
 @app.task
-def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
+def run_flow_task(ticket_id, script_id_star, state_id, action_from='loonrobot'):
     """
     执行工作流脚本
-    :param script_name:
+    :param script_id_star:通过脚本id来执行, 保存的是字符串
     :param ticket_id:
     :param state_id:
     :param action_from:
     :return:
     """
+    script_id = int(script_id_star)
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-    if ticket_obj.participant == script_name and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+    if ticket_obj.participant == script_id and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
         ## 校验脚本是否合法
-        script_obj = WorkflowScript.objects.filter(saved_name='workflow_script/{}'.format(script_name), is_deleted=False, is_active=True).first()
+        # 获取脚本名称
+        script_obj = WorkflowScript.objects.filter(id=script_id, is_deleted=False, is_active=True).first()
         if not script_obj:
             return False, '脚本未注册或非激活状态'
 
-        script_dir = os.path.join(settings.MEDIA_ROOT, "workflow_script")
-
-        script_file = os.path.join(script_dir, script_name)
+        script_file = os.path.join(settings.MEDIA_ROOT, script_obj.saved_name.name)
         globals = {'ticket_id': ticket_id, 'action_from': action_from}
         # 如果需要脚本执行完成后，工单不往下流转(也就脚本执行失败或调用其他接口失败的情况)，需要在脚本中抛出异常
         try:
@@ -107,7 +107,7 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
         transition_obj = Transition.objects.filter(source_state_id=state_id, is_deleted=False).first()
         new_ticket_flow_dict = dict(ticket_id=ticket_id, transition_id=transition_obj.id,
                                     suggestion=script_result_msg, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT,
-                                    participant=script_name, state_id=state_id, creator='loonrobot')
+                                    participant='脚本:(id:{}, name:{})'.format(script_obj.id, script_obj.name), state_id=state_id, creator='loonrobot')
 
         TicketBaseService.add_ticket_flow_log(new_ticket_flow_dict)
         if not script_result:

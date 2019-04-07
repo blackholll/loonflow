@@ -777,6 +777,13 @@ class TicketBaseService(BaseService):
                 return False, 'role is not existedor has been deleted'
             participant_name = role_obj.name
             participant_alias = participant_name
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+            # 脚本类型参数与人是脚本记录的id
+            from apps.workflow.models import WorkflowScript
+            script_obj = WorkflowScript.objects.filter(id=int(participant), is_deleted=0).first()
+            if script_obj:
+                participant_name = participant
+                participant_alias = '脚本:{}'.format(script_obj.name)
 
         if json.loads(ticket_obj.multi_all_person):
             participant_type_name = '多人且全部处理'
