@@ -1,3 +1,5 @@
+import json
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole
@@ -48,6 +50,40 @@ class AccountBaseService(BaseService):
         user_role_queryset = LoonUserRole.objects.filter(user_id=user_obj.id, is_deleted=0).all()
         user_role_id_list = [user_role.role_id for user_role in user_role_queryset]
         return user_role_id_list, ''
+
+    @classmethod
+    @auto_log
+    def get_user_role_info_by_user_id(cls, user_id, search_value=0, page=1, per_page=10):
+        """
+        获取用户角色信息
+        :param user_id:
+        :param search_value:
+        :param page:
+        :param per_page:
+        :return:
+        """
+
+        user_role_queryset = LoonUserRole.objects.filter(user_id=user_id, is_deleted=0).all()
+        user_role_id_list = [user_role.role_id for user_role in user_role_queryset]
+        query_params = Q(is_deleted=False, id__in=user_role_id_list)
+        if search_value:
+            query_params &= Q(name__contains=search_value)
+        role_info_queryset = LoonRole.objects.filter(query_params).all()
+        paginator = Paginator(role_info_queryset, per_page)
+        try:
+            role_info_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            role_info_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            role_info_result_paginator = paginator.page(paginator.num_pages)
+        role_result_list = role_info_result_paginator.object_list
+        role_result_format_list = []
+        for role_info in role_result_list:
+            role_result_format_list.append(dict(id=role_info.id, name=role_info.name, description=role_info.description,
+                                                label=json.dumps(role_info.label) if role_info.label else {},
+                                                creator=role_info.creator, gmt_created=str(role_info.gmt_created)[:19]))
+        return role_result_format_list, dict(per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
     @auto_log

@@ -72,7 +72,7 @@ class LoonRole(BaseModel):
     name = models.CharField('名称', max_length=50)
     description = models.CharField('描述', max_length=50, default='')
 
-    label = models.CharField('标签', max_length=50, blank=True, default='', help_text='因为角色信息也可能是从别处同步过来， 为保证对应关系，同步时可以在此字段设置其他系统中相应的唯一标识')
+    label = models.CharField('标签', max_length=50, blank=True, default='{}', help_text='因为角色信息也可能是从别处同步过来， 为保证对应关系，同步时可以在此字段设置其他系统中相应的唯一标识,字典的json格式')
     creator = models.CharField('创建人', max_length=50)
     gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
     gmt_modified = models.DateTimeField('更新时间', auto_now=True)

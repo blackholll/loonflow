@@ -215,3 +215,21 @@ class LoonLogoutView(View):
         """
         logout(request)
         return redirect('/manage')
+
+
+class LoonUserRoleView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        用户角色信息
+        """
+        user_id = kwargs.get('user_id', 0)
+        search_value = request.GET.get('search_value', '')
+        role_info_list, msg = AccountBaseService.get_user_role_info_by_user_id(user_id, search_value)
+        if role_info_list is not False:
+            data = dict(value=role_info_list, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+
