@@ -13,15 +13,15 @@ api调用:
 ```
 import requests
 
-headers = dict(signature=signature, timestamp=timestamp, appname=app_name)
+headers = dict(signature=signature, timestamp=timestamp, appname=app_name, username=username)
 
 # get
-get_data = dict(username='zhangsan', per_page=20, category='all')
+get_data = dict(per_page=20, category='all')
 r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets', headers=headers, params=get_data)
 result = r.json()
 
 # post
-data = dict(username='zhangsan', target_username='lisi', suggestion='请协助提供更多信息')
+data = dict(target_username='lisi', suggestion='请协助提供更多信息')
 r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets/{ticket_id}/add_node', headers=headers, json=data)
 result = r.json()
 ```
