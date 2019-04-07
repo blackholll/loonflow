@@ -62,7 +62,6 @@ class AccountBaseService(BaseService):
         :param per_page:
         :return:
         """
-
         user_role_queryset = LoonUserRole.objects.filter(user_id=user_id, is_deleted=0).all()
         user_role_id_list = [user_role.role_id for user_role in user_role_queryset]
         query_params = Q(is_deleted=False, id__in=user_role_id_list)
@@ -84,6 +83,38 @@ class AccountBaseService(BaseService):
                                                 label=json.dumps(role_info.label) if role_info.label else {},
                                                 creator=role_info.creator, gmt_created=str(role_info.gmt_created)[:19]))
         return role_result_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_role_user_info_by_role_id(cls, role_id, search_value=0, page=1, per_page=10):
+        """
+        获取角色的用户列表信息
+        :param role_id:
+        :param search_value:
+        :param page:
+        :param per_page:
+        :return:
+        """
+        user_role_queryset = LoonUserRole.objects.filter(role_id=role_id, is_deleted=0).all()
+        role_user_id_list = [user_role.user_id for user_role in user_role_queryset]
+        query_params = Q(is_deleted=False, id__in=role_user_id_list)
+        if search_value:
+            query_params &= Q(username__contains=search_value) | Q(alias__contains=search_value)
+        user_info_queryset = LoonUser.objects.filter(query_params).all()
+        paginator = Paginator(user_info_queryset, per_page)
+        try:
+            user_info_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            user_info_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            user_info_result_paginator = paginator.page(paginator.num_pages)
+        user_result_list = user_info_result_paginator.object_list
+        user_result_format_list = []
+        for user_info in user_result_list:
+            user_result_format_list.append(user_info.get_dict())
+        return user_result_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
 
     @classmethod
     @auto_log

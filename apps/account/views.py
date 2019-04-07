@@ -233,3 +233,21 @@ class LoonUserRoleView(View):
         return api_response(code, msg, data)
 
 
+class LoonRoleUserView(View):
+    def get(self, request, *args, **kwargs):
+        """
+        角色的用户信息
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        role_id = kwargs.get('role_id', 0)
+        search_value = request.GET.get('search_value', '')
+        user_info_list, msg = AccountBaseService.get_role_user_info_by_role_id(role_id, search_value)
+        if user_info_list is not False:
+            data = dict(value=user_info_list, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
