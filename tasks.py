@@ -65,7 +65,7 @@ def stdoutIO(stdout=None):
 
 
 @app.task
-def run_flow_task(ticket_id, script_id_star, state_id, action_from='loonrobot'):
+def run_flow_task(ticket_id, script_id_str, state_id, action_from='loonrobot'):
     """
     执行工作流脚本
     :param script_id_star:通过脚本id来执行, 保存的是字符串
@@ -74,9 +74,9 @@ def run_flow_task(ticket_id, script_id_star, state_id, action_from='loonrobot'):
     :param action_from:
     :return:
     """
-    script_id = int(script_id_star)
+    script_id = int(script_id_str)
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-    if ticket_obj.participant == script_id and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+    if ticket_obj.participant == script_id_str and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
         ## 校验脚本是否合法
         # 获取脚本名称
         script_obj = WorkflowScript.objects.filter(id=script_id, is_deleted=False, is_active=True).first()
@@ -132,7 +132,7 @@ def run_flow_task(ticket_id, script_id_star, state_id, action_from='loonrobot'):
             destination_participant, msg = TicketBaseService.get_ticket_field_value(ticket_id, tar_state_obj.participant)
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id =  CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
         elif tar_state_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
             parent_ticket_id = ticket_obj.parent_ticket_id
             destination_participant, msg = TicketBaseService.get_ticket_field_value(parent_ticket_id, tar_state_obj.participant)
