@@ -1173,8 +1173,14 @@ class TicketBaseService(BaseService):
 
             state_info_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
             transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name)
-            ticket_flow_log_restful_list.append(dict(id=ticket_flow_log.id, ticket_id=ticket_id, state=state_info_dict, transition=transition_info_dict, intervene_type_id=ticket_flow_log.intervene_type_id, participant_type_id=ticket_flow_log.participant_type_id,
-                                                     participant=ticket_flow_log.participant, suggestion=ticket_flow_log.suggestion, gmt_created=str(ticket_flow_log.gmt_created)[:19], gmt_modified=str(ticket_flow_log.gmt_modified)[:19]
+            ticket_flow_log_restful_list.append(dict(id=ticket_flow_log.id, ticket_id=ticket_id, state=state_info_dict,
+                                                     transition=transition_info_dict,
+                                                     intervene_type_id=ticket_flow_log.intervene_type_id,
+                                                     participant_type_id=ticket_flow_log.participant_type_id,
+                                                     participant=ticket_flow_log.participant,
+                                                     suggestion=ticket_flow_log.suggestion,
+                                                     gmt_created=str(ticket_flow_log.gmt_created)[:19],
+                                                     attribute_type_id=transition_obj.attribute_type_id
                                                      ))
 
         return ticket_flow_log_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
