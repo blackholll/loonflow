@@ -56,7 +56,6 @@
     $.ajax({
         url:"/api/v1.0/workflows/"+ "{{ workflow_id }}",
         type:'GET',
-        processData: false,
         contentType: "application/json; charset=utf-8",
         success: function(result) {
           console.log('sss');
@@ -69,7 +68,6 @@
     $.ajax({
       url:"/api/v1.0/workflows/"+ "{{ workflow_id }}" + "/states",
         type:'GET',
-        processData: false,
         contentType: "application/json; charset=utf-8",
         data: {per_page:200}, //200应该够获取全部状态了
         success: function(result) {
@@ -106,7 +104,6 @@
             $.ajax({
             url:"/api/v1.0/workflows/"+ "{{ workflow_id }}" + "/transitions",
               type:'GET',
-              processData: false,
               contentType: "application/json; charset=utf-8",
               data: {per_page:200}, //200应该够获取全部状态了
               success: function(result) {
