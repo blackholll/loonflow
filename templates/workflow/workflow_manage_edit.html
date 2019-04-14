@@ -229,7 +229,7 @@
                                                     <label for="subWorkflowId" class="col-sm-3 control-label">子工作流</label>
                                                     <div class="col-sm-9">
                                                       <select class="form-control select2" id="subWorkflowId" data-placeholder="选择需要关联的子工作流" style="width: 100%;">
-                                                        <option value="0">无</option>
+                                                        <option value='0'>无</option>
                                                       </select>
                                                       <p class="help-block">子工作流用于比较特殊的情况，如项目及应用生命周期，当项目处于开发中，每个关联应用可能处于代码编写中、静态扫描、单元测试等状态</p>
                                                   </div>
@@ -533,11 +533,13 @@
 
 <script>
   $('#fieldType').select2({placeholderOption: "first", allowClear:true});
+  // $('#subWorkflowId').select2({placeholderOption: "first", allowClear:true});
   $('#sourceStateId').select2({placeholderOption: "first", allowClear:true});
   $('#destinationStateId').select2({placeholderOption: "first", allowClear:true});
 
   $("#stateModal").on("hidden.bs.modal", function() {
     $(this).removeData("bs.modal");
+    $("#subWorkflowId").val('').trigger('change');
     $("#workflow_state_form")[0].reset();
     $("#stateId").val("");    
   });
@@ -565,6 +567,19 @@
             }
           }
         });
+    // 获取工作流列表，用于支持状态配置子工作流
+    $.ajax({
+    type: "GET",
+    url: "/api/v1.0/workflows",
+    cache: false,  //禁用缓存
+    data: {per_page:500}, // 500 应该够了
+    dataType: "json",
+    success: function (result) {
+      if (result.code===0){
+            result.data.value.map(function(currentValue,index,arr){$("#subWorkflowId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
+      }
+      }
+    });
   });
   $('#custom_field_table').DataTable({
   ordering: false,
@@ -863,6 +878,12 @@
     $("#fieldChoice").val(JSON.stringify(data.field_choice));
     $("#fieldTemplate").val(data.field_template);
     $("#customFieldId").val(data.id);
+    // $("#subWorkflowId").val(data.sub_workflow_id)
+    // $("#subWorkflowId").trigger("change");
+    // $("#subWorkflowId").val(String(data.sub_workflow_id)).trigger("change"); 
+    // $('#subWorkflowId').select2(String(data.sub_workflow_id));
+    // select2 初始化有问题，暂时不用select2
+    $("#subWorkflowId").val(String(data.sub_workflow_id));
     $('#customFieldModal').modal('show');
   }
 
