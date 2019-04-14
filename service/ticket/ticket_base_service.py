@@ -910,16 +910,21 @@ class TicketBaseService(BaseService):
 
         if ticket_obj.in_add_node:
             # 加签状态下，只允许"完成"操作, 完成后工单处理人设为add_node_man
-            transition_dict_list = [dict(transition_id=0, transition_name='完成', field_require_check=False, is_accept=False, in_add_node=True)]
+            transition_dict_list = [dict(transition_id=0, transition_name='完成', field_require_check=False,
+                                         is_accept=False, in_add_node=True, alert_enable=False, alert_text='')]
             return transition_dict_list, ''
         if msg['need_accept']:
-            transition_dict_list = [dict(transition_id=0, transition_name='接单', field_require_check=False, is_accept=True, in_add_node=False)]
+            transition_dict_list = [dict(transition_id=0, transition_name='接单', field_require_check=False,
+                                         is_accept=True, in_add_node=False, alert_enable=False, alert_text='')]
             return transition_dict_list, ''
 
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)
         transition_dict_list = []
         for transition in transition_queryset:
-            transition_dict = dict(transition_id=transition.id, transition_name=transition.name, field_require_check=transition.field_require_check, is_accept=False, in_add_node=False)
+            transition_dict = dict(transition_id=transition.id, transition_name=transition.name,
+                                   field_require_check=transition.field_require_check, is_accept=False,
+                                   in_add_node=False, alert_enable=transition.alert_enable,
+                                   alert_text=transition.alert_text)
             transition_dict_list.append(transition_dict)
         return transition_dict_list, ''
 
