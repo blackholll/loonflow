@@ -157,15 +157,19 @@ GET
         transition_name: "提交",
         field_require_check: true,  # 默认为ture,如果此为否时， 不校验表单必填内容
         transition_id: 1,
-        is_accept: false # 不是接单,
-        in_add_node: false # 不处于加签状态下
+        is_accept: false, # 不是接单,
+        in_add_node: false, # 不处于加签状态下
+        enable_alert: false,  # 是否弹窗告警，可用于当用户点击此操作的时确定是否弹窗信息
+        alert_text: "" # 弹窗中的消息内容
       },
       {
         transition_name: "保存",
         field_require_check: true,  # 默认为ture,如果此为否时， 不校验表单必填内容
         transition_id: 2,
         is_accept: false, # 不是接单,
-        in_add_node: false # 不处于加签状态下
+        in_add_node: false, # 不处于加签状态下
+        enable_alert: false,  # 是否弹窗告警，可用于当用户点击此操作的时确定是否弹窗信息
+        alert_text: "" # 弹窗中的消息内容
       }
     ]
     },
