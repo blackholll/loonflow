@@ -28,7 +28,7 @@ admin.autodiscover()
 urlpatterns = [
     path('', include('apps.manage.urls')),
     path('admin/', admin.site.urls),
-    path('manage/', include('apps.manage.urls')),
+    path('manage', include('apps.manage.urls')),
     path('api/v1.0/accounts', include('apps.account.urls')),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
     path('api/v1.0/workflows', include('apps.workflow.urls')),
