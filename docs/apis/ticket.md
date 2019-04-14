@@ -337,9 +337,17 @@ get
         },
         transition: {
           transition_name: "确认完成",
-          transition_id: 5
+          transition_id: 5,
+          attribute_type_id: 3
         },
         ticket_id: 1,
+        participant_info: {
+          participant_email: "lilei@163.com",
+          participant_alias: "李磊",
+          participant_phone: "13888888888",
+          participant: "lilei",
+          participant_type_id: 1
+        },
         gmt_modified: "2018-04-30 15:57:26",
         gmt_created: "2018-04-30 15:56:02",
         suggestion: "已经生效，感谢"
@@ -354,6 +362,13 @@ get
         transition_id: 4
       },
       ticket_id: 1,
+      participant_info: {
+          participant_email: "lilei@163.com",
+          participant_alias: "李磊",
+          participant_phone: "13888888888",
+          participant: "lilei",
+          participant_type_id: 1
+        },
       gmt_modified: "2018-04-30 15:57:14",
       gmt_created: "2018-04-30 15:55:32",
       suggestion: "处理完成"
@@ -368,6 +383,13 @@ get
         transition_id: 3
       },
       ticket_id: 1,
+      participant_info: {
+          participant_email: "lilei@163.com",
+          participant_alias: "李磊",
+          participant_phone: "13888888888",
+          participant: "lilei",
+          participant_type_id: 1
+        },
       gmt_modified: "2018-04-30 15:57:00",
       gmt_created: "2018-04-30 15:53:19",
       suggestion: "同意处理"

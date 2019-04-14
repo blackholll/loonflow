@@ -1161,6 +1161,7 @@ class TicketBaseService(BaseService):
             if ticket_flow_log.transition_id:
                 transition_obj, msg = WorkflowTransitionService.get_workflow_transition_by_id(ticket_flow_log.transition_id)
                 transition_name = transition_obj.name
+                attribute_type_id = transition_obj.attribute_type_id
             else:
                 # 考虑到人工干预修改工单状态， transition_id为0
                 if ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_DELIVER:
@@ -1175,17 +1176,32 @@ class TicketBaseService(BaseService):
                     transition_name = '新增评论'
                 else:
                     transition_name = '未知操作'
+                attribute_type_id = CONSTANT_SERVICE.TRANSITION_ATTRIBUTE_TYPE_OTHER
 
             state_info_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
-            transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name)
+            transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name,
+                                        attribute_type_id=attribute_type_id)
+            participant_info = dict(participant_type_id=ticket_flow_log.participant_type_id,
+                                    participant=ticket_flow_log.participant,
+                                    participant_alias=ticket_flow_log.participant,
+                                    participant_email='', participant_phone=''
+                                    )
+            if ticket_flow_log.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+                participant_query_obj, msg = AccountBaseService.get_user_by_username(ticket_flow_log.participant)
+                if participant_query_obj:
+                    participant_info.update(participant_alias=participant_query_obj.alias,
+                                            participant_email=participant_query_obj.email,
+                                            participant_phone=participant_query_obj.phone
+                                            )
+
             ticket_flow_log_restful_list.append(dict(id=ticket_flow_log.id, ticket_id=ticket_id, state=state_info_dict,
                                                      transition=transition_info_dict,
                                                      intervene_type_id=ticket_flow_log.intervene_type_id,
                                                      participant_type_id=ticket_flow_log.participant_type_id,
                                                      participant=ticket_flow_log.participant,
+                                                     participant_info=participant_info,
                                                      suggestion=ticket_flow_log.suggestion,
-                                                     gmt_created=str(ticket_flow_log.gmt_created)[:19],
-                                                     attribute_type_id=transition_obj.attribute_type_id
+                                                     gmt_created=str(ticket_flow_log.gmt_created)[:19]
                                                      ))
 
         return ticket_flow_log_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
