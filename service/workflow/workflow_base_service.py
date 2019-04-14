@@ -163,7 +163,7 @@ class WorkflowBaseService(BaseService):
         if workflow_obj:
             workflow_obj.update(name=name, description=description, notices=notices, view_permission_check=view_permission_check,
                                 limit_expression=limit_expression, display_form_str=display_form_str)
-        return workflow_obj.id, ''
+        return workflow_id, ''
 
     @classmethod
     @auto_log

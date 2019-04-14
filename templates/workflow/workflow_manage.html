@@ -324,7 +324,7 @@
     var limitExpression = $("#limitExpression").val();
     var displayFormStr = $("#displayFormStr").val();
     var viewPermissionCheck = 0
-    if ($("#viewPermissionCheck").checked){
+    if ($("#viewPermissionCheck").prop('checked')) {
       viewPermissionCheck = 1;
     };
     if (!limitExpressionFormatCheck(limitExpression)){
