@@ -87,7 +87,7 @@ LOONFLOW 分为两部分:
 - 工作流配置的管理后台
 - 提供http api供各个系统(如果oa、cmdb、运维系统、客服系统)调用以完成各自系统定制化的工单需求
 
-## 工作流配置（V0.3版本将弃用django自带的admin后台)
+## 工作流配置
 1. 登录后台
 - 使用部署过程中创建的(python manage.py creatsuperuser)用户名密码 登录http://host_ip:port 
 
@@ -215,4 +215,4 @@ title,workflow_id, sn, state_id, parent_ticket_id, parent_ticket_state_id, parti
     只支持根据创建时间排序。其他字段排序可以在调用方系统中保存一份数据来自己实现排序，然后只有在获取工单详情的时候调用loonflow接口
 
 - 工单类型需要支持多级
-    比如需要支持“运维-权限申请-vpn权限申请”。 因为loonflow的工作流只有一级，如果需要支持多级类型,需要在调用方保存一份工单类型与loonflow工作流关联的数据。表字段可以如下：type_id, type_name, up_type_id, loonflow_workflow_id
+    比如需要支持“运维-权限申请-vpn权限申请”。 因为loonflow的工作流只有一级，如果需要支持多级类型,需要在调用方保存一份工单类型与loonflow工作流关联的数据。表字段可以如下：type_id, type_name, up_type_id, loonflow_workflow_id
