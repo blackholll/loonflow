@@ -213,9 +213,7 @@ def send_ticket_notice(ticket_id):
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
     if not ticket_obj:
         return False, 'ticket is not exist or has been deleted'
-    if ticket_obj.participant_type_id not in (CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI):
-        # 个人及多人的情况才需要发送通知
-        return True, 'participant is not people, do not need notice'
+
     workflow_id = ticket_obj.workflow_id
     workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0).first()
     notices = workflow_obj.notices
