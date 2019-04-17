@@ -1247,8 +1247,22 @@ class TicketBaseService(BaseService):
                                 transition_name = '新增评论'
                             else:
                                 transition_name = '未知操作'
+                        participant_info = dict(participant_type_id=ticket_flow_log.participant_type_id,
+                                                participant=ticket_flow_log.participant,
+                                                participant_alias=ticket_flow_log.participant,
+                                                participant_email='', participant_phone=''
+                                                )
+                        if ticket_flow_log.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+                            participant_query_obj, msg = AccountBaseService.get_user_by_username(
+                                ticket_flow_log.participant)
+                            if participant_query_obj:
+                                participant_info.update(participant_alias=participant_query_obj.alias,
+                                                        participant_email=participant_query_obj.email,
+                                                        participant_phone=participant_query_obj.phone
+                                                        )
+
                         state_flow_log_list.append(dict(id=ticket_flow_log.id, transition=dict(transition_name=transition_name, transition_id=ticket_flow_log.transition_id), participant_type_id=ticket_flow_log.participant_type_id,
-                                                        participant=ticket_flow_log.participant, intervene_type_id=ticket_flow_log.intervene_type_id, suggestion=ticket_flow_log.suggestion, state_id=ticket_flow_log.state_id, gmt_created=str(ticket_flow_log.gmt_created)[:19]))
+                                                        participant=ticket_flow_log.participant, participant_info=participant_info, intervene_type_id=ticket_flow_log.intervene_type_id, suggestion=ticket_flow_log.suggestion, state_id=ticket_flow_log.state_id, gmt_created=str(ticket_flow_log.gmt_created)[:19]))
                 ticket_state_step_dict['state_flow_log_list'] = state_flow_log_list
                 state_step_dict_list.append(ticket_state_step_dict)
         return state_step_dict_list, ''
