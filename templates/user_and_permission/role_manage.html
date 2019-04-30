@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block css %}
+
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      用户及权限
+      <small>角色列表</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="/manage/role_manage"><i class="fa fa-dashboard"></i> 角色</a></li>
+    </ol>
+  </section>
+  <div class="row">
+    <section class="content-header">
+    <div class="callout callout-info">
+        请自行通过定时任务程序实现企业账户信息往loonflow的同步(直接操作loonflow的数据库)。loonflow管理后台暂不支持账户的编辑功能。管理员账户请直接通过在服务器上执行python manage.py createsuperuser来创建
+      </div>
+      <div class="col-md-12">
+        <div class="box box-default">
+        <table id="role_table" class="table table-striped table-bordered dataTable no-footer" >
+          <thead>
+            <tr>
+                <th>ID</th>
+                <th>角色名</th>
+                <th>角色描述</th>
+                <th>标签</th>
+                <th>创建人</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+    
+          </tbody>
+        </table>
+        
+      </div>
+      </div>
+    </section>
+      <!-- /.box -->
+  </div>
+  </section>
+      <!-- /.col -->
+   
+  <!-- /.content -->
+  <div class="modal fade" id="roleUserModal">
+      <div class="modal-dialog" style="width: 980px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="roleUserTitle"></h4>
+            </div>
+            <div class="modal-body">
+              <table id="role_user_table" class="table table-striped table-bordered dataTable no-footer" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>姓名</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+  
+</div>
+  
+</div>
+
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+
+<script>
+  $("#roleUserModal").on("hidden.bs.modal", function() {
+    $(this).removeData("bs.modal");
+    // $('#user_role_table').dataTable().Rows.Clear()
+    $('#role_user_table').dataTable().fnClearTable();
+    $('#role_user_table').dataTable().fnDestroy();
+  });
+
+  $('#role_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "角色名或描述模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/accounts/roles",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "name" },
+      { "data": "description" },
+      { "data": "label" },
+      { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
+      { "data": "gmt_created" },
+      {render: function(data, type, full){return ('<div><a  onclick="showRoleUsers(' + full.id + ',' + "'" + full.name + "'" + ')' + '"' + '>查看用户</a></div>')}}
+
+  ]
+  
+})
+
+function showRoleUsers(role_id, name){
+  $('#roleUserTitle').html('角色用户('+ name + ')');
+  $('#role_user_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "用户名或姓名模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/accounts/roles/"+ role_id + "/users",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "username" }, 
+      { "data": "alias" } 
+  ]
+  
+})
+  $('#roleUserModal').modal('show');
+
+}
+
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% load static %}
+<aside class="main-sidebar">
+<!-- sidebar: style can be found in sidebar.less -->
+<section class="sidebar">
+  <!-- Sidebar Menu -->
+  <ul class="sidebar-menu" data-widget="tree">
+    
+    <!-- Optionally, you can add icons to the links -->
+    {% if active_nav == 'overview' %}
+    <li class="active"><a href="/manage"><i class="fa fa-dashboard"></i> <span>总览</span></a></li>
+    {% else %}
+    <li><a href="/manage"><i class="fa fa-dashboard"></i> <span>总览</span></a></li>
+    {% endif %}
+
+    {% if active_nav == 'doc' %}
+    <li class="active"><a href="/manage/doc"><i class="fa fa-book"></i> <span>使用文档</span></a></li>
+    {% else %}
+    <li><a href="/manage/doc"><i class="fa fa-book"></i> <span>使用文档</span></a></li>
+    {% endif %}
+
+    {% if active_nav == 'user_manage' or active_nav == 'role_manage' or active_nav == 'dept_manage' or active_nav == 'token_manage' %}
+    <li class="treeview active menu-open">
+      <a href="#"><i class="fa fa-user"></i> <span>用户及权限</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+      </a>
+      <ul class="treeview-menu">
+        {% if active_nav == 'user_manage' %}  
+        <li class="active"><a href="/manage/user_manage">用户管理</a></li>
+        {% else %}
+        <li><a href="/manage/user_manage">用户管理</a></li>
+        {% endif %}
+        {% if active_nav == 'role_manage' %}
+        <li class="active"><a href="/manage/role_manage">角色管理</a></li>
+        {% else %}
+        <li><a href="/manage/role_manage">角色管理</a></li>
+        {% endif %}
+        {% if active_nav == 'dept_manage' %}
+        <li class="active"><a href="/manage/dept_manage">部门管理</a></li>
+        {% else %}
+        <li><a href="/manage/dept_manage">部门管理</a></li>
+        {% endif %}
+        {% if active_nav == 'token_manage' %}
+        <li class="active"><a href="/manage/app_token_manage">调用权限</a></li>
+        {% else %}
+        <li><a href="/manage/app_token_manage">调用权限</a></li>
+        {% endif %}
+      </ul>
+    </li>
+    {% else %}
+    <li class="treeview">
+      <a href="#"><i class="fa fa-user"></i> <span>用户及权限</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+      </a>
+      <ul class="treeview-menu">
+        <li><a href="/manage/user_manage">用户管理</a></li>
+        <li><a href="/manage/role_manage">角色管理</a></li>
+        <li><a href="/manage/dept_manage">部门管理</a></li>
+        <li><a href="/manage/app_token_manage">调用权限</a></li>
+      </ul>
+    </li>
+    {% endif %}
+    <!-- {% if active_nav == 'workflow_manage'%}
+    <li class="active"><a href="/manage/workflow_manage"><i class="fa fa-gears"></i> <span>工作流管理</span></a></li>
+    {% else %}
+    <li><a href="/manage/workflow_manage"><i class="fa fa-gears"></i> <span>工作流管理</span></a></li>
+    {% endif %} -->
+    {% if active_nav == 'workflow_manage' or active_nav == 'run_script_manage' or active_nav == 'notice_manage' %}
+    <li class="treeview active menu-open">
+      <a href="#"><i class="fa fa-user"></i> <span>工作流管理</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+      </a>
+      <ul class="treeview-menu">
+        {% if active_nav == 'workflow_manage' %}  
+        <li class="active"><a href="/manage/workflow_manage">工作流配置</a></li>
+        {% else %}
+        <li><a href="/manage/workflow_manage">工作流配置</a></li>
+        {% endif %}
+        {% if active_nav == 'run_script_manage' %}
+        <li class="active"><a href="/manage/run_script_manage">执行脚本</a></li>
+        {% else %}
+        <li><a href="/manage/run_script_manage">执行脚本</a></li>
+        {% endif %}
+        {% if active_nav == 'notice_manage' %}
+        <li class="active"><a href="/manage/notice_manage">通知管理</a></li>
+        {% else %}
+        <li><a href="/manage/notice_manage">通知管理</a></li>
+        {% endif %}
+      </ul>
+    </li>
+    {% else %}
+    <li class="treeview">
+      <a href="#"><i class="fa fa-user"></i> <span>工作流管理</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+      </a>
+      <ul class="treeview-menu">
+        <li><a href="/manage/workflow_manage">工作流配置</a></li>
+        <li><a href="/manage/run_script_manage">执行脚本</a></li>
+        <li><a href="/manage/notice_manage">通知管理</a></li>
+      </ul>
+    </li>
+    {% endif %}
+
+
+  </ul>
+  <!-- /.sidebar-menu -->
+</section>
+<!-- /.sidebar -->
+</aside>

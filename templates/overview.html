@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      总览
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="#"><i class="fa fa-dashboard"></i> overview</a></li>
+    </ol>
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="row">
+      <section class="content-header">
+        <div class="col-md-12">
+          <div class="box">
+            <div class="box-header with-border">
+              <h3 class="box-title">工单创建统计(demo,非真实数据)</h3>
+            </div>
+          <div id="mountNode"></div>
+          </div>
+        </div>
+      </section>
+        <!-- /.box -->
+    </div>
+  </section>
+      <!-- /.col -->
+   
+  <!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+
+<script src="https://gw.alipayobjects.com/as/g/datavis/assets/1.0.5/g2/3.0.0/g2.min.js"></script>
+<script src="https://gw.alipayobjects.com/os/antv/pkg/_antv.data-set-0.10.1/dist/data-set.min.js"></script>
+<script>
+  var data = [{
+  "day": "01-01",
+  "type": "请假申请",
+  "count": 70
+}, {
+  "day": "01-01",
+  "type": "权限申请",
+  "count": 50
+}, {
+  "day": "01-02",
+  "type": "请假申请",
+  "count": 60
+}, {
+  "day": "01-02",
+  "type": "权限申请",
+  "count": 71
+}, {
+  "day": "01-03",
+  "type": "请假申请",
+  "count": 93
+}, {
+  "day": "01-03",
+  "type": "权限申请",
+  "count": 55
+}, {
+  "day": "01-04",
+  "type": "请假申请",
+  "count": 63
+}, {
+  "day": "01-04",
+  "type": "权限申请",
+  "count": 23
+}, {
+  "day": "01-05",
+  "type": "请假申请",
+  "count": 72
+}, {
+  "day": "01-05",
+  "type": "权限申请",
+  "count": 29
+}, {
+  "day": "01-06",
+  "type": "请假申请",
+  "count": 64
+}, {
+  "day": "01-06",
+  "type": "权限申请",
+  "count": 65
+}, {
+  "day": "01-07",
+  "type": "请假申请",
+  "count": 29
+}, {
+  "day": "01-07",
+  "type": "权限申请",
+  "count": 59
+}, {
+  "day": "01-08",
+  "type": "请假申请",
+  "count": 62
+}, {
+  "day": "01-08",
+  "type": "权限申请",
+  "count": 38
+}, {
+  "day": "01-09",
+  "type": "请假申请",
+  "count": 23
+}, {
+  "day": "01-09",
+  "type": "权限申请",
+  "count": 39
+}, {
+  "day": "01-10",
+  "type": "请假申请",
+  "count": 40
+}, {
+  "day": "01-10",
+  "type": "权限申请",
+  "count": 37
+}, {
+  "day": "01-11",
+  "type": "请假申请",
+  "count": 48
+}, {
+  "day": "01-11",
+  "type": "权限申请",
+  "count": 39
+}, {
+  "day": "01-12",
+  "type": "请假申请",
+  "count": 54
+}, {
+  "day": "01-12",
+  "type": "权限申请",
+  "count": 63
+}];
+
+var chart = new G2.Chart({
+  container: 'mountNode',
+  forceFit: true,
+  height: 600
+});
+chart.source(data, {
+  day: {
+    range: [0, 1]
+  }
+});
+chart.tooltip({
+  crosshairs: {
+    type: 'line'
+  }
+});
+chart.axis('count', {
+  label: {
+    formatter: function formatter(val) {
+      return val + '个';
+    }
+  }
+});
+chart.line().position('day*count').color('type');
+chart.point().position('day*count').color('type').size(4).shape('circle').style({
+  stroke: '#fff',
+  lineWidth: 1
+});
+chart.render();
+</script>
+<script>
+  $(document).ready(function(){
+    console.log('ssss');
+  })
+</script>
+{% endblock %}

@@ -1,0 +1,553 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      工作流管理
+      <small><a href="/manage/workflow_manage">工作流配置</a></small>
+      <small><a id="workflowName"></a></small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="/manage/workflow_manage"><i class="fa fa-dashboard"></i> 工作流管理</a></li>
+    </ol>
+  </section>
+
+      
+  <section class="content">
+      <div class="callout callout-info">
+          请依次按照自定义字段、状态、流转的顺序来完成工作流的配置,配置完成后可以通过点击<a href="/manage/workflow_flow_chart/{{workflow_id}}" target="_blank">此链接</a>>查看对应流程图检验配置是否正确
+        </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              <li class="active"><a href="#customField" data-toggle="tab">自定义字段</a></li>
+              <li><a href="#state" data-toggle="tab">状态</a></li>
+              <li><a href="#transition" data-toggle="tab">流转</a></li>
+            </ul>
+            <div class="tab-content">
+              <!-- Font Awesome Icons -->
+              <div class="tab-pane active" id="customField">
+                <section id="new">
+                        <div class="box box-default">
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#customFieldModal">
+                                新增
+                            </button>
+                          <table id="custom_field_table" class="table table-striped table-bordered dataTable no-footer" >
+                            <thead>
+                              <tr>
+                                  <th>ID</th>
+                                  <th>字段标识</th>
+                                  <th>字段名称</th>
+                                  <th>字段类型</th>
+                                  <th>顺序ID</th>
+                                  <th>字段描述</th>
+                                  <th>创建人</th>
+                                  <th>创建时间</th>
+                                  <th>操作</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                          </table>
+                      </div>
+                </section>
+                <div class="modal fade" id="customFieldModal">
+                    <div class="modal-dialog" style="width: 980px;">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                          <h4 class="modal-title">工作流自定义字段</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form class="form-horizontal"  id='workflow_custom_field_form'>
+                                <div class="box-body">
+                                  <div class="form-group">
+                                    <label for="fieldKey" class="col-sm-3 control-label">字段标识</label> 
+                                    <div class="col-sm-9">
+                                      <input type="text" class="form-control" id="fieldKey" placeholder="请输入字段的标识,要求英文字母及下划线组成，以字母开头，且不得使用工单基础字段如(sn、title、state_id等字符)">
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="fieldName" class="col-sm-3 control-label">字段名称</label> 
+                                      <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="fieldName" placeholder="请输入字段的名称，建议中文，如请假原因、服务器规格等">
+                                      </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="fieldDesc" class="col-sm-3 control-label">字段描述</label> 
+                                      <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="fieldDesc" placeholder="请输入字段的描述信息">
+                                      </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="fieldType" class="col-sm-3 control-label">字段类型</label>
+                                      <div class="col-sm-9">
+                                        <select class="form-control select2" id="fieldType" data-placeholder="选择该应用有权限的工作流"
+                                          style="width: 100%;">
+                                          <option value="5">字符型</option>
+                                          <option value="10">整型</option>
+                                          <option value="15">浮点型</option>
+                                          <option value="20">布尔</option>
+                                          <option value="25">日期</option>
+                                          <option value="30">日期时间</option>
+                                          <option value="35">单选框</option>
+                                          <option value="40">多选框</option>
+                                          <option value="45">下拉列表</option>
+                                          <option value="50">多选下拉列表</option>
+                                          <option value="55">文本域</option>
+                                          <option value="60">用户名</option>
+                                          <option value="70">多选用户名</option>
+                                          <option value="80">附件</option>
+
+
+                                        </select>
+                                        <p class="help-block">如果你需要的类型不在此范围内，可以选择字符型或者文本域，然后指定label字段，实现自定义</p>
+                                      </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="orderId" class="col-sm-3 control-label">顺序ID</label> 
+                                      <div class="col-sm-9">
+                                        <input type="number" class="form-control" id="orderId" placeholder="输入顺序ID,用于在展示工单详情的时候排序,越小越靠前">
+                                        <p class="help-block">内置字段顺序为:  sn:10, title:20, state_id:40, state.state_name:41,participant_info.participant_name:50</p>
+                                        <p class="help-block">,participant_info.participant_alias:55,workflow.workflow_name:60,creator:80,gmt_created:100, gmt_modified:120 </p>
+                                      </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="defaultValue" class="col-sm-3 control-label">默认值</label> 
+                                      <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="defaultValue"  placeholder="前端展示时，可以将此内容作为表单中的该字段的默认值">
+
+                                      </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="booleanFieldDisplay" class="col-sm-3 control-label">布尔显示定义</label> 
+                                      <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="booleanFieldDisplay" value="{}" placeholder="请输入字段的名称，建议中文，如请假原因、服务器规格等">
+                                        <p class="help-block">当为布尔类型时候，可以支持自定义显示形式。{"1":"是",0:"否"}或{"1":"需要","0":"不需要"}，注意数字也需要引号</p>
+
+                                      </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="fieldChoice" class="col-sm-3 control-label">选项</label> 
+                                      <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="fieldChoice"  value="{}" placeholder="请输入字段的名称，建议中文，如请假原因、服务器规格等">
+                                        <p class="help-block">radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{"1":"中国", "2":"美国"},注意数字也需要引号</p>
+                                      </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="label" class="col-sm-3 control-label">标签</label> 
+                                      <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="label" placeholder="请输入标签内容" value="{}">
+                                        <p class="help-block">自定义标签，json格式，调用方可根据标签自行处理特殊场景逻辑，loonflow只保存文本内容</p>
+                                      </div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="fieldTemplate" class="col-sm-3 control-label">模板</label> 
+                                      <div class="col-sm-9">
+                                          <textarea class="form-control" id="fieldTemplate" rows="3" ></textarea>
+                                          <p class="help-block">文本域类型字段前端显示时可以将此内容作为字段的placeholder或默认值</p>
+                                      </div>
+                                  </div>
+                                  <input type="text" class="form-control" id="customFieldId" style="display:none">
+                                  
+                                  
+                                <!-- /.box-body -->
+                                <div class="box-footer">
+                                  <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                                  <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitCustomField();" />
+                                </div>
+                                <!-- /.box-footer -->
+                              </form>
+                        </div>
+                      </div>
+                      <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+              </div>
+             
+              <div class="tab-pane" id="state">
+                sdfsfs
+              </div>
+              <div class="tab-pane" id="transition">
+                fdsfsff
+                </div>
+
+            </div>
+            <!-- /.tab-content -->
+          </div>
+          <!-- /.nav-tabs-custom -->
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </section>
+   
+  <!-- /.content -->
+  
+</div>
+
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+<script src="{% static 'bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+
+<script>
+  $('#fieldType').select2({placeholderOption: "first", allowClear:true});
+  $( document ).ready(function() {
+    // 获取工作流详情
+    $.ajax({
+        type: "GET",
+        url: "/api/v1.0/workflows/"+ "{{ workflow_id }}",
+        cache: false,  //禁用缓存
+        dataType: "json",
+        success: function (result) {
+          if (result.code===0){
+            $("#workflowName").append(result.data.name);            
+            }
+          }
+        });
+  });
+  $('#custom_field_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "名称或描述模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/workflows/"+ "{{ workflow_id }}" + "/custom_fields",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "field_key"},
+      { "data": "field_name"},
+      {render: function(data, type, full){
+        if (full.field_type_id === 5){
+          return "字符型"
+          } else if (full.field_type_id === 10){
+            return "整型"
+          } else if (full.field_type_id === 15){
+            return "浮点型"
+          } else if (full.field_type_id === 20){
+            return "布尔型"
+          } else if (full.field_type_id === 25){
+            return "日期型"
+          } else if (full.field_type_id === 30){
+            return "日期时间型"
+          } else if (full.field_type_id === 35){
+            return "单选框"
+          } else if (full.field_type_id === 40){
+            return "多选框"
+          } else if (full.field_type_id === 45){
+            return "下拉列表"
+          } else if (full.field_type_id === 50){
+            return "下拉列表多选"
+          } else if (full.field_type_id === 55){
+            return "文本域"
+          } else if (full.field_type_id === 60){
+            return "用户名"
+          } else if (full.field_type_id === 70){
+            return "多选用户名"
+          } else if (full.field_type_id === 80){
+            return "附件"
+          }
+        return "未知";
+
+        }},
+      
+      { "data": "order_id"},
+      { "data": "description"},
+      { "data": "creator"},
+      { "data": "gmt_created"},
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delCustomField(' + full.id + ')' + '"'+  '>删除</a></div>')}}
+
+  ]
+})
+  function fieldChoiceFormatCheck(str){
+    if (str.startsWith('{') && isJsonCheck(str)){
+      return true;
+    }
+    return false
+  }
+
+  function booleanFieldDisplayFormatCheck(str){
+    if (str.startsWith('{') && isJsonCheck(str)){
+      return true;
+    }
+    return false
+  }
+  function labelFormatCheck(str){
+    if (str.startsWith('{') && isJsonCheck(str)){
+      return true;
+    }
+    return false
+  }
+  function isJsonCheck(str) {
+    try {
+        $.parseJSON(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+  $("#workflowModal").on("hidden.bs.modal", function() {
+    document.getElementById("workflow_form").reset(); //此操作无法清空select2中的内容
+    $("#customNoticeSelect").val('').trigger('change')
+  });
+
+  function showEditForm(data){
+    $("#fieldKey").val(data.field_key);
+    $("#fieldName").val(data.field_name);
+    // $("#fieldType").val(data.field_type_id);
+    $("#fieldType").val(data.field_type_id).trigger("change"); 
+    $("#orderId").val(data.order_id);
+    $("#defaultValue").val(data.default_value);
+    $("#fieldDesc").val(data.description);
+    $("#label").val(JSON.stringify(data.label));
+    $("#booleanFieldDisplay").val(JSON.stringify(data.boolean_field_display));
+    $("#fieldChoice").val(JSON.stringify(data.field_choice));
+    $("#fieldTemplate").val(data.field_template);
+    $("#customFieldId").val(data.id);
+    $('#customFieldModal').modal('show');
+  }
+
+  function submitCustomField(){
+    let customFieldId = $('#customFieldId').val();
+    if(!customFieldId){
+      addCustomField();
+    }
+    else{
+      editCustomField();
+    }
+  }
+  function addCustomField(){
+    var fieldKey = $("#fieldKey").val();
+    var fieldName = $("#fieldName").val();
+    var fieldType = $("#fieldType").val()
+    var orderId = $("#orderId").val();
+    var defaultValue = $("#defaultValue").val();
+    var fieldDesc = $("#fieldDesc").val();
+    var label = $("#label").val();
+    var booleanFieldDisplay = $("#booleanFieldDisplay").val();
+    var fieldChoice = $("#fieldChoice").val();
+    var fieldTemplate = $("#fieldTemplate").val();
+
+    if (!fieldChoiceFormatCheck(fieldChoice)){
+      swal({
+        title: "字段选项内容不合法!",
+        text: "字段选项必须是字典对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!booleanFieldDisplayFormatCheck(booleanFieldDisplay)){
+      swal({
+        title: "布尔显示定义内容不合法!",
+        text: "布尔显示定义必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!labelFormatCheck(label)){
+      swal({
+        title: "标签定义内容不合法!",
+        text: "标签定义定义必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    paramData = {
+      field_key: fieldKey,
+      field_name: fieldName,
+      field_type_id: fieldType,
+      order_id: orderId,
+      default_value: defaultValue,
+      description: fieldDesc,
+      label: label,
+      field_template: fieldTemplate,
+      boolean_field_display: booleanFieldDisplay,
+      field_choice: fieldChoice,  
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/custom_fields",
+      type: "POST",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#customFieldModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#custom_field_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+  };
+  function editCustomField(){
+    var fieldKey = $("#fieldKey").val();
+    var fieldName = $("#fieldName").val();
+    var fieldType = $("#fieldType").val()
+    var orderId = $("#orderId").val();
+    var defaultValue = $("#defaultValue").val();
+    var fieldDesc = $("#fieldDesc").val();
+    var label = $("#label").val();
+    var booleanFieldDisplay = $("#booleanFieldDisplay").val();
+    var fieldChoice = $("#fieldChoice").val();
+    var fieldTemplate = $("#fieldTemplate").val();
+    let customFieldId = $('#customFieldId').val();
+    if (!fieldChoiceFormatCheck(fieldChoice)){
+      swal({
+        title: "字段选项内容不合法!",
+        text: "字段选项必须是字典对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!booleanFieldDisplayFormatCheck(booleanFieldDisplay)){
+      swal({
+        title: "布尔显示定义内容不合法!",
+        text: "布尔显示定义必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!labelFormatCheck(label)){
+      swal({
+        title: "标签定义内容不合法!",
+        text: "标签定义定义必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    paramData = {
+      field_key: fieldKey,
+      field_name: fieldName,
+      field_type_id: fieldType,
+      order_id: orderId,
+      default_value: defaultValue,
+      description: fieldDesc,
+      label: label,
+      field_template: fieldTemplate,
+      boolean_field_display: booleanFieldDisplay,
+      field_choice: fieldChoice,  
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/custom_fields/" + customFieldId,
+      type: "PATCH",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#customFieldModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#custom_field_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+
+  };
+  
+  function delCustomField(customFieldId){
+    swal({
+      title: "是否真的要删除此记录?",
+      text: "请确认此字段未被使用(包括历史工单)后再删除，否则包含此类工单的工单列表及工单详情都会有问题，慎重！！！",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        // 删除操作
+        $.ajax({
+        type: "DELETE",
+        url: "/api/v1.0/workflows/" + "{{workflow_id}}" + "/custom_fields/" + customFieldId,
+        cache: false,  //禁用缓存
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          if (result.code===0){
+            // 刷新数据
+            $('#custom_field_table').dataTable()._fnAjaxUpdate(); 
+            // 关闭modal
+            swal({
+              title: "删除成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+            }
+          }
+        });
+      }
+    });
+  }
+  
+</script>
+{% endblock %}

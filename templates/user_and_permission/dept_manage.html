@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block css %}
+
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      用户及权限
+      <small>部门列表</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="/manage/dept_manage"><i class="fa fa-dashboard"></i> 部门</a></li>
+    </ol>
+  </section>
+  <div class="row">
+    <section class="content-header">
+    <div class="callout callout-info">
+        请自行通过定时任务程序实现企业账户信息往loonflow的同步(直接操作loonflow的数据库)。loonflow管理后台暂不支持账户的编辑功能。管理员账户请直接通过在服务器上执行python manage.py createsuperuser来创建
+      </div>
+      <div class="col-md-12">
+        <div class="box box-default">
+        <table id="dept_table" class="table table-striped table-bordered dataTable no-footer" >
+          <thead>
+            <tr>
+                <th>ID</th>
+                <th>部门名</th>
+                <th>上级部门名</th>
+                <th>部门TL</th>
+                <th>部门审批人</th>
+                <th>标签</th>
+                <th>创建人</th>
+                <th>创建时间</th>
+            </tr>
+          </thead>
+          <tbody>
+    
+          </tbody>
+        </table>
+        
+      </div>
+      </div>
+    </section>
+      <!-- /.box -->
+  </div>
+  </section>
+      <!-- /.col -->
+   
+  <!-- /.content -->
+  
+</div>
+
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+
+<script>
+  $('#dept_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "部门名或标签模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/accounts/depts",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "name" },
+      { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
+      { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
+      { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
+      { "data": "label" },
+      { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
+      { "data": "gmt_created" },
+
+  ]
+  
+})
+</script>
+{% endblock %}

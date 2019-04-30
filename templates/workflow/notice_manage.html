@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      工作流管理
+      <small>通知管理</small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="/manage/workflow_manage"><i class="fa fa-dashboard"></i> 工作流管理</a></li>
+    </ol>
+  </section>
+  <div class="row">
+    <section class="content-header">
+
+      <div class="col-md-12">
+        <div class="box box-default">
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#noticeModal">
+              新增
+          </button>
+          <table id="notice_table" class="table table-striped table-bordered dataTable no-footer" >
+            <thead>
+              <tr>
+                  <th>ID</th>
+                  <th>名称</th>
+                  <th>描述</th>
+                  <th>创建人</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+      
+            </tbody>
+          </table>
+        
+        </div>
+                  
+      </div>
+      <div class="modal fade" id="noticeModal">
+        <div class="modal-dialog" style="width: 980px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">工作流通知</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id='notice_form'>
+                    <div class="box-body">
+                      <div class="form-group">
+                        <label for="noticeName" class="col-sm-3 control-label">名称</label> 
+                        <div class="col-sm-9">
+                          <input type="text" class="form-control" id="noticeName" placeholder="请输入通知名称">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                          <label for="noticeDesc" class="col-sm-3 control-label">描述</label> 
+                          <div class="col-sm-9">
+                            <input type="text" class="form-control" id="noticeDesc" placeholder="请输入通知描述">
+                          </div>
+                      </div>
+                      <div class="form-group">
+                          <label for="noticeScriptFile" class="col-sm-3 control-label">选择脚本</label>
+                          <div class="col-sm-9">
+                            <input type="file" id="noticeScriptFile" accept=".py">
+                            <p class="help-block" id=nowNoticeFile></p>   
+                            <p class="help-block">仅支持python脚本,loonflow会将标题、内容、参与人信息作为全局变量传给通知脚本，脚本中直接使用这些参数，通过各自的发送消息逻辑将信息发送出去</p>
+                          </div>
+                      </div>
+                      <div class="form-group">
+                        <label for="titleTemplate" class="col-sm-3 control-label">标题模板</label> 
+                        <div class="col-sm-9">
+                          <input type="text" class="form-control" id="titleTemplate" value="你有一个待办工单:{title}">
+                          <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="contentTemplate" class="col-sm-3 control-label">内容模板</label> 
+                      <div class="col-sm-9">
+                        <input type="text" class="form-control" id="contentTemplate" value="标题:{title}, 创建时间:{gmt_created}">
+                        <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}</p>
+                      </div>
+                      <input type="text" class="form-control" id="noticeId" style="display:none">
+                  </div>
+                    </div>
+                    <!-- /.box-body -->
+                    <div class="box-footer">
+                      <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                      <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitNotice();" />
+                    </div>
+                    <!-- /.box-footer -->
+                </form>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>    
+    </section>
+      <!-- /.box -->
+  </div>
+  </section>
+      <!-- /.col -->
+   
+  <!-- /.content -->
+  
+</div>
+
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+<script src="{% static 'bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+
+<script>
+  $("#noticeModal").on("hidden.bs.modal", function() {
+    $(this).removeData("bs.modal");
+    $("#notice_form")[0].reset();
+    $("#nowNoticeFile").html('');
+    $("#noticeId").val("");    
+});
+
+  $('#notice_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "名称或描述模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/workflows/custom_notices",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "name" },
+      { "data": "description" },
+      { "data": "creator" },
+      { "data": "gmt_created" },
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delNotice(' + full.id + ')' + '"'+  '>删除</a>')}}
+  ]
+  
+})
+
+function showEditForm(data){
+    $("#noticeName").val(data.name);
+    $("#noticeDesc").val(data.description);
+    $("#titleTemplate").val(data.title_template);
+    $("#contentTemplate").val(data.content_template);
+    $("#WorkflowScriptFile").attr("value",data.saved_name);
+    $("#nowNoticeFile").html('');
+    if (data.script) {
+      nowNoticeFileContent= "<a href=" + "/media/" + data.script + ">" + data.script + "</a>";
+      $("#nowNoticeFile").html(nowNoticeFileContent);
+    }
+    $("#noticeId").val(data.id);
+    $('#noticeModal').modal('show');
+  }
+
+function submitNotice(){
+    let noticeId = document.getElementById("noticeId").value;
+    if (!noticeId){
+      addNotice()
+    }
+    else{
+      // 编辑
+      editNotice();
+    }
+  };
+  function addNotice() {
+    var form_data = new FormData();
+    var file_info = $('#noticeScriptFile')[0].files[0];
+    var noticeName = $("#noticeName").val()
+    var noticeDesc = $("#noticeDesc").val()
+    var titleTemplate = $("#titleTemplate").val()
+    var contentTemplate = $("#contentTemplate").val()
+
+    form_data.append('file',file_info);
+    form_data.append('notice_name',noticeName);
+    form_data.append('notice_desc',noticeDesc);
+    form_data.append('title_template',titleTemplate);
+    form_data.append('content_template',contentTemplate);
+
+    if(file_info===undefined){
+      alert('请选择python文件');
+      return false
+    }
+    // 提交ajax的请求
+    $.ajax({
+        url:"/api/v1.0/workflows/custom_notices",
+        type:'POST',
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function(callback) {
+          $('#noticeModal').modal('hide')
+          swal({
+              title: "编辑成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+          $('#notice_table').dataTable()._fnAjaxUpdate(); 
+        }
+    }); // end ajax
+  }
+
+  function editNotice() {
+    var form_data = new FormData();
+    var file_info = $('#noticeScriptFile')[0].files[0];
+    var noticeName = $("#noticeName").val()
+    var noticeDesc = $("#noticeDesc").val()
+    var noticeId = $("#noticeId").val()
+    var titleTemplate = $("#titleTemplate").val()
+    var contentTemplate = $("#contentTemplate").val()
+
+    form_data.append('file',file_info);
+    form_data.append('notice_name',noticeName);
+    form_data.append('notice_desc',noticeDesc);
+    form_data.append('title_template',titleTemplate);
+    form_data.append('content_template',contentTemplate);
+    
+    // 提交ajax的请求
+    $.ajax({
+        url:"/api/v1.0/workflows/custom_notices/" + noticeId,
+        type:'POST', // 本来准备用patch的。但是发现非json提交过来获取不到数据(因为要传文件，所以不能用json)
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function(callback) {
+          $('#noticeModal').modal('hide')
+          swal({
+              title: "编辑成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+          $('#notice_table').dataTable()._fnAjaxUpdate(); 
+        }
+    }); // end ajax
+  };
+  
+  function delNotice(noticeId) {
+    swal({
+      title: "是否真的要删除此记录?",
+      text: "本删除操作只标记记录的删除状态，脚本文件不会实际删除",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        // 删除操作
+        $.ajax({
+        type: "DELETE",
+        url: "/api/v1.0/workflows/custom_notices/" + noticeId,
+        cache: false,  //禁用缓存
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          if (result.code===0){
+            // 刷新数据
+            $('#notice_table').dataTable()._fnAjaxUpdate(); 
+            // 关闭modal
+            swal({
+              title: "删除成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+            }
+          }
+        });
+      }
+    });
+  }
+
+</script>
+{% endblock %}

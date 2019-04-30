@@ -1,8 +1,9 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
+from apps.loon_base_model import BaseModel
 
 
-class LoonDept(models.Model):
+class LoonDept(BaseModel):
     """
     部门
     """
@@ -21,15 +22,57 @@ class LoonDept(models.Model):
         verbose_name = '部门'
         verbose_name_plural = '部门'
 
+    def get_dict(self):
+        dept_dict_info = super().get_dict()
+        creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()
+        if creator_obj:
+            dept_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias)
+        else:
+            dept_dict_info['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, 'creator'))
+        if self.parent_dept_id:
+            parent_dept_obj = LoonDept.objects.filter(id=self.parent_dept_id, is_deleted=0).first()
+            if parent_dept_obj:
+                parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name=parent_dept_obj.name)
+            else:
+                parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name='未知')
+        else:
+            parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name='')
+        dept_dict_info['parent_dept_info'] = parent_dept_info
 
-class LoonRole(models.Model):
+        if self.leader:
+            leader_obj = LoonUser.objects.filter(username=getattr(self, 'leader')).first()
+            if leader_obj:
+                dept_dict_info['leader_info'] = dict(leader_username=self.leader, leader_alias=leader_obj.alias)
+            else:
+                dept_dict_info['leader_info'] = dict(leader_username=self.leader, leader_alias=self.leader)
+        else:
+            dept_dict_info['leader_info'] = dict(leader_username=self.leader, leader_alias=self.leader)
+
+        if self.approver:
+            approver_list = self.approver.split(',')
+            approver_info_list = []
+            for approver in approver_list:
+                approver_obj = LoonUser.objects.filter(username=approver).first()
+                if approver_obj:
+                    approver_info_list.append(dict(approver_name=approver, approver_alias=approver_obj.alias))
+                else:
+                    approver_info_list.append(dict(approver_name=approver, approver_alias='未知'))
+            dept_dict_info['approver_info'] = approver_info_list
+
+        else:
+            dept_dict_info['approver_info'] = []
+
+        return dept_dict_info
+
+
+class LoonRole(BaseModel):
     """
     角色
     """
     name = models.CharField('名称', max_length=50)
     description = models.CharField('描述', max_length=50, default='')
 
-    label = models.CharField('标签', max_length=50, blank=True, default='', help_text='因为角色信息也可能是从别处同步过来， 为保证对应关系，同步时可以在此字段设置其他系统中相应的唯一标识')
+    label = models.CharField('标签', max_length=50, blank=True, default='{}', help_text='因为角色信息也可能是从别处同步过来， 为保证对应关系，同步时可以在此字段设置其他系统中相应的唯一标识,字典的json格式')
     creator = models.CharField('创建人', max_length=50)
     gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
     gmt_modified = models.DateTimeField('更新时间', auto_now=True)
@@ -38,6 +81,16 @@ class LoonRole(models.Model):
     class Meta:
         verbose_name = '角色'
         verbose_name_plural = '角色'
+
+    def get_dict(self):
+        role_dict_info = super().get_dict()
+        creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()
+        if creator_obj:
+            role_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias,
+                                                  creator_username=creator_obj.username)
+        else:
+            role_dict_info['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, 'creator'))
+        return role_dict_info
 
 
 class LoonUserManager(BaseUserManager):
@@ -108,12 +161,47 @@ class LoonUser(AbstractBaseUser):
         else:
             return '部门id不存在'
 
+    def get_dict(self):
+        fields = []
+        for field in self._meta.fields:
+            fields.append(field.name)
+
+        dict_result = {}
+        import datetime
+        for attr in fields:
+            if isinstance(getattr(self, attr), datetime.datetime):
+                dict_result[attr] = getattr(self, attr).strftime('%Y-%m-%d %H:%M:%S')
+            elif isinstance(getattr(self, attr), datetime.date):
+                dict_result[attr] = getattr(self, attr).strftime('%Y-%m-%d')
+            elif attr == 'dept_id':
+                dept_obj = LoonDept.objects.filter(id=getattr(self, attr), is_deleted=0).first()
+                dept_name = dept_obj.name if dept_obj else ''
+                dict_result['dept_info'] = dict(dept_id=getattr(self, attr), dept_name=dept_name)
+            elif attr == 'password':
+                pass
+            elif attr == 'creator':
+                creator_obj = LoonUser.objects.filter(username=getattr(self, attr)).first()
+                if creator_obj:
+                    dict_result['creator_info'] = dict(creator_id= creator_obj.id, creator_alias=creator_obj.alias, creator_username=creator_obj.username)
+                else:
+                    dict_result['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, attr))
+            else:
+                dict_result[attr] = getattr(self, attr)
+
+        return dict_result
+
+    def get_json(self):
+        import json
+        dict_result = self.get_dict()
+        return json.dumps(dict_result)
+
+
     class Meta:
         verbose_name = '用户'
         verbose_name_plural = '用户'
 
 
-class LoonUserRole(models.Model):
+class LoonUserRole(BaseModel):
     """
     用户角色
     """
@@ -130,7 +218,7 @@ class LoonUserRole(models.Model):
         verbose_name_plural = '用户角色'
 
 
-class AppToken(models.Model):
+class AppToken(BaseModel):
     """
     App token,用于api调用方授权
     """
@@ -146,3 +234,13 @@ class AppToken(models.Model):
     class Meta:
         verbose_name = '调用token'
         verbose_name_plural = '调用token'
+
+    def get_dict(self):
+        role_dict_info = super().get_dict()
+        creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()
+        if creator_obj:
+            role_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias,
+                                                  creator_username=creator_obj.username)
+        else:
+            role_dict_info['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, 'creator'))
+        return role_dict_info

@@ -1,3 +1,7 @@
+import json
+
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole
 from service.base_service import BaseService
 from service.common.log_service import auto_log
@@ -46,6 +50,71 @@ class AccountBaseService(BaseService):
         user_role_queryset = LoonUserRole.objects.filter(user_id=user_obj.id, is_deleted=0).all()
         user_role_id_list = [user_role.role_id for user_role in user_role_queryset]
         return user_role_id_list, ''
+
+    @classmethod
+    @auto_log
+    def get_user_role_info_by_user_id(cls, user_id, search_value=0, page=1, per_page=10):
+        """
+        获取用户角色信息
+        :param user_id:
+        :param search_value:
+        :param page:
+        :param per_page:
+        :return:
+        """
+        user_role_queryset = LoonUserRole.objects.filter(user_id=user_id, is_deleted=0).all()
+        user_role_id_list = [user_role.role_id for user_role in user_role_queryset]
+        query_params = Q(is_deleted=False, id__in=user_role_id_list)
+        if search_value:
+            query_params &= Q(name__contains=search_value)
+        role_info_queryset = LoonRole.objects.filter(query_params).all()
+        paginator = Paginator(role_info_queryset, per_page)
+        try:
+            role_info_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            role_info_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            role_info_result_paginator = paginator.page(paginator.num_pages)
+        role_result_list = role_info_result_paginator.object_list
+        role_result_format_list = []
+        for role_info in role_result_list:
+            role_result_format_list.append(dict(id=role_info.id, name=role_info.name, description=role_info.description,
+                                                label=json.dumps(role_info.label) if role_info.label else {},
+                                                creator=role_info.creator, gmt_created=str(role_info.gmt_created)[:19]))
+        return role_result_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_role_user_info_by_role_id(cls, role_id, search_value=0, page=1, per_page=10):
+        """
+        获取角色的用户列表信息
+        :param role_id:
+        :param search_value:
+        :param page:
+        :param per_page:
+        :return:
+        """
+        user_role_queryset = LoonUserRole.objects.filter(role_id=role_id, is_deleted=0).all()
+        role_user_id_list = [user_role.user_id for user_role in user_role_queryset]
+        query_params = Q(is_deleted=False, id__in=role_user_id_list)
+        if search_value:
+            query_params &= Q(username__contains=search_value) | Q(alias__contains=search_value)
+        user_info_queryset = LoonUser.objects.filter(query_params).all()
+        paginator = Paginator(user_info_queryset, per_page)
+        try:
+            user_info_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            user_info_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            user_info_result_paginator = paginator.page(paginator.num_pages)
+        user_result_list = user_info_result_paginator.object_list
+        user_result_format_list = []
+        for user_info in user_result_list:
+            user_result_format_list.append(user_info.get_dict())
+        return user_result_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
 
     @classmethod
     @auto_log
@@ -174,6 +243,17 @@ class AccountBaseService(BaseService):
         :param app_name:
         :return:
         """
+        if not app_name:
+            return False, 'need app_name arg in request header'
+        if app_name == 'loonflow':
+            # loonflow有权限访问所有workflow
+            from apps.workflow.models import Workflow
+            workflow_query_set = Workflow.objects.filter(is_deleted=0).all()
+            workflow_id_list = []
+            for workflow_obj in workflow_query_set:
+                workflow_id_list.append(workflow_obj.id)
+            return workflow_id_list, ''
+
         app_token_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
         if not app_token_obj:
             return False, 'app is invalid'
@@ -194,6 +274,8 @@ class AccountBaseService(BaseService):
         :param workflow_id:
         :return:
         """
+        if app_name == 'loonflow':
+            return True, ''
         app_workflow_permission_list, msg = cls.app_workflow_permission_list(app_name)
         if app_workflow_permission_list and workflow_id in app_workflow_permission_list:
             return True, ''
@@ -217,4 +299,169 @@ class AccountBaseService(BaseService):
         permission_check, msg = cls.app_workflow_permission_check(app_name, workflow_id)
         if not permission_check:
             return False, msg
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def get_user_list(cls, search_value, page=1, per_page=10):
+        """
+        获取用户列表
+        :param search_value: 支持根据用户名，中文名查询
+        :param page:
+        :param per_page:
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if search_value:
+            query_params &= Q(username__contains=search_value) | Q(alias__contains=search_value)
+        user_objects = LoonUser.objects.filter(query_params)
+        paginator = Paginator(user_objects, per_page)
+        try:
+            user_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            user_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            user_result_paginator = paginator.page(paginator.num_pages)
+        user_result_object_list = user_result_paginator.object_list
+        user_result_object_format_list = []
+        for user_result_object in user_result_object_list:
+            user_result_object_format_list.append(user_result_object.get_dict())
+
+        return user_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_role_list(cls, search_value, page=1, per_page=10):
+        """
+        获取角色列表
+        :param search_value: 支持根据角色名,角色描述模糊查询
+        :param page:
+        :param per_page:
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if search_value:
+            query_params &= Q(name__contains=search_value) | Q(description__contains=search_value)
+        user_objects = LoonRole.objects.filter(query_params)
+        paginator = Paginator(user_objects, per_page)
+        try:
+            role_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            role_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            role_result_paginator = paginator.page(paginator.num_pages)
+        role_result_object_list = role_result_paginator.object_list
+        role_result_object_format_list = []
+        for role_result_object in role_result_object_list:
+            role_result_object_format_list.append(role_result_object.get_dict())
+
+        return role_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_dept_list(cls, search_value, page=1, per_page=10):
+        """
+        获取部门列表
+        :param search_value: 支持根据部门名,标签模糊查询
+        :param page:
+        :param per_page:
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if search_value:
+            query_params &= Q(name__contains=search_value) | Q(label__contains=search_value)
+        dept_objects = LoonDept.objects.filter(query_params)
+        paginator = Paginator(dept_objects, per_page)
+        try:
+            dept_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            dept_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            dept_result_paginator = paginator.page(paginator.num_pages)
+        dept_result_object_list = dept_result_paginator.object_list
+        dept_result_object_format_list = []
+        for dept_result_object in dept_result_object_list:
+            dept_result_object_format_list.append(dept_result_object.get_dict())
+        return dept_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def get_token_list(cls, search_value, page=1, per_page=10):
+        """
+        获取应用权限token列表
+        :param search_value: 支持应用名模糊查询
+        :param page:
+        :param per_page:
+        :return:
+        """
+        query_params = Q(is_deleted=False)
+        if search_value:
+            query_params &= Q(app_name__contains=search_value)
+        token_objects = AppToken.objects.filter(query_params)
+        paginator = Paginator(token_objects, per_page)
+        try:
+            token_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            token_result_paginator = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results
+            token_result_paginator = paginator.page(paginator.num_pages)
+        token_result_object_list = token_result_paginator.object_list
+        token_result_object_format_list = []
+        for token_result_object in token_result_object_list:
+            token_result_object_format_list.append(token_result_object.get_dict())
+        return token_result_object_format_list, dict(per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    @auto_log
+    def add_token_record(cls, app_name, ticket_sn_prefix, workflow_ids, username):
+        """
+        新增token记录
+        :param app_name:
+        :param ticket_sn_prefix:
+        :param workflows_ids:
+        :return:
+        """
+        import uuid
+        token = uuid.uuid1()
+        app_token_obj = AppToken(app_name=app_name, ticket_sn_prefix=ticket_sn_prefix, workflow_ids=workflow_ids, token=token, creator=username)
+        app_token_obj.save()
+        return True, app_token_obj.id
+
+    @classmethod
+    @auto_log
+    def update_token_record(cls, app_token_id, app_name, ticket_sn_prefix, workflow_ids):
+        """
+        更新token记录
+        :param app_token_id:
+        :param app_name:
+        :param ticket_sn_prefix:
+        :param workflow_ids:
+        :return:
+        """
+        app_token_obj = AppToken.objects.filter(id=app_token_id, is_deleted=0).first()
+        if not app_token_obj:
+            return False, 'record is not exist or has been deleted'
+        app_token_obj.app_name = app_name
+        app_token_obj.ticket_sn_prefix = ticket_sn_prefix
+        app_token_obj.workflow_ids = workflow_ids
+        app_token_obj.save()
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def del_token_record(cls, app_token_id):
+        """
+        删除token记录
+        :param app_token_id:
+        :return:
+        """
+        app_token_obj = AppToken.objects.filter(id=app_token_id, is_deleted=0).first()
+        if not app_token_obj:
+            return False, 'record is not exist or has been deleted'
+        app_token_obj.is_deleted = True
+        app_token_obj.save()
         return True, ''

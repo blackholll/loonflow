@@ -11,4 +11,4 @@ class HomepageView(View):
         :param kwargs:
         :return:
         """
-        return HttpResponse('<div>欢迎使用loonflow<br><a href="/admin">管理后台<br><a href="https://github.com/blackholll/loonflow">使用文档</a></div>')
+        return HttpResponse('<div>欢迎使用loonflow<br><a href="/manage">管理后台</a><br><a href="/admin">django管理后台</a><br><a href="https://github.com/blackholll/loonflow">使用文档</a></div>')

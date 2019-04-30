@@ -1,0 +1,438 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      工作流管理
+      <small><a href="/manage/workflow_manage">工作流配置</a></small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="/manage/workflow_manage"><i class="fa fa-dashboard"></i> 工作流管理</a></li>
+    </ol>
+  </section>
+  <div class="row">
+    <section class="content-header">
+
+      <div class="col-md-12">
+        <div class="box box-default">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#workflowModal">
+                新增
+            </button>
+          <table id="workflow_table" class="table table-striped table-bordered dataTable no-footer" >
+            <thead>
+              <tr>
+                  <th>ID</th>
+                  <th>名称</th>
+                  <th>描述</th>
+                  <th>工单查看权限校验</th>
+                  <th>创建人</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+        </div>              
+      </div>
+      <div class="modal fade" id="workflowModal">
+          <div class="modal-dialog" style="width: 980px;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">工作流</h4>
+              </div>
+              <div class="modal-body">
+                  <form class="form-horizontal" action='/api/v1.0/accounts/app_token' method="post" id='workflow_form'>
+                      <div class="box-body">
+                        <div class="form-group">
+                          <label for="workflowName" class="col-sm-3 control-label">名称</label> 
+                          <div class="col-sm-9">
+                            <input type="text" class="form-control" id="workflowName" placeholder="请输入工作流名称">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="workflowDesc" class="col-sm-3 control-label">描述</label> 
+                            <div class="col-sm-9">
+                              <input type="text" class="form-control" id="workflowDesc" placeholder="请输入工作流描述">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="customNoticeSelect" class="col-sm-3 control-label">选择通知脚本</label>
+                            <div class="col-sm-9">
+                              <select class="form-control select2" multiple="multiple" id="customNoticeSelect" data-placeholder="选择该应用有权限的工作流"
+                                      style="width: 100%;">                            
+                              </select>
+                              <p class="help-block">如果配置通知脚本，则当工单流转的时，loonflow将调用通知脚本来通知工单的待办人，具体请参考通知脚本配置的说明</p>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox">
+                            <label for="viewPermissionCheck" class="col-sm-3 control-label">工单查看权限校验</label>
+                              <div class="col-sm-9">
+                                <input type="checkbox" id='viewPermissionCheck' checked>
+                                <p class="help-block">开启后，以工单的关联人(创建人、曾经的处理人)的名义调用工单详情接口才可以返回详情信息</p>
+                              </div>
+                              
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="limitExpression" class="col-sm-3 control-label" >限制表达式</label>
+                          <div class="col-sm-9">
+                            <input type="text" class="form-control" id="limitExpression" placeholder="请输入字典对象json后格式的限制表达式" value="{}">
+                            <p class="help-block">默认"{}"，限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)</p>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="displayFormStr" class="col-sm-3 control-label" >展现表单</label>
+                            <div class="col-sm-9">
+                              <input type="text" class="form-control" id="displayFormStr" placeholder="请输入字典对象json后格式的限制表达式" value="[]">
+                              <p class="help-block">默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称</p>
+                            </div>
+                          <input type="text" class="form-control" id="workflowId" style="display:none">
+                      </div>
+                      <!-- /.box-body -->
+                      <div class="box-footer">
+                        <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                        <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitWorkflow();" />
+                      </div>
+                      <!-- /.box-footer -->
+                    </form>
+              </div>
+            </div>
+            <!-- /.modal-content -->
+          </div>
+          <!-- /.modal-dialog -->
+        </div>
+      </div>
+
+
+      
+    </section>
+      <!-- /.box -->
+  </div>
+  </section>
+      <!-- /.col -->
+   
+  <!-- /.content -->
+  
+</div>
+
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+<script src="{% static 'bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+
+<script>
+  $('#customNoticeSelect').select2({placeholderOption: "first", allowClear:true});
+  $( document ).ready(function() {
+    // 获取通知列表
+    $.ajax({
+        type: "GET",
+        url: "/api/v1.0/workflows/custom_notices",
+        cache: false,  //禁用缓存
+        data: {per_page: 10000},  //传入组装的参数
+        dataType: "json",
+        success: function (result) {
+          console.log(result);
+          if (result.code===0){
+            result.data.value.map(function(currentValue,index,arr){$("#customNoticeSelect").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
+            }
+          }
+          
+
+          });
+  });
+  $('#customNoticeSelect').select2({placeholderOption: "first", allowClear:true});
+  $('#workflow_table').DataTable({
+  ordering: false,
+  "serverSide":true,
+  "bFilter":true,
+  "lengthMenu": [10, 25, 50, 100 ],
+  "language": {
+    "searchPlaceholder": "名称或描述模糊搜索"
+  },
+
+  ajax: function (data, callback, settings) {
+    console.log(data);
+    var param = {};
+    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+    param.page = (data.start / data.length)+1;//当前页码
+    param.search_value=data.search.value;
+    console.log(param);    
+    $.ajax({
+      type: "GET",
+      url: "/api/v1.0/workflows",
+      cache: false,  //禁用缓存
+      data: param,  //传入组装的参数
+      dataType: "json",
+      success: function (result) {
+        var returnData = {};
+        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+        returnData.recordsTotal = result.data.total;//返回数据全部记录
+        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+        returnData.data = result.data.value;//返回的数据列表
+        //console.log(returnData);
+        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+        callback(returnData);
+        },
+      
+    })
+    
+  },
+  columns: [
+      { "data": "id"},
+      { "data": "name" },
+      { "data": "description" },
+      {render: function(data, type, full){if (full.view_permission_check){return "是"}return "否"}},
+      { "data": "creator" },
+      { "data": "gmt_created" },
+      {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delWorkflow(' + full.id + ')' + '"'+  '>删除</a>/<a target="_blank" href="/manage/workflow_manage/'+ full.id + '"'+ '>配置</a>/<a target="_blank" href="/manage/workflow_flow_chart/'+ full.id + '"'+ '>查看流程图</a></div>')}}
+  ]
+  
+})
+  function showEditForm(data){
+    $("#workflowName").val(data.name);
+    $("#workflowDesc").val(data.description);
+    if(data.notices){
+      let notice_ids_arr = data.notices.split(",");
+      $("#customNoticeSelect").val(notice_ids_arr).trigger("change"); 
+    }
+    if (data.view_permission_check) {
+      $('#viewPermissionCheck').attr('checked', true);
+    } else {
+      $('#viewPermissionCheck').attr('checked', false);
+    };
+    $("#limitExpression").val(data.limit_expression);
+    $("#displayFormStr").val(data.display_form_str);
+    $("#workflowId").val(data.id);
+    $('#workflowModal').modal('show');
+  }
+
+  function submitWorkflow(){
+    let workflowId = $('#workflowId').val();
+    if(!workflowId){
+      addWorkflow();
+    }
+    else{
+      editWorkflow();
+    }
+  }
+  function addWorkflow(){
+    var workflowName = $("#workflowName").val();
+    var workflowDesc = $("#workflowDesc").val();
+    // let noticeScriptSelect = $("#customNoticeSelect");
+    let noticeScriptSelect = document.getElementById("customNoticeSelect");
+    let noticeScriptSelectArray = [];
+    for(i=0; i<noticeScriptSelect.length; i++){
+      if(noticeScriptSelect.options[i].selected){
+        noticeScriptSelectArray.push(noticeScriptSelect[i].value);
+      };
+    };
+    let noticeScriptSelectStr = noticeScriptSelectArray.join(',');
+
+    var limitExpression = $("#limitExpression").val();
+    var displayFormStr = $("#displayFormStr").val();
+    var viewPermissionCheck = 0
+    if ($("#viewPermissionCheck").checked){
+      viewPermissionCheck = 1;
+    };
+    if (!limitExpressionFormatCheck(limitExpression)){
+      swal({
+        title: "限制表达式不合法!",
+        text: "限制表达式必须是字典对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!displayFormstrFormatCheck(displayFormStr)){
+      swal({
+        title: "工作流展示表单不合法!",
+        text: "工作流展示表单必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    paramData = {
+      name: workflowName,
+      description: workflowDesc,
+      notices: noticeScriptSelectStr,
+      view_permission_check: viewPermissionCheck,
+      limit_expression: limitExpression,
+      display_form_str: displayFormStr
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows",
+      type: "POST",
+      processDate: false,
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      success: function(callback){
+        $("#workflowModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#workflow_table').dataTable()._fnAjaxUpdate();
+      }
+    });
+  };
+  function editWorkflow(){
+    var workflowName = $("#workflowName").val();
+    var workflowDesc = $("#workflowDesc").val();
+    var workflowId = $("#workflowId").val();
+    // let noticeScriptSelect = $("#customNoticeSelect");
+    let noticeScriptSelect = document.getElementById("customNoticeSelect");
+    let noticeScriptSelectArray = [];
+    for(i=0; i<noticeScriptSelect.length; i++){
+      if(noticeScriptSelect.options[i].selected){
+        noticeScriptSelectArray.push(noticeScriptSelect[i].value);
+      };
+    };
+    let noticeScriptSelectStr = noticeScriptSelectArray.join(',');
+
+    var limitExpression = $("#limitExpression").val();
+    var displayFormStr = $("#displayFormStr").val();
+    var viewPermissionCheck = 0
+    if ($("#viewPermissionCheck").prop('checked')) {
+      viewPermissionCheck = 1;
+    };
+    if (!limitExpressionFormatCheck(limitExpression)){
+      swal({
+        title: "限制表达式不合法!",
+        text: "限制表达式必须是字典对象的json格式。请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    if (!displayFormstrFormatCheck(displayFormStr)){
+      swal({
+        title: "工作流展示表单不合法!",
+        text: "工作流展示表单必须是数组对象的json格式，请按照提示输入合法的表达式",
+        icon: "error",
+        showConfirmButton: false,
+        })
+      return false;
+    }
+    paramData = {
+      name: workflowName,
+      description: workflowDesc,
+      notices: noticeScriptSelectStr,
+      view_permission_check: viewPermissionCheck,
+      limit_expression: limitExpression,
+      display_form_str: displayFormStr
+    }
+    $.ajax({
+      url: "/api/v1.0/workflows/" + workflowId,
+      type: "PATCH",
+      data : JSON.stringify(paramData),
+      contentType: 'application/json',
+      processData: false,
+      success: function(callback) {
+        $("#workflowModal").modal("hide");
+        swal({
+          title: "新增成功!",
+          text: "2s自动关闭",
+          showConfirmButton: false,
+          timer: 2000,
+        })
+        $('#workflow_table').dataTable()._fnAjaxUpdate();
+      }
+      
+    })
+
+  };
+  function limitExpressionFormatCheck(str){
+    if (str.startsWith('{') && isJsonCheck(str)){
+      return true;
+    }
+    return false
+  }
+
+  function displayFormstrFormatCheck(str){
+    if (str.startsWith('[') && isJsonCheck(str)){
+      return true;
+    }
+    return false
+  }
+  function isJsonCheck(str) {
+    try {
+        $.parseJSON(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+  $("#workflowModal").on("hidden.bs.modal", function() {
+    document.getElementById("workflow_form").reset(); //此操作无法清空select2中的内容
+    $("#customNoticeSelect").val('').trigger('change')
+  });
+
+  function delWorkflow(workflowId) {
+    swal({
+      title: "是否真的要删除此记录?",
+      text: "请确认没有此工作流的工单记录后再删除，否则包含此类工单的工单列表及工单详情都会有问题，慎重！！！",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        // 删除操作
+        $.ajax({
+        type: "DELETE",
+        url: "/api/v1.0/workflows/" + workflowId,
+        cache: false,  //禁用缓存
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          if (result.code===0){
+            // 刷新数据
+            $('#workflow_table').dataTable()._fnAjaxUpdate(); 
+            // 关闭modal
+            swal({
+              title: "删除成功!",
+              text: "2s自动关闭",
+              icon: "success",
+              showConfirmButton: false,
+              timer:2000
+            })
+            }
+          }
+        });
+      }
+    });
+  }
+</script>
+{% endblock %}

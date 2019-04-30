@@ -65,25 +65,25 @@ def stdoutIO(stdout=None):
 
 
 @app.task
-def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
+def run_flow_task(ticket_id, script_id_str, state_id, action_from='loonrobot'):
     """
     执行工作流脚本
-    :param script_name:
+    :param script_id_star:通过脚本id来执行, 保存的是字符串
     :param ticket_id:
     :param state_id:
     :param action_from:
     :return:
     """
+    script_id = int(script_id_str)
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-    if ticket_obj.participant == script_name and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+    if ticket_obj.participant == script_id_str and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
         ## 校验脚本是否合法
-        script_obj = WorkflowScript.objects.filter(saved_name='workflow_script/{}'.format(script_name), is_deleted=False, is_active=True).first()
+        # 获取脚本名称
+        script_obj = WorkflowScript.objects.filter(id=script_id, is_deleted=False, is_active=True).first()
         if not script_obj:
             return False, '脚本未注册或非激活状态'
 
-        script_dir = os.path.join(settings.MEDIA_ROOT, "workflow_script")
-
-        script_file = os.path.join(script_dir, script_name)
+        script_file = os.path.join(settings.MEDIA_ROOT, script_obj.saved_name.name)
         globals = {'ticket_id': ticket_id, 'action_from': action_from}
         # 如果需要脚本执行完成后，工单不往下流转(也就脚本执行失败或调用其他接口失败的情况)，需要在脚本中抛出异常
         try:
@@ -107,7 +107,7 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
         transition_obj = Transition.objects.filter(source_state_id=state_id, is_deleted=False).first()
         new_ticket_flow_dict = dict(ticket_id=ticket_id, transition_id=transition_obj.id,
                                     suggestion=script_result_msg, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT,
-                                    participant=script_name, state_id=state_id, creator='loonrobot')
+                                    participant='脚本:(id:{}, name:{})'.format(script_obj.id, script_obj.name), state_id=state_id, creator='loonrobot')
 
         TicketBaseService.add_ticket_flow_log(new_ticket_flow_dict)
         if not script_result:
@@ -132,7 +132,7 @@ def run_flow_task(ticket_id, script_name, state_id, action_from='loonrobot'):
             destination_participant, msg = TicketBaseService.get_ticket_field_value(ticket_id, tar_state_obj.participant)
             destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id =  CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
         elif tar_state_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
             parent_ticket_id = ticket_obj.parent_ticket_id
             destination_participant, msg = TicketBaseService.get_ticket_field_value(parent_ticket_id, tar_state_obj.participant)
@@ -213,9 +213,7 @@ def send_ticket_notice(ticket_id):
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
     if not ticket_obj:
         return False, 'ticket is not exist or has been deleted'
-    if ticket_obj.participant_type_id not in (CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI):
-        # 个人及多人的情况才需要发送通知
-        return True, 'participant is not people, do not need notice'
+
     workflow_id = ticket_obj.workflow_id
     workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0).first()
     notices = workflow_obj.notices
@@ -235,9 +233,32 @@ def send_ticket_notice(ticket_id):
             return False, msg
         title_result = title_template.format(**ticket_value_info)
         content_result = content_template.format(**ticket_value_info)
-        notice_script_file = notice_obj.script
+        notice_script_file_name = notice_obj.script.name
+        notice_script_file = os.path.join(settings.MEDIA_ROOT, notice_script_file_name)
+        # 获取工单最后一条操作记录
+        flow_log_list, msg = TicketBaseService.get_ticket_flow_log(ticket_id, 'loonrobot')
+        last_flow_log = flow_log_list[0]
+        participant_info_list = []
+        participant_username_list = []
+        from apps.account.models import LoonUser
+        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+            participant_username_list = [ticket_obj.participant]
+        elif ticket_obj.participant_type_id in (CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL):
+            participant_username_list = ticket_obj.participant.split(',')
+        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+            participant_username_list, msg = AccountBaseService.get_role_username_list(ticket_obj.participant)
+        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+            participant_username_list, msg = AccountBaseService.get_dept_username_list(ticket_obj.participant)
+        if participant_username_list:
+            participant_queryset = LoonUser.objects.filter(username__in=participant_username_list, is_deleted=0)
+            for participant_0 in participant_queryset:
+                participant_info_list.append(dict(username=participant_0.username, alias=participant_0.alias,
+                                                  phone=participant_0.phone, email=participant_0.email))
 
-        globals = {'title_result': title_result, 'content_result': content_result, 'participant': ticket_obj.participant}
+        globals = {'title_result': title_result, 'content_result': content_result,
+                   'participant': ticket_obj.participant, 'participant_type_id': ticket_obj.participant_type_id,
+                   'multi_all_person': ticket_obj.multi_all_person, 'ticket_value_info': ticket_value_info,
+                   'last_flow_log': last_flow_log, 'participant_info_list': participant_info_list}
         try:
             with stdoutIO() as s:
                 # execfile(script_file, globals)  # for python 2
@@ -245,7 +266,7 @@ def send_ticket_notice(ticket_id):
             script_result = True
             # script_result_msg = ''.join(s.buflist)
             script_result_msg = ''.join(s.getvalue())
-            logger.info('send notice successful for ticket_id: {}, notice_id:{}'.formt(ticket_id, notice_id))
+            logger.info('send notice successful for ticket_id: {}, notice_id:{}'.format(ticket_id, notice_id))
         except Exception as e:
             logger.error(traceback.format_exc())
             script_result = False
