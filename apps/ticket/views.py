@@ -57,6 +57,7 @@ class TicketListView(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         app_name = request.META.get('HTTP_APPNAME')
+        request_data_dict.update(dict(username=request.META.get('HTTP_USERNAME')))
 
         from service.account.account_base_service import AccountBaseService
         # 判断是否有创建某工单的权限
@@ -116,6 +117,7 @@ class TicketView(View):
 
         from service.account.account_base_service import AccountBaseService
         app_name = request.META.get('HTTP_APPNAME')
+        request_data_dict.update(dict(username=request.META.get('HTTP_USERNAME')))
         app_permission_check, msg = AccountBaseService.app_ticket_permission_check(app_name, ticket_id)
         if not app_permission_check:
             return api_response(-1, msg, '')
@@ -228,7 +230,8 @@ class TicketState(View):
             return api_response(-1, 'patch参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        username = request_data_dict.get('username', '')  # 可用于权限控制
+        # username = request_data_dict.get('username', '')  # 可用于权限控制
+        username = request.META.get('HTTP_USERNAME')
         state_id = request_data_dict.get('state_id')
 
         from service.account.account_base_service import AccountBaseService
@@ -288,7 +291,8 @@ class TicketAccept(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        username = request_data_dict.get('username', '')
+        # username = request_data_dict.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
 
         from service.account.account_base_service import AccountBaseService
         app_name = request.META.get('HTTP_APPNAME')
@@ -319,7 +323,8 @@ class TicketDeliver(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        username = request_data_dict.get('username', '')
+        # username = request_data_dict.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
         target_username = request_data_dict.get('target_username', '')
         suggestion = request_data_dict.get('suggestion', '')
 
@@ -351,7 +356,8 @@ class TicketAddNode(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        username = request_data_dict.get('username', '')
+        # username = request_data_dict.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
         target_username = request_data_dict.get('target_username', '')
         suggestion = request_data_dict.get('suggestion', '')
 
@@ -383,7 +389,8 @@ class TicketAddNodeEnd(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        username = request_data_dict.get('username', '')
+        # username = request_data_dict.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
         suggestion = request_data_dict.get('suggestion', '')
 
         from service.account.account_base_service import AccountBaseService
@@ -414,7 +421,8 @@ class TicketField(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        username = request_data_dict.get('username', '')
+        # username = request_data_dict.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
 
         from service.account.account_base_service import AccountBaseService
         app_name = request.META.get('HTTP_APPNAME')
@@ -441,7 +449,8 @@ class TicketScriptRetry(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        username = request_data_dict.get('username', '')
+        # username = request_data_dict.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
 
         from service.account.account_base_service import AccountBaseService
         app_name = request.META.get('HTTP_APPNAME')
@@ -473,7 +482,8 @@ class TicketComment(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        username = request_data_dict.get('username', '')
+        # username = request_data_dict.get('username', '')
+        username = request.META.get('HTTP_USERNAME')
         suggestion = request_data_dict.get('suggestion', '')
         result, msg = TicketBaseService.add_comment(ticket_id, username, suggestion)
         if result:
