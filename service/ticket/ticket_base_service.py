@@ -809,12 +809,13 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def ticket_handle_permission_check(cls, ticket_id, username, by_timer=False):
+    def ticket_handle_permission_check(cls, ticket_id, username, by_timer=False, by_task=False):
         """
         处理权限校验: 获取当前状态是否需要处理， 该用户是否有权限处理
         :param ticket_id:
         :param username:
         :param by_timer:是否为定时器流转
+        :param by_task:是否为通过脚本流转
         :return:
         """
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
@@ -830,6 +831,9 @@ class TicketBaseService(BaseService):
         if by_timer and username == 'loonrobot':
             # 定时器流转，有权限
             return True, '定时器流转，放开处理权限'
+        if by_task and username == 'loonrobot':
+            # 脚本流转，有权限
+            return True, '脚本流转，放开处理权限'
 
         participant_type_id = ticket_obj.participant_type_id
         participant = ticket_obj.participant
@@ -930,13 +934,14 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def handle_ticket(cls, ticket_id, request_data_dict, by_timer=False):
+    def handle_ticket(cls, ticket_id, request_data_dict, by_timer=False, by_task=False):
         """
         处理工单:校验必填参数,获取当前状态必填字段，更新工单基础字段，更新工单自定义字段， 更新工单流转记录，执行必要的脚本，通知消息
         此处逻辑和新建工单有较多重复，下个版本会拆出来
         :param ticket_id:
         :param request_data_dict:
         :param by_timer: 是否通过定时器触发的流转
+        :param by_task: 是否通过脚本执行完成后触发的流转
         :return:
         """
         transition_id = request_data_dict.get('transition_id', '')
@@ -951,7 +956,7 @@ class TicketBaseService(BaseService):
             return False, '工单不存在或已被删除'
 
         # 判断用户是否有权限处理该工单
-        has_permission, msg = cls.ticket_handle_permission_check(ticket_id, username, by_timer)
+        has_permission, msg = cls.ticket_handle_permission_check(ticket_id, username, by_timer, by_task)
         if not has_permission:
             return False, msg
         if msg['need_accept']:

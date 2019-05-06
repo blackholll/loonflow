@@ -105,6 +105,7 @@ def run_flow_task(ticket_id, script_id_str, state_id, action_from='loonrobot'):
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
         # 新增处理记录,脚本后只允许只有一个后续直连状态
         transition_obj = Transition.objects.filter(source_state_id=state_id, is_deleted=False).first()
+
         new_ticket_flow_dict = dict(ticket_id=ticket_id, transition_id=transition_obj.id,
                                     suggestion=script_result_msg, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT,
                                     participant='脚本:(id:{}, name:{})'.format(script_obj.id, script_obj.name), state_id=state_id, creator='loonrobot')
@@ -116,64 +117,12 @@ def run_flow_task(ticket_id, script_id_str, state_id, action_from='loonrobot'):
             ticket_obj.save()
             return False, script_result_msg
         # 自动执行流转
-        tar_state_obj = State.objects.filter(id=transition_obj.destination_state_id, is_deleted=False).first()
-        if tar_state_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_VARIABLE:
-            if tar_state_obj.participant == 'creator':
-                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
-                destination_participant = ticket_obj.creator
-            elif tar_state_obj.participant == 'creator_tl':
-                approver, msg = AccountBaseService.get_user_dept_approver(ticket_obj.creator)
-                if len(approver.split(',')) > 1:
-                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
-                else:
-                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
-                destination_participant = approver
-        elif tar_state_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
-            destination_participant, msg = TicketBaseService.get_ticket_field_value(ticket_id, tar_state_obj.participant)
-            destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
-            if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
-        elif tar_state_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
-            parent_ticket_id = ticket_obj.parent_ticket_id
-            destination_participant, msg = TicketBaseService.get_ticket_field_value(parent_ticket_id, tar_state_obj.participant)
-            destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
-            if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
-        else:
-            # 其他类型不换算成实际的处理人
-            destination_participant_type_id = tar_state_obj.participant_type_id
-            destination_participant = tar_state_obj.participant
-
-        ticket_obj.participant = destination_participant
-        ticket_obj.participant_type_id = destination_participant_type_id
-        ticket_obj.state_id = tar_state_obj.id
-        ticket_obj.save()
-
-        add_relation, msg = TicketBaseService.get_ticket_dest_relation(destination_participant_type_id, destination_participant)
-        if add_relation:
-            new_relation, msg = TicketBaseService.add_ticket_relation(ticket_id, add_relation)  # 更新关系人信息
-
-        logger.info('******脚本执行成功,工单基础信息更新完成, ticket_id:{}******'.format(ticket_id))
-
-        # 子工单处理
-        if tar_state_obj.type_id == CONSTANT_SERVICE.STATE_TYPE_END:
-            if ticket_obj.parent_ticket_id:
-                sub_ticket_queryset = TicketRecord.objects.filter(parent_ticket_id=ticket_obj.parent_ticket_id, is_deleted=False)
-                sub_ticket_state_id_list = []
-                for sub_ticket_query0 in sub_ticket_queryset:
-                    sub_ticket_state_id_list.append(sub_ticket_query0.state_id)
-                if set(sub_ticket_state_id_list) == set([ticket_obj.state_id]):
-                    # 父工单的所有子工单都已处理结束,自动流转父工单
-                    parent_ticket_obj = TicketRecord.objects.filter(id=ticket_obj.parent_ticket_id, is_deleted=False).first()
-                    parent_transition_obj = Transition.object.filter(source_state_id=parent_ticket_obj.state_id, is_deleted=False).first()
-                    flag, msg = TicketBaseService.handle_ticket(parent_ticket_obj.id, dict(username='loonrobot', suggestion='所有子工单都已结束，自动流转',
-                                                                               transition_id=parent_transition_obj.id))
-                    if not flag:
-                        return True, msg
-        # 下个状态也是脚本处理
-        if tar_state_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
-            run_flow_task.apply_async(args=[ticket_id, tar_state_obj.participant, tar_state_obj.id], queue='loonflow')
-        return True, ''
+        flag, msg = TicketBaseService.handle_ticket(ticket_id, dict(username='loonrobot',
+                                                                    suggestion='脚本执行完成后自行流转',
+                                                                    transition_id=transition_obj.id), False, True)
+        if flag:
+            logger.info('******脚本执行成功,工单基础信息更新完成, ticket_id:{}******'.format(ticket_id))
+        return flag, msg
     else:
         return False, '工单当前处理人为非脚本，不执行脚本'
 
