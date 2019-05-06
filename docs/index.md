@@ -188,7 +188,7 @@ title,workflow_id, sn, state_id, parent_ticket_id, parent_ticket_state_id, parti
 - 为什么使用http api方式提供服务
 
     loonflow的理念是:工单应该是嵌入到各个系统中(如oa,cmdb,运维平台、客服系统等等), 这些系统通过后端api调用loonflow。所以loonflow只有管理界面(v0.1版本直接使用django admin,后面会重写管理界面)。后续会提供几个调用方demo供大家参考。感谢@youshutong帮忙写的调用方demo(vue+django):
-    https://github.com/youshutong2080/shutongFlow
+    https://github.com/youshutong2080/shutongFlow 另外帮忙jimmy201602写的demo(bootstrap+django): https://github.com/jimmy201602/workflowdemo
 
 - 为何不建议调用方前端直接调用loonflow
 
