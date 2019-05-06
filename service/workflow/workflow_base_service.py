@@ -75,14 +75,19 @@ class WorkflowBaseService(BaseService):
 
         if limit_period:
             from service.ticket.ticket_base_service import TicketBaseService
-            if limit_expression_dict.get('level') == 1:
-                count_result, msg = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, username=username, period=limit_period)
-            elif limit_expression_dict.get('level') == 2:
-                count_result, msg = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, period=limit_period)
-            if count_result is False:
-                return False, msg
-            if count_result > limit_expression_dict.get('count'):
-                return False, '{} tickets can be created in {}hours when workflow_id is {}'.format(limit_count, limit_period, workflow_id)
+            if limit_expression_dict.get('level'):
+                if limit_expression_dict.get('level') == 1:
+                    count_result, msg = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, username=username, period=limit_period)
+                elif limit_expression_dict.get('level') == 2:
+                    count_result, msg = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, period=limit_period)
+                else:
+                    return False, 'level in limit_expression is invalid'
+                if count_result is False:
+                    return False, msg
+                if not limit_expression_dict.get('count'):
+                    return False, 'count is need when level is not none'
+                if count_result > limit_expression_dict.get('count'):
+                    return False, '{} tickets can be created in {}hours when workflow_id is {}'.format(limit_count, limit_period, workflow_id)
 
         if limit_allow_persons:
             if username not in limit_allow_persons.split(','):
