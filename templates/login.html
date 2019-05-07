@@ -91,6 +91,8 @@
       success: function(result){
         if (result.code===0){
           $(location).attr('href', nextUrl);
+        } else {
+            alert(result.msg);
         }
       }
     });

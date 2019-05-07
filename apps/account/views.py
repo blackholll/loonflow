@@ -201,7 +201,7 @@ class LoonLoginView(View):
             login(request, user)
             return api_response(0, '', {})
         else:
-            return api_response(0, 'username or password is invalid', {})
+            return api_response(-1, 'username or password is invalid', {})
 
 
 class LoonLogoutView(View):
