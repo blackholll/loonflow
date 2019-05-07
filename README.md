@@ -26,7 +26,7 @@ LOONFLOW 分为两部分:
 ## 效果图/动画
 loonflow只提供后端调用api和工作流的配置后台，感谢youshutong2080(使用vue.js)
 [shutongFlow](https://github.com/youshutong2080/shutongFlow) 和jimmy201602(使用bootstrap,  [workflowdemo](https://github.com/jimmy201602/workflowdemo)
-分别帮忙写的一个调用方demo,当前调用方demo功能还比较简陋,欢迎大家在使用过程中提pr.下面是效果图和动画
+分别帮忙写的一个调用方demo,**==当前调用方demo功能还比较简单,仅供参考,不建议直接用于生产==** ,欢迎大家在使用过程中提pr优化demo的功能.下面是效果图和动画
 
 #### vue版本demo
 ![create_ticket](/docs/images/create-ticket.png)

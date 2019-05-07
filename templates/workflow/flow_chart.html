@@ -110,7 +110,25 @@
                 if (result.code === 0) {
                   transition_list = result.data.value;
                   transition_list.forEach(function(transition0){
-                    g.setEdge(transition0.source_state_id, transition0.destination_state_id, {label: transition0.name, curve: d3.curveBasis });
+                    if (transition0.condition_expression !== '[]'){
+                      //条件表达式逻辑，这里根据流转的源状态id+100000保证setnode时id不会出现与其他id重复
+                      g.setNode(transition0.source_state_id+100000, {label: "条件表达式", style: "fill: #afa", shape: "diamond", otherAttr:{type_id: 0}});
+                      g.setEdge(transition0.source_state_id, transition0.source_state_id+100000, {
+                        label: transition0.name,
+                        curve: d3.curveBasis
+                      });
+                      JSON.parse(transition0.condition_expression).forEach(function(condition_expression0){
+                        g.setEdge(transition0.source_state_id+100000, condition_expression0.target_state_id, {
+                        label: condition_expression0.expression,
+                        curve: d3.curveBasis
+                      });
+                      })
+                    }else {
+                      g.setEdge(transition0.source_state_id, transition0.destination_state_id, {
+                        label: transition0.name,
+                        curve: d3.curveBasis
+                      });
+                    }
                   })
                   // Create the renderer
                   var render = new dagreD3.render();
