@@ -1067,8 +1067,9 @@ class TicketBaseService(BaseService):
         for key, value in ticket_all_data.items():
             if type(value) not in [int, str, bool, float]:
                 ticket_all_data[key] = str(ticket_all_data[key])
-
-        cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
+        if not by_task:
+            # 脚本执行完自动触发的流转，因为在run_flow_task已经有记录操作日志，所以此次不再记录
+            cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                      participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
                                      state_id=source_ticket_state_id, creator=username, ticket_data=json.dumps(ticket_all_data)))
 
