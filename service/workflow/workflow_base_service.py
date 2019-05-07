@@ -94,7 +94,7 @@ class WorkflowBaseService(BaseService):
                 return False, '{} can not create ticket base on workflow_id:{}'.format(workflow_id)
         if limit_allow_depts:
             # 获取用户所属部门，包含上级部门
-            user_all_dept_id_list, msg = AccountBaseService.get_user_up_dept_id_list()
+            user_all_dept_id_list, msg = AccountBaseService.get_user_up_dept_id_list(username)
             if user_all_dept_id_list is False:
                 return False, msg
             # 只要user_all_dept_id_list中的某个部门包含在允许范围内即可
@@ -103,6 +103,7 @@ class WorkflowBaseService(BaseService):
             limit_allow_dept_id_list = list(set(limit_allow_dept_id_list)) #去重
             total_list = user_all_dept_id_list + limit_allow_dept_id_list
             if len(total_list) == len(set(total_list)):
+                # 去重后长度相等，说明两个list完全没有重复，即用户所在部门id肯定不在允许的部门id列表内
                 return False, 'user is not in allow dept'
         if limit_allow_roles:
             # 获取用户所有的角色
