@@ -111,7 +111,7 @@ LOONFLOW 分为两部分:
 ![workflow_state_config](/docs/images/workflow_state_config.png)
 
 - 设置工作流流转: 工作流流转控制工单状态的变化，流转的名称即工单处理中的按钮的名称，用户点击工单后，系统通过此表中的配置获取到下个状态信息，以更新工单的状态以及做相应的其他操作(执行脚本、通知相关人员等等)
-![workflow_state_config](/docs/images/workflow_state_config.png)
+![workflow_transiton_config](/docs/images/workflow_transiton_config.png)
 
 - 校验配置是否正确
 ![flow_chart_entry1](/docs/images/flow_chart_entry1.png)
