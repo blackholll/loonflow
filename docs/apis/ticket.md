@@ -141,7 +141,7 @@ GET
 
 # 获取工单可以做的操作
 ### URL
-/api/v1.0/ticket/{ticket_id}/transitions
+/api/v1.0/tickets/{ticket_id}/transitions
 ### method
 GET
 ### 请求参数
