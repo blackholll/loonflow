@@ -1517,7 +1517,8 @@ class TicketBaseService(BaseService):
 
         for field_key in ticket_custom_field_list:
             field_value, msg = cls.get_ticket_field_value(ticket_id, field_key)
-            if field_value is False:
+            if (field_value is False) and msg:
+                # 此处hack了.msg不为空说明真的报错了,用于区分字段的值就是布尔否的情况
                 return False, msg
             field_info_dict[field_key] = field_value
         return field_info_dict, ''
