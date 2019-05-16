@@ -824,16 +824,16 @@ class TicketBaseService(BaseService):
         ticket_state_id = ticket_obj.state_id
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_state_id)
         if not transition_queryset:
-            return None, '工单当前状态无需操作'
+            return False, '工单当前状态无需操作'
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_state_id)
         if not state_obj:
             return False, '工单当前状态id不存在或已被删除'
         if by_timer and username == 'loonrobot':
             # 定时器流转，有权限
-            return True, '定时器流转，放开处理权限'
+            return True, dict(need_accept=False, in_add_node=False, msg='定时器流转，放开处理权限')
         if by_task and username == 'loonrobot':
             # 脚本流转，有权限
-            return True, '脚本流转，放开处理权限'
+            return True, dict(need_accept=False, in_add_node=False, msg='脚本流转，放开处理权限')
 
         participant_type_id = ticket_obj.participant_type_id
         participant = ticket_obj.participant
