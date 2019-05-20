@@ -1492,7 +1492,7 @@ class TicketBaseService(BaseService):
             for destination_transition in destination_transition_queryset:
                 if destination_transition.transition_type_id == CONSTANT_SERVICE.TRANSITION_TYPE_TIMER:
                     from tasks import timer_transition
-                    timer_transition.apply_async(args=[ticket_id.id, destination_state_id, datetime.datetime.now(), destination_transition.id], countdown=destination_transition.timer, queue='loonflow')
+                    timer_transition.apply_async(args=[ticket_id, destination_state_id, datetime.datetime.now(), destination_transition.id], countdown=destination_transition.timer, queue='loonflow')
         return True, ''
 
     @classmethod

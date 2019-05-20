@@ -139,9 +139,9 @@ def timer_transition(ticket_id, state_id, date_time, transition_id):
     """
     # 需要满足工单此状态后续无其他操作才自动流转
     # 查询该工单此状态所有操作
-    flow_log_set, msg = TicketBaseService().get_ticket_flow_log(ticket_id, per_page=1000)
+    flow_log_set, msg = TicketBaseService().get_ticket_flow_log(ticket_id, 'loonrobot', per_page=1000)
     for flow_log in flow_log_set:
-        if flow_log.state_id == state_id and flow_log.gmt_created > date_time:
+        if flow_log.get('state').get('state_id') == state_id and flow_log.get('gmt_created') > date_time:
             return True, '后续有操作，定时器失效'
     # 执行流转
     handle_ticket_data = dict(transition_id=transition_id, username='loonrobot', suggestion='定时器流转')
