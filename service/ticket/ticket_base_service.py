@@ -1,3 +1,4 @@
+import copy
 import json
 import datetime
 import random
@@ -1737,11 +1738,15 @@ class TicketBaseService(BaseService):
                 # 获取工单所有字段的值
                 ticket_all_value_dict, msg = cls.get_ticket_all_field_value(ticket_id)
             # 更新当前更新的字段的值
-            ticket_all_value_dict.update(ticket_req_dict)
+            ticket_all_value_dict_copy = copy.deepcopy(ticket_all_value_dict)
+            ticket_all_value_dict_copy.update(ticket_req_dict)
+            for key, value in ticket_all_value_dict_copy.items():
+                if isinstance(ticket_all_value_dict_copy[key], str):
+                    ticket_all_value_dict_copy[key] = "'''" + ticket_all_value_dict_copy[key] + "'''"
 
             for condition_expression0 in condition_expression_list:
                 expression = condition_expression0.get('expression')
-                expression_format = expression.format(**ticket_all_value_dict)
+                expression_format = expression.format(**ticket_all_value_dict_copy)
                 import datetime, time  # 用于支持条件表达式中对时间的操作
                 if eval(expression_format):
                     destination_state_id = condition_expression0.get('target_state_id')
