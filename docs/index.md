@@ -8,8 +8,8 @@ a workflow engine base django
 欢迎加入qq群一起交流工作流相关技术: 558788490
 
 ## 操作系统支持
-- 支持所有类unix操作系统
-- windows操作系统会有两个问题:1.需要修改配置文件中日志路径(settings目录下相应部署或启动时使用的配置文件)。2.因为celery4以后不再支持windows,所以脚本执行，通知发送将无法使用
+- 建议使用Centos,Redhat,Ubuntu这类linux操作系统
+- 因为celery4以后不支持windows,所以状态脚本和通知脚本执行会无法使用。 可以参考此文档兼容下:  [参考文档](https://blog.csdn.net/weixin_42833042/article/details/83655245)
 
 ## 运行开发环境
 - 创建数据库并修改settings/dev.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)

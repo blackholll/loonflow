@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import platform
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -157,3 +158,8 @@ STATIC_FILES_VERSION = '1.0'
 LOGIN_URL = '/manage/login'
 
 APPEND_SLASH = False  # disable urls.W002 warning
+
+if platform.system() == 'Windows':
+    HOMEPATH = os.environ['HOMEPATH']
+else:
+    HOMEPATH = os.environ['HOME']
