@@ -91,3 +91,14 @@ class WorkflowRunScriptService(BaseService):
             return True, ''
         else:
             return False, 'the record is not exist or has been deleted'
+
+    @classmethod
+    @auto_log
+    def get_run_script_by_id(cls, id):
+        """
+        根据id获取执行脚本
+        :param id:
+        :return:
+        """
+        script_obj = WorkflowScript.objects.filter(id=id, is_deleted=0).first()
+        return True, script_obj

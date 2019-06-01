@@ -10,6 +10,7 @@ from service.base_service import BaseService
 from service.common.constant_service import CONSTANT_SERVICE
 from service.common.log_service import auto_log
 from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
+from service.workflow.workflow_runscript_service import WorkflowRunScriptService
 from service.workflow.workflow_transition_service import WorkflowTransitionService
 
 class WorkflowStateService(BaseService):
@@ -222,7 +223,6 @@ class WorkflowStateService(BaseService):
                 else:
                     participant_alias_list.append(participant_user_obj.alias)
             participant_alias = ','.join(participant_alias_list)
-
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
             dept_obj, msg = AccountBaseService.get_dept_by_id(int(participant))
@@ -243,7 +243,11 @@ class WorkflowStateService(BaseService):
                 participant_alias = '工单创建人'
             elif participant_name == 'creator_tl':
                 participant_alias = '工单创建人的tl'
-
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+            if participant:
+                flag, result = WorkflowRunScriptService.get_run_script_by_id(int(participant))
+                if flag:
+                    participant_alias = result.name
 
         return dict(participant=participant, participant_name=participant_name, participant_type_id=participant_type_id,
                     participant_type_name=participant_type_name, participant_alias=participant_alias), ''
