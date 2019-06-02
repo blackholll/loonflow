@@ -1,6 +1,6 @@
 #requrements/common.txt
 #python==3.5.3
-django==2.0.4
+django==2.0.13
 mysqlclient==1.3.12
 celery==4.1.1
 redis
