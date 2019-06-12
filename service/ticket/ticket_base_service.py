@@ -1292,10 +1292,13 @@ class TicketBaseService(BaseService):
         if not state_obj:
             return False, msg
         if state_obj.workflow_id == ticket_obj.workflow_id:
+            # 获取目标状态的处理人信息
+            flag, destination_participant_info = cls.get_ticket_state_participant_info(state_id, ticket_id=ticket_id)
             ticket_obj.state_id = state_id
-            ticket_obj.participant_type_id = state_obj.participant_type_id
-            ticket_obj.participant = state_obj.participant
+            ticket_obj.participant_type_id = destination_participant_info.get('destination_participant_type_id', 0)
+            ticket_obj.participant = destination_participant_info.get('destination_participant', '')
             ticket_obj.save()
+
             # 新增流转记录
             ## 获取工单所有字段的值
             all_ticket_data, msg = cls.get_ticket_all_field_value(ticket_id)
@@ -1308,6 +1311,13 @@ class TicketBaseService(BaseService):
 
             cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0, suggestion='强制修改工单状态', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
                                          participant=username, state_id=source_state_id, ticket_data=all_ticket_data_json))
+
+            # 如果目标状态是脚本处理中，需要触发脚本处理
+            if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+                from tasks import run_flow_task  # 放在文件开头会存在循环引用
+                run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id],
+                                          queue='loonflow')
+
             return True, '修改工单状态成功'
 
     @classmethod
