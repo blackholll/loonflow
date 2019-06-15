@@ -89,7 +89,7 @@ def run_flow_task(ticket_id, script_id_str, state_id, action_from='loonrobot'):
         try:
             with stdoutIO() as s:
                 # execfile(script_file, globals)  # for python 2
-                exec(open(script_file).read(), globals)
+                exec(open(script_file, encoding='utf-8').read(), globals)
             script_result = True
             # script_result_msg = ''.join(s.buflist)
             script_result_msg = ''.join(s.getvalue())
@@ -211,7 +211,7 @@ def send_ticket_notice(ticket_id):
         try:
             with stdoutIO() as s:
                 # execfile(script_file, globals)  # for python 2
-                exec(open(notice_script_file).read(), globals)
+                exec(open(notice_script_file, encoding='utf-8').read(), globals)
             script_result = True
             # script_result_msg = ''.join(s.buflist)
             script_result_msg = ''.join(s.getvalue())
