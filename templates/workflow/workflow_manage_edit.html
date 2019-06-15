@@ -298,7 +298,7 @@
                                                     <label for="stateParticipant" class="col-sm-3 control-label">参与人</label> 
                                                     <div class="col-sm-9">
                                                       <input type="text" class="form-control" id="stateParticipant" placeholder="请根据参与人类型填写相应的参与人">
-                                                      <p class="help-block">可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator,creator_tl)\脚本记录的id等，包含子工作流的需要设置处理人为loonrobot</p>
+                                                      <p class="help-block">可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator:工单的创建人,creator_tl:工单创建人的TL)\脚本记录的id等，包含子工作流的需要设置处理人为loonrobot</p>
 
                                                     </div>
                                                 </div>
@@ -697,6 +697,8 @@
         //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
         
         // 填充新增流转记录表单中可选的源和目标状态
+        $("#sourceStateId").empty();
+        $("#destinationStateId").empty();
         result.data.value.map(function(currentValue,index,arr){$("#sourceStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
         result.data.value.map(function(currentValue,index,arr){$("#destinationStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
         callback(returnData);
