@@ -22,8 +22,16 @@ result = r.json()
 
 # post
 data = dict(target_username='lisi', suggestion='请协助提供更多信息')
-r = requests.get('http://127.0.0.1:8000/api/v1.0/tickets/{ticket_id}/add_node', headers=headers, json=data)
+r = requests.post('http://127.0.0.1:8000/api/v1.0/tickets/{ticket_id}/add_node', headers=headers, json=data)
 result = r.json()
+
+# patch
+requsts.patch,传参同post
+
+# put
+requests.put, 传参同post
+
+
 ```
 
 ## 注意
