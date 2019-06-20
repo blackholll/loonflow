@@ -480,65 +480,75 @@ class TicketBaseService(BaseService):
                 # 判断是否存在，如果存在则更新，如果不存在则新增
                 ticket_custom_field_queryset = TicketCustomField.objects.filter(ticket_id=ticket_id, field_key=key)
                 field_type_id = format_custom_field_dict[key]['field_type_id']
-                if ticket_custom_field_queryset:
-                    if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
-                        ticket_custom_field_queryset.update(char_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
-                        ticket_custom_field_queryset.update(int_value=int(update_dict.get(key)))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
-                        ticket_custom_field_queryset.update(float_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
-                        ticket_custom_field_queryset.update(bool_value=int(update_dict.get(key)))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
-                        ticket_custom_field_queryset.update(date_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
-                        ticket_custom_field_queryset.update(datetime_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
-                        ticket_custom_field_queryset.update(radio_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
-                        ticket_custom_field_queryset.update(checkbox_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
-                        ticket_custom_field_queryset.update(select_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
-                        ticket_custom_field_queryset.update(multi_select_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
-                        ticket_custom_field_queryset.update(text_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
-                        ticket_custom_field_queryset.update(username_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
-                        ticket_custom_field_queryset.update(multi_username_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
-                        ticket_custom_field_queryset.update(char_value=update_dict.get(key))
+
+                if update_dict.get(key) is None:
+                    # 值为None。说明此字段为可选，且用户未填写或者清空了该字段,需要清空字段
+                    if ticket_custom_field_queryset:
+                        # 已经存在，需要删除
+                        ticket_custom_field_queryset.update(is_deleted=1)
+                    else:
+                        # 不存在的，直接忽略
+                        pass
                 else:
-                    if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'], ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, int_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, float_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, bool_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, date_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, datetime_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, radio_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, checkbox_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, select_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, multi_select_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, text_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, username_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, multi_username_value=update_dict.get(key))
-                    elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
-                        new_ticket_custom_field_record = TicketCustomField(name= format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
-                    new_ticket_custom_field_record.save()
+                    if ticket_custom_field_queryset:
+                        if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
+                            ticket_custom_field_queryset.update(char_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
+                            ticket_custom_field_queryset.update(int_value=int(update_dict.get(key)))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
+                            ticket_custom_field_queryset.update(float_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
+                            ticket_custom_field_queryset.update(bool_value=int(update_dict.get(key)))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
+                            ticket_custom_field_queryset.update(date_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
+                            ticket_custom_field_queryset.update(datetime_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
+                            ticket_custom_field_queryset.update(radio_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
+                            ticket_custom_field_queryset.update(checkbox_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
+                            ticket_custom_field_queryset.update(select_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
+                            ticket_custom_field_queryset.update(multi_select_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
+                            ticket_custom_field_queryset.update(text_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
+                            ticket_custom_field_queryset.update(username_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
+                            ticket_custom_field_queryset.update(multi_username_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                            ticket_custom_field_queryset.update(char_value=update_dict.get(key))
+                    elif not ticket_custom_field_queryset:
+                        if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'], ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, int_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, float_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, bool_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, date_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, datetime_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, radio_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, checkbox_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, select_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, multi_select_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, text_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, username_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, multi_username_value=update_dict.get(key))
+                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                            new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
+                        new_ticket_custom_field_record.save()
         return True, ''
 
     @classmethod

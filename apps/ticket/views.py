@@ -55,7 +55,12 @@ class TicketListView(View):
         json_str = request.body.decode('utf-8')
         if not json_str:
             return api_response(-1, 'post参数为空', {})
+
         request_data_dict = json.loads(json_str)
+        if not(isinstance(request_data_dict.get('workflow_id', None), int) and isinstance(request_data_dict.get('transition_id', None), int)):
+            # 临时先这么判断，后续针对所有view统一使用更优雅的方式来处理
+            return api_response(-1, 'workflow_id或transition_id类型不合法', {})
+
         app_name = request.META.get('HTTP_APPNAME')
         request_data_dict.update(dict(username=request.META.get('HTTP_USERNAME')))
 
