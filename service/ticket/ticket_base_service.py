@@ -180,6 +180,7 @@ class TicketBaseService(BaseService):
                                                    creator_info=creator_info,
                                                    gmt_created=str(ticket_result_object.gmt_created)[:19],
                                                    gmt_modified=str(ticket_result_object.gmt_modified)[:19],
+                                                   is_end=ticket_result_object.is_end,
                                                    ))
         return ticket_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
 
