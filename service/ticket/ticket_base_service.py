@@ -835,7 +835,7 @@ class TicketBaseService(BaseService):
         ticket_state_id = ticket_obj.state_id
         transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(ticket_state_id)
         if not transition_queryset:
-            return False, '工单当前状态无需操作'
+            return None, '工单当前状态无需操作'
         state_obj, msg = WorkflowStateService.get_workflow_state_by_id(ticket_state_id)
         if not state_obj:
             return False, '工单当前状态id不存在或已被删除'
