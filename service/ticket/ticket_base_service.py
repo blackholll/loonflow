@@ -164,10 +164,17 @@ class TicketBaseService(BaseService):
 
             creator_obj, msg = AccountBaseService.get_user_by_username(ticket_result_object.creator)
             if creator_obj:
-                creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
-                                    is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone)
+                dept_id = creator_obj.dept_id
+                # 获取部门信息
+                dept_info, msg = AccountBaseService.get_dept_by_id(dept_id)
+                if dept_info:
+                    dept_dict_info = dept_info.get_dict()
+                else:
+                    dept_dict_info = dict(id=dept_id, name='')
+                creator_info = dict(username=creator_obj.username, alias=creator_obj.alias, is_active=creator_obj.is_active,
+                                    email=creator_obj.email, phone=creator_obj.phone, dept_info=dept_dict_info)
             else:
-                creator_info = dict(username=creator_obj.username, alias='', is_active=False, email='', phone='')
+                creator_info = dict(username=creator_obj.username, alias='', is_active=False, email='', phone='', dept_info={})
             ticket_result_restful_list.append(dict(id=ticket_result_object.id,
                                                    title=ticket_result_object.title,
                                                    workflow=workflow_info_dict,
@@ -631,10 +638,19 @@ class TicketBaseService(BaseService):
 
         creator_obj, msg = AccountBaseService.get_user_by_username(ticket_obj.creator)
         if creator_obj:
+            dept_id = creator_obj.dept_id
+            # 获取部门信息
+            dept_info, msg = AccountBaseService.get_dept_by_id(dept_id)
+            if dept_info:
+                dept_dict_info = dept_info.get_dict()
+            else:
+                dept_dict_info = dict(id=dept_id, name='')
+
             creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
-                                is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone)
+                                is_active=creator_obj.is_active, email=creator_obj.email,
+                                phone=creator_obj.phone, dept_info=dept_dict_info)
         else:
-            creator_info = dict(username=creator_obj.username, alias='', is_active=False, email='', phone='')
+            creator_info = dict(username=ticket_obj.creator, alias='', is_active=False, email='', phone='', dept_info={})
 
         return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
                     participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
