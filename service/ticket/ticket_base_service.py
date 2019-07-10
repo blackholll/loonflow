@@ -174,7 +174,7 @@ class TicketBaseService(BaseService):
                 creator_info = dict(username=creator_obj.username, alias=creator_obj.alias, is_active=creator_obj.is_active,
                                     email=creator_obj.email, phone=creator_obj.phone, dept_info=dept_dict_info)
             else:
-                creator_info = dict(username=creator_obj.username, alias='', is_active=False, email='', phone='', dept_info={})
+                creator_info = dict(username=ticket_result_object.creator, alias='', is_active=False, email='', phone='', dept_info={})
             ticket_result_restful_list.append(dict(id=ticket_result_object.id,
                                                    title=ticket_result_object.title,
                                                    workflow=workflow_info_dict,
