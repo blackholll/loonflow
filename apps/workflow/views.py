@@ -447,7 +447,7 @@ class WorkflowStateDetailView(View):
         if not result:
             code, msg, data = -1, msg, {}
         else:
-            code, msg, data = 0, '', {'workflow_id': result}
+            code, msg, data = 0, '', {'state_id': result}
         return api_response(code, msg, data)
 
 
