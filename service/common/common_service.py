@@ -93,20 +93,12 @@ class CommonService(BaseService):
         value_list = []
         for key, value in dict_obj.items():
             value_list.append(value)
-        value_set = set(value_list)
-        if len(value_set) == 1:
-            return True, ''
-        else:
-            return False, 'not all dict value is same'
-
-
-
-
+        value_0 = value_list[0]
+        for value in value_list:
+            if value_0 != value:
+                return False, 'not all dict value is same'
+        return True, ''
 
 
 if __name__ == '__main__':
-    print(CommonService().dict_has_blank_value(dict(a=1, b=2)))
-    print(CommonService().dict_has_blank_value(dict(a=1, b='')))
-    print(CommonService().dict_has_blank_value(dict(a=1, b={})))
-    print(CommonService().dict_has_blank_value(dict(a=1, b=0)))
-    print(CommonService().dict_has_blank_value(dict(a=1, b=dict(a=1,b=2))))
+    print(CommonService().check_dict_has_all_same_value({'a':{'a': 1, 'b': 2}, 'b':{'a': 1, 'b': 2}}))
