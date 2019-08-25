@@ -250,12 +250,13 @@ def flow_hook_task(ticket_id):
     flag, msg = CommonService().gen_hook_signature(hook_token)
     if not flag:
         return False, msg
-    r = requests.post(hook_url, headers=msg, timeout=10)
+    all_ticket_data, msg = TicketBaseService().get_ticket_all_field_value(ticket_id)
+    r = requests.post(hook_url, headers=msg, json=all_ticket_data, timeout=10)
+
     result = r.json()
     if result.get('code') == 0:
         # 调用成功
         if wait:
-            all_ticket_data, msg = TicketBaseService().get_ticket_all_field_value(ticket_id)
             # date等格式需要转换为str
             for key, value in all_ticket_data.items():
                 if type(value) not in [int, str, bool, float]:
