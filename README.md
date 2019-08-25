@@ -43,7 +43,7 @@ loonflow只提供后端调用api和工作流的配置后台，感谢youshutong20
 ![flowchart](/docs/images/flowchart.png)
 
 ## 使用文档
-[使用文档](/docs/index.md)
+[使用文档](https://github.com/blackholll/loonflow/wiki)
 
 
 
