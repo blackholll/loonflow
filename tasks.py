@@ -22,12 +22,15 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
-
+import json
+import requests
 from apps.ticket.models import TicketRecord
 from apps.workflow.models import Transition, State, WorkflowScript, Workflow, CustomNotice
 from service.account.account_base_service import AccountBaseService
 from service.common.constant_service import CONSTANT_SERVICE
 from service.ticket.ticket_base_service import TicketBaseService
+from service.common.common_service import CommonService
+from service.workflow.workflow_transition_service import WorkflowTransitionService
 from django.conf import settings
 
 try:
@@ -221,3 +224,78 @@ def send_ticket_notice(ticket_id):
             script_result = False
             script_result_msg = e.__str__()
         return script_result, script_result_msg
+
+
+@app.task
+def flow_hook_task(ticket_id):
+    """
+    hook 任务
+    :param ticket_id:
+    :return:
+    """
+    # 查询工单状态
+    ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+    state_id = ticket_obj.state_id
+    state_obj = State.objects.filter(id=state_id, is_deleted=0).first()
+
+    participant_type_id = state_obj.participant_type_id
+    if participant_type_id != CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+        return False, ''
+    hook_config = state_obj.participant
+    hook_config_dict= json.loads(hook_config)
+    hook_url = hook_config_dict.get('hook_url')
+    hook_token = hook_config_dict.get('hook_token')
+    wait = hook_config_dict.get('wait')
+
+    flag, msg = CommonService().gen_hook_signature(hook_token)
+    if not flag:
+        return False, msg
+    r = requests.post(hook_url, headers=msg, timeout=10)
+    result = r.json()
+    if result.get('code') == 0:
+        # 调用成功
+        if wait:
+            all_ticket_data, msg = TicketBaseService().get_ticket_all_field_value(ticket_id)
+            # date等格式需要转换为str
+            for key, value in all_ticket_data.items():
+                if type(value) not in [int, str, bool, float]:
+                    all_ticket_data[key] = str(all_ticket_data[key])
+
+            all_ticket_data_json = json.dumps(all_ticket_data)
+            TicketBaseService().add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0,
+                                                         suggestion=result.get('msg'),
+                                                         participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK,
+                                                         participant='hook', state_id=state_id,
+                                                         ticket_data=all_ticket_data_json,
+                                                         creator='loonrobot'
+                                                      ))
+            return True, ''
+        else:
+            # 不等待hook目标回调，直接流转
+            transition_queryset, msg = WorkflowTransitionService().get_state_transition_queryset(state_id)
+            transition_id = transition_queryset[0]  # hook状态只支持一个流转
+
+            new_request_dict = {}
+            new_request_dict.update({'transition_id': transition_id, 'suggestion': msg, 'username': 'loonrobot'})
+            # 执行流转
+            flag, msg = TicketBaseService().handle_ticket(ticket_id, new_request_dict, by_hook=True)
+            if not flag:
+                return False, msg
+
+    else:
+        TicketBaseService().update_ticket_field_value({'script_run_last_result': False})
+
+        all_ticket_data, msg = TicketBaseService().get_ticket_all_field_value(ticket_id)
+        # date等格式需要转换为str
+        for key, value in all_ticket_data.items():
+            if type(value) not in [int, str, bool, float]:
+                all_ticket_data[key] = str(all_ticket_data[key])
+
+        all_ticket_data_json = json.dumps(all_ticket_data)
+        TicketBaseService().add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0,
+                                                     suggestion=result.get('msg'),
+                                                     participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK,
+                                                     participant='hook', state_id=state_id, ticket_data=all_ticket_data_json,
+                                                     creator='loonrobot'
+                                                     ))
+

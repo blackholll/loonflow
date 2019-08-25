@@ -52,6 +52,20 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
+    def gen_hook_signature(cls, token):
+        """
+        生成hook签名
+        :param token:
+        :return:
+        """
+        timestamp = str(int(time.time()))
+        ori_str = timestamp + token
+        tar_str = hashlib.md5(ori_str.encode(encoding='utf-8')).hexdigest()
+        return True, dict(signature=tar_str, timestamp=timestamp)
+
+
+    @classmethod
+    @auto_log
     def get_model_field(cls, app_name, model_name):
         """
         获取model的字段信息

@@ -299,6 +299,14 @@ class TicketBaseService(BaseService):
             from tasks import run_flow_task # 放在文件开头会存在循环引用
             run_flow_task.apply_async(args=[new_ticket_obj.id, destination_participant, destination_state_id], queue='loonflow')
 
+        # 如果下个状态是hook，开始触发hook
+        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+            # 因为工单基础表中不保存hook配置，所以从状态表中获取
+            state_obj, msg = WorkflowStateService.get_workflow_state_by_id(new_ticket_obj.state_id)
+            from tasks import flow_hook_task  # 放在文件开头会存在循环引用
+            flow_hook_task.apply_async(args=[new_ticket_obj.id], queue='loonflow')
+
+
         # 定时器处理逻辑
         cls.handle_timer_transition(new_ticket_obj.id, destination_state_id)
 
@@ -837,13 +845,14 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def ticket_handle_permission_check(cls, ticket_id, username, by_timer=False, by_task=False):
+    def ticket_handle_permission_check(cls, ticket_id, username, by_timer=False, by_task=False, by_hook=False):
         """
         处理权限校验: 获取当前状态是否需要处理， 该用户是否有权限处理
         :param ticket_id:
         :param username:
         :param by_timer:是否为定时器流转
         :param by_task:是否为通过脚本流转
+        :param by_hook:是否hook回调触发的流转
         :return:
         """
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
@@ -862,6 +871,9 @@ class TicketBaseService(BaseService):
         if by_task and username == 'loonrobot':
             # 脚本流转，有权限
             return True, dict(need_accept=False, in_add_node=False, msg='脚本流转，放开处理权限')
+        if by_hook and username == 'loonrobot':
+            # hook触发流转，有权限
+            return True, dict(need_accept=False, in_add_node=False, msg='hook触发流转，放开处理权限')
 
         participant_type_id = ticket_obj.participant_type_id
         participant = ticket_obj.participant
@@ -962,7 +974,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def handle_ticket(cls, ticket_id, request_data_dict, by_timer=False, by_task=False):
+    def handle_ticket(cls, ticket_id, request_data_dict, by_timer=False, by_task=False, by_hook=False):
         """
         处理工单:校验必填参数,获取当前状态必填字段，更新工单基础字段，更新工单自定义字段， 更新工单流转记录，执行必要的脚本，通知消息
         此处逻辑和新建工单有较多重复，下个版本会拆出来
@@ -970,6 +982,7 @@ class TicketBaseService(BaseService):
         :param request_data_dict:
         :param by_timer: 是否通过定时器触发的流转
         :param by_task: 是否通过脚本执行完成后触发的流转
+        :param by_hook: 是否hook回调用触发流转
         :return:
         """
         transition_id = request_data_dict.get('transition_id', '')
@@ -984,7 +997,7 @@ class TicketBaseService(BaseService):
             return False, '工单不存在或已被删除'
 
         # 判断用户是否有权限处理该工单
-        has_permission, msg = cls.ticket_handle_permission_check(ticket_id, username, by_timer, by_task)
+        has_permission, msg = cls.ticket_handle_permission_check(ticket_id, username, by_timer, by_task, by_hook)
         if not has_permission:
             return False, msg
         if msg['need_accept']:
@@ -1125,6 +1138,11 @@ class TicketBaseService(BaseService):
         if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
             from tasks import run_flow_task  # 放在文件开头会存在循环引用
             run_flow_task.apply_async(args=[ticket_id, destination_participant, destination_state_id], queue='loonflow')
+
+        # 如果下个状态是hook，开始触发hook
+        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+            from tasks import flow_hook_task  # 放在文件开头会存在循环引用
+            flow_hook_task.apply_async(args=[ticket_id], queue='loonflow')
 
         return True, ''
 
@@ -1565,7 +1583,7 @@ class TicketBaseService(BaseService):
     @auto_log
     def retry_ticket_script(cls, ticket_id, username):
         """
-        重新执行工单脚本
+        重新执行工单脚本，或重新触发hook
         :param ticket_id:
         :return:
         """
@@ -1573,14 +1591,23 @@ class TicketBaseService(BaseService):
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         if not ticket_obj:
             return False, 'Ticket is not existed or has been deleted'
-        if ticket_obj.participant_type_id is not CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
-            return False, "The ticket's participant_type is not robot, do not allow retry"
-        # 先重置上次执行结果
-        ticket_obj.script_run_last_result = True
-        ticket_obj.save()
+        # if ticket_obj.participant_type_id is not CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+        #     return False, "The ticket's participant_type is not robot, do not allow retry"
 
-        from tasks import run_flow_task  # 放在文件开头会存在循环引用问题
-        run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id, '{}_retry'.format(username)], queue='loonflow')
+        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+            # 先重置上次执行结果
+            ticket_obj.script_run_last_result = True
+            ticket_obj.save()
+            from tasks import run_flow_task  # 放在文件开头会存在循环引用问题
+            run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id, '{}_retry'.format(username)], queue='loonflow')
+        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+            ticket_obj.script_run_last_result = True
+            ticket_obj.save()
+            from tasks import flow_hook_task
+            flow_hook_task.apply_async(args=[ticket_id], queue='loonflow')
+        else:
+            return False, "The ticket's participant_type is not robot or hook, do not allow retry"
+
 
     @classmethod
     @auto_log
@@ -1685,6 +1712,10 @@ class TicketBaseService(BaseService):
                 if len(approver.split(',')) > 1:
                     destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
                 destination_participant = approver
+
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+            destination_participant = '***'  # 敏感数据，不保存工单基础表中
+
         if destination_participant_type_id in (CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT, CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE) \
                 and state_obj.distribute_type_id in (CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_RANDOM, CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ALL):
             # 处理人为角色，部门，或者角色都可能是为多个人，需要根据状态的分配方式计算实际的处理人
@@ -1821,3 +1852,45 @@ class TicketBaseService(BaseService):
             return False, msg
         return True, ''
 
+    @classmethod
+    @auto_log
+    def hook_call_back(cls, ticket_id, app_name, request_data_dict):
+        """
+        hook回调
+        :param ticket_id:
+        :param app_name:
+        :param request_data_dict:
+        :return:
+        """
+        # 校验请求app_name是否有hook回调该工单权限
+        flag, msg = AccountBaseService().app_ticket_permission_check(app_name, ticket_id)
+        if not flag:
+            return False, msg
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+
+        # 检查工单处理人类型为hook中
+        if ticket_obj.participant_type_id != CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+            return False, '工单当前处理人类型非hook，不执行回调操作'
+
+        result = request_data_dict.get('result', True)
+        msg = request_data_dict.get('msg', '')
+        field_value = request_data_dict.get('field_value', {})  # 用于更新字段
+
+        if result is False:
+            # hook执行失败了，记录失败状态.以便允许下次再执行
+            cls.update_ticket_field_value({'script_run_last_result': False})
+            return True, ''
+
+        state_id = ticket_obj.state_id
+        transition_queryset, msg = WorkflowTransitionService().get_state_transition_queryset(state_id)
+        transition_id = transition_queryset[0]  # hook状态只支持一个流转
+
+        new_request_dict = field_value
+
+        new_request_dict.update({'transition_id': transition_id, 'suggestion': msg, 'username': 'loonrobot'})
+
+        # 执行流转
+        flag, msg = cls.handle_ticket(ticket_id, new_request_dict, by_timer=False, by_task=False)
+        if not flag:
+            return False, msg
+        return True, ''

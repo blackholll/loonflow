@@ -446,7 +446,7 @@ class TicketField(View):
 class TicketScriptRetry(View):
     def post(self, request, *args, **kwargs):
         """
-        重新执行工单脚本(用于脚本执行出错的情况)
+        重新执行工单脚本(用于脚本执行出错的情况), 也可用于hook执行失败的情况
         :return:
         """
         json_str = request.body.decode('utf-8')
@@ -454,7 +454,6 @@ class TicketScriptRetry(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data_dict.get('username', '')
         username = request.META.get('HTTP_USERNAME')
 
         from service.account.account_base_service import AccountBaseService
@@ -487,10 +486,34 @@ class TicketComment(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data_dict.get('username', '')
         username = request.META.get('HTTP_USERNAME')
         suggestion = request_data_dict.get('suggestion', '')
         result, msg = TicketBaseService.add_comment(ticket_id, username, suggestion)
+        if result:
+            code, msg, data = 0, 'add ticket comment successful', ''
+        else:
+            code, msg, data = -1, msg, ''
+        return api_response(code, msg, data)
+
+
+class TicketHookCallBack(View):
+    def post(self, request, *args, **kwargs):
+        """
+        工单hook回调，用于hoot请求后，被请求方执行完任务后回调loonflow,以触发工单继续流转
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        ticket_id = kwargs.get('ticket_id')
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        # {"result":true, "msg":"", field_value:{"xx":1,"bb":2}}
+        app_name = request.META.get('HTTP_APPNAME')
+
+        result, msg = TicketBaseService().hook_call_back(ticket_id, app_name, request_data_dict)
         if result:
             code, msg, data = 0, 'add ticket comment successful', ''
         else:

@@ -287,18 +287,21 @@
                                                         <option value="6">脚本</option>
                                                         <option value="7">工单字段</option>
                                                         <option value="8">父工单字段</option>
+                                                        <option value="10">hook</option>
                                                         <option value="0">无</option>
                                                         
               
                                                       </select>
-                                                      <p class="help-block">如果你需要的类型不在此范围内，可以选择字符型或者文本域，然后指定label字段，实现自定义</p>
+                                                      <p class="help-block">初始状态的处理人类型和处理人和选择无和留空(状态的处理人仅供状态变化时确定新的处理人用，不会作为流转时目的状态，所以无需配置)，
+                                                      结束状态处理人类型和处理人也请选择无和留空，因为结束状态无需人再处理</p>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="stateParticipant" class="col-sm-3 control-label">参与人</label> 
                                                     <div class="col-sm-9">
                                                       <input type="text" class="form-control" id="stateParticipant" placeholder="请根据参与人类型填写相应的参与人">
-                                                      <p class="help-block">可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator:工单的创建人,creator_tl:工单创建人的TL)\脚本记录的id等，包含子工作流的需要设置处理人为loonrobot</p>
+                                                      <p class="help-block">可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator:工单的创建人,creator_tl:工单创建人的TL)\脚本记录的id等，包含子工作流的需要设置处理人为loonrobot。 当处理人类型为hook方式时,处理人需要按照如下规则配置
+                                                      {"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true}。详见https://github.com/blackholll/loonflow/wiki 中新建状态</p>
 
                                                     </div>
                                                 </div>
