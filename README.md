@@ -82,7 +82,7 @@ loonflow只提供后端调用api和工作流的配置后台，感谢youshutong20
 - 工作流配置管理后台
 
 # 相关术语(如转交、接单、加签等等)
-见[使用文档](docs/index.md)
+见[使用文档](https://github.com/blackholll/loonflow/wiki)
 
 # 欢迎捐助
 您的支持是我最大的动力,欢迎支付宝扫码捐助
