@@ -619,7 +619,7 @@ class TicketBaseService(BaseService):
             if not view_permission:
                 return False, msg
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
-        field_list, msg = cls.get_ticket_base_filed_list(ticket_id)
+        field_list, msg = cls.get_ticket_base_field_list(ticket_id)
 
         new_field_list = []
 
@@ -667,7 +667,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_base_filed_list(cls, ticket_id):
+    def get_ticket_base_field_list(cls, ticket_id):
         """
         获取工单字段信息,
         :param ticket_id:
@@ -700,41 +700,46 @@ class TicketBaseService(BaseService):
 
         # 工单所有自定义字段
         custom_field_dict, msg = WorkflowCustomFieldService.get_workflow_custom_field(ticket_obj.workflow_id)
+        custom_field_key_list = [key for key, value in custom_field_dict.items()]
+        ticket_custom_field_objs = TicketCustomField.objects.filter(ticket_id=ticket_id, field_key__in=custom_field_key_list, is_deleted=0).all()
+        key_value_dict = {}
+        for ticket_custom_field_obj in ticket_custom_field_objs:
+            key_value_dict[ticket_custom_field_obj.field_key] = ticket_custom_field_obj
         for key, value in custom_field_dict.items():
             field_type_id = value['field_type_id']
-            ticket_custom_field_obj = TicketCustomField.objects.filter(ticket_id=ticket_id,field_key=key, is_deleted=0).first()
-            if not ticket_custom_field_obj:
-                field_value = None  # 尚未赋值的情况
+            field_value_obj = key_value_dict.get(key)
+            if not field_value_obj:
+                field_value = None
             else:
                 # 根据字段类型 获取对应列的值
                 if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
-                    field_value = ticket_custom_field_obj.char_value
+                    field_value = field_value_obj.char_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
-                    field_value = ticket_custom_field_obj.int_value
+                    field_value = field_value_obj.int_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
-                    field_value = ticket_custom_field_obj.float_value
+                    field_value = field_value_obj.float_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
-                    field_value = ticket_custom_field_obj.bool_value
+                    field_value = field_value_obj.bool_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
-                    field_value = str(ticket_custom_field_obj.date_value)
+                    field_value = str(field_value_obj.date_value)
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
-                    field_value = str(ticket_custom_field_obj.datetime_value)
+                    field_value = str(field_value_obj.datetime_value)
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
-                    field_value = ticket_custom_field_obj.radio_value
+                    field_value = field_value_obj.radio_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
-                    field_value = ticket_custom_field_obj.checkbox_value
+                    field_value = field_value_obj.checkbox_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
-                    field_value = ticket_custom_field_obj.select_value
+                    field_value = field_value_obj.select_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
-                    field_value = ticket_custom_field_obj.multi_select_value
+                    field_value = field_value_obj.multi_select_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
-                    field_value = ticket_custom_field_obj.text_value
+                    field_value = field_value_obj.text_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
-                    field_value = ticket_custom_field_obj.username_value
+                    field_value = field_value_obj.username_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
-                    field_value = ticket_custom_field_obj.multi_username_value
+                    field_value = field_value_obj.multi_username_value
                 elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
-                    field_value = ticket_custom_field_obj.char_value
+                    field_value = field_value_obj.char_value
 
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=field_value, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
