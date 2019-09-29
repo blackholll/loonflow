@@ -35,6 +35,7 @@ class TicketRecord(models.Model):
 
     def get_to_dict(self):
         return dict(
+            it=self.id,
             title=self.title,
             workflow_id=self.workflow_id,
             sn=self.sn,
