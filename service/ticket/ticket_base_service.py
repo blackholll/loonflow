@@ -1901,3 +1901,31 @@ class TicketBaseService(BaseService):
         if not flag:
             return False, msg
         return True, ''
+
+    @classmethod
+    @auto_log
+    def get_ticket_participant_info(cls, ticket_id):
+        """
+        获取工单当前详细参与人信息
+        :param ticket_id:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        from apps.account.models import LoonUser
+        participant_username_list, participant_info_list = [], []
+
+        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+            participant_username_list = [ticket_obj.participant]
+        elif ticket_obj.participant_type_id in (
+        CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL):
+            participant_username_list = ticket_obj.participant.split(',')
+        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+            participant_username_list, msg = AccountBaseService.get_role_username_list(ticket_obj.participant)
+        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+            participant_username_list, msg = AccountBaseService.get_dept_username_list(ticket_obj.participant)
+        if participant_username_list:
+            participant_queryset = LoonUser.objects.filter(username__in=participant_username_list, is_deleted=0)
+            for participant_0 in participant_queryset:
+                participant_info_list.append(dict(username=participant_0.username, alias=participant_0.alias,
+                                                  phone=participant_0.phone, email=participant_0.email))
+        return True, dict(participant_username_list=participant_username_list, participant_info_list=participant_info_list)

@@ -519,3 +519,25 @@ class TicketHookCallBack(View):
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
+
+
+class TicketParticipantInfo(View):
+    def get(self, request, *args, **kwargs):
+        """
+        工单当前处理人详情，调用方后端可用获取处理人信息后提供催办等功能
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        ticket_id = kwargs.get('ticket_id')
+        flag, msg = TicketBaseService.get_ticket_participant_info(ticket_id)
+        if flag:
+            code, msg, data = 0, '', msg
+        else:
+            code, msg, data = -1, msg, {}
+        return api_response(code, msg, data)
+
+
+
+
