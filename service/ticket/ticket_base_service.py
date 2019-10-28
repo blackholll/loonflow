@@ -175,20 +175,11 @@ class TicketBaseService(BaseService):
                                     email=creator_obj.email, phone=creator_obj.phone, dept_info=dept_dict_info)
             else:
                 creator_info = dict(username=ticket_result_object.creator, alias='', is_active=False, email='', phone='', dept_info={})
-            ticket_result_restful_list.append(dict(id=ticket_result_object.id,
-                                                   title=ticket_result_object.title,
-                                                   workflow=workflow_info_dict,
-                                                   sn=ticket_result_object.sn,
-                                                   state=dict(state_id=ticket_result_object.state_id, state_name=state_name, state_label=json.loads(state_obj.label)),
-                                                   parent_ticket_id=ticket_result_object.parent_ticket_id,
-                                                   parent_ticket_state_id=ticket_result_object.parent_ticket_state_id,
-                                                   participant_info=participant_info,
-                                                   creator=ticket_result_object.creator,
-                                                   creator_info=creator_info,
-                                                   gmt_created=str(ticket_result_object.gmt_created)[:19],
-                                                   gmt_modified=str(ticket_result_object.gmt_modified)[:19],
-                                                   is_end=ticket_result_object.is_end,
-                                                   ))
+            ticket_format_obj = ticket_result_object.get_dict()
+            ticket_format_obj.update(dict(state=dict(state_id=ticket_result_object.state_id, state_name=state_name, state_label=json.loads(state_obj.label)),
+            participant_info=participant_info, creator_info=creator_info))
+
+            ticket_result_restful_list.append(ticket_format_obj)
         return ticket_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
