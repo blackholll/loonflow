@@ -182,14 +182,9 @@ class WorkflowStateService(BaseService):
 
         # 字段排序
         new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
-        state_info_dict = dict(id=init_state_obj.id, name=init_state_obj.name, workflow_id=init_state_obj.workflow_id,
-                               sub_workflow_id=init_state_obj.sub_workflow_id, distribute_type_id=init_state_obj.distribute_type_id,
-                               is_hidden=init_state_obj.is_hidden, order_id=init_state_obj.order_id, type_id=init_state_obj.type_id,
-                               participant_type_id=init_state_obj.participant_type_id, participant=init_state_obj.participant,
-                               field_list=new_field_list, label=json.loads(init_state_obj.label),
-                               creator=init_state_obj.creator, gmt_created=str(init_state_obj.gmt_created)[:19],
-                               transition=transition_info_list
-                               )
+        state_info_dict = init_state_obj.get_dict()
+        state_info_dict.update(field_list=new_field_list, label=json.loads(init_state_obj.label), transition=transition_info_list)
+        state_info_dict.pop('state_field_str')
         return state_info_dict, ''
 
     @classmethod
