@@ -208,11 +208,6 @@ class LoonUserRole(BaseModel):
     user_id = models.IntegerField('用户id')
     role_id = models.IntegerField('角色id')
 
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField('更新时间', auto_now=True)
-    is_deleted = models.BooleanField('已删除', default=False)
-
     class Meta:
         verbose_name = '用户角色'
         verbose_name_plural = '用户角色'
@@ -226,11 +221,7 @@ class AppToken(BaseModel):
     token = models.CharField('签名令牌', max_length=50, help_text='后端自动生成')
     workflow_ids = models.CharField('工作流权限id', default='', blank=True, max_length=2000, help_text='有权限的工作流ids,逗号隔开,如1,2,3')
     ticket_sn_prefix = models.CharField('工单流水号前缀', default='loonflow', max_length=20, help_text='工单流水号前缀，如设置为loonflow,则创建的工单的流水号为loonflow_201805130013')
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField('更新时间', auto_now=True)
-    is_deleted = models.BooleanField('已删除', default=False)
-
+    
     class Meta:
         verbose_name = '调用token'
         verbose_name_plural = '调用token'

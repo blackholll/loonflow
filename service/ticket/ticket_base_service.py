@@ -660,10 +660,9 @@ class TicketBaseService(BaseService):
         else:
             creator_info = dict(username=ticket_obj.creator, alias='', is_active=False, email='', phone='', dept_info={})
 
-        return dict(id=ticket_obj.id, sn=ticket_obj.sn, title=ticket_obj.title, state_id=ticket_obj.state_id, parent_ticket_id=ticket_obj.parent_ticket_id,
-                    participant=ticket_obj.participant, participant_type_id=ticket_obj.participant_type_id, workflow_id=ticket_obj.workflow_id,
-                    creator=ticket_obj.creator, gmt_created=str(ticket_obj.gmt_created)[:19], gmt_modified=str(ticket_obj.gmt_modified)[:19],
-                    script_run_last_result=ticket_obj.script_run_last_result, field_list=new_field_list, creator_info=creator_info), ''
+        ticket_result_dict = ticket_obj.get_dict()
+        ticket_result_dict.update(dict(field_list=new_field_list, creator_info=creator_info))
+        return ticket_result_dict, ''
 
     @classmethod
     @auto_log
@@ -1571,7 +1570,7 @@ class TicketBaseService(BaseService):
         if not ticket_obj:
             return False, '工单已被删除或者不存在'
         # 获取工单基础表中的字段中的字段信息
-        field_info_dict = ticket_obj.get_to_dict()
+        field_info_dict = ticket_obj.get_dict()
         # 获取自定义字段的值
         ## 获取工单自定义字段
         ticket_custom_field_list, msg = WorkflowCustomFieldService.get_workflow_custom_field_name_list(ticket_obj.workflow_id)

@@ -1,10 +1,11 @@
 import datetime, time
 from django.db import models
+from apps.loon_base_model import BaseModel
 from service.common.constant_service import CONSTANT_SERVICE
 # Create your models here.
 
 
-class TicketRecord(models.Model):
+class TicketRecord(BaseModel):
     """
     工单记录
     """
@@ -24,37 +25,13 @@ class TicketRecord(models.Model):
     is_rejected = models.BooleanField('被拒绝', default=False, help_text='工单是否处于被拒绝状态')
     multi_all_person = models.CharField('全部处理的结果', max_length=1000, default='{}', blank=True, help_text='需要当前状态处理人全部处理时实际的处理结果，json格式')
 
-    creator = models.CharField('创建人', max_length=50, default='admin')
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
 
     class Meta:
         verbose_name = '工单记录'
         verbose_name_plural = '工单记录'
 
-    def get_to_dict(self):
-        return dict(
-            it=self.id,
-            title=self.title,
-            workflow_id=self.workflow_id,
-            sn=self.sn,
-            state_id=self.state_id,
-            parent_ticket_id=self.parent_ticket_id,
-            parent_ticket_state_id=self.parent_ticket_state_id,
-            participant_type_id=self.participant_type_id,
-            participant=self.participant,
-            relation=self.relation,
-            in_add_node=self.in_add_node,
-            add_node_man=self.add_node_man,
-            creator=self.creator,
-            gmt_created=self.gmt_created,
-            gmt_modified=self.gmt_modified,
-            is_deleted=self.is_deleted,
-        )
 
-
-class TicketFlowLog(models.Model):
+class TicketFlowLog(BaseModel):
     """
     工单流转日志
     """
@@ -68,17 +45,13 @@ class TicketFlowLog(models.Model):
     intervene_type_id = models.IntegerField('干预类型', default=0, help_text='0.非人为干预的流转，1.转交操作 2.加签操作 3.加签处理完成')
     ticket_data = models.CharField('工单数据', max_length=10000, default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
 
-    creator = models.CharField(u'创建人', max_length=50, default='admin')
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
 
     class Meta:
         verbose_name = '工单流转日志'
         verbose_name_plural = '工单流转日志'
 
 
-class TicketCustomField(models.Model):
+class TicketCustomField(BaseModel):
     """
     工单自定义字段， 工单自定义字段实际的值。
     """
@@ -104,10 +77,6 @@ class TicketCustomField(models.Model):
     username_value = models.CharField('用户名', max_length=50, default='', blank=True)
     multi_username_value = models.CharField('多选用户名', max_length=1000, default='', blank=True)
 
-    creator = models.CharField(u'创建人', max_length=50, default='admin')
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
 
     class Meta:
         verbose_name = '工单自定义字段'

@@ -1,11 +1,10 @@
 import os
 import uuid
 from django.db import models
+from apps.loon_base_model import BaseModel
 
-# Create your models here.
 
-
-class Workflow(models.Model):
+class Workflow(BaseModel):
     """
     工作流
     """
@@ -18,17 +17,13 @@ class Workflow(models.Model):
     display_form_str = models.CharField('展现表单字段', max_length=10000, default='[]', blank=True, help_text='默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')
     # default_notice_to = models.CharField('默认通知人', max_length=50, default='', blank=True, help_text='表单创建及结束时会发送相应通知信息')
 
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField('更新时间', auto_now=True)
-    is_deleted = models.BooleanField('已删除', default=False)
 
     class Meta:
         verbose_name = '工作流'
         verbose_name_plural = '工作流'
 
 
-class State(models.Model):
+class State(BaseModel):
     """
     状态记录, 变量支持通过脚本获取
     """
@@ -46,17 +41,13 @@ class State(models.Model):
     state_field_str = models.TextField('表单字段', default='{}', help_text='json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"created_at":1,"title":2, "sn":1}, 内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')  # json格式存储,包括读写属性1：只读，2：必填，3：可选，4：不显示, 字典的字典
     label = models.CharField('状态标签', max_length=1000, default='{}', help_text='json格式，由调用方根据实际定制需求自行确定,如状态下需要显示哪些前端组件:{"components":[{"AppList":1, "ProjectList":7}]}')
 
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
 
     class Meta:
         verbose_name = '工作流状态'
         verbose_name_plural = '工作流状态'
 
 
-class Transition(models.Model):
+class Transition(BaseModel):
     """
     工作流流转，定时器，条件(允许跳过)， 条件流转与定时器不可同时存在
     """
@@ -72,17 +63,12 @@ class Transition(models.Model):
     alert_enable = models.BooleanField('点击弹窗提示', default=False)
     alert_text = models.CharField('弹窗内容', max_length=100, default='', blank=True)
 
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
-
     class Meta:
         verbose_name = '工作流流转'
         verbose_name_plural = '工作流流转'
 
 
-class CustomField(models.Model):
+class CustomField(BaseModel):
     """自定义字段, 设定某个工作流有哪些自定义字段"""
     workflow_id = models.IntegerField('工作流id')
     field_type_id = models.IntegerField('类型', help_text='5.字符串，10.整形，15.浮点型，20.布尔，25.日期，30.日期时间，35.单选框，40.多选框，45.下拉列表，50.多选下拉列表，55.文本域，60.用户名, 70.多选的用户名, 80.附件(只保存路径，多个使用逗号隔开)')
@@ -97,11 +83,7 @@ class CustomField(models.Model):
     field_choice = models.CharField('radio、checkbox、select的选项', max_length=1000, default='{}', blank=True,
                                     help_text='radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{"1":"中国", "2":"美国"},注意数字也需要引号')
     label = models.CharField('标签', max_length=100, blank=True, default='{}', help_text='自定义标签，json格式，调用方可根据标签自行处理特殊场景逻辑，loonflow只保存文本内容')
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
-
+   
     class Meta:
         verbose_name = '工作流自定义字段'
         verbose_name_plural = '工作流自定义字段'
@@ -122,7 +104,7 @@ def upload_workflow_script(instance, filename):
     return os.path.join(upload_to, filename)
 
 
-class WorkflowScript(models.Model):
+class WorkflowScript(BaseModel):
     """
     流程中执行的脚本
     """
@@ -131,11 +113,7 @@ class WorkflowScript(models.Model):
     description = models.CharField('描述', max_length=100, null=True, blank=True)
     is_active = models.BooleanField('可用', default=True, help_text='此处可用时，才允许实际执行')
 
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
-
+  
     class Meta:
         verbose_name = '工作流脚本'
         verbose_name_plural = '工作流脚本'
@@ -156,7 +134,7 @@ def upload_notice_script(instance, filename):
     return os.path.join(upload_to, filename)
 
 
-class CustomNotice(models.Model):
+class CustomNotice(BaseModel):
     """
     自定义通知方式
     """
@@ -165,11 +143,7 @@ class CustomNotice(models.Model):
     script = models.FileField('通知脚本', upload_to=upload_notice_script, null=True, blank=True)
     title_template = models.CharField('标题模板', max_length=50, default='你有一个待办工单:{title}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}')
     content_template = models.CharField('内容模板', max_length=1000, default='标题:{title}, 创建时间:{gmt_created}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}')
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField(u'创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField(u'修改时间', auto_now=True)
-    is_deleted = models.BooleanField(u'已删除', default=False)
-
+  
     class Meta:
         verbose_name = '自定义通知脚本'
         verbose_name_plural = '自定义通知脚本'
