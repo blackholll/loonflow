@@ -173,6 +173,7 @@ def send_ticket_notice(ticket_id):
         return True, 'no notice defined'
     notice_str_list = notices.split(',')
     notice_id_list = [int(notice_str) for notice_str in notice_str_list]
+    send_notice_result_list = []
     for notice_id in notice_id_list:
         notice_obj = CustomNotice.objects.filter(id=notice_id, is_deleted=0).first()
         if not notice_obj:
@@ -223,7 +224,8 @@ def send_ticket_notice(ticket_id):
             logger.error(traceback.format_exc())
             script_result = False
             script_result_msg = e.__str__()
-        return script_result, script_result_msg
+        send_notice_result_list.append(dict(notice_id=notice_id, result=script_result, msg=script_result_msg))
+    return send_notice_result_list
 
 
 @app.task
