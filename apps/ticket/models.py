@@ -9,7 +9,7 @@ class TicketRecord(BaseModel):
     """
     工单记录
     """
-    title = models.CharField(u'标题', max_length=50, blank=True, default='', help_text="工单的标题")
+    title = models.CharField(u'标题', max_length=500, blank=True, default='', help_text="工单的标题")
     workflow_id = models.IntegerField('关联的流程id', help_text='与workflow.Workflow流程关联')
     sn = models.CharField(u'流水号', max_length=25, help_text="工单的流水号")
     state_id = models.IntegerField('当前状态', help_text='与workflow.State关联')
