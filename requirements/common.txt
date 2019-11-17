@@ -4,4 +4,4 @@ django==2.0.13
 mysqlclient==1.3.12
 celery==4.1.1
 redis==2.10.6
-requests==2.20.0
+requests==2.22.0
