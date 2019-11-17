@@ -177,7 +177,7 @@ class TicketBaseService(BaseService):
                 creator_info = dict(username=ticket_result_object.creator, alias='', is_active=False, email='', phone='', dept_info={})
             ticket_format_obj = ticket_result_object.get_dict()
             ticket_format_obj.update(dict(state=dict(state_id=ticket_result_object.state_id, state_name=state_name, state_label=json.loads(state_obj.label)),
-            participant_info=participant_info, creator_info=creator_info))
+            participant_info=participant_info, creator_info=creator_info, workflow_info=workflow_info_dict))
 
             ticket_result_restful_list.append(ticket_format_obj)
         return ticket_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
