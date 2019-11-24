@@ -243,6 +243,9 @@ class WorkflowStateService(BaseService):
                 flag, result = WorkflowRunScriptService.get_run_script_by_id(int(participant))
                 if flag:
                     participant_alias = result.name
+        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+            participant_type_name = 'hook'
+            participant_alias = participant_name
 
         return dict(participant=participant, participant_name=participant_name, participant_type_id=participant_type_id,
                     participant_type_name=participant_type_name, participant_alias=participant_alias), ''
