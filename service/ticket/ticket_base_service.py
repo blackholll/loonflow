@@ -926,6 +926,13 @@ class TicketBaseService(BaseService):
         if not workflow_obj.view_permission_check:
             return True, '该工作流不限制查看权限'
         else:
+            # 超级管理员有所有工单的查看权限
+            user_obj, msg = AccountBaseService.get_user_by_username(username)
+            if user_obj is False:
+                return False, '用户不存在，无查看权限'
+            else:
+                if user_obj.is_admin:
+                    return True, '超级管理员拥有所有工单查看权限'
             if username in ticket_obj.relation.split(','):
                 return True, '用户是该工单的关系人，有查看权限'
             else:
