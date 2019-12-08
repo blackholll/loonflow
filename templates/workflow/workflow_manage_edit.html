@@ -551,6 +551,30 @@
     $("#workflow_transiton_form")[0].reset();
     $("#transitionId").val("");    
   });
+
+  $("#transitionModal").on("show.bs.modal", function() {
+      var param = {};
+      param.per_page = 1000;
+      param.page = 1
+      $.ajax({
+          type: "GET",
+          url: "/api/v1.0/workflows/" + "{{ workflow_id }}" + "/states",
+          cache: false,  //禁用缓存
+          data: param,  //传入组装的参数
+          dataType: "json",
+          success: function (result) {
+              result.data.value.map(function (currentValue, index, arr) {
+                  $("#sourceStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");
+              })
+              result.data.value.map(function (currentValue, index, arr) {
+                  $("#destinationStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");
+              })
+          },
+
+
+      });
+  })
+
   $("#customFieldModal").on("hidden.bs.modal", function() {
     $(this).removeData("bs.modal");
     $("#workflow_custom_field_form")[0].reset();
@@ -698,12 +722,7 @@
         //console.log(returnData);
         //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
         //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
-        
-        // 填充新增流转记录表单中可选的源和目标状态
-        $("#sourceStateId").empty();
-        $("#destinationStateId").empty();
-        result.data.value.map(function(currentValue,index,arr){$("#sourceStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
-        result.data.value.map(function(currentValue,index,arr){$("#destinationStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
+
         callback(returnData);
         },
       
@@ -1314,7 +1333,6 @@
     } else {
       $('#alertEnable').attr('checked', false);
     };
-
 
     $('#transitionModal').modal('show');
   }
