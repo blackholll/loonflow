@@ -1926,3 +1926,47 @@ class TicketBaseService(BaseService):
                 participant_info_list.append(dict(username=participant_0.username, alias=participant_0.alias,
                                                   phone=participant_0.phone, email=participant_0.email))
         return True, dict(participant_username_list=participant_username_list, participant_info_list=participant_info_list)
+
+    @classmethod
+    @auto_log
+    def close_ticket(cls, ticket_id, username, suggestion):
+        """
+        关闭工单
+        :param ticket_id:
+        :param username:
+        :param suggestion:处理意见
+        :return:
+        """
+        # 获取工单详细信息
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        if not ticket_obj:
+            return False, '工单不存在或已被删除'
+        workflow_id = ticket_obj.workflow_id
+        # 查询工作流的结束状态
+        state_obj, msg = WorkflowStateService.get_workflow_end_state(workflow_id)
+        if not state_obj:
+            return False, msg
+
+        # 新增流转记录
+        # 获取工单所有字段的值
+        all_ticket_data, msg = cls.get_ticket_all_field_value(ticket_id)
+        # date等格式需要转换为str
+        for key, value in all_ticket_data.items():
+            if type(value) not in [int, str, bool, float]:
+                all_ticket_data[key] = str(all_ticket_data[key])
+
+        all_ticket_data_json = json.dumps(all_ticket_data)
+        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='强制关闭工单:{}'.format(suggestion),
+                                    participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                    participant=username, state_id=state_obj.id, ticket_data=all_ticket_data_json,
+                                    )
+
+        new_state_id = state_obj.id
+        ticket_obj.state_id = new_state_id
+        ticket_obj.participant_type_id = 0
+        ticket_obj.participant = ''
+        ticket_obj.save()
+
+        cls.add_ticket_flow_log(ticket_flow_log_dict)
+        return True, ''
+

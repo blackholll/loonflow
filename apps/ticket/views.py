@@ -539,5 +539,25 @@ class TicketParticipantInfo(View):
         return api_response(code, msg, data)
 
 
+class TicketClose(View):
+    def post(self, request, *args, **kwargs):
+        """
+        强制关闭工单
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        ticket_id = kwargs.get('ticket_id')
+        request_data_dict = json.loads(json_str)
+        username = request.META.get('HTTP_USERNAME')
+        suggestion = request_data_dict.get('suggestion', '')
 
+        flag, msg = TicketBaseService.close_ticket(ticket_id, username, suggestion)
+        if flag:
+            code, msg, data = 0, '', msg
+        else:
+            code, msg, data = -1, msg, {}
+        return api_response(code, msg, data)
 

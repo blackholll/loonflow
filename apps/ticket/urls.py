@@ -19,5 +19,6 @@ urlpatterns = [
     path('/<int:ticket_id>/comments', TicketComment.as_view()),
     path('/<int:ticket_id>/hook_call_back', TicketHookCallBack.as_view()),
     path('/<int:ticket_id>/participant_info', TicketParticipantInfo.as_view()),
+    path('/<int:ticket_id>/close', TicketClose.as_view()),
     path('/states', TicketsStates.as_view()),  # 批量获取工单状态
 ]

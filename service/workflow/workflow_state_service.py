@@ -135,6 +135,22 @@ class WorkflowStateService(BaseService):
             state_info_dict[state.id] = state.name
         return state_info_dict, ''
 
+
+    @classmethod
+    @auto_log
+    def get_workflow_end_state(cls, workflow_id):
+        """
+        获取工作流结束状态
+        :param workflow_id:
+        :return:
+        """
+        workflow_state_obj = State.objects.filter(
+            is_deleted=0, workflow_id=workflow_id, type_id=CONSTANT_SERVICE.STATE_TYPE_END).first()
+        if workflow_state_obj:
+            return workflow_state_obj, ''
+        else:
+            return None, '该工作流未配置结束状态，请检查工作流配置'
+
     @classmethod
     @auto_log
     def get_workflow_init_state(cls, workflow_id):
