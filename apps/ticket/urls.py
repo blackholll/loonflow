@@ -1,7 +1,7 @@
 from django.urls import path
 from apps.ticket.views import TicketListView, TicketView, TicketTransition, TicketFlowlog, TicketFlowStep, TicketState, \
     TicketsStates, TicketAccept, TicketDeliver, TicketAddNode, \
-    TicketAddNodeEnd, TicketField, TicketScriptRetry, TicketComment, TicketHookCallBack, TicketParticipantInfo
+    TicketAddNodeEnd, TicketField, TicketScriptRetry, TicketComment, TicketHookCallBack, TicketParticipantInfo, TicketClose
 
 urlpatterns = [
     path('', TicketListView.as_view()),
