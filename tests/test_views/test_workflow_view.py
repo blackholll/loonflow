@@ -22,9 +22,10 @@ class TestWorkflowView(LoonflowTest):
         """
         from apps.workflow.models import Workflow
         last_workflow_id = Workflow.objects.filter(is_deleted=0).order_by('-id').first().id
+        last_workflow_id=1
         url = '/api/v1.0/workflows/{}/init_state'.format(last_workflow_id)
         response_content_dict = LoonflowApiCall().api_call('get', url)
-        self.assertEqual(response_content_dict.get('code'), -1)
+        self.assertEqual(response_content_dict.get('code'), 0)
 
     def test_get_workflow_states(self):
         """
@@ -35,7 +36,7 @@ class TestWorkflowView(LoonflowTest):
         last_workflow_id = Workflow.objects.filter(is_deleted=0).order_by('-id').first().id
         url = '/api/v1.0/workflows/{}/states'.format(last_workflow_id)
         response_content_dict = LoonflowApiCall().api_call('get', url)
-        self.assertEqual(response_content_dict.get('code'), -1)
+        self.assertEqual(response_content_dict.get('code'), 0)
 
     def test_get_workflow_state_detail(self):
         """
@@ -46,4 +47,4 @@ class TestWorkflowView(LoonflowTest):
         last_state_id = State.objects.filter(is_deleted=0).order_by('-id').first().id
         url = '/api/v1.0/workflows/states/{}'.format(last_state_id)
         response_content_dict = LoonflowApiCall().api_call('get', url)
-        self.assertEqual(response_content_dict.get('code'), -1)
+        self.assertEqual(response_content_dict.get('code'), 0)

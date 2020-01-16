@@ -142,8 +142,12 @@ def timer_transition(ticket_id, state_id, date_time, transition_id):
     """
     # 需要满足工单此状态后续无其他操作才自动流转
     # 查询该工单此状态所有操作
-    flow_log_set, msg = TicketBaseService().get_ticket_flow_log(ticket_id, 'loonrobot', per_page=1000)
-    for flow_log in flow_log_set:
+    # flow_log_set, msg = TicketBaseService().get_ticket_flow_log(ticket_id, 'loonrobot', per_page=1000)
+    flag, result = TicketBaseService().get_ticket_flow_log(ticket_id, 'loonrobot', per_page=1000)
+    if flag is False:
+        return False, result
+    flow_log_list = result.get('ticket_flow_log_restful_list')
+    for flow_log in flow_log_list:
         if flow_log.get('state').get('state_id') == state_id and flow_log.get('gmt_created') > date_time:
             return True, '后续有操作，定时器失效'
     # 执行流转
@@ -181,15 +185,17 @@ def send_ticket_notice(ticket_id):
         title_template = notice_obj.title_template
         content_template = notice_obj.content_template
         # 获取工单所有字段的变量
-        ticket_value_info, msg = TicketBaseService.get_ticket_all_field_value(ticket_id)
-        if not ticket_value_info:
-            return False, msg
+        flag, ticket_value_info = TicketBaseService.get_ticket_all_field_value(ticket_id)
+        if flag is False:
+            return False, ticket_value_info
         title_result = title_template.format(**ticket_value_info)
         content_result = content_template.format(**ticket_value_info)
         notice_script_file_name = notice_obj.script.name
         notice_script_file = os.path.join(settings.MEDIA_ROOT, notice_script_file_name)
         # 获取工单最后一条操作记录
-        flow_log_list, msg = TicketBaseService.get_ticket_flow_log(ticket_id, 'loonrobot')
+        flag, result = TicketBaseService.get_ticket_flow_log(ticket_id, 'loonrobot')
+        flow_log_list = result.get('ticket_flow_log_restful_list')
+
         last_flow_log = flow_log_list[0]
         participant_info_list = []
         participant_username_list = []
@@ -199,9 +205,15 @@ def send_ticket_notice(ticket_id):
         elif ticket_obj.participant_type_id in (CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL):
             participant_username_list = ticket_obj.participant.split(',')
         elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
-            participant_username_list, msg = AccountBaseService.get_role_username_list(ticket_obj.participant)
+            flag, participant_username_list = AccountBaseService.get_role_username_list(ticket_obj.participant)
+            if flag is False:
+                return False, participant_username_list
+
         elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-            participant_username_list, msg = AccountBaseService.get_dept_username_list(ticket_obj.participant)
+            flag, participant_username_list = AccountBaseService.get_dept_username_list(ticket_obj.participant)
+            if not flag:
+                return flag, participant_username_list
+
         if participant_username_list:
             participant_queryset = LoonUser.objects.filter(username__in=participant_username_list, is_deleted=0)
             for participant_0 in participant_queryset:
@@ -252,7 +264,8 @@ def flow_hook_task(ticket_id):
     flag, msg = CommonService().gen_hook_signature(hook_token)
     if not flag:
         return False, msg
-    all_ticket_data, msg = TicketBaseService().get_ticket_all_field_value(ticket_id)
+    # all_ticket_data, msg = TicketBaseService().get_ticket_all_field_value(ticket_id)
+    flag, all_ticket_data = TicketBaseService().get_ticket_all_field_value(ticket_id)
     r = requests.post(hook_url, headers=msg, json=all_ticket_data, timeout=10)
 
     result = r.json()
@@ -275,7 +288,7 @@ def flow_hook_task(ticket_id):
             return True, ''
         else:
             # 不等待hook目标回调，直接流转
-            transition_queryset, msg = WorkflowTransitionService().get_state_transition_queryset(state_id)
+            flag, transition_queryset = WorkflowTransitionService().get_state_transition_queryset(state_id)
             transition_id = transition_queryset[0]  # hook状态只支持一个流转
 
             new_request_dict = {}
@@ -288,7 +301,7 @@ def flow_hook_task(ticket_id):
     else:
         TicketBaseService().update_ticket_field_value({'script_run_last_result': False})
 
-        all_ticket_data, msg = TicketBaseService().get_ticket_all_field_value(ticket_id)
+        flag, all_ticket_data = TicketBaseService().get_ticket_all_field_value(ticket_id)
         # date等格式需要转换为str
         for key, value in all_ticket_data.items():
             if type(value) not in [int, str, bool, float]:

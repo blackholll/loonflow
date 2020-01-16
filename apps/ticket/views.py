@@ -35,13 +35,15 @@ class TicketListView(View):
         # app_name
         app_name = request.META.get('HTTP_APPNAME')
 
-        ticket_result_restful_list, msg = TicketBaseService.get_ticket_list(sn=sn, title=title, username=username, create_start=create_start, create_end=create_end, workflow_ids=workflow_ids, state_ids=state_ids, ticket_ids=ticket_ids,
+        flag, result = TicketBaseService.get_ticket_list(sn=sn, title=title, username=username, create_start=create_start, create_end=create_end, workflow_ids=workflow_ids, state_ids=state_ids, ticket_ids=ticket_ids,
                                                                             category=category, reverse=reverse, per_page=per_page, page=page, app_name=app_name, is_end=is_end, is_rejected=is_rejected)
-        if ticket_result_restful_list is not False:
-            data = dict(value=ticket_result_restful_list, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('ticket_result_restful_list'), per_page=paginator_info.get('per_page'),
+                        page=paginator_info.get('page'), total=paginator_info.get('total'))
             code, msg,  = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
     def post(self, request, *args, **kwargs):
@@ -70,9 +72,9 @@ class TicketListView(View):
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to create this workflow ticket'.format(app_name), '')
 
-        new_ticket_result, msg = TicketBaseService.new_ticket(request_data_dict, app_name)
-        if new_ticket_result:
-            code, data = 0, {'ticket_id': new_ticket_result}
+        flag, result = TicketBaseService.new_ticket(request_data_dict, app_name)
+        if flag:
+            code, data = 0, {'ticket_id': result.get('new_ticket_id')}
         else:
             code, data = -1, {}
         return api_response(code, msg, data)
@@ -99,9 +101,9 @@ class TicketView(View):
         username = request.META.get('HTTP_USERNAME')
         if not username:
             return api_response(-1, '参数不全，请提供username', '')
-        result, msg = TicketBaseService.get_ticket_detail(ticket_id, username)
-        if result:
-            code, data = 0, dict(value=result)
+        flag, result = TicketBaseService.get_ticket_detail(ticket_id, username)
+        if flag:
+            code, data = 0, dict(value=result.get('ticket_result_dict'))
         else:
             code, data = -1, {}
         return api_response(code, msg, data)
@@ -152,11 +154,13 @@ class TicketTransition(View):
 
         if not username:
             return api_response(-1, '参数不全，请提供username', '')
-        result, msg = TicketBaseService.get_ticket_transition(ticket_id, username)
-        if result or result is not False:
-            code, data = 0, dict(value=result)
+        # result, msg = TicketBaseService.get_ticket_transition(ticket_id, username)
+        flag, result = TicketBaseService.get_ticket_transition(ticket_id, username)
+        if flag is False:
+            code, data, msg = -1, {}, result
         else:
-            code, data = -1, {}
+            code, data, msg = 0, dict(value=result.get('transition_dict_list')), ''
+
         return api_response(code, msg, data)
 
 
@@ -180,10 +184,12 @@ class TicketFlowlog(View):
         if not username:
             return api_response(-1, '参数不全，请提供username', '')
 
-        result, msg = TicketBaseService.get_ticket_flow_log(ticket_id, username, per_page, page)
+        flag, result = TicketBaseService.get_ticket_flow_log(ticket_id, username, per_page, page)
 
-        if result is not False:
-            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('ticket_flow_log_restful_list'), per_page=paginator_info.get('per_page'),
+                        page=paginator_info.get('page'), total=paginator_info.get('total'))
             code, msg,  = 0, ''
         else:
             code, data = -1, ''
@@ -210,8 +216,9 @@ class TicketFlowStep(View):
             return api_response(-1, '参数不全，请提供username', '')
 
         result, msg = TicketBaseService.get_ticket_flow_step(ticket_id, username)
-        if result is not False:
-            data = dict(value=result)
+        flag, result = TicketBaseService.get_ticket_flow_step(ticket_id, username)
+        if flag is not False:
+            data = dict(value=result.get('state_step_dict_list'))
             code, msg,  = 0, ''
         else:
             code, data = -1, ''
@@ -274,11 +281,11 @@ class TicketsStates(View):
         ticket_id_list = ticket_ids.split(',')
         ticket_id_list = [int(ticket_id) for ticket_id in ticket_id_list]
 
-        result, msg = TicketBaseService.get_tickets_states_by_ticket_id_list(ticket_id_list, username)
-        if result:
-            code, msg, data = 0, msg, result
+        flag, result = TicketBaseService.get_tickets_states_by_ticket_id_list(ticket_id_list, username)
+        if flag:
+            code, msg, data = 0, '', result
         else:
-            code, msg, data = -1, msg, ''
+            code, msg, data = -1, result, ''
         return api_response(code, msg, data)
 
 

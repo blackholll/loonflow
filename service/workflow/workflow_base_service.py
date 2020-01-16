@@ -19,10 +19,11 @@ class WorkflowBaseService(BaseService):
     def get_workflow_list(cls, name, page, per_page, workflow_id_list):
         """
         获取工作流列表
+        get workflow list by params
         :param name:
         :param page:
         :param per_page:
-        :param workflow_id_list:工作流id list
+        :param workflow_id_list:workflow id list
         :return:
         """
         query_params = Q(is_deleted=False)
@@ -31,8 +32,8 @@ class WorkflowBaseService(BaseService):
 
         query_params &= Q(id__in=workflow_id_list)
 
-        workflow_querset = Workflow.objects.filter(query_params).order_by('id')
-        paginator = Paginator(workflow_querset, per_page)
+        workflow_queryset = Workflow.objects.filter(query_params).order_by('id')
+        paginator = Paginator(workflow_queryset, per_page)
         try:
             workflow_result_paginator = paginator.page(page)
         except PageNotAnInteger:
@@ -47,21 +48,23 @@ class WorkflowBaseService(BaseService):
                                                      notices=workflow_result_object.notices, view_permission_check=workflow_result_object.view_permission_check,
                                                      limit_expression=workflow_result_object.limit_expression, display_form_str=workflow_result_object.display_form_str,
                                                      creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19]))
-        return workflow_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
+        return True, dict(workflow_result_restful_list=workflow_result_restful_list,
+                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
     @auto_log
     def check_new_permission(cls, username, workflow_id):
         """
         判断用户是否有新建工单的权限
+        check whether user can create ticket
         :param username:
         :param workflow_id:
         :return:
         """
         # 获取workflow的限制表达式
-        workflow_obj, msg = cls.get_by_id(workflow_id)
+        flag, workflow_obj = cls.get_by_id(workflow_id)
         if not workflow_obj:
-            return False, msg
+            return False, workflow_obj
         limit_expression = workflow_obj.limit_expression
         if not limit_expression:
             return True, 'no limit_expression set'
@@ -77,13 +80,15 @@ class WorkflowBaseService(BaseService):
             from service.ticket.ticket_base_service import TicketBaseService
             if limit_expression_dict.get('level'):
                 if limit_expression_dict.get('level') == 1:
-                    count_result, msg = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, username=username, period=limit_period)
+                    flag, result = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, username=username, period=limit_period)
+                    count_result = result.get('count_result')
                 elif limit_expression_dict.get('level') == 2:
-                    count_result, msg = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, period=limit_period)
+                    flag, result = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, period=limit_period)
+                    count_result = result.get('count_result')
                 else:
                     return False, 'level in limit_expression is invalid'
                 if count_result is False:
-                    return False, msg
+                    return False, result
                 if not limit_expression_dict.get('count'):
                     return False, 'count is need when level is not none'
                 if count_result > limit_expression_dict.get('count'):
@@ -94,9 +99,9 @@ class WorkflowBaseService(BaseService):
                 return False, '{} can not create ticket base on workflow_id:{}'.format(workflow_id)
         if limit_allow_depts:
             # 获取用户所属部门，包含上级部门
-            user_all_dept_id_list, msg = AccountBaseService.get_user_up_dept_id_list(username)
-            if user_all_dept_id_list is False:
-                return False, msg
+            flag, user_all_dept_id_list = AccountBaseService.get_user_up_dept_id_list(username)
+            if flag is False:
+                return False, user_all_dept_id_list
             # 只要user_all_dept_id_list中的某个部门包含在允许范围内即可
             limit_allow_dept_str_list = limit_allow_depts.split(',')
             limit_allow_dept_id_list = [int(limit_allow_dept_str) for limit_allow_dept_str in limit_allow_dept_str_list]
@@ -107,8 +112,8 @@ class WorkflowBaseService(BaseService):
                 return False, 'user is not in allow dept'
         if limit_allow_roles:
             # 获取用户所有的角色
-            user_role_list, msg = AccountBaseService.get_user_role_id_list(username)
-            if user_role_list is False:
+            flag, user_role_list = AccountBaseService.get_user_role_id_list(username)
+            if flag is False:
                 return False, msg
             limit_allow_role_str_list = limit_allow_roles.split(',')
             limit_allow_role_id_list = [int(limit_allow_role_str) for limit_allow_role_str in limit_allow_role_str_list]
@@ -123,19 +128,21 @@ class WorkflowBaseService(BaseService):
     def get_by_id(cls, workflow_id):
         """
         获取工作流 by id
+        get workflow object by workflow id
         :param workflow_id:
         :return:
         """
         workflow_obj = Workflow.objects.filter(is_deleted=0, id=workflow_id).first()
         if not workflow_obj:
-            return False, '工作流不存在'
-        return workflow_obj, ''
+            return False, 'workflow is not existed or has been deleted'
+        return True, workflow_obj
 
     @classmethod
     @auto_log
     def add_workflow(cls, name, description, notices, view_permission_check, limit_expression, display_form_str, creator):
         """
         新增工作流
+        add workflow
         :param name:
         :param description:
         :param notices:
@@ -149,13 +156,14 @@ class WorkflowBaseService(BaseService):
                                 limit_expression=limit_expression,display_form_str=display_form_str, creator=creator)
         workflow_obj.save()
 
-        return workflow_obj.id, ''
+        return True, dict(workflow_id=workflow_obj.id)
 
     @classmethod
     @auto_log
     def edit_workflow(cls, workflow_id, name, description, notices, view_permission_check, limit_expression, display_form_str):
         """
         更新工作流
+        update workfow
         :param workflow_id:
         :param name:
         :param description:
@@ -169,17 +177,18 @@ class WorkflowBaseService(BaseService):
         if workflow_obj:
             workflow_obj.update(name=name, description=description, notices=notices, view_permission_check=view_permission_check,
                                 limit_expression=limit_expression, display_form_str=display_form_str)
-        return workflow_id, ''
+        return True, ''
 
     @classmethod
     @auto_log
     def delete_workflow(cls, workflow_id):
         """
         删除工作流
+        delete workflow
         :param workflow_id:
         :return:
         """
         workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0)
         if workflow_obj:
             workflow_obj.update(is_deleted=True)
-        return workflow_id, ''
+        return True, ''

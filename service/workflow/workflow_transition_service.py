@@ -16,35 +16,47 @@ class WorkflowTransitionService(BaseService):
     def get_state_transition_queryset(cls, state_id):
         """
         获取状态可以执行的操作
+        get state can do transitions queryset
         :param state_id:
         :return:
         """
-        return Transition.objects.filter(is_deleted=0, source_state_id=state_id).all(), ''
+        return True, Transition.objects.filter(is_deleted=0, source_state_id=state_id).all()
 
     @classmethod
     @auto_log
     def get_workflow_transition_by_id(cls, transition_id):
         """
-        获取transiton
+        获取transition
+        get transition by id
         :param transition_id:
         :return:
         """
-        return Transition.objects.filter(is_deleted=0, id=transition_id).first(), ''
+        return True, Transition.objects.filter(is_deleted=0, id=transition_id).first()
 
     @classmethod
     @auto_log
     def get_transition_by_args(cls, arg_dict):
         """
         获取流转
+        get transtion list by params
         :param arg_dict: 条件字典
         :return:
         """
         arg_dict.update(is_deleted=0)
-        return Transition.objects.filter(**arg_dict).all(), ''
+        return True, Transition.objects.filter(**arg_dict).all()
 
     @classmethod
     @auto_log
     def get_transitions_serialize_by_workflow_id(cls, workflow_id, per_page=10, page=1, query_value=''):
+        """
+        根据workflow id获取工作流的流转记录
+        get transition serialize record by workflow and params
+        :param workflow_id:
+        :param per_page:
+        :param page:
+        :param query_value:
+        :return:
+        """
         if not workflow_id:
             return False, 'except workflow_id but not provided'
         query_params = Q(workflow_id=workflow_id, is_deleted=False)
@@ -68,8 +80,8 @@ class WorkflowTransitionService(BaseService):
             source_state_info = {}
             destination_state_info = {}
             from service.workflow.workflow_state_service import WorkflowStateService
-            source_state_obj, msg = WorkflowStateService.get_workflow_state_by_id(workflow_transitions_object.source_state_id)
-            destination_state_obj, msg = WorkflowStateService.get_workflow_state_by_id(workflow_transitions_object.destination_state_id)
+            flag, source_state_obj = WorkflowStateService.get_workflow_state_by_id(workflow_transitions_object.source_state_id)
+            flag, destination_state_obj = WorkflowStateService.get_workflow_state_by_id(workflow_transitions_object.destination_state_id)
             if source_state_obj:
                 source_state_info['name'] = source_state_obj.name
                 source_state_info['id'] = source_state_obj.id
@@ -92,7 +104,8 @@ class WorkflowTransitionService(BaseService):
                                alert_text=workflow_transitions_object.alert_text,
                                gmt_created=str(workflow_transitions_object.gmt_created)[:19])
             workflow_transitions_restful_list.append(result_dict)
-        return workflow_transitions_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
+        return True, dict(workflow_transitions_restful_list=workflow_transitions_restful_list,
+                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
     @auto_log
@@ -105,7 +118,7 @@ class WorkflowTransitionService(BaseService):
                                     attribute_type_id=attribute_type_id, field_require_check=field_require_check,
                                     alert_enable=alert_enable, alert_text=alert_text, creator=creator)
         transition_obj.save()
-        return transition_obj.id, ''
+        return True, dict(transition_id=transition_obj.id)
 
     @classmethod
     @auto_log
@@ -119,7 +132,7 @@ class WorkflowTransitionService(BaseService):
                                        destination_state_id=destination_state_id, condition_expression=condition_expression,
                                        attribute_type_id=attribute_type_id, field_require_check=field_require_check,
                                        alert_enable=alert_enable, alert_text=alert_text)
-        return transition_id, ''
+        return True, ''
 
     @classmethod
     @auto_log
@@ -127,4 +140,4 @@ class WorkflowTransitionService(BaseService):
         transition_queryset = Transition.objects.filter(is_deleted=0, id=transition_id)
         if transition_queryset:
             transition_queryset.update(is_deleted=1)
-        return transition_id, ''
+        return True, ''

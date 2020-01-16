@@ -13,6 +13,7 @@ from service.workflow.workflow_custom_field_service import WorkflowCustomFieldSe
 from service.workflow.workflow_runscript_service import WorkflowRunScriptService
 from service.workflow.workflow_transition_service import WorkflowTransitionService
 
+
 class WorkflowStateService(BaseService):
     def __init__(self):
         pass
@@ -22,7 +23,7 @@ class WorkflowStateService(BaseService):
     def get_workflow_states(workflow_id):
         """
         获取流程的状态列表，每个流程的state不会很多，所以不分页
-        :param self:
+        get workflow state queryset
         :param workflow_id:
         :return:
         """
@@ -30,17 +31,18 @@ class WorkflowStateService(BaseService):
             return False, 'except workflow_id but not provided'
         else:
             workflow_states = State.objects.filter(workflow_id=workflow_id, is_deleted=False).order_by('order_id')
-            return workflow_states, ''
+            return True, workflow_states
 
     @staticmethod
     @auto_log
     def get_workflow_states_serialize(workflow_id, per_page=10, page=1, query_value=''):
         """
         获取序列化工作流状态记录
+        get restful workflow's state by params
         :param workflow_id:
         :param per_page:
         :param page:
-        :param search_value:
+        :param query_value:
         :return:
         """
         if not workflow_id:
@@ -63,7 +65,7 @@ class WorkflowStateService(BaseService):
         workflow_states_object_list = workflow_states_result_paginator.object_list
         workflow_states_restful_list = []
         for workflow_states_object in workflow_states_object_list:
-            participant_info, msg = WorkflowStateService.get_format_participant_info(workflow_states_object.participant_type_id, workflow_states_object.participant)
+            flag, participant_info = WorkflowStateService.get_format_participant_info(workflow_states_object.participant_type_id, workflow_states_object.participant)
             result_dict = dict(id=workflow_states_object.id, name=workflow_states_object.name, workflow_id=workflow_states_object.workflow_id,
                                sub_workflow_id=workflow_states_object.sub_workflow_id, is_hidden=workflow_states_object.is_hidden,
                                order_id=workflow_states_object.order_id, type_id=workflow_states_object.type_id,
@@ -74,14 +76,15 @@ class WorkflowStateService(BaseService):
                                remember_last_man_enable=1 if workflow_states_object.remember_last_man_enable else 0,
                                gmt_created=str(workflow_states_object.gmt_created)[:19])
             workflow_states_restful_list.append(result_dict)
-        return workflow_states_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
+        return True, dict(workflow_states_restful_list=workflow_states_restful_list,
+                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @staticmethod
     @auto_log
     def get_workflow_state_by_id(state_id):
         """
         获取state详情
-        :param self:
+        get state info by id
         :param state_id:
         :return:
         """
@@ -91,7 +94,7 @@ class WorkflowStateService(BaseService):
             workflow_state = State.objects.filter(id=state_id, is_deleted=False).first()
             if not workflow_state:
                 return False, '工单状态不存在或已被删除'
-            return workflow_state, ''
+            return True, workflow_state
 
     @classmethod
     @auto_log
@@ -109,22 +112,23 @@ class WorkflowStateService(BaseService):
                                    state_field=json.loads(workflow_state.state_field_str), label=json.loads(workflow_state.label),
                                    creator=workflow_state.creator, gmt_created=str(workflow_state.gmt_created)[:19]
                                    )
-            return state_info_dict, ''
+            return True, state_info_dict
 
     @classmethod
     @auto_log
     def get_workflow_start_state(cls, workflow_id):
         """
         获取工作流初始状态
+        get workflow's init state
         :param workflow_id:
         :return:
         """
         workflow_state_obj = State.objects.filter(
             is_deleted=0, workflow_id=workflow_id, type_id=CONSTANT_SERVICE.STATE_TYPE_START).first()
         if workflow_state_obj:
-            return workflow_state_obj, ''
+            return True, workflow_state_obj
         else:
-            return None, '该工作流未配置初始状态，请检查工作流配置'
+            return False, 'This workflow have no init state, please check the config'
 
     @classmethod
     @auto_log
@@ -133,29 +137,30 @@ class WorkflowStateService(BaseService):
         state_info_dict = {}
         for state in state_queryset:
             state_info_dict[state.id] = state.name
-        return state_info_dict, ''
-
+        return True, state_info_dict
 
     @classmethod
     @auto_log
     def get_workflow_end_state(cls, workflow_id):
         """
         获取工作流结束状态
+        get workflow's end state
         :param workflow_id:
         :return:
         """
         workflow_state_obj = State.objects.filter(
             is_deleted=0, workflow_id=workflow_id, type_id=CONSTANT_SERVICE.STATE_TYPE_END).first()
         if workflow_state_obj:
-            return workflow_state_obj, ''
+            return True, workflow_state_obj
         else:
-            return None, '该工作流未配置结束状态，请检查工作流配置'
+            return False, '该工作流未配置结束状态，请检查工作流配置'
 
     @classmethod
     @auto_log
     def get_workflow_init_state(cls, workflow_id):
         """
-        获取工作的初始状态信息，包括允许的transition
+        获取工作流的初始状态信息，包括允许的transition
+        get workflow's init state, include allow transition
         :param workflow_id:
         :return:
         """
@@ -163,7 +168,9 @@ class WorkflowStateService(BaseService):
         if not init_state_obj:
             return False, '该工作流尚未配置初始状态'
 
-        transition_queryset, msg = WorkflowTransitionService.get_state_transition_queryset(init_state_obj.id)
+        flag, transition_queryset = WorkflowTransitionService.get_state_transition_queryset(init_state_obj.id)
+        if flag is False:
+            return False, transition_queryset
         transition_info_list = []
         for transition in transition_queryset:
             transition_info_list.append(dict(transition_id=transition.id, transition_name=transition.name))
@@ -174,7 +181,7 @@ class WorkflowStateService(BaseService):
                                field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR,
                                field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的标题',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        custom_field_dict, msg = WorkflowCustomFieldService.get_workflow_custom_field(workflow_id)
+        flag, custom_field_dict = WorkflowCustomFieldService.get_workflow_custom_field(workflow_id)
         for key, value in custom_field_dict.items():
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=None, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
@@ -201,13 +208,14 @@ class WorkflowStateService(BaseService):
         state_info_dict = init_state_obj.get_dict()
         state_info_dict.update(field_list=new_field_list, label=json.loads(init_state_obj.label), transition=transition_info_list)
         state_info_dict.pop('state_field_str')
-        return state_info_dict, ''
+        return True, state_info_dict
 
     @classmethod
     @auto_log
     def get_format_participant_info(cls, participant_type_id, participant):
         """
         获取格式化的参与人信息
+        get format participant info
         :param participant_type_id:
         :param participant:
         :return:
@@ -217,8 +225,8 @@ class WorkflowStateService(BaseService):
         participant_alias = ''
         if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
             participant_type_name = '个人'
-            participant_user_obj, msg = AccountBaseService.get_user_by_username(participant)
-            if not participant_user_obj:
+            flag, participant_user_obj = AccountBaseService.get_user_by_username(participant)
+            if not flag:
                 participant_alias = participant
             else:
                 participant_alias = participant_user_obj.alias
@@ -228,23 +236,29 @@ class WorkflowStateService(BaseService):
             participant_name_list = participant_name.split(',')
             participant_alias_list = []
             for participant_name0 in participant_name_list:
-                participant_user_obj, msg = AccountBaseService.get_user_by_username(participant_name0)
-                if not participant_user_obj:
+                flag, participant_user_obj = AccountBaseService.get_user_by_username(participant_name0)
+                if not flag:
                     participant_alias_list.append(participant_name0)
                 else:
                     participant_alias_list.append(participant_user_obj.alias)
             participant_alias = ','.join(participant_alias_list)
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
-            dept_obj, msg = AccountBaseService.get_dept_by_id(int(participant))
-            if not dept_obj:
-                return False, 'dept is not existed or has been deleted'
-            participant_name = dept_obj.name
-            participant_alias = participant_name
+            flag, dept_obj = AccountBaseService.get_dept_by_id(int(participant))
+
+            if flag is False:
+                return False, dept_obj
+            if dept_obj:
+                participant_name = dept_obj.name
+                participant_alias = participant_name
+            else:
+                participant_name = 'dept_id:{}'.format(participant)
+                participant_alias = ''
+
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
             participant_type_name = '角色'
-            role_obj, msg = AccountBaseService.get_role_by_id(int(participant))
-            if not role_obj:
+            flag, role_obj = AccountBaseService.get_role_by_id(int(participant))
+            if flag is False or (not role_obj):
                 return False, 'role is not existedor has been deleted'
             participant_name = role_obj.name
             participant_alias = participant_name
@@ -258,13 +272,14 @@ class WorkflowStateService(BaseService):
             if participant:
                 flag, result = WorkflowRunScriptService.get_run_script_by_id(int(participant))
                 if flag:
-                    participant_alias = result.name
+                    participant_alias = result.get('script_obj').name
         elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
             participant_type_name = 'hook'
             participant_alias = participant_name
 
-        return dict(participant=participant, participant_name=participant_name, participant_type_id=participant_type_id,
-                    participant_type_name=participant_type_name, participant_alias=participant_alias), ''
+        return True, dict(participant=participant, participant_name=participant_name,
+                          participant_type_id=participant_type_id, participant_type_name=participant_type_name,
+                          participant_alias=participant_alias)
 
     @classmethod
     @auto_log
@@ -272,6 +287,7 @@ class WorkflowStateService(BaseService):
                            participant_type_id, participant, distribute_type_id, state_field_str, label, creator):
         """
         新增工作流状态
+        add workflow state
         :param workflow_id:
         :param name:
         :param sub_workflow_id:
@@ -292,7 +308,7 @@ class WorkflowStateService(BaseService):
                                    participant_type_id=participant_type_id, participant=participant, distribute_type_id=distribute_type_id,
                                    state_field_str=state_field_str, label=label, creator=creator)
         workflow_state_obj.save()
-        return workflow_state_obj.id, ''
+        return True, dict(workflow_state_id=workflow_state_obj.id)
 
     @classmethod
     @auto_log
@@ -301,6 +317,7 @@ class WorkflowStateService(BaseService):
                            participant_type_id, participant, distribute_type_id, state_field_str, label, creator):
         """
         新增工作流状态
+        edit workflow state
         :param state_id:
         :param workflow_id:
         :param name:
@@ -324,7 +341,7 @@ class WorkflowStateService(BaseService):
                              remember_last_man_enable=remember_last_man_enable, participant_type_id=participant_type_id,
                              participant=participant, distribute_type_id=distribute_type_id,
                              state_field_str=state_field_str, label=label)
-        return state_id, ''
+        return True, ''
 
     @classmethod
     @auto_log
@@ -337,4 +354,4 @@ class WorkflowStateService(BaseService):
         state_obj = State.objects.filter(id=state_id, is_deleted=0)
         if state_obj:
             state_obj.update(is_deleted=1)
-        return state_id, ''
+        return True, {}

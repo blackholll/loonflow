@@ -18,6 +18,7 @@ class WorkflowRunScriptService(BaseService):
     def get_run_script_list(cls, query_value, page, per_page):
         """
         获取执行脚本列表
+        get run script list
         :param query_value:
         :param page:
         :param per_page:
@@ -41,13 +42,15 @@ class WorkflowRunScriptService(BaseService):
         for run_script_result_object in run_script_result_object_list:
             run_script_result_restful_list.append(dict(id=run_script_result_object.id, name=run_script_result_object.name, description=run_script_result_object.description,
                                                        saved_name=run_script_result_object.saved_name.name, is_active=run_script_result_object.is_active, creator=run_script_result_object.creator, gmt_created=str(run_script_result_object.gmt_created)[:19]))
-        return run_script_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
+        return True, dict(run_script_result_restful_list=run_script_result_restful_list,
+                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
     @auto_log
     def add_run_script(cls, name, saved_name, description, is_active, creator):
         """
         新增工作流脚本
+        add run script
         :param name:
         :param saved_name:
         :param description:
@@ -57,13 +60,14 @@ class WorkflowRunScriptService(BaseService):
         """
         script_obj = WorkflowScript(name=name, saved_name=saved_name, description=description, is_active=is_active, creator=creator)
         script_obj.save()
-        return True, script_obj.id
+        return True, dict(script_id=script_obj.id)
 
     @classmethod
     @auto_log
     def edit_run_script(cls, id, name, saved_name, description, is_active):
         """
         更新工作流脚本
+        edit run script
         :param name:
         :param saved_name:
         :param description:
@@ -75,13 +79,14 @@ class WorkflowRunScriptService(BaseService):
             script_obj.update(name=name, saved_name=saved_name, description=description, is_active=is_active)
         else:
             script_obj.update(name=name, description=description, is_active=is_active)
-        return True, script_obj.first().id
+        return True, {}
 
     @classmethod
     @auto_log
     def del_run_script(cls, id):
         """
         删除脚本
+        delete run script
         :id: 
         :return:
         """
@@ -97,8 +102,9 @@ class WorkflowRunScriptService(BaseService):
     def get_run_script_by_id(cls, id):
         """
         根据id获取执行脚本
+        get script by id
         :param id:
         :return:
         """
         script_obj = WorkflowScript.objects.filter(id=id, is_deleted=0).first()
-        return True, script_obj
+        return True, dict(script_obj=script_obj)

@@ -7,7 +7,7 @@ from service.common.common_service import CommonService
 
 class ApiPermissionCheck(MiddlewareMixin):
     """
-    api调用权限校验中间件
+    api call permission check middleware
     """
     def process_request(self, request):
         if request.path.startswith('/api/v1.0/accounts/login'):
@@ -21,16 +21,27 @@ class ApiPermissionCheck(MiddlewareMixin):
                 return
             flag, msg = self.token_permission_check(request)
             if not flag:
-                return HttpResponse(json.dumps(dict(code=-1, msg='权限校验失败：{}'.format(msg), data=[])))
+                return HttpResponse(json.dumps(dict(code=-1, msg='permission check fail：{}'.format(msg), data=[])))
 
     def token_permission_check(self, request):
+        """
+        token permission check
+        :param request:
+        :return:
+        """
+
         signature = request.META.get('HTTP_SIGNATURE')
         timestamp = request.META.get('HTTP_TIMESTAMP')
         app_name = request.META.get('HTTP_APPNAME')
 
         if not app_name:
-            return False, '未提供appname(调用loonflow接口需要鉴权，请根据文档中"调用授权"部分说明来调用)'
-        app_token_obj, msg = AccountBaseService.get_token_by_app_name(app_name)
-        if not app_token_obj:
-            return False, 'appname未授权，请联系管理员(调用loonflow接口需要鉴权，请根据文档中"调用授权"部分说明来调用)'
-        return CommonService.signature_check(timestamp, signature, app_token_obj.token)
+            return False, 'appname is not provide in request header'
+
+        flag, result = AccountBaseService.get_token_by_app_name(app_name)
+        if flag is False:
+            return False, result
+        if not result:
+            return False, 'Appname:{} in request header is unauthorized, please contact administrator to add ' \
+                          'authorization for appname:{} in loonflow'.format(app_name, app_name)
+
+        return CommonService.signature_check(timestamp, signature, result.token)

@@ -79,6 +79,7 @@ class TestTicketView(LoonflowTest):
         last_ticket_id = TicketRecord.objects.filter(is_deleted=0).order_by('-id').first().id
         url = '/api/v1.0/tickets/{}'.format(last_ticket_id)
         result = LoonflowApiCall().api_call('get', url, dict(username='lilei'))
+        print(result)
         self.assertEqual(result.get('code'), 0)
 
     def test_get_ticket_transition(self):
@@ -160,7 +161,6 @@ class TestTicketView(LoonflowTest):
         url = '/api/v1.0/tickets/{}/comments'.format(last_ticket_id)
         result = LoonflowApiCall().api_call('post', url, dict(username='lilie', suggestion='test for commnet'))
         self.assertEqual(result.get('code'), 0)
-
 
     def get_ticket_list_by_params(self, params):
         """

@@ -28,14 +28,22 @@ class WorkflowView(View):
         app_name = request.META.get('HTTP_APPNAME')
 
         from service.account.account_base_service import AccountBaseService
-        permission_workflow_id_list, msg = AccountBaseService.app_workflow_permission_list(app_name)
+        flag, permission_workflow_id_list = AccountBaseService.app_workflow_permission_list(app_name)
+        if not flag:
+            return api_response(-1, permission_workflow_id_list, {})
+        if not permission_workflow_id_list:
+            data = dict(value=[], per_page=per_page, page=page, total=0)
+            code, msg, = 0, ''
+            return api_response(code, msg, data)
 
-        workflow_result_restful_list, msg = WorkflowBaseService.get_workflow_list(name, page, per_page, permission_workflow_id_list)
-        if workflow_result_restful_list is not False:
-            data = dict(value=workflow_result_restful_list, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+        flag, result = WorkflowBaseService.get_workflow_list(name, page, per_page, permission_workflow_id_list)
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('workflow_result_restful_list'), per_page=paginator_info.get('per_page'),
+                        page=paginator_info.get('page'), total=paginator_info.get('total'))
             code, msg,  = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, '', result
         return api_response(code, msg, data)
 
     def post(self, request, *args, **kwargs):
@@ -59,14 +67,13 @@ class WorkflowView(View):
         limit_expression = request_data_dict.get('limit_expression', '')
         display_form_str = request_data_dict.get('display_form_str', '')
         creator = request.META.get('HTTP_USERNAME', '')
-        result, msg = WorkflowBaseService.add_workflow(name, description, notices, view_permission_check, limit_expression,
+        flag, result = WorkflowBaseService.add_workflow(name, description, notices, view_permission_check, limit_expression,
                                                        display_form_str, creator)
-        if not result:
-            code, msg, data = -1, msg, {}
+        if flag is False:
+            code, msg, data = -1, result, {}
         else:
-            code, msg, data = 0, '', {'workflow_id': result}
+            code, msg, data = 0, '', {'workflow_id': result.get('workflow_id')}
         return api_response(code, msg, data)
-
 
 
 class WorkflowInitView(View):
@@ -92,11 +99,11 @@ class WorkflowInitView(View):
 
         if not (workflow_id and username):
             return api_response(-1, '请提供username', '')
-        state_result, msg = WorkflowStateService.get_workflow_init_state(workflow_id)
-        if state_result is not False:
+        flag, state_result = WorkflowStateService.get_workflow_init_state(workflow_id)
+        if flag is not False:
             code, msg, data = 0, '', state_result
         else:
-            code, msg, data = -1, msg, ''
+            code, msg, data = -1, state_result, ''
         return api_response(code, msg, data)
 
 
@@ -116,9 +123,9 @@ class WorkflowDetailView(View):
         app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        workflow_result, msg = WorkflowBaseService.get_by_id(workflow_id)
-        if not workflow_result:
-            code, msg, data = -1, msg, {}
+        flag, workflow_result = WorkflowBaseService.get_by_id(workflow_id)
+        if flag is False:
+            code, msg, data = -1, workflow_result, {}
         else:
             data = dict(name=workflow_result.name, description=workflow_result.description,
                         notices=workflow_result.notices, view_permission_check=workflow_result.view_permission_check,
@@ -154,12 +161,12 @@ class WorkflowDetailView(View):
         limit_expression = request_data_dict.get('limit_expression', '')
         display_form_str = request_data_dict.get('display_form_str', '')
 
-        result, msg = WorkflowBaseService.edit_workflow(workflow_id, name, description, notices, view_permission_check,
+        flag, result = WorkflowBaseService.edit_workflow(workflow_id, name, description, notices, view_permission_check,
                                                         limit_expression, display_form_str)
-        if not result:
-            code, msg, data = -1, msg, {}
+        if flag is False:
+            code, msg, data = -1, result, {}
         else:
-            code, msg, data = 0, '', {'workflow_id': result}
+            code, msg, data = 0, '', {}
         return api_response(code, msg, data)
 
     def delete(self, request, *args, **kwargs):
@@ -177,11 +184,11 @@ class WorkflowDetailView(View):
         app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        result, msg = WorkflowBaseService.delete_workflow(workflow_id)
-        if not result:
+        flag, result = WorkflowBaseService.delete_workflow(workflow_id)
+        if flag is False:
             code, msg, data = -1, msg, {}
         else:
-            code, msg, data = 0, '', {'workflow_id': result}
+            code, msg, data = 0, '', {}
         return api_response(code, msg, data)
 
 
@@ -201,13 +208,15 @@ class WorkflowTransitionView(View):
         query_value = request_data.get('search_value', '')
         # if not username:
         #     return api_response(-1, '请提供username', '')
-        result, msg = WorkflowTransitionService.get_transitions_serialize_by_workflow_id(workflow_id, per_page, page, query_value)
+        flag, result = WorkflowTransitionService.get_transitions_serialize_by_workflow_id(workflow_id, per_page, page, query_value)
 
-        if result is not False:
-            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('workflow_transitions_restful_list'), per_page=paginator_info.get('per_page'),
+                        page=paginator_info.get('page'), total=paginator_info.get('total'))
             code, msg, = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
     def post(self, request, *args, **kwargs):
@@ -235,14 +244,14 @@ class WorkflowTransitionView(View):
         field_require_check = int(request_data_dict.get('field_require_check', 0))
         alert_enable = int(request_data_dict.get('alert_enable', 0))
         alert_text = request_data_dict.get('alert_text', '')
-        result, msg = WorkflowTransitionService.add_workflow_transition(workflow_id, name, transition_type_id, timer, source_state_id,
+        flag, result = WorkflowTransitionService.add_workflow_transition(workflow_id, name, transition_type_id, timer, source_state_id,
                                                destination_state_id, condition_expression, attribute_type_id,
                                                field_require_check, alert_enable, alert_text, username)
-        if result is not False:
-            data = dict(value=dict(transition_id=result))
+        if flag is not False:
+            data = dict(value=dict(transition_id=result.get('transition_id')))
             code, msg, = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
 
@@ -273,17 +282,17 @@ class WorkflowTransitionDetailView(View):
         alert_enable = int(request_data_dict.get('alert_enable', 0))
         alert_text = request_data_dict.get('alert_text', '')
         transition_id = kwargs.get('transition_id')
-        result, msg = WorkflowTransitionService.edit_workflow_transition(transition_id, workflow_id, name, transition_type_id, timer,
+        flag, result = WorkflowTransitionService.edit_workflow_transition(transition_id, workflow_id, name, transition_type_id, timer,
                                                                         source_state_id,
                                                                         destination_state_id, condition_expression,
                                                                         attribute_type_id,
                                                                         field_require_check, alert_enable, alert_text,
                                                                         )
-        if result is not False:
-            data = dict(value=dict(transition_id=result))
+        if flag is not False:
+            data = {}
             code, msg, = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, ''
         return api_response(code, msg, data)
 
     def delete(self, request, *args, **kwargs):
@@ -295,12 +304,12 @@ class WorkflowTransitionDetailView(View):
         :return:
         """
         transition_id = kwargs.get('transition_id')
-        result, msg = WorkflowTransitionService.del_workflow_transition(transition_id)
-        if result is not False:
-            data = dict(value=dict(transition_id=result))
+        flag, result = WorkflowTransitionService.del_workflow_transition(transition_id)
+        if flag is not False:
+            data = {}
             code, msg, = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, ''
         return api_response(code, msg, data)
 
 
@@ -320,11 +329,11 @@ class StateView(View):
         if not username:
             return api_response(-1, '请提供username', '')
 
-        result, msg = WorkflowStateService.get_restful_state_info_by_id(state_id)
-        if result is not False:
-            code, data = 0, result
+        flag, state_info_dict = WorkflowStateService.get_restful_state_info_by_id(state_id)
+        if flag is not False:
+            code, data, msg = 0, state_info_dict, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, state_info_dict
         return api_response(code, msg, data)
 
 
@@ -346,13 +355,15 @@ class WorkflowStateView(View):
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         # if not username:
         #     return api_response(-1, '请提供username', '')
-        result, msg = WorkflowStateService.get_workflow_states_serialize(workflow_id, per_page, page, search_value)
+        flag, result = WorkflowStateService.get_workflow_states_serialize(workflow_id, per_page, page, search_value)
 
-        if result is not False:
-            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('workflow_states_restful_list'), per_page=paginator_info.get('per_page'),
+                        page=paginator_info.get('page'), total=paginator_info.get('total'))
             code, msg,  = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
     def post(self, request, *args, **kwargs):
@@ -384,13 +395,16 @@ class WorkflowStateView(View):
         label = request_data_dict.get('label', '')
         workflow_id = kwargs.get('workflow_id')
 
-        result, msg = WorkflowStateService.add_workflow_state(workflow_id, name, sub_workflow_id, is_hidden, order_id, type_id, remember_last_man_enable,
-                           participant_type_id, participant, distribute_type_id, state_field_str, label, username)
-        if not result:
-            code, msg, data = -1, msg, {}
+        flag, result = WorkflowStateService.add_workflow_state(workflow_id, name, sub_workflow_id, is_hidden, order_id,
+                                                               type_id, remember_last_man_enable, participant_type_id,
+                                                               participant, distribute_type_id, state_field_str, label,
+                                                               username)
+        if flag is False:
+            code, msg, data = -1, result, {}
         else:
-            code, msg, data = 0, '', {'state_id': result}
+            code, msg, data = 0, '', {'state_id': result.get('workflow_state_id')}
         return api_response(code, msg, data)
+
 
 class WorkflowStateDetailView(View):
     def patch(self, request, *args, **kwargs):
@@ -423,19 +437,20 @@ class WorkflowStateDetailView(View):
         workflow_id = kwargs.get('workflow_id')
         state_id = kwargs.get('state_id')
 
-        result, msg = WorkflowStateService.edit_workflow_state(state_id, workflow_id, name, sub_workflow_id, is_hidden,
+        flag, result = WorkflowStateService.edit_workflow_state(state_id, workflow_id, name, sub_workflow_id, is_hidden,
                                                                order_id, type_id, remember_last_man_enable,
                                                                participant_type_id, participant, distribute_type_id,
                                                                state_field_str, label, username)
-        if not result:
-            code, msg, data = -1, msg, {}
+        if flag is False:
+            code, msg, data = -1, result, {}
         else:
-            code, msg, data = 0, '', {'state_id': result}
+            code, msg, data = 0, '', {}
         return api_response(code, msg, data)
 
     def delete(self, request, *args, **kwargs):
         """
         删除状态
+        delete state
         :param request:
         :param args:
         :param kwargs:
@@ -443,11 +458,11 @@ class WorkflowStateDetailView(View):
         """
         app_name = request.META.get('HTTP_APPNAME')
         state_id = kwargs.get('state_id')
-        result, msg = WorkflowStateService.del_workflow_state(state_id)
-        if not result:
-            code, msg, data = -1, msg, {}
+        flag, result = WorkflowStateService.del_workflow_state(state_id)
+        if flag is False:
+            code, msg, data = -1, result, {}
         else:
-            code, msg, data = 0, '', {'state_id': result}
+            code, msg, data = 0, '', {}
         return api_response(code, msg, data)
 
 
@@ -470,10 +485,12 @@ class WorkflowRunScriptView(View):
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         if not username:
             return api_response(-1, '请提供username', '')
-        result, msg = WorkflowRunScriptService.get_run_script_list(search_value, page, per_page)
+        flag, result = WorkflowRunScriptService.get_run_script_list(search_value, page, per_page)
 
-        if result is not False:
-            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('run_script_result_restful_list'), per_page=paginator_info.get('per_page'), page=paginator_info.get('page'),
+                        total=paginator_info.get('total'))
             code, msg, = 0, ''
         else:
             code, data = -1, ''
@@ -500,12 +517,11 @@ class WorkflowRunScriptView(View):
         script_name = request.POST.get('script_name', '')
         script_desc = request.POST.get('script_desc', '')
         is_active = request.POST.get('is_active', '0')
-        result, msg = WorkflowRunScriptService.add_run_script(script_name, script_file_name, script_desc, is_active, request.user.username)
-        if result is not False:
-            data = {}
-            code, msg,  = 0, ''
+        flag, result = WorkflowRunScriptService.add_run_script(script_name, script_file_name, script_desc, is_active, request.user.username)
+        if flag is not False:
+            data, code, msg = dict(script_id=result.get('script_id')), 0, ''
         else:
-            code, data = -1, {}
+            code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
 
@@ -513,6 +529,7 @@ class WorkflowRunScriptDetailView(View):
     def post(self, request, *args, **kwargs):
         """
         修改脚本,本来准备用patch的。但是发现非json提交过来获取不到数据(因为要传文件，所以不能用json)
+        update script
         :param request:
         :param args:
         :param kwargs:
@@ -534,11 +551,11 @@ class WorkflowRunScriptDetailView(View):
         script_name = request.POST.get('script_name', '')
         script_desc = request.POST.get('script_desc', '')
         is_active = request.POST.get('is_active', '0')
-        result, msg = WorkflowRunScriptService.edit_run_script(run_script_id, script_name, script_file_name, script_desc, is_active)
-        if result is not False:
+        flag, result = WorkflowRunScriptService.edit_run_script(run_script_id, script_name, script_file_name, script_desc, is_active)
+        if flag is not False:
             code, msg, data = 0, '', {}
         else:
-            code, data = -1, {}
+            code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
     def delete(self, request, *args, **kwargs):
@@ -687,10 +704,13 @@ class WorkflowCustomFieldView(View):
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         if not username:
             return api_response(-1, '请提供username', '')
-        result, msg = WorkflowCustomFieldService.get_workflow_custom_field_list(kwargs.get('workflow_id'), search_value, page, per_page)
+        flag, result = WorkflowCustomFieldService.get_workflow_custom_field_list(kwargs.get('workflow_id'), search_value, page, per_page)
 
-        if result is not False:
-            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('workflow_custom_field_result_restful_list'),
+                        per_page=paginator_info.get('per_page'), page=paginator_info.get('page'),
+                        total=paginator_info.get('total'))
             code, msg, = 0, ''
         else:
             code, data = -1, ''
@@ -726,15 +746,15 @@ class WorkflowCustomFieldView(View):
         default_value = request_data_dict.get('default_value', '')
         boolean_field_display = request_data_dict.get('boolean_field_display', '')
         field_choice = request_data_dict.get('field_choice', '')
-        result, msg = WorkflowCustomFieldService.add_record(workflow_id, field_type_id, field_key, field_name, order_id,
-                                                            default_value, description, field_template,
-                                                            boolean_field_display, field_choice, label, username)
+        flag, result = WorkflowCustomFieldService.add_record(workflow_id, field_type_id, field_key, field_name, order_id,
+                                                             default_value, description, field_template,
+                                                             boolean_field_display, field_choice, label, username)
 
-        if result is not False:
-            data = dict(value={'custom_field_id': result})
+        if flag is not False:
+            data = dict(value={'custom_field_id': result.get('custom_field_id')})
             code, msg, = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
 
@@ -775,8 +795,7 @@ class WorkflowCustomFieldDetailView(View):
                                                             boolean_field_display, field_choice, label, username)
 
         if result is not False:
-            data = dict(value={'custom_field_id': result})
-            code, msg, = 0, ''
+            code, msg, data = 0, '', {}
         else:
             code, data = -1, ''
         return api_response(code, msg, data)
@@ -792,8 +811,8 @@ class WorkflowCustomFieldDetailView(View):
         app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        result, msg = WorkflowCustomFieldService.delete_record(custom_field_id)
-        if result is not False:
+        flag, result = WorkflowCustomFieldService.delete_record(custom_field_id)
+        if flag is not False:
             data = dict(value={'custom_field_id': result})
             code, msg, = 0, ''
         else:

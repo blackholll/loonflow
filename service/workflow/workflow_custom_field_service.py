@@ -16,6 +16,7 @@ class WorkflowCustomFieldService(BaseService):
     def get_workflow_custom_field(cls, workflow_id):
         """
         获取工作流的自定义字段信息
+        update workflow custom field
         :param workflow_id:
         :return:
         """
@@ -31,24 +32,26 @@ class WorkflowCustomFieldService(BaseService):
                                                                     default_value=custom_field.default_value, description=custom_field.description,
                                                                     field_template=custom_field.field_template, boolean_field_display=custom_field.boolean_field_display,
                                                                     field_choice=custom_field.field_choice, label=label)
-        return format_custom_field_dict, ''
+        return True, format_custom_field_dict
 
     @classmethod
     @auto_log
     def get_workflow_custom_field_name_list(cls, workflow_id):
         """
-        获取工作流自定义字段list
+        获取工作流自定义字段
+        get workflow custom field, field_key list
         :param workflow_id:
         :return:
         """
         custom_field_queryset = CustomField.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
-        return [custom_field.field_key for custom_field in custom_field_queryset], ''
+        return True, dict(ticket_custom_field_key_list=[custom_field.field_key for custom_field in custom_field_queryset])
 
     @classmethod
     @auto_log
     def get_workflow_custom_field_list(cls, workflow_id, query_value, page, per_page):
         """
         获取工作流自定义字段的列表
+        get workflow custom field restful info list
         :param workflow_id:
         :param query_value:
         :param page:
@@ -86,14 +89,16 @@ class WorkflowCustomFieldService(BaseService):
                                                                   creator=workflow_custom_field_result_object.creator,
                                                                   gmt_created=str(workflow_custom_field_result_object.gmt_created)[:19]
                                                                   ))
-        return workflow_custom_field_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
+        return True, dict(workflow_custom_field_result_restful_list=workflow_custom_field_result_restful_list,
+                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
     @auto_log
     def add_record(cls, workflow_id, field_type_id, field_key, field_name, order_id, default_value, description, field_template,
                    boolean_field_display, field_choice, label, creator):
         """
-        新增记录
+        新增自定义字段记录
+        add workflow custom field record
         :param workflow_id:
         :param field_type_id:
         :param field_key:
@@ -114,14 +119,15 @@ class WorkflowCustomFieldService(BaseService):
                                        boolean_field_display=boolean_field_display,
                                        field_choice=field_choice, label=label, creator=creator)
         custom_field_obj.save()
-        return custom_field_obj.id, ''
+        return True, dict(custom_field_id=custom_field_obj.id)
 
     @classmethod
     @auto_log
     def edit_record(cls, custom_field_id, workflow_id, field_type_id, field_key, field_name, order_id, default_value, description, field_template,
                    boolean_field_display, field_choice, label, creator):
         """
-        新增记录
+        修改自定义字段记录
+        update custom field record
         :param custom_field_id:
         :param workflow_id:
         :param field_type_id:
@@ -144,7 +150,7 @@ class WorkflowCustomFieldService(BaseService):
                                          description=description, field_template=field_template,
                                          boolean_field_display=boolean_field_display,
                                          field_choice=field_choice, label=label)
-        return custom_field_id, ''
+        return True, ''
 
     @classmethod
     @auto_log
@@ -157,5 +163,5 @@ class WorkflowCustomFieldService(BaseService):
         custom_field_queryset = CustomField.objects.filter(id=custom_field_id, is_deleted=0)
         if custom_field_queryset:
             custom_field_queryset.update(is_deleted=True)
-        return custom_field_id, ''
+        return True, ''
 

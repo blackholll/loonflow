@@ -7,7 +7,7 @@ logger = logging.getLogger('django')
 
 def auto_log(func):
     """
-    自动记录日志的装饰器：
+    auto write log decorator
     :param func:
     :return:
     """

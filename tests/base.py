@@ -22,7 +22,7 @@ class LoonflowApiCall(object):
             return dict(code=-1, msg=msg)
         self.signature = msg.get('signature', '')
         self.timestamp = msg.get('timestamp', '')
-        self.headers = {'HTTP_SIGNATURE': self.signature, 'HTTP_TIMESTAMP': self.timestamp, 'HTTP_APPNAME':'ops'}
+        self.headers = {'HTTP_SIGNATURE': self.signature, 'HTTP_TIMESTAMP': self.timestamp, 'HTTP_APPNAME': 'ops', 'HTTP_USERNAME':'lilei'}
 
     def api_call(self, method, url, params={}):
         import json

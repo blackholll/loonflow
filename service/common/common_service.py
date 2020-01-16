@@ -14,7 +14,7 @@ class CommonService(BaseService):
     @auto_log
     def signature_check(cls, timestamp, signature, md5_key):
         """
-        签名校验
+        signature check
         :param timestamp:
         :param signature:
         :param md5_key:
@@ -23,22 +23,22 @@ class CommonService(BaseService):
         ori_str = timestamp + md5_key
         tar_str = hashlib.md5(ori_str.encode(encoding='utf-8')).hexdigest()
         if tar_str == signature:
-            # 时间验证，120s
+            # The validity of the signature: 120s
             time_now_int = int(time.time())
             if abs(time_now_int - int(timestamp)) <= 120:
                 # if abs(time_now_int - int(timestamp)) <= 12000000000000000:
                 return True, ''
             else:
-                msg = '时间戳过期,请保证在120s内'
+                msg = 'The signature you provide in request header is expire, please ensure in 120s'
         else:
-            msg = '签名校验失败'
+            msg = 'The signature you provide in request header is invalid'
         return False, msg
 
     @classmethod
     @auto_log
     def gen_signature(cls, app_name):
         """
-        生成签名信息
+        gen signature info
         :param app_name:
         :return:
         """
@@ -54,7 +54,7 @@ class CommonService(BaseService):
     @auto_log
     def gen_hook_signature(cls, token):
         """
-        生成hook签名
+        gen hook token signature
         :param token:
         :return:
         """
@@ -63,12 +63,11 @@ class CommonService(BaseService):
         tar_str = hashlib.md5(ori_str.encode(encoding='utf-8')).hexdigest()
         return True, dict(signature=tar_str, timestamp=timestamp)
 
-
     @classmethod
     @auto_log
     def get_model_field(cls, app_name, model_name):
         """
-        获取model的字段信息
+        get model's field list
         :param app_name:
         :param model_name:
         :return:
@@ -80,13 +79,13 @@ class CommonService(BaseService):
         for field0 in fields:
             field_dict[field0.name] = field0.verbose_name
 
-        return field_dict
+        return True, dict(field_dict=field_dict)
 
     @classmethod
     @auto_log
     def get_dict_blank_or_false_value_key_list(cls, dict_obj):
         """
-        获取字典的空值的key的list
+        get blank item value's key list in dict
         :param dict_obj:
         :return:
         """
@@ -94,13 +93,13 @@ class CommonService(BaseService):
         for key, value in dict_obj.items():
             if not value:
                 result_list.append(key)
-        return result_list, ''
+        return True, dict(result_list=result_list)
 
     @classmethod
     @auto_log
     def check_dict_has_all_same_value(cls, dict_obj):
         """
-        判断字段是否所有key的值都相同
+        check whether all key are equal in a dict
         :param dict_obj:
         :return:
         """
@@ -115,4 +114,4 @@ class CommonService(BaseService):
 
 
 if __name__ == '__main__':
-    print(CommonService().check_dict_has_all_same_value({'a':{'a': 1, 'b': 2}, 'b':{'a': 1, 'b': 2}}))
+    print(CommonService().check_dict_has_all_same_value({'a': {'a': 1, 'b': 2}, 'b': {'a': 1, 'b': 2}}))
