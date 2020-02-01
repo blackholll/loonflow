@@ -1,6 +1,7 @@
 import json
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
 from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole
 from service.base_service import BaseService
@@ -34,6 +35,20 @@ class AccountBaseService(BaseService):
             return True, result
         else:
             return False, 'username: {} is not existed or has been deleted'.format(username)
+
+    @classmethod
+    @auto_log
+    def get_user_by_user_id(cls, user_id):
+        """
+        get user by user id
+        :param user_id:
+        :return:
+        """
+        result = LoonUser.objects.filter(id=user_id, is_deleted=0).first()
+        if result:
+            return True, result
+        else:
+            return False, 'user_id: {} is not existed or has been deleted'.format(user_id)
 
     @classmethod
     @auto_log
@@ -339,6 +354,65 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
+    def add_user(cls, username, alias, email, phone, dept_id, is_active, is_admin, is_workflow_admin, creator, password=''):
+        """
+        新增用户， 因为非管理员或者工作流管理员无需登录管理后台，密码字段留空
+        add user, not support set password, you need reset password
+        :param username:
+        :param alias:
+        :param email:
+        :param phone:
+        :param dept_id:
+        :param is_active:
+        :param is_admin:
+        :param is_workflow_admin:
+        :param creator:
+        :param password:
+        :return:
+        """
+        password_str = make_password(password, None, 'pbkdf2_sha256')
+        user_obj = LoonUser(username=username, alias=alias, email=email, phone=phone, dept_id=dept_id,
+                            is_active=is_active, is_admin=is_admin, is_workflow_admin=is_workflow_admin,
+                            creator=creator, password=password_str)
+        user_obj.save()
+        return True, dict(user_id=user_obj.id)
+
+    @classmethod
+    @auto_log
+    def edit_user(cls, user_id, username, alias, email, phone, dept_id, is_active, is_admin, is_workflow_admin):
+        """
+        edit user
+        :param user_id:
+        :param username:
+        :param alias:
+        :param email:
+        :param phone:
+        :param dept_id:
+        :param is_active:
+        :param is_admin:
+        :param is_workflow_admin:
+        :return:
+        """
+        user_obj = LoonUser.objects.filter(id=user_id, is_deleted=0)
+        user_obj.update(username=username, alias=alias, email=email, phone=phone, dept_id=dept_id, is_active=is_active,
+                        is_admin=is_admin, is_workflow_admin=is_workflow_admin)
+        user_obj.save()
+        return True, {}
+
+    @classmethod
+    @auto_log
+    def delete_user(cls, user_id):
+        """
+        delete user
+        :param user_id:
+        :return:
+        """
+        user_obj = LoonUser.objects.filter(id=user_id, is_deleted=0)
+        user_obj.update(is_deleted=1)
+        return True, {}
+
+    @classmethod
+    @auto_log
     def get_role_list(cls, search_value, page=1, per_page=10):
         """
         获取角色列表
@@ -476,3 +550,95 @@ class AccountBaseService(BaseService):
         app_token_obj.is_deleted = True
         app_token_obj.save()
         return True, ''
+
+    @classmethod
+    @auto_log
+    def admin_permission_check(cls, username='', user_id=0):
+        """
+        admin permission check
+        :param username:
+        :param user_id:
+        :return:
+        """
+        if username:
+            flag, result = cls.get_user_by_username(username)
+        elif user_id:
+            flag, result = cls.get_user_by_user_id(user_id)
+        else:
+            return False, 'username or user_id is needed'
+        if flag is False:
+            return False, result
+        if result.is_admin:
+            return True, 'user is admin'
+        else:
+            return False, 'user is not admin'
+
+    @classmethod
+    @auto_log
+    def workflow_admin_permission_check(cls, username='', user_id=0):
+        """
+        workflow admin permission check
+        :param username:
+        :return:
+        """
+        if username:
+            flag, result = cls.get_user_by_username(username)
+        elif user_id:
+            flag, result = cls.get_user_by_username(username)
+        else:
+            return False, 'username or user_id is needed'
+        if flag is False:
+            return False, result
+        if result.is_workflow_admin:
+            return True, 'user is workflow admin'
+        else:
+            return False, 'user is not workflow admin'
+
+    @classmethod
+    @auto_log
+    def admin_or_workflow_admin_check(cls, username='', user_id=0):
+        """
+        admin or workflow admin check
+        :param username:
+        :param user_id:
+        :return:
+        """
+        if username:
+            flag, result = cls.get_user_by_username(username)
+        elif user_id:
+            flag, result = cls.get_user_by_username(username)
+        else:
+            return False, 'username or user_id is needed'
+        if flag is False:
+            return False, result
+        if result.is_workflow_admin or result.is_admin:
+            return True, 'user is admin or workflow admin'
+        else:
+            return False, 'user is not admin or workflow admin'
+
+    @classmethod
+    @auto_log
+    def reset_password(cls, username='', user_id=''):
+        """
+        reset user's password
+        just admin or workflow admin need login loonflow's admin,so just admin and workflow admin can rest password
+        :param username:
+        :param user_id:
+        :return:
+        """
+        if username:
+            flag, result = cls.get_user_by_username(username)
+        if user_id:
+            flag, result = cls.get_user_by_user_id(user_id)
+
+        if flag:
+            user_obj = result
+            if user_obj.is_admin or user_obj.is_workflow_admin:
+                password_str = make_password('123456', None, 'pbkdf2_sha256')
+                user_obj.password = password_str
+                user_obj.save()
+                return True, 'password has been reset to 123456'
+            else:
+                return False, 'just admin or workflow admin can be reset password'
+        else:
+            return False, result

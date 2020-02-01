@@ -35,6 +35,87 @@ class LoonUserView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    def post(self, request, *args, **kwargs):
+        """
+        add user
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        username = request_data_dict.get('username')
+        alias = request_data_dict.get('alias')
+        email = request_data_dict.get('email')
+        password = request_data_dict.get('password')
+        phone = request_data_dict.get('phone')
+        dept_id = int(request_data_dict.get('dept_id')) if request_data_dict.get('dept_id') else 0
+        is_active = request_data_dict.get('is_active')
+        is_admin = request_data_dict.get('is_admin')
+        is_workflow_admin = request_data_dict.get('is_workflow_admin')
+        creator = request.user.username
+        flag, result = AccountBaseService().add_user(username, alias, email, phone, dept_id, is_active, is_admin, is_workflow_admin,
+                                      creator, password)
+        if flag is False:
+            code, msg, data = -1, result, {}
+        else:
+            code, msg, data = 0, '', result
+        return api_response(code, msg, data)
+
+
+@method_decorator(login_required, name='dispatch')
+class LoonUserDetailView(View):
+    def patch(self, request, *args, **kwargs):
+        """
+        edit user
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        user_id = kwargs.get('user_id')
+        request_data_dict = json.loads(json_str)
+        username = request_data_dict.get('username')
+        alias = request_data_dict.get('alias')
+        email = request_data_dict.get('email')
+        phone = request_data_dict.get('phone')
+        dept_id = int(request_data_dict.get('dept_id')) if request_data_dict.get('dept_id') else 0
+        is_active = request_data_dict.get('is_active')
+        is_admin = request_data_dict.get('is_admin')
+        is_workflow_admin = request_data_dict.get('is_workflow_admin')
+        flag, result = AccountBaseService().edit_user(user_id, username, alias, email, phone, dept_id, is_active,
+                                                      is_admin, is_workflow_admin)
+        if flag is not False:
+            code, msg, data = 0, '', {}
+        else:
+            code, msg, data = -1, result, {}
+        return api_response(code, msg, data)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        delete user record
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        user_id = kwargs.get('user_id')
+        operator = request.user.username
+        flag, result = AccountBaseService().admin_permission_check(username=operator)
+        if flag:
+            flag, result = AccountBaseService().delete_user(user_id)
+            if flag:
+                code, msg, data = 0, '', {}
+                return api_response(code, msg, data)
+        code, msg, data = -1, result, {}
+        return api_response(code, msg, data)
+
 
 @method_decorator(login_required, name='dispatch')
 class LoonRoleView(View):
@@ -265,3 +346,27 @@ class LoonRoleUserView(View):
         else:
             code, data = -1, ''
         return api_response(code, msg, data)
+
+
+class LoonUserResetPasswordView(View):
+    def post(self, request, *args, **kwargs):
+        """
+        重置密码
+        :param requesdt:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        user_id = kwargs.get('user_id')
+        operator = request.user.username
+        # operator admin permission check
+        flag, result = AccountBaseService().admin_permission_check(username=operator)
+        if flag is False:
+            return api_response(-1, result, {})
+        flag, result = AccountBaseService().admin_or_workflow_admin_check(user_id=user_id)
+        if flag is False:
+            return api_response(-1, result, {})
+        flag, result = AccountBaseService().reset_password(user_id=user_id)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, result, {})

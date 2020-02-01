@@ -121,6 +121,7 @@ class LoonUser(AbstractBaseUser):
     dept_id = models.IntegerField('部门id', default=0)
     is_active = models.BooleanField('已激活', default=True)
     is_admin = models.BooleanField('超级管理员', default=False)
+    is_workflow_admin = models.BooleanField('工作流管理员', default=False)  # 只可以操作自己有权限的工作流、工单
 
     creator = models.CharField('创建人', max_length=50)
     gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
