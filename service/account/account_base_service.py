@@ -444,6 +444,88 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
+    def add_role(cls, name, description, label, creator):
+        """
+        add role
+        新增角色
+        :param name:
+        :param description:
+        :param label:
+        :param creator:
+        :return:
+        """
+        role_obj = LoonRole(name=name, description=description, label=label, creator=creator)
+        role_obj.save()
+        return True, dict(role_id=role_obj.id)
+
+    @classmethod
+    @auto_log
+    def add_role_user(cls, role_id, user_id, creator):
+        """
+        add role's user
+        新增角色用户
+        :param role_id:
+        :param user_id:
+        :param creator:
+        :return:
+        """
+        # 去重下
+        role_user_queryset = LoonUserRole.objects.filter(user_id=user_id, role_id=role_id, is_deleted=0)
+        if role_user_queryset:
+            return False, 'user has been existed in this role'
+        role_user_obj = LoonUserRole(user_id=user_id, role_id=role_id, creator=creator)
+        role_user_obj.save()
+        return True, dict(role_user_id=role_user_obj.id)
+
+    @classmethod
+    @auto_log
+    def delete_role_user(cls, role_user_id):
+        """
+        删除角色用户
+        :param role_user_id:
+        :return:
+        """
+        role_user_obj = LoonUserRole.objects.filter(id=role_user_id, is_deleted=0)
+        if not role_user_obj:
+            return False, 'record is not existed or has been deleted'
+        role_user_obj.update(is_deleted=1)
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def update_role(cls, role_id, name, description, label):
+        """
+        update role
+        更新角色
+        :param role_id:
+        :param name:
+        :param description:
+        :param label:
+        :return:
+        """
+        role_queryset = LoonRole.objects.filter(id=role_id, is_deleted=0)
+        if not role_queryset:
+            return False, 'role record is not existed'
+        role_queryset.update(name=name, description=description, label=label)
+        return True, {}
+
+    @classmethod
+    @auto_log
+    def delete_role(cls, role_id):
+        """
+        delete role record
+        删除角色
+        :param role_id:
+        :return:
+        """
+        role_queryset = LoonRole.objects.filter(id=role_id, is_deleted=0)
+        if not role_queryset:
+            return False, 'role record is not existed'
+        role_queryset.update(is_deleted=1)
+        return True, {}
+
+    @classmethod
+    @auto_log
     def get_dept_list(cls, search_value, page=1, per_page=10):
         """
         get dept restful list by search params

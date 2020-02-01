@@ -208,7 +208,7 @@ function delUser(userId) {
         success: function (result) {
           if (result.code===0){
             // 刷新数据
-            $('#user_table').dataTable()._fnAjaxUpdate();
+            $('#role_table').dataTable()._fnAjaxUpdate();
             // 关闭modal
             swal({
               title: "删除成功!",

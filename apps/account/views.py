@@ -142,6 +142,79 @@ class LoonRoleView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    def post(self, request, *args, **kwargs):
+        """
+        add role
+        新增角色
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        name = request_data_dict.get('name')
+        description = request_data_dict.get('description')
+        label = request_data_dict.get('label')
+        creator = request.user.username
+        # check add role permission
+        account_base_service_ins = AccountBaseService()
+        flag, result = account_base_service_ins.admin_permission_check(creator)
+        if flag is False:
+            return api_response(-1, result, {})
+
+        flag, result = account_base_service_ins.add_role(name=name, description=description, label=label,
+                                                         creator=request.user.username)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, result, {})
+
+
+@method_decorator(login_required, name='dispatch')
+class LoonRoleDetailView(View):
+    def patch(self, request, *args, **kwargs):
+        """
+        update role
+        更新角色信息
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        role_id = kwargs.get('role_id')
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        name = request_data_dict.get('name')
+        description = request_data_dict.get('description')
+        label = request_data_dict.get('label')
+        operator = request.user.username
+        # operator edit permission check
+        account_base_service_ins = AccountBaseService()
+        flag, result = account_base_service_ins.admin_permission_check(operator)
+        if flag is False:
+            return api_response(-1, result, {})
+        flag, result = account_base_service_ins.update_role(role_id, name, description, label)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', {})
+
+    def delete(self, request, *args, **kwargs):
+        role_id = kwargs.get('role_id')
+        operator = request.user.username
+        # operator edit permission check
+        account_base_service_ins = AccountBaseService()
+        flag, result = account_base_service_ins.admin_permission_check(operator)
+        if flag is False:
+            return api_response(-1, result, {})
+        flag, result = account_base_service_ins.delete_role(role_id)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', {})
+
 
 @method_decorator(login_required, name='dispatch')
 class LoonDeptView(View):
@@ -347,6 +420,32 @@ class LoonRoleUserView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    def post(self, request, *args, **kwargs):
+        """
+        add role's user
+        新增角色用户
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        role_id = kwargs.get('role_id', 0)
+        creator = request.user.username
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'patch参数为空', {})
+        request_data_dict = json.loads(json_str)
+        user_id = request_data_dict.get('user_id', 0)
+
+        account_base_service_ins = AccountBaseService()
+        # check add role's user permission
+        flag, result = account_base_service_ins.admin_permission_check(creator)
+        if flag is False:
+            return api_response(-1, result, {})
+        flag, result = account_base_service_ins.add_role_user(role_id, user_id, creator)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', {})
 
 class LoonUserResetPasswordView(View):
     def post(self, request, *args, **kwargs):

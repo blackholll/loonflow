@@ -1,6 +1,6 @@
 from django.urls import path
 from apps.account.views import LoonUserView, LoonUserDetailView, LoonRoleView, LoonDeptView, LoonAppTokenView, LoonAppTokenDetailView, \
-    LoonLoginView, LoonLogoutView, LoonUserRoleView, LoonRoleUserView, LoonUserResetPasswordView
+    LoonLoginView, LoonLogoutView, LoonUserRoleView, LoonRoleUserView, LoonUserResetPasswordView, LoonRoleDetailView
 
 urlpatterns = [
     path('/users', LoonUserView.as_view()),
@@ -8,6 +8,7 @@ urlpatterns = [
     path('/users/<int:user_id>/roles', LoonUserRoleView.as_view()),
     path('/users/<int:user_id>/reset_password', LoonUserResetPasswordView.as_view()),
     path('/roles', LoonRoleView.as_view()),
+    path('/roles/<int:role_id>', LoonRoleDetailView.as_view()),
     path('/roles/<int:role_id>/users', LoonRoleUserView.as_view()),
     path('/depts', LoonDeptView.as_view()),
     path('/login', LoonLoginView.as_view()),
