@@ -52,6 +52,21 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
+    def get_user_name_list_by_id_list(cls, user_id_list):
+        """
+        get username list by user id list
+        根据用户id的数组获取用户名的list
+        :param user_id_list:
+        :return:
+        """
+        user_queryset = LoonUser.objects.filter(id__in=user_id_list, is_deleted=0).all()
+        if not user_queryset:
+            return False, 'user id is not existed or has been deleted'
+        username_list = [user_query.username for user_query in user_queryset]
+        return True, dict(username_list=username_list)
+
+    @classmethod
+    @auto_log
     def get_user_role_id_list(cls, username):
         """
         get user's role id list by username
@@ -552,6 +567,59 @@ class AccountBaseService(BaseService):
             dept_result_object_format_list.append(dept_result_object.get_dict())
         return True, dict(dept_result_object_format_list=dept_result_object_format_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
+
+    @classmethod
+    @auto_log
+    def add_dept(cls, name, parent_dept_id, leader, approver, label, creator):
+        """
+        add department
+        新增部门
+        :param name:
+        :param parent_dept_id:
+        :param leader:
+        :param approver:
+        :param label:
+        :param creator:
+        :return:
+        """
+        dept_obj = LoonDept(name=name, parent_dept_id=parent_dept_id, leader=leader, approver=approver, label=label,
+                            creator=creator)
+        dept_obj.save()
+        return True, dict(dept_id=dept_obj.id)
+
+    @classmethod
+    @auto_log
+    def update_dept(cls, dept_id, name, parent_dept_id, leader, approver, label):
+        """
+        update department record
+        更新部门
+        :param dept_id:
+        :param name:
+        :param parent_dept_id:
+        :param leader:
+        :param approver:
+        :param label:
+        :return:
+        """
+        dept_queryset = LoonDept.objects.filter(id=dept_id, is_deleted=0)
+        if not dept_queryset:
+            return False, 'dept is not existed or has been deleted'
+        dept_queryset.update(name=name, parent_dept_id=parent_dept_id, leader=leader, approver=approver, label=label)
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def delete_dept(cls, dept_id):
+        """
+        delete department record
+        :param dept_id:
+        :return:
+        """
+        dept_queryset = LoonDept.objects.filter(id=dept_id, is_deleted=0)
+        if not dept_queryset:
+            return False, 'dept is not existed or has been deleted'
+        dept_queryset.update(is_deleted=1)
+        return True, ''
 
     @classmethod
     @auto_log

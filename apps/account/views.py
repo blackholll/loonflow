@@ -220,7 +220,7 @@ class LoonRoleDetailView(View):
 class LoonDeptView(View):
     def get(self, request, *args, **kwargs):
         """
-        用户角色列表
+        部门列表
         :param request:
         :param args:
         :param kwargs:
@@ -239,6 +239,112 @@ class LoonDeptView(View):
         else:
             code, data = -1, ''
         return api_response(code, msg, data)
+
+    def post(self, request, *args, **kwargs):
+        """
+        新增部门
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        name = request_data_dict.get('name')
+        parent_dept_id = request_data_dict.get('parent_dept_id')
+        leader_id = request_data_dict.get('leader')
+        approver_str_list = request_data_dict.get('approver')
+        label = request_data_dict.get('label')
+        creator = request.user.username
+        # creatro permission check
+        account_base_service_ins = AccountBaseService()
+        flag, result = account_base_service_ins.admin_permission_check(creator)
+        if flag is False:
+            return api_response(-1, result, {})
+        approver_id_list = [int(approver_str) for approver_str in approver_str_list]
+        flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
+        if flag is False:
+            return api_response(-1, result, {})
+        approver_username_list = result.get('username_list')
+        approver_username_str = ','.join(approver_username_list)
+        flag, result = account_base_service_ins.get_user_by_user_id(int(leader_id))
+        if flag is False:
+            return api_response(-1, result, {})
+        leader = result.username
+
+        flag, result = account_base_service_ins.add_dept(name, parent_dept_id, leader, approver_username_str, label, creator)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, result, {})
+
+
+@method_decorator(login_required, name='dispatch')
+class LoonDeptDetailView(View):
+    def delete(self, request, *args, **kwargs):
+        """
+        delete dept
+        删除部门
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        operator = request.user.username
+        dept_id = kwargs.get('dept_id')
+        account_base_service_ins = AccountBaseService()
+        flag, result = account_base_service_ins.admin_permission_check(operator)
+        if flag is False:
+            return api_response(-1, result, {})
+        flag, result = account_base_service_ins.delete_dept(dept_id)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', {})
+
+    def patch(self, request, *args, **kwargs):
+        """
+        更新部门
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        operator = request.user.username
+        dept_id = kwargs.get('dept_id')
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        name = request_data_dict.get('name')
+        parent_dept_id = request_data_dict.get('parent_dept_id')
+        leader_id = request_data_dict.get('leader')
+        approver_str_list = request_data_dict.get('approver')
+        approver_id_list = [int(approver_str) for approver_str in approver_str_list]
+        label = request_data_dict.get('label')
+
+        account_base_service_ins = AccountBaseService()
+        flag, result = account_base_service_ins.admin_permission_check(operator)
+        if flag is False:
+            return api_response(-1, result, {})
+
+        flag, result = account_base_service_ins.get_user_by_user_id(int(leader_id))
+        if flag is False:
+            return api_response(-1, result, {})
+        leader = result.username
+
+        flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
+        if flag is False:
+            return api_response(-1, result, {})
+        approver_username_list = result.get('username_list')
+        approver_username_str = ','.join(approver_username_list)
+
+        flag, result = account_base_service_ins.update_dept(dept_id,name, parent_dept_id, leader,
+                                                             approver_username_str, label)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', {})
 
 
 @method_decorator(login_required, name='dispatch')

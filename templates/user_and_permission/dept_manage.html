@@ -4,6 +4,7 @@
 {% block css %}
 
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+  <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
 
 {% endblock %}
 
@@ -20,11 +21,14 @@
   </section>
   <div class="row">
     <section class="content-header">
-    <div class="callout callout-info">
-        请自行通过定时任务程序实现企业账户信息往loonflow的同步(直接操作loonflow的数据库)。loonflow管理后台暂不支持账户的编辑功能。管理员账户请直接通过在服务器上执行python manage.py createsuperuser来创建
+      <div class="callout callout-info">
+      如果你需要从别的系统(如企业内部统一登录系统)同步角色信息，建议通过定时任务脚本来直接操作loonflow数据库实现
       </div>
       <div class="col-md-12">
         <div class="box box-default">
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#deptModal">
+            新增
+          </button>
         <table id="dept_table" class="table table-striped table-bordered dataTable no-footer" >
           <thead>
             <tr>
@@ -36,6 +40,7 @@
                 <th>标签</th>
                 <th>创建人</th>
                 <th>创建时间</th>
+                <th>操作</th>
             </tr>
           </thead>
           <tbody>
@@ -52,7 +57,77 @@
       <!-- /.col -->
    
   <!-- /.content -->
-  
+  <div class="modal fade" id="deptModal">
+    <div class="modal-dialog" style="width: 980px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">部门</h4>
+        </div>
+        <div class="modal-body">
+          <form class="form-horizontal" id='dept_form'>
+            <div class="box-body">
+              <div class="form-group">
+                <label for="deptName" class="col-sm-3 control-label" required="true">部门名<span style="color:red">*</span></label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" id="deptName" required="true" placeholder="请输入部门名称">
+                </div>
+              </div>
+              <div class="form-group">
+                  <label for="deptLabel" class="col-sm-3 control-label">标签</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="deptLabel" placeholder="标签用于自己定制，如从别的系统同步过来时对应关联信息，格式自定">
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="parent_dept_id" class="col-sm-3 control-label">上级部门</label>
+                  <div class="col-sm-9">
+                    <select class="form-control select2" id="parent_dept_id" data-placeholder="请输入部门名称搜索"
+                            style="width: 100%;">
+                    </select>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="deptLeader" class="col-sm-3 control-label">部门leader</label>
+                  <div class="col-sm-9">
+                    <select class="form-control select2" id="deptLeader" data-placeholder="请输入用户名称搜索"
+                            style="width: 100%;">
+                    </select>
+                  </div>
+              </div>
+              <div class="form-group">
+                  <label for="deptApprover" class="col-sm-3 control-label">部门审批人</label>
+                  <div class="col-sm-9">
+                    <select class="form-control select2" id="deptApprover" data-placeholder="请输入用户名称搜索"
+                            style="width: 100%;" multiple="multiple">
+                    </select>
+                  </div>
+              </div>
+
+              <input type="text" class="form-control" id="deptId" style="display:none">
+
+            </div>
+            <div >
+              <div class="callout callout-info">
+                如果你需要从别的系统(如企业内部统一登录系统)同步角色信息，建议通过定时任务脚本来直接操作loonflow数据库实现
+              </div>
+              </div>
+
+            <!-- /.box-body -->
+            <div class="box-footer">
+              <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+              <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitDept();" />
+            </div>
+            <!-- /.box-footer -->
+          </form>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+      <!-- /.modal-dialog -->
+    </div>
+  </div>
 </div>
 
 <!-- /.content-wrapper -->
@@ -69,57 +144,12 @@
 
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+<script src="{% static 'bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+<script src="{% static 'dist/js/account/dept_manage.js' %}"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
 
 <script>
-  $('#dept_table').DataTable({
-  ordering: false,
-  "serverSide":true,
-  "bFilter":true,
-  "lengthMenu": [10, 25, 50, 100 ],
-  "language": {
-    "searchPlaceholder": "部门名或标签模糊搜索"
-  },
 
-  ajax: function (data, callback, settings) {
-    console.log(data);
-    var param = {};
-    param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
-    param.page = (data.start / data.length)+1;//当前页码
-    param.search_value=data.search.value;
-    console.log(param);    
-    $.ajax({
-      type: "GET",
-      url: "/api/v1.0/accounts/depts",
-      cache: false,  //禁用缓存
-      data: param,  //传入组装的参数
-      dataType: "json",
-      success: function (result) {
-        var returnData = {};
-        returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
-        returnData.recordsTotal = result.data.total;//返回数据全部记录
-        returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
-        returnData.data = result.data.value;//返回的数据列表
-        //console.log(returnData);
-        //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
-        //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
-        callback(returnData);
-        },
-      
-    })
-    
-  },
-  columns: [
-      { "data": "id"},
-      { "data": "name" },
-      { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
-      { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
-      { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
-      { "data": "label" },
-      { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
-      { "data": "gmt_created" },
-
-  ]
-  
-})
 </script>
 {% endblock %}
