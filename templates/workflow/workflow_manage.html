@@ -103,6 +103,20 @@
                             </div>
                           <input type="text" class="form-control" id="workflowId" style="display:none">
                       </div>
+                        <div class="form-group">
+                        <label for="titleTemplate" class="col-sm-3 control-label">标题模板</label>
+                        <div class="col-sm-9">
+                          <input type="text" class="form-control" id="titleTemplate" value="你有一个待办工单:{title}">
+                          <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="contentTemplate" class="col-sm-3 control-label">内容模板</label>
+                      <div class="col-sm-9">
+                        <input type="text" class="form-control" id="contentTemplate" value="标题:{title}, 创建时间:{gmt_created}">
+                        <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}</p>
+                      </div>
+                  </div>
                       <!-- /.box-body -->
                       <div class="box-footer">
                         <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->

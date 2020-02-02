@@ -42,47 +42,46 @@ class WorkflowCustomNoticeService(BaseService):
             custom_notice_result_restful_list.append(dict(id=custom_notice_result_object.id, name=custom_notice_result_object.name,
                                                           description=custom_notice_result_object.description,
                                                           creator=custom_notice_result_object.creator,
-                                                          script=custom_notice_result_object.script.name,
-                                                          title_template=custom_notice_result_object.title_template,
-                                                          content_template=custom_notice_result_object.content_template,
+                                                          hook_url=custom_notice_result_object.hook_url,
+                                                          hook_token=custom_notice_result_object.hook_token,
                                                           gmt_created=str(custom_notice_result_object.gmt_created)[:19]))
         return custom_notice_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
     @auto_log
-    def add_custom_notice(cls, name, script, description, title_template, content_template , creator):
+    def add_custom_notice(cls, name, description, hook_url, hook_token, creator):
         """
-        新增通知脚本
+        新增自定义通知记录
         :param name:
-        :param script:
         :param description:
-        :param title_template:
-        :param content_template:
+        :param hook_url:
+        :param hook_token:
         :param creator:
         :return:
         """
-        script_obj = CustomNotice(name=name, script=script, description=description, title_template=title_template, content_template=content_template , creator=creator)
-        script_obj.save()
-        return True, script_obj.id
+        notice_obj = CustomNotice(name=name, description=description, hook_url=hook_url, hook_token=hook_token,
+                                  creator=creator)
+        notice_obj.save()
+        return True, dict(notice_id=notice_obj.id)
 
     @classmethod
     @auto_log
-    def edit_custom_notice(cls, id, name, script, description, title_template, content_template):
+    def update_custom_notice(cls, id, name, description, hook_url, hook_token, creator):
         """
-        编辑通知脚本
+        更新自定义通知
         :param name:
-        :param saved_name:
         :param description:
-        :param title_template:
-        :param content_template:
+        :param hook_url:
+        :param hook_token:
+        :param creator:
         :return:
         """
         custom_notice_obj = CustomNotice.objects.filter(id=id, is_deleted=0)
-        if script:
-            custom_notice_obj.update(name=name, script=script, description=description, title_template=title_template, content_template=content_template)
+        if custom_notice_obj:
+            custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token)
         else:
-            custom_notice_obj.update(name=name, script=script, description=description, title_template=title_template, content_template=content_template)
-        return True, custom_notice_obj.first().id
+            custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token)
+        return True, ''
 
     @classmethod
     @auto_log

@@ -15,8 +15,8 @@ class Workflow(BaseModel):
     view_permission_check = models.BooleanField('查看权限校验', default=True, help_text='开启后，只允许工单的关联人(创建人、曾经的处理人)有权限查看工单')
     limit_expression = models.CharField('限制表达式', max_length=1000, default='{}', blank=True, help_text='限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)')
     display_form_str = models.CharField('展现表单字段', max_length=10000, default='[]', blank=True, help_text='默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')
-    # default_notice_to = models.CharField('默认通知人', max_length=50, default='', blank=True, help_text='表单创建及结束时会发送相应通知信息')
-
+    title_template = models.CharField('标题模板', max_length=50, default='你有一个待办工单:{title}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}')
+    content_template = models.CharField('内容模板', max_length=1000, default='标题:{title}, 创建时间:{gmt_created}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}')
 
     class Meta:
         verbose_name = '工作流'
@@ -136,14 +136,10 @@ def upload_notice_script(instance, filename):
 
 class CustomNotice(BaseModel):
     """
-    自定义通知方式
+    自定义通知方式，hook
     """
     name = models.CharField('名称', max_length=50)
     description = models.CharField('描述', max_length=100, null=True, blank=True)
-    script = models.FileField('通知脚本', upload_to=upload_notice_script, null=True, blank=True)
-    title_template = models.CharField('标题模板', max_length=50, default='你有一个待办工单:{title}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}')
-    content_template = models.CharField('内容模板', max_length=1000, default='标题:{title}, 创建时间:{gmt_created}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}')
-  
-    class Meta:
-        verbose_name = '自定义通知脚本'
-        verbose_name_plural = '自定义通知脚本'
+
+    hook_url = models.CharField('hook url', max_length=100, null=True, blank=True)
+    hook_token = models.CharField('hook token', max_length=100, null=True, blank=True)

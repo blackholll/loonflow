@@ -1,6 +1,8 @@
 import json
 
 from django.views import View
+
+from service.account.account_base_service import AccountBaseService
 from service.format_response import api_response
 from service.workflow.workflow_base_service import WorkflowBaseService
 from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
@@ -578,7 +580,8 @@ class WorkflowRunScriptDetailView(View):
 class WorkflowCustomNoticeView(View):
     def get(self, request, *args, **kwargs):
         """
-        获取工作流执行脚本列表
+        get worklfow custom notice list
+        获取工作流通知列表
         :param request:
         :param args:
         :param kwargs:
@@ -605,27 +608,25 @@ class WorkflowCustomNoticeView(View):
 
     def post(self, request, *args, **kwargs):
         """
-        编辑脚本
+        add notice record
+        新增通知记录
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
-        file_obj = request.FILES.get('file')
-        if file_obj:  # 处理附件上传到方法
-            import os
-            import uuid
-            from django.conf import settings
-            script_file_name = "notice_script/{}.py".format(str(uuid.uuid1()))
-            upload_file = os.path.join(settings.MEDIA_ROOT, script_file_name)
-            with open(upload_file, 'wb') as new_file:
-                for chunk in file_obj.chunks():
-                    new_file.write(chunk)
-        notice_name = request.POST.get('notice_name', '')
-        notice_desc = request.POST.get('notice_desc', '')
-        title_template = request.POST.get('title_template', '')
-        content_template = request.POST.get('content_template', '')
-        result, msg = WorkflowCustomNoticeService.add_custom_notice(notice_name, script_file_name, notice_desc, title_template, content_template, request.user.username)
+        name = request.POST.get('name', '')
+        description = request.POST.get('description', '')
+        hook_url = request.POST.get('hook_url', '')
+        hook_token = request.POST.get('hook_token', '')
+        creator = request.user.username
+        account_base_service_ins = AccountBaseService()
+
+        flag, result = account_base_service_ins.admin_permission_check(creator)
+        if flag is False:
+            return api_response(-1, result, {})
+
+        result, msg = WorkflowCustomNoticeService.add_custom_notice(name, description, hook_url, hook_token, creator)
         if result is not False:
             data = {}
             code, msg,  = 0, ''
@@ -643,30 +644,26 @@ class WorkflowCustomNoticeDetailView(View):
         :param kwargs:
         :return:
         """
-        file_obj = request.FILES.get('file')
-        if file_obj:  # 处理附件上传到方法
-            import os
-            import uuid
-            from django.conf import settings
-            script_file_name = "notice_script/{}.py".format(str(uuid.uuid1()))
-            upload_file = os.path.join(settings.MEDIA_ROOT, script_file_name)
-            with open(upload_file, 'wb') as new_file:
-                for chunk in file_obj.chunks():
-                    new_file.write(chunk)
-        else:
-            script_file_name = None
         notice_id = kwargs.get('notice_id')
+        name = request.POST.get('name', '')
+        description = request.POST.get('description', '')
+        hook_url = request.POST.get('hook_url', '')
+        hook_token = request.POST.get('hook_token', '')
+        creator = request.user.username
+        account_base_service_ins = AccountBaseService()
 
-        notice_name = request.POST.get('notice_name', '')
-        notice_desc = request.POST.get('notice_desc', '')
-        title_template = request.POST.get('title_template', '')
-        content_template = request.POST.get('content_template', '')
-        result, msg = WorkflowCustomNoticeService.edit_custom_notice(notice_id, notice_name, script_file_name, notice_desc, title_template, content_template)
+        flag, result = account_base_service_ins.admin_permission_check(creator)
+        if flag is False:
+            return api_response(-1, result, {})
+
+        result, msg = WorkflowCustomNoticeService.update_custom_notice(notice_id, name, description, hook_url, hook_token, creator)
         if result is not False:
-            code, msg, data = 0, '', {}
+            data = {}
+            code, msg, = 0, ''
         else:
             code, data = -1, {}
         return api_response(code, msg, data)
+
 
     def delete(self, request, *args, **kwargs):
         """
