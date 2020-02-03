@@ -19,6 +19,9 @@
       <li><a href="/manage/workflow_manage"><i class="fa fa-dashboard"></i> 工作流管理</a></li>
     </ol>
   </section>
+  <div class="callout callout-info">
+    当工单状态变化时将根据对应工作流配置的通知,向hook_url发送post请求,使用token生成签名,详见文档
+  </div>
   <div class="row">
     <section class="content-header">
 
@@ -72,13 +75,13 @@
                       <div class="form-group">
                           <label for="hookUrl" class="col-sm-3 control-label">hook url</label>
                           <div class="col-sm-9">
-                            <input type="text" class="form-control" id="hookUrl" placeholder="请输入通知描述">
+                            <input type="text" class="form-control" id="hookUrl" placeholder="请输入hook地址">
                           </div>
                       </div>
                       <div class="form-group">
                           <label for="hookToken" class="col-sm-3 control-label">hook token</label>
                           <div class="col-sm-9">
-                            <input type="text" class="form-control" id="hookToken" placeholder="请输入通知描述">
+                            <input type="text" class="form-control" id="hookToken" placeholder="请输入hook token">
                           </div>
                       </div>
 
