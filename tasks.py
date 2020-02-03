@@ -165,7 +165,7 @@ def send_ticket_notice(ticket_id):
     # 获取工单信息
     # 获取工作流信息，获取工作流的通知信息
     # 获取通知信息的标题和内容模板
-    # 将通知内容，通知标题，通知人，作为变量传给通知脚本
+    # 将通知内容，通知标题，通知人，作为hook的请求参数
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
     if not ticket_obj:
         return False, 'ticket is not exist or has been deleted'
@@ -178,66 +178,68 @@ def send_ticket_notice(ticket_id):
     notice_str_list = notices.split(',')
     notice_id_list = [int(notice_str) for notice_str in notice_str_list]
     send_notice_result_list = []
+
+    title_template = workflow_obj.title_template
+    content_template = workflow_obj.content_template
+
+    # 获取工单所有字段的变量
+    flag, ticket_value_info = TicketBaseService.get_ticket_all_field_value(ticket_id)
+    if flag is False:
+        return False, ticket_value_info
+    title_result = title_template.format(**ticket_value_info)
+    content_result = content_template.format(**ticket_value_info)
+    # 获取工单最后一条操作记录
+    flag, result = TicketBaseService.get_ticket_flow_log(ticket_id, 'loonrobot')
+    flow_log_list = result.get('ticket_flow_log_restful_list')
+
+    last_flow_log = flow_log_list[0]
+    participant_info_list = []
+    participant_username_list = []
+    from apps.account.models import LoonUser
+    if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+        participant_username_list = [ticket_obj.participant]
+    elif ticket_obj.participant_type_id in (
+    CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL):
+        participant_username_list = ticket_obj.participant.split(',')
+    elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+        flag, participant_username_list = AccountBaseService.get_role_username_list(ticket_obj.participant)
+        if flag is False:
+            return False, participant_username_list
+
+    elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+        flag, participant_username_list = AccountBaseService.get_dept_username_list(ticket_obj.participant)
+        if not flag:
+            return flag, participant_username_list
+
+    if participant_username_list:
+        participant_queryset = LoonUser.objects.filter(username__in=participant_username_list, is_deleted=0)
+        for participant_0 in participant_queryset:
+            participant_info_list.append(dict(username=participant_0.username, alias=participant_0.alias,
+                                              phone=participant_0.phone, email=participant_0.email))
+
+    params = {'title_result': title_result, 'content_result': content_result,
+               'participant': ticket_obj.participant, 'participant_type_id': ticket_obj.participant_type_id,
+               'multi_all_person': ticket_obj.multi_all_person, 'ticket_value_info': ticket_value_info,
+               'last_flow_log': last_flow_log, 'participant_info_list': participant_info_list}
     for notice_id in notice_id_list:
         notice_obj = CustomNotice.objects.filter(id=notice_id, is_deleted=0).first()
         if not notice_obj:
             continue
-        title_template = notice_obj.title_template
-        content_template = notice_obj.content_template
-        # 获取工单所有字段的变量
-        flag, ticket_value_info = TicketBaseService.get_ticket_all_field_value(ticket_id)
-        if flag is False:
-            return False, ticket_value_info
-        title_result = title_template.format(**ticket_value_info)
-        content_result = content_template.format(**ticket_value_info)
-        notice_script_file_name = notice_obj.script.name
-        notice_script_file = os.path.join(settings.MEDIA_ROOT, notice_script_file_name)
-        # 获取工单最后一条操作记录
-        flag, result = TicketBaseService.get_ticket_flow_log(ticket_id, 'loonrobot')
-        flow_log_list = result.get('ticket_flow_log_restful_list')
-
-        last_flow_log = flow_log_list[0]
-        participant_info_list = []
-        participant_username_list = []
-        from apps.account.models import LoonUser
-        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
-            participant_username_list = [ticket_obj.participant]
-        elif ticket_obj.participant_type_id in (CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL):
-            participant_username_list = ticket_obj.participant.split(',')
-        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
-            flag, participant_username_list = AccountBaseService.get_role_username_list(ticket_obj.participant)
-            if flag is False:
-                return False, participant_username_list
-
-        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-            flag, participant_username_list = AccountBaseService.get_dept_username_list(ticket_obj.participant)
-            if not flag:
-                return flag, participant_username_list
-
-        if participant_username_list:
-            participant_queryset = LoonUser.objects.filter(username__in=participant_username_list, is_deleted=0)
-            for participant_0 in participant_queryset:
-                participant_info_list.append(dict(username=participant_0.username, alias=participant_0.alias,
-                                                  phone=participant_0.phone, email=participant_0.email))
-
-        globals = {'title_result': title_result, 'content_result': content_result,
-                   'participant': ticket_obj.participant, 'participant_type_id': ticket_obj.participant_type_id,
-                   'multi_all_person': ticket_obj.multi_all_person, 'ticket_value_info': ticket_value_info,
-                   'last_flow_log': last_flow_log, 'participant_info_list': participant_info_list}
+        hook_url = notice_obj.hook_url
+        hook_token = notice_obj.hook_token
+        # gen signature
+        flag, headers = CommonService().gen_signature_by_token(hook_token)
         try:
-            with stdoutIO() as s:
-                # execfile(script_file, globals)  # for python 2
-                exec(open(notice_script_file, encoding='utf-8').read(), globals)
-            script_result = True
-            # script_result_msg = ''.join(s.buflist)
-            script_result_msg = ''.join(s.getvalue())
-            logger.info('send notice successful for ticket_id: {}, notice_id:{}'.format(ticket_id, notice_id))
+            r = requests.post(hook_url, headers=headers, json=params)
+            result = r.json()
+            if result.get('code') == 0:
+                send_notice_result_list.append(dict(notice_id=notice_id, result='success', msg=result.get('msg', '')))
+            else:
+                send_notice_result_list.append(dict(notice_id=notice_id, result='fail', msg=result.get('msg', '')))
         except Exception as e:
-            logger.error(traceback.format_exc())
-            script_result = False
-            script_result_msg = e.__str__()
-        send_notice_result_list.append(dict(notice_id=notice_id, result=script_result, msg=script_result_msg))
-    return send_notice_result_list
+            send_notice_result_list.append(dict(notice_id=notice_id, result='fail', msg=e.__str__()))
+
+    return True, dict(send_notice_result_list=send_notice_result_list)
 
 
 @app.task

@@ -52,6 +52,15 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
+    def gen_signature_by_token(cls, token):
+        md5_key = token
+        timestamp = str(int(time.time()))
+        ori_str = timestamp + md5_key
+        tar_str = hashlib.md5(ori_str.encode(encoding='utf-8')).hexdigest()
+        return True, dict(signature=tar_str, timestamp=timestamp)
+
+    @classmethod
+    @auto_log
     def gen_hook_signature(cls, token):
         """
         gen hook token signature
