@@ -1,9 +1,11 @@
 import json
 
 from django.views import View
-
+from schema import Schema, Regex, And, Or, Use, Optional
+from apps.loon_base_view import LoonBaseView
 from service.account.account_base_service import AccountBaseService
 from service.format_response import api_response
+from service.permission.manage_permission import manage_permission_check
 from service.workflow.workflow_base_service import WorkflowBaseService
 from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
 from service.workflow.workflow_custom_notice_service import WorkflowCustomNoticeService
@@ -12,7 +14,14 @@ from service.workflow.workflow_state_service import WorkflowStateService
 from service.workflow.workflow_transition_service import WorkflowTransitionService
 
 
-class WorkflowView(View):
+class WorkflowView(LoonBaseView):
+    post_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        Optional('description'): str,
+        str: object
+
+    })
+
     def get(self, request, *args, **kwargs):
         """
         获取工作流列表
@@ -25,7 +34,6 @@ class WorkflowView(View):
         name = request_data.get('name', '')
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
-        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
         username = request.META.get('HTTP_USERNAME')
         app_name = request.META.get('HTTP_APPNAME')
 
@@ -48,6 +56,7 @@ class WorkflowView(View):
             code, data, msg = -1, '', result
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def post(self, request, *args, **kwargs):
         """
         新增工作流
@@ -60,8 +69,6 @@ class WorkflowView(View):
         if not json_str:
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
-        workflow_data = {}
-        app_name = request.META.get('HTTP_APPNAME')
         name = request_data_dict.get('name', '')
         description = request_data_dict.get('description', '')
         notices = request_data_dict.get('notices', '')
@@ -78,7 +85,7 @@ class WorkflowView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowInitView(View):
+class WorkflowInitView(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
         获取工作流初始状态信息，包括状态详情以及允许的transition
@@ -88,8 +95,6 @@ class WorkflowInitView(View):
         :return:
         """
         workflow_id = kwargs.get('workflow_id')
-        request_data = request.GET
-        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
         username = request.META.get('HTTP_USERNAME')
 
         app_name = request.META.get('HTTP_APPNAME')
@@ -109,7 +114,15 @@ class WorkflowInitView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowDetailView(View):
+class WorkflowDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        Optional('description'): str,
+        str: object
+
+    })
+
+    @manage_permission_check('workflow_admin')
     def get(self, request, *args, **kwargs):
         """
         获取工作流详情
@@ -137,6 +150,7 @@ class WorkflowDetailView(View):
             code = 0
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def patch(self, request, *args, **kwargs):
         """
         修改工作流
@@ -171,6 +185,7 @@ class WorkflowDetailView(View):
             code, msg, data = 0, '', {}
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def delete(self, request, *args, **kwargs):
         """
         删除工作流
@@ -194,7 +209,23 @@ class WorkflowDetailView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowTransitionView(View):
+class WorkflowTransitionView(LoonBaseView):
+    post_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        'transition_type_id': And(int, error='transition_type_id is needed'),
+        'source_state_id': And(int, lambda n: n != 0, error='source_state_id is needed'),
+        'attribute_type_id': And(int, lambda n: n != 0, error='attribute_type_id is needed'),
+
+        Optional('alert_enable'): int,
+        Optional('field_require_check'): int,
+        Optional('alert_text'): str,
+        Optional('destination_state_id'): int,
+        Optional('timer'): int,
+        Optional('condition_expression'): str,
+
+    })
+
+    @manage_permission_check('workflow_admin')
     def get(self, request, *args, **kwargs):
         """
         获取流转
@@ -221,6 +252,7 @@ class WorkflowTransitionView(View):
             code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def post(self, request, *args, **kwargs):
         """
         新增流转
@@ -234,8 +266,7 @@ class WorkflowTransitionView(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         workflow_id = kwargs.get('workflow_id')
-        app_name = request.META.get('HTTP_APPNAME')
-        username = request.META.get('HTTP_USERNAME')
+        username = request.user.username
         name = request_data_dict.get('name', '')
         transition_type_id = int(request_data_dict.get('transition_type_id', 0))
         timer = int(request_data_dict.get('timer', 0))
@@ -257,7 +288,21 @@ class WorkflowTransitionView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowTransitionDetailView(View):
+class WorkflowTransitionDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        'transition_type_id': And(int, error='transition_type_id is needed'),
+        'source_state_id': And(int, lambda n: n != 0, error='source_state_id is needed'),
+        'attribute_type_id': And(int, lambda n: n != 0, error='attribute_type_id is needed'),
+        Optional('alert_enable'): int,
+        Optional('field_require_check'): int,
+        Optional('alert_text'): str,
+        Optional('destination_state_id'): int,
+        Optional('timer'): int,
+        Optional('condition_expression'): str,
+    })
+
+    @manage_permission_check('workflow_admin')
     def patch(self, request, *args, **kwargs):
         """
         编辑
@@ -272,7 +317,7 @@ class WorkflowTransitionDetailView(View):
         request_data_dict = json.loads(json_str)
         workflow_id = kwargs.get('workflow_id')
         app_name = request.META.get('HTTP_APPNAME')
-        username = request.META.get('HTTP_USERNAME')
+        username = request.user.username
         name = request_data_dict.get('name', '')
         transition_type_id = int(request_data_dict.get('transition_type_id', 0))
         timer = int(request_data_dict.get('timer', 0))
@@ -284,12 +329,11 @@ class WorkflowTransitionDetailView(View):
         alert_enable = int(request_data_dict.get('alert_enable', 0))
         alert_text = request_data_dict.get('alert_text', '')
         transition_id = kwargs.get('transition_id')
-        flag, result = WorkflowTransitionService.edit_workflow_transition(transition_id, workflow_id, name, transition_type_id, timer,
-                                                                        source_state_id,
-                                                                        destination_state_id, condition_expression,
-                                                                        attribute_type_id,
-                                                                        field_require_check, alert_enable, alert_text,
-                                                                        )
+        flag, result = WorkflowTransitionService.edit_workflow_transition(transition_id, workflow_id, name,
+                                                                          transition_type_id, timer, source_state_id,
+                                                                          destination_state_id, condition_expression,
+                                                                          attribute_type_id, field_require_check,
+                                                                          alert_enable, alert_text)
         if flag is not False:
             data = {}
             code, msg, = 0, ''
@@ -297,6 +341,7 @@ class WorkflowTransitionDetailView(View):
             code, data, msg = -1, {}, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def delete(self, request, *args, **kwargs):
         """
         删除transition
@@ -315,7 +360,7 @@ class WorkflowTransitionDetailView(View):
         return api_response(code, msg, data)
 
 
-class StateView(View):
+class StateView(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
         获取状态详情
@@ -326,7 +371,6 @@ class StateView(View):
         """
         state_id = kwargs.get('state_id')
         request_data = request.GET
-        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
         username = request.META.get('HTTP_USERNAME')
         if not username:
             return api_response(-1, '请提供username', '')
@@ -339,7 +383,19 @@ class StateView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowStateView(View):
+class WorkflowStateView(LoonBaseView):
+    post_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        'order_id': And(int, error='order_id is needed'),
+        'type_id': And(int, error='type_id is needed'),
+        'participant_type_id': And(int, lambda n: n != 0, error='participant_type_id is needed'),
+        'distribute_type_id': And(int, lambda n: n != 0, error='distribute_type_id is needed'),
+        Optional('remember_last_man_enable'): int,
+        Optional('state_field_str'): str,
+        Optional('label'): str,
+        str: object
+    })
+
     def get(self, request, *args, **kwargs):
         """
         获取工作流拥有的state列表信息
@@ -368,6 +424,7 @@ class WorkflowStateView(View):
             code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def post(self, request, *args, **kwargs):
         """
         新增状态
@@ -408,7 +465,20 @@ class WorkflowStateView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowStateDetailView(View):
+class WorkflowStateDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        'order_id': And(int, error='order_id is needed'),
+        'type_id': And(int, error='type_id is needed'),
+        'participant_type_id': And(int, lambda n: n != 0, error='participant_type_id is needed'),
+        'distribute_type_id': And(int, lambda n: n != 0, error='distribute_type_id is needed'),
+        Optional('remember_last_man_enable'): int,
+        Optional('state_field_str'): str,
+        Optional('label'): str,
+        str: object
+    })
+
+    @manage_permission_check('workflow_admin')
     def patch(self, request, *args, **kwargs):
         """
         编辑状态
@@ -440,15 +510,16 @@ class WorkflowStateDetailView(View):
         state_id = kwargs.get('state_id')
 
         flag, result = WorkflowStateService.edit_workflow_state(state_id, workflow_id, name, sub_workflow_id, is_hidden,
-                                                               order_id, type_id, remember_last_man_enable,
-                                                               participant_type_id, participant, distribute_type_id,
-                                                               state_field_str, label, username)
+                                                                order_id, type_id, remember_last_man_enable,
+                                                                participant_type_id, participant, distribute_type_id,
+                                                                state_field_str, label, username)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
             code, msg, data = 0, '', {}
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def delete(self, request, *args, **kwargs):
         """
         删除状态
@@ -468,7 +539,8 @@ class WorkflowStateDetailView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowRunScriptView(View):
+class WorkflowRunScriptView(LoonBaseView):
+    @manage_permission_check('workflow_admin')
     def get(self, request, *args, **kwargs):
         """
         获取工作流执行脚本列表
@@ -478,7 +550,6 @@ class WorkflowRunScriptView(View):
         :return:
         """
         request_data = request.GET
-        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
         username = request.META.get('HTTP_USERNAME')
         if not username:
             username = request.user.username
@@ -498,6 +569,7 @@ class WorkflowRunScriptView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def post(self, request, *args, **kwargs):
         """
         新增脚本
@@ -527,7 +599,8 @@ class WorkflowRunScriptView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowRunScriptDetailView(View):
+class WorkflowRunScriptDetailView(LoonBaseView):
+    @manage_permission_check('workflow_admin')
     def post(self, request, *args, **kwargs):
         """
         修改脚本,本来准备用patch的。但是发现非json提交过来获取不到数据(因为要传文件，所以不能用json)
@@ -560,6 +633,7 @@ class WorkflowRunScriptDetailView(View):
             code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def delete(self, request, *args, **kwargs):
         """
         删除脚本，本操作不删除对应的脚本文件，只标记记录
@@ -577,7 +651,15 @@ class WorkflowRunScriptDetailView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowCustomNoticeView(View):
+class WorkflowCustomNoticeView(LoonBaseView):
+    post_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        'hook_url': And(str, lambda n: n != '', error='hook_url is needed'),
+        'hook_token': And(str, lambda n: n != '', error='hook_token is needed'),
+        Optional('description'): str,
+    })
+
+    @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         get worklfow custom notice list
@@ -606,6 +688,7 @@ class WorkflowCustomNoticeView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add notice record
@@ -615,10 +698,16 @@ class WorkflowCustomNoticeView(View):
         :param kwargs:
         :return:
         """
-        name = request.POST.get('name', '')
-        description = request.POST.get('description', '')
-        hook_url = request.POST.get('hook_url', '')
-        hook_token = request.POST.get('hook_token', '')
+
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+
+        name = request_data_dict.get('name', '')
+        description = request_data_dict.get('description', '')
+        hook_url = request_data_dict.get('hook_url', '')
+        hook_token = request_data_dict.get('hook_token', '')
         creator = request.user.username
         account_base_service_ins = AccountBaseService()
 
@@ -635,20 +724,34 @@ class WorkflowCustomNoticeView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowCustomNoticeDetailView(View):
-    def post(self, request, *args, **kwargs):
+class WorkflowCustomNoticeDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        'hook_url': And(str, lambda n: n != '', error='hook_url is needed'),
+        'hook_token': And(str, lambda n: n != '', error='hook_token is needed'),
+        Optional('description'): str,
+    })
+
+    @manage_permission_check('admin')
+    def patch(self, request, *args, **kwargs):
         """
-        修改通知脚本,本来准备用patch的。但是发现非json提交过来获取不到数据(因为要传文件，所以不能用json)
+        修改通知
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
         notice_id = kwargs.get('notice_id')
-        name = request.POST.get('name', '')
-        description = request.POST.get('description', '')
-        hook_url = request.POST.get('hook_url', '')
-        hook_token = request.POST.get('hook_token', '')
+
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+
+        name = request_data_dict.get('name', '')
+        description = request_data_dict.get('description', '')
+        hook_url = request_data_dict.get('hook_url', '')
+        hook_token = request_data_dict.get('hook_token', '')
         creator = request.user.username
         account_base_service_ins = AccountBaseService()
 
@@ -664,10 +767,10 @@ class WorkflowCustomNoticeDetailView(View):
             code, data = -1, {}
         return api_response(code, msg, data)
 
-
+    @manage_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
-        删除脚本，本操作不删除对应的脚本文件，只标记记录
+        删除自定义通知
         :param request:
         :param args:
         :param kwargs:
@@ -682,7 +785,20 @@ class WorkflowCustomNoticeDetailView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowCustomFieldView(View):
+class WorkflowCustomFieldView(LoonBaseView):
+    post_schema = Schema({
+        'field_key': And(str, lambda n: n != '', error='field_key is needed'),
+        'field_name': And(str, lambda n: n != '', error='field_name is needed'),
+        'field_type_id': And(int, lambda n: n != 0, error='field_type_id is needed and should be a number'),
+        'order_id': And(int, error='order_id is needed and should be a number'),
+        Optional('description'): str,
+        Optional('label'): str,
+        Optional('field_template'): str,
+        Optional('default_value'): str,
+        Optional('boolean_field_display'): str,
+        Optional('field_choice'): str,
+    })
+
     def get(self, request, *args, **kwargs):
         """
         获取工作流自定义字段列表
@@ -713,6 +829,7 @@ class WorkflowCustomFieldView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def post(self, request, *args, **kwargs):
         """
         新增工作流自定义字段
@@ -755,7 +872,21 @@ class WorkflowCustomFieldView(View):
         return api_response(code, msg, data)
 
 
-class WorkflowCustomFieldDetailView(View):
+class WorkflowCustomFieldDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'field_key': And(str, lambda n: n != '', error='field_key is needed'),
+        'field_name': And(str, lambda n: n != '', error='field_name is needed'),
+        'field_type_id': And(int, lambda n: n != 0, error='field_type_id is needed and should be a number'),
+        'order_id': And(int, error='order_id is needed and should be a number'),
+        Optional('description'): str,
+        Optional('label'): str,
+        Optional('field_template'): str,
+        Optional('default_value'): str,
+        Optional('boolean_field_display'): str,
+        Optional('field_choice'): str,
+    })
+
+    @manage_permission_check('workflow_admin')
     def patch(self, request, *args, **kwargs):
         """
         更新自定义字段
@@ -797,6 +928,7 @@ class WorkflowCustomFieldDetailView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('workflow_admin')
     def delete(self, request, *args, **kwargs):
         """删除记录"""
         app_name = request.META.get('HTTP_APPNAME')

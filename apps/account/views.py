@@ -7,10 +7,27 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from service.account.account_base_service import AccountBaseService
 from service.format_response import api_response
+from apps.loon_base_view import LoonBaseView
+from schema import Schema, Regex, And, Or, Use, Optional
+
+from service.permission.manage_permission import manage_permission_check
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonUserView(View):
+class LoonUserView(LoonBaseView):
+    post_schema = Schema({
+        'username': And(str, lambda n: n != '', error='username is needed'),
+        'alias': And(str, lambda n: n != '', error='alias is needed'),
+        'email': And(str, lambda n: n != '', error='alias is needed'),
+        Optional('password'): str,
+        'phone': str,
+        'dept_id': And(int, lambda n: n > 0),
+        'is_active': Use(bool),
+        'is_admin': Use(bool),
+        'is_workflow_admin': Use(bool),
+    })
+
+    @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         获取用户列表
@@ -35,6 +52,7 @@ class LoonUserView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add user
@@ -52,13 +70,13 @@ class LoonUserView(View):
         email = request_data_dict.get('email')
         password = request_data_dict.get('password')
         phone = request_data_dict.get('phone')
-        dept_id = int(request_data_dict.get('dept_id')) if request_data_dict.get('dept_id') else 0
+        dept_id = int(request_data_dict.get('dept_id'))
         is_active = request_data_dict.get('is_active')
         is_admin = request_data_dict.get('is_admin')
         is_workflow_admin = request_data_dict.get('is_workflow_admin')
         creator = request.user.username
-        flag, result = AccountBaseService().add_user(username, alias, email, phone, dept_id, is_active, is_admin, is_workflow_admin,
-                                      creator, password)
+        flag, result = AccountBaseService().add_user(username, alias, email, phone, dept_id, is_active, is_admin,
+                                                     is_workflow_admin, creator, password)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
@@ -67,7 +85,20 @@ class LoonUserView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonUserDetailView(View):
+class LoonUserDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'username': And(str, lambda n: n != ''),
+        'alias': And(str, lambda n: n != ''),
+        'email': And(str, lambda n: n != ''),
+        Optional('password'): str,
+        'phone': str,
+        'dept_id': And(int, lambda n: n > 0),
+        'is_active': Use(bool),
+        'is_admin': Use(bool),
+        'is_workflow_admin': Use(bool),
+    })
+
+    @manage_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
         edit user
@@ -77,15 +108,13 @@ class LoonUserDetailView(View):
         :return:
         """
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
         user_id = kwargs.get('user_id')
         request_data_dict = json.loads(json_str)
         username = request_data_dict.get('username')
         alias = request_data_dict.get('alias')
         email = request_data_dict.get('email')
         phone = request_data_dict.get('phone')
-        dept_id = int(request_data_dict.get('dept_id')) if request_data_dict.get('dept_id') else 0
+        dept_id = request_data_dict.get('dept_id')
         is_active = request_data_dict.get('is_active')
         is_admin = request_data_dict.get('is_admin')
         is_workflow_admin = request_data_dict.get('is_workflow_admin')
@@ -97,6 +126,7 @@ class LoonUserDetailView(View):
             code, msg, data = -1, result, {}
         return api_response(code, msg, data)
 
+    @manage_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
         delete user record
@@ -106,19 +136,23 @@ class LoonUserDetailView(View):
         :return:
         """
         user_id = kwargs.get('user_id')
-        operator = request.user.username
-        flag, result = AccountBaseService().admin_permission_check(username=operator)
+        flag, result = AccountBaseService().delete_user(user_id)
         if flag:
-            flag, result = AccountBaseService().delete_user(user_id)
-            if flag:
-                code, msg, data = 0, '', {}
-                return api_response(code, msg, data)
+            code, msg, data = 0, '', {}
+            return api_response(code, msg, data)
         code, msg, data = -1, result, {}
         return api_response(code, msg, data)
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonRoleView(View):
+class LoonRoleView(LoonBaseView):
+    post_schema = Schema({
+        'name': And(str, lambda n: n != ''),
+        Optional('description'): str,
+        Optional('label'): str,
+    })
+
+    @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         用户角色列表
@@ -142,6 +176,7 @@ class LoonRoleView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add role
@@ -152,28 +187,29 @@ class LoonRoleView(View):
         :return:
         """
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
-        description = request_data_dict.get('description')
-        label = request_data_dict.get('label')
+        description = request_data_dict.get('description', '')
+        label = request_data_dict.get('label', '')
         creator = request.user.username
-        # check add role permission
         account_base_service_ins = AccountBaseService()
-        flag, result = account_base_service_ins.admin_permission_check(creator)
-        if flag is False:
-            return api_response(-1, result, {})
 
         flag, result = account_base_service_ins.add_role(name=name, description=description, label=label,
-                                                         creator=request.user.username)
+                                                         creator=creator)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, result, {})
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonRoleDetailView(View):
+class LoonRoleDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is need'),
+        Optional('description'): str,
+        Optional('label'): str,
+    })
+
+    @manage_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
         update role
@@ -185,31 +221,27 @@ class LoonRoleDetailView(View):
         """
         role_id = kwargs.get('role_id')
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
         description = request_data_dict.get('description')
         label = request_data_dict.get('label')
-        operator = request.user.username
-        # operator edit permission check
         account_base_service_ins = AccountBaseService()
-        flag, result = account_base_service_ins.admin_permission_check(operator)
-        if flag is False:
-            return api_response(-1, result, {})
         flag, result = account_base_service_ins.update_role(role_id, name, description, label)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, '', {})
 
+    @manage_permission_check('admin')
     def delete(self, request, *args, **kwargs):
+        """
+        delete role
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
         role_id = kwargs.get('role_id')
-        operator = request.user.username
-        # operator edit permission check
         account_base_service_ins = AccountBaseService()
-        flag, result = account_base_service_ins.admin_permission_check(operator)
-        if flag is False:
-            return api_response(-1, result, {})
         flag, result = account_base_service_ins.delete_role(role_id)
         if flag is False:
             return api_response(-1, result, {})
@@ -217,7 +249,16 @@ class LoonRoleDetailView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonDeptView(View):
+class LoonDeptView(LoonBaseView):
+    post_schema = Schema({
+        'name': And(str, lambda n: n != ''),
+        Optional('parent_dept_id'): int,
+        Optional('leader'): str,
+        Optional('approver'): str,
+        Optional('label'): str,
+    })
+
+    @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         部门列表
@@ -240,6 +281,7 @@ class LoonDeptView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         新增部门
@@ -249,8 +291,6 @@ class LoonDeptView(View):
         :return:
         """
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
         parent_dept_id = request_data_dict.get('parent_dept_id')
@@ -258,11 +298,7 @@ class LoonDeptView(View):
         approver_str_list = request_data_dict.get('approver')
         label = request_data_dict.get('label')
         creator = request.user.username
-        # creatro permission check
         account_base_service_ins = AccountBaseService()
-        flag, result = account_base_service_ins.admin_permission_check(creator)
-        if flag is False:
-            return api_response(-1, result, {})
         approver_id_list = [int(approver_str) for approver_str in approver_str_list]
         flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
         if flag is False:
@@ -281,7 +317,16 @@ class LoonDeptView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonDeptDetailView(View):
+class LoonDeptDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is need'),
+        Optional('parent_dept_id'): int,
+        Optional('leader'): str,
+        Optional('approver'): str,
+        Optional('label'): str,
+    })
+
+    @manage_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
         delete dept
@@ -294,14 +339,12 @@ class LoonDeptDetailView(View):
         operator = request.user.username
         dept_id = kwargs.get('dept_id')
         account_base_service_ins = AccountBaseService()
-        flag, result = account_base_service_ins.admin_permission_check(operator)
-        if flag is False:
-            return api_response(-1, result, {})
         flag, result = account_base_service_ins.delete_dept(dept_id)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, '', {})
 
+    @manage_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
         更新部门
@@ -310,12 +353,8 @@ class LoonDeptDetailView(View):
         :param kwargs:
         :return:
         """
-
-        operator = request.user.username
         dept_id = kwargs.get('dept_id')
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
         parent_dept_id = request_data_dict.get('parent_dept_id')
@@ -325,9 +364,6 @@ class LoonDeptDetailView(View):
         label = request_data_dict.get('label')
 
         account_base_service_ins = AccountBaseService()
-        flag, result = account_base_service_ins.admin_permission_check(operator)
-        if flag is False:
-            return api_response(-1, result, {})
 
         flag, result = account_base_service_ins.get_user_by_user_id(int(leader_id))
         if flag is False:
@@ -348,9 +384,17 @@ class LoonDeptDetailView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonAppTokenView(View):
+class LoonAppTokenView(LoonBaseView):
+    post_schema = Schema({
+        'app_name': And(str, lambda n: n != '', error='app_name is needed'),
+        Optional('ticket_sn_prefix'): str,
+        'workflow_ids': And(str, lambda n: n != '', error='workflow_ids is needed'),
+    })
+
+    @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
+        call api permission
         调用权限列表
         :param request:
         :param args:
@@ -371,8 +415,10 @@ class LoonAppTokenView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
+        add call api permission
         新增调用权限记录
         :param request:
         :param args:
@@ -380,14 +426,11 @@ class LoonAppTokenView(View):
         :return:
         """
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         app_name = request_data_dict.get('app_name', '')
         ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
         workflow_ids = request_data_dict.get('workflow_ids', '')
-        # username = request.user.username
-        username = request.META.get('HTTP_USERNAME')
+        username = request.user.username
         flag, result = AccountBaseService().add_token_record(app_name, ticket_sn_prefix, workflow_ids, username)
         if flag is False:
             code, data = -1, {}
@@ -398,18 +441,14 @@ class LoonAppTokenView(View):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonAppTokenDetailView(View):
-    def get(self, request, *args, **kwargs):
-        """
-        获取token详情
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        app_token_id = kwargs.get('app_token_id')
-        pass
+class LoonAppTokenDetailView(LoonBaseView):
+    patch_schema = Schema({
+        'app_name': And(str, lambda n: n != '', error='app_name is needed'),
+        Optional('ticket_sn_prefix'): str,
+        'workflow_ids': And(str, lambda n: n != '', error='workflow_ids is needed'),
+    })
 
+    @manage_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
         编辑token
@@ -420,8 +459,6 @@ class LoonAppTokenDetailView(View):
         """
         app_token_id = kwargs.get('app_token_id')
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'patch参数为空', {})
         request_data_dict = json.loads(json_str)
         app_name = request_data_dict.get('app_name', '')
         ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
@@ -434,6 +471,7 @@ class LoonAppTokenDetailView(View):
 
         return api_response(code, msg, data)
 
+    @manage_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
         删除记录
@@ -451,7 +489,7 @@ class LoonAppTokenDetailView(View):
         return api_response(code, msg, data)
 
 
-class LoonLoginView(View):
+class LoonLoginView(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
         登录验证
@@ -474,7 +512,7 @@ class LoonLoginView(View):
             return api_response(-1, 'username or password is invalid', {})
 
 
-class LoonLogoutView(View):
+class LoonLogoutView(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
         注销
@@ -487,7 +525,9 @@ class LoonLogoutView(View):
         return redirect('/manage')
 
 
-class LoonUserRoleView(View):
+@method_decorator(login_required, name='dispatch')
+class LoonUserRoleView(LoonBaseView):
+    @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         用户角色信息
@@ -504,7 +544,14 @@ class LoonUserRoleView(View):
         return api_response(code, msg, data)
 
 
-class LoonRoleUserView(View):
+@method_decorator(login_required, name='dispatch')
+class LoonRoleUserView(LoonBaseView):
+    post_schema = Schema({
+        'role_id': And(int, error='role_id is needed'),
+        'user_id': And(int, error='user_id is needed')
+    })
+
+    @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         角色的用户信息
@@ -515,7 +562,6 @@ class LoonRoleUserView(View):
         """
         role_id = kwargs.get('role_id', 0)
         search_value = request.GET.get('search_value', '')
-        # user_info_list, msg = AccountBaseService.get_role_user_info_by_role_id(role_id, search_value)
         flag, result = AccountBaseService.get_role_user_info_by_role_id(role_id, search_value)
 
         if flag is not False:
@@ -526,6 +572,7 @@ class LoonRoleUserView(View):
             code, data = -1, ''
         return api_response(code, msg, data)
 
+    @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add role's user
@@ -538,22 +585,19 @@ class LoonRoleUserView(View):
         role_id = kwargs.get('role_id', 0)
         creator = request.user.username
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'patch参数为空', {})
         request_data_dict = json.loads(json_str)
         user_id = request_data_dict.get('user_id', 0)
 
         account_base_service_ins = AccountBaseService()
-        # check add role's user permission
-        flag, result = account_base_service_ins.admin_permission_check(creator)
-        if flag is False:
-            return api_response(-1, result, {})
         flag, result = account_base_service_ins.add_role_user(role_id, user_id, creator)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, '', {})
 
-class LoonUserResetPasswordView(View):
+
+class LoonUserResetPasswordView(LoonBaseView):
+
+    @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         重置密码
@@ -563,14 +607,6 @@ class LoonUserResetPasswordView(View):
         :return:
         """
         user_id = kwargs.get('user_id')
-        operator = request.user.username
-        # operator admin permission check
-        flag, result = AccountBaseService().admin_permission_check(username=operator)
-        if flag is False:
-            return api_response(-1, result, {})
-        flag, result = AccountBaseService().admin_or_workflow_admin_check(user_id=user_id)
-        if flag is False:
-            return api_response(-1, result, {})
         flag, result = AccountBaseService().reset_password(user_id=user_id)
         if flag is False:
             return api_response(-1, result, {})

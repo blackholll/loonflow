@@ -97,9 +97,9 @@
           <form class="form-horizontal" id='user_form'>
             <div class="box-body">
               <div class="form-group">
-                <label for="userName" class="col-sm-3 control-label" required="true">用户名<span style="color:red">*</span></label>
+                <label for="userName" class="col-sm-3 control-label" >用户名<span style="color:red">*</span></label>
                 <div class="col-sm-9">
-                  <input type="text" class="form-control" id="userName" required="true" placeholder="请输入用户名">
+                  <input type="text" class="form-control" id="userName" placeholder="请输入用户名" required>
                 </div>
               </div>
               <div class="form-group">
@@ -127,10 +127,10 @@
                   </div>
               </div>
               <div class="form-group">
-                  <label for="userDeptId" class="col-sm-3 control-label">部门</label>
+                  <label for="userDeptId" class="col-sm-3 control-label">部门<span style="color:red">*</span></label>
                   <div class="col-sm-9">
                     <select class="form-control select2" id="userDeptId" data-placeholder="请输入部门名称查询"
-                            style="width: 100%;">
+                            style="width: 100%;" required>
                     </select>
                   </div>
               </div>

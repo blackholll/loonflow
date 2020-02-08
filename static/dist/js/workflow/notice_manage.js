@@ -80,7 +80,7 @@ function submitNotice(){
       type: "POST",
       url: "/api/v1.0/workflows/custom_notices",
       cache: false,  //禁用缓存
-      data: params,  //传入组装的参数
+      data: JSON.stringify(params),  //传入组装的参数
       dataType: "json",
       success: function(callback) {
         $('#noticeModal').modal('hide')
@@ -100,7 +100,7 @@ function submitNotice(){
       type: "PATCH",
       url: "/api/v1.0/workflows/custom_notices/" + noticeId,
       cache: false,  //禁用缓存
-      data: params,  //传入组装的参数
+      data: JSON.stringify(params),  //传入组装的参数
       dataType: "json",
       success: function(callback) {
         $('#noticeModal').modal('hide')
@@ -125,7 +125,7 @@ function submitNotice(){
       buttons: true,
       dangerMode: true,
     })
-    .then((willDelete) => {
+    .then(function(willDelete) {
       if (willDelete) {
         // 删除操作
         $.ajax({

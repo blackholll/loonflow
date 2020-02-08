@@ -56,6 +56,9 @@
 })
 
 function submitDept() {
+  if (! $("#dept_form").valid()) {
+      return
+    }
   var deptId = $("#deptId").val();
   var deptName = $("#deptName").val();
   var deptLabel = $("#deptLabel").val();
@@ -151,7 +154,7 @@ function delDept(deptId) {
       buttons: true,
       dangerMode: true,
     })
-    .then((willDelete) => {
+    .then(function(willDelete){
       if (willDelete) {
         // 删除操作
         $.ajax({

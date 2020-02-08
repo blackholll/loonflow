@@ -1,11 +1,20 @@
 import json
 from django.http import HttpResponse
 from django.views import View
+from schema import Schema, Regex, And, Or, Use, Optional
+
+from apps.loon_base_view import LoonBaseView
 from service.format_response import api_response
 from service.ticket.ticket_base_service import TicketBaseService
 
 
-class TicketListView(View):
+class TicketListView(LoonBaseView):
+    post_schema = Schema({
+        'workflow_id': And(int, lambda n: n != 0, error='workflow_id is needed and type should be int'),
+        'transition_id': And(int, lambda n: n != 0, error='transition_id is needed and type should be int'),
+        str: object
+    })
+
     def get(self, request, *args, **kwargs):
         """
         获取工单列表
@@ -55,13 +64,8 @@ class TicketListView(View):
         :return:
         """
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
 
         request_data_dict = json.loads(json_str)
-        if not(isinstance(request_data_dict.get('workflow_id', None), int) and isinstance(request_data_dict.get('transition_id', None), int)):
-            # 临时先这么判断，后续针对所有view统一使用更优雅的方式来处理
-            return api_response(-1, 'workflow_id或transition_id类型不合法', {})
 
         app_name = request.META.get('HTTP_APPNAME')
         request_data_dict.update(dict(username=request.META.get('HTTP_USERNAME')))
@@ -80,7 +84,7 @@ class TicketListView(View):
         return api_response(code, msg, data)
 
 
-class TicketView(View):
+class TicketView(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
         获取工单详情，根据用户返回不同的内容(是否有工单表单的编辑权限)
@@ -137,7 +141,7 @@ class TicketView(View):
         return api_response(code, msg, data)
 
 
-class TicketTransition(View):
+class TicketTransition(LoonBaseView):
     """
     工单可以做的操作
     """
@@ -164,7 +168,7 @@ class TicketTransition(View):
         return api_response(code, msg, data)
 
 
-class TicketFlowlog(View):
+class TicketFlowlog(LoonBaseView):
     """
     工单流转记录
     """
@@ -196,7 +200,7 @@ class TicketFlowlog(View):
         return api_response(code, msg, data)
 
 
-class TicketFlowStep(View):
+class TicketFlowStep(LoonBaseView):
     """
     工单流转step: 用于显示工单当前状态的step图(线形结构，无交叉)
     """
@@ -225,10 +229,16 @@ class TicketFlowStep(View):
         return api_response(code, msg, data)
 
 
-class TicketState(View):
+class TicketState(LoonBaseView):
     """
     工单状态
     """
+    put_schema = Schema({
+        'state_id': And(int, lambda n: n != 0, error='state_id is needed and type should be int'),
+        'transition_id': And(int, lambda n: n != 0, error='transition_id is needed and type should be int'),
+        str: object
+    })
+
     def put(self, request, *args, **kwargs):
         """
         修改工单状态
@@ -265,7 +275,7 @@ class TicketState(View):
         return api_response(code, msg, data)
 
 
-class TicketsStates(View):
+class TicketsStates(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
         批量获取工单状态
@@ -289,7 +299,7 @@ class TicketsStates(View):
         return api_response(code, msg, data)
 
 
-class TicketAccept(View):
+class TicketAccept(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
         接单,当工单当前处理人实际为多个人时(角色、部门、多人都有可能， 注意角色和部门有可能实际只有一人)
@@ -298,12 +308,7 @@ class TicketAccept(View):
         :param kwargs:
         :return:
         """
-        json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
-        request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data_dict.get('username', '')
         username = request.META.get('HTTP_USERNAME')
 
         from service.account.account_base_service import AccountBaseService
@@ -320,7 +325,12 @@ class TicketAccept(View):
         return api_response(code, msg, data)
 
 
-class TicketDeliver(View):
+class TicketDeliver(LoonBaseView):
+    post_schema = Schema({
+        'target_username': And(str, lambda n: n != '', error='target_username is needed'),
+        Optional('suggestion'): str,
+    })
+
     def post(self, request, *args, **kwargs):
         """
         转交操作会直接修改工单处理人，且工单状态不变，所以在使用的时候可以在前端做些提醒 避免用户把工单直接转交给下个人，从而干扰了工单的正常流转(
@@ -331,11 +341,8 @@ class TicketDeliver(View):
         :return:
         """
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data_dict.get('username', '')
         username = request.META.get('HTTP_USERNAME')
         target_username = request_data_dict.get('target_username', '')
         suggestion = request_data_dict.get('suggestion', '')
@@ -354,7 +361,12 @@ class TicketDeliver(View):
         return api_response(code, msg, data)
 
 
-class TicketAddNode(View):
+class TicketAddNode(LoonBaseView):
+    post_schema = Schema({
+        'target_username': And(str, lambda n: n != '', error='target_username is needed'),
+        Optional('suggestion'): str,
+    })
+
     def post(self, request, *args, **kwargs):
         """
         加签,加签操作会修改工单处理人，工单状态不表
@@ -364,11 +376,8 @@ class TicketAddNode(View):
         :return:
         """
         json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data_dict.get('username', '')
         username = request.META.get('HTTP_USERNAME')
         target_username = request_data_dict.get('target_username', '')
         suggestion = request_data_dict.get('suggestion', '')
@@ -387,7 +396,11 @@ class TicketAddNode(View):
         return api_response(code, msg, data)
 
 
-class TicketAddNodeEnd(View):
+class TicketAddNodeEnd(LoonBaseView):
+    post_schema = Schema({
+        Optional('suggestion'): str,
+    })
+
     def post(self, request, *args, **kwargs):
         """
         加签处理完成,加签完成操作后工单处理人回回到之前加签发起人
@@ -401,7 +414,6 @@ class TicketAddNodeEnd(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data_dict.get('username', '')
         username = request.META.get('HTTP_USERNAME')
         suggestion = request_data_dict.get('suggestion', '')
 
@@ -419,7 +431,8 @@ class TicketAddNodeEnd(View):
         return api_response(code, msg, data)
 
 
-class TicketField(View):
+class TicketField(LoonBaseView):
+
     def patch(self, request, *args, **kwargs):
         """
         修改工单字段
@@ -433,7 +446,6 @@ class TicketField(View):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data_dict.get('username', '')
         username = request.META.get('HTTP_USERNAME')
 
         from service.account.account_base_service import AccountBaseService
@@ -450,16 +462,12 @@ class TicketField(View):
         return api_response(code, msg, data)
 
 
-class TicketScriptRetry(View):
+class TicketScriptRetry(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
         重新执行工单脚本(用于脚本执行出错的情况), 也可用于hook执行失败的情况
         :return:
         """
-        json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
-        request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
         username = request.META.get('HTTP_USERNAME')
 
@@ -479,7 +487,12 @@ class TicketScriptRetry(View):
         return api_response(code, msg, data)
 
 
-class TicketComment(View):
+class TicketComment(LoonBaseView):
+
+    post_schema = Schema({
+        'suggestion': And(str, lambda n: n != '', error='suggestion is needed'),
+    })
+
     def post(self, request, *args, **kwargs):
         """
         添加评论
@@ -503,7 +516,7 @@ class TicketComment(View):
         return api_response(code, msg, data)
 
 
-class TicketHookCallBack(View):
+class TicketHookCallBack(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
         工单hook回调，用于hoot请求后，被请求方执行完任务后回调loonflow,以触发工单继续流转
@@ -517,7 +530,6 @@ class TicketHookCallBack(View):
         if not json_str:
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
-        # {"result":true, "msg":"", field_value:{"xx":1,"bb":2}}
         app_name = request.META.get('HTTP_APPNAME')
 
         result, msg = TicketBaseService().hook_call_back(ticket_id, app_name, request_data_dict)
@@ -528,7 +540,7 @@ class TicketHookCallBack(View):
         return api_response(code, msg, data)
 
 
-class TicketParticipantInfo(View):
+class TicketParticipantInfo(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
         工单当前处理人详情，调用方后端可用获取处理人信息后提供催办等功能
@@ -546,7 +558,7 @@ class TicketParticipantInfo(View):
         return api_response(code, msg, data)
 
 
-class TicketClose(View):
+class TicketClose(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
         强制关闭工单

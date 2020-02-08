@@ -411,7 +411,6 @@ class AccountBaseService(BaseService):
         user_obj = LoonUser.objects.filter(id=user_id, is_deleted=0)
         user_obj.update(username=username, alias=alias, email=email, phone=phone, dept_id=dept_id, is_active=is_active,
                         is_admin=is_admin, is_workflow_admin=is_workflow_admin)
-        user_obj.save()
         return True, {}
 
     @classmethod
@@ -741,8 +740,10 @@ class AccountBaseService(BaseService):
             return False, result
         if result.is_workflow_admin:
             return True, 'user is workflow admin'
+        if result.is_admin:
+            return True, 'user is admin'
         else:
-            return False, 'user is not workflow admin'
+            return False, 'user is not admin or workflow admin'
 
     @classmethod
     @auto_log

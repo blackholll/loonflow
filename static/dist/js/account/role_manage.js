@@ -55,6 +55,10 @@ function showRoleUsers(role_id, name){
 }
 
 function submitRole() {
+  // if (! $("#role_form").valid()) {
+  //     return
+  //   }
+
   var roleId = $('#roleId').val()
   var roleName = $("#roleName").val();
   var roleDescription = $("#roleDescription").val();
@@ -116,7 +120,7 @@ function submitRole() {
           swal({
           title: "新增成功:" + result.msg,
           text: "2s自动关闭",
-          icon: "error"
+          icon: "error",
           showConfirmButton: false,
           timer: 2000,
         })
@@ -136,7 +140,7 @@ function delRole(roleId) {
       buttons: true,
       dangerMode: true,
     })
-    .then((willDelete) => {
+    .then(function(willDelete){
       if (willDelete) {
         // 删除操作
         $.ajax({

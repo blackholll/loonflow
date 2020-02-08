@@ -92,7 +92,7 @@ function addUser() {
     var userPhone = $("#userPhone").val();
     var userEmail = $("#userEmail").val();
     var userPassword = $("#userPassword").val();
-    var userDeptId = $("#userDeptId").val();
+    var userDeptId = Number($("#userDeptId").val());
     var isActive = 0
     if ($("#isActive").prop('checked')){
       isActive = 1;
@@ -122,15 +122,26 @@ function addUser() {
       processDate: false,
       data : JSON.stringify(paramData),
       contentType: 'application/json',
-      success: function(callback){
-        $("#UserModal").modal("hide");
-        swal({
-          title: "新增成功!",
-          text: "2s自动关闭",
-          showConfirmButton: false,
-          timer: 2000,
-        })
-        $('#user_table').dataTable()._fnAjaxUpdate();
+      success: function(result){
+        if (result.code ===0) {
+          $("#UserModal").modal("hide");
+          swal({
+            title: "新增成功!",
+            text: "2s自动关闭",
+            showConfirmButton: false,
+            timer: 2000,
+          })
+          $('#user_table').dataTable()._fnAjaxUpdate();
+        } else {
+          swal({
+            title: "新增失败:" + result.msg,
+            text: "2s自动关闭",
+            showConfirmButton: false,
+            timer: 2000,
+            icon: 'error'
+          })
+        }
+
       }
     });
 }
@@ -143,8 +154,7 @@ function editUser() {
     var userAlias = $("#userAlias").val();
     var userPhone = $("#userPhone").val();
     var userEmail = $("#userEmail").val();
-    var userPassword = $("#userPassword").val();
-    var userDeptId = $("#userDeptId").val();
+    var userDeptId = Number($("#userDeptId").val());
     var userId = $('#userId').val();
 
     var isActive = 0
@@ -175,15 +185,26 @@ function editUser() {
       processDate: false,
       data : JSON.stringify(paramData),
       contentType: 'application/json',
-      success: function(callback){
-        $("#UserModal").modal("hide");
-        swal({
-          title: "新增成功!",
-          text: "2s自动关闭",
-          showConfirmButton: false,
-          timer: 2000,
-        })
-        $('#user_table').dataTable()._fnAjaxUpdate();
+      success: function(result){
+        if (result.code === 0) {
+          $("#UserModal").modal("hide");
+          swal({
+            title: "更新成功!",
+            text: "2s自动关闭",
+            showConfirmButton: false,
+            timer: 2000,
+          })
+          $('#user_table').dataTable()._fnAjaxUpdate();
+        } else {
+          swal({
+            title: "更新失败:" + result.msg,
+            text: "2s自动关闭",
+            showConfirmButton: false,
+            timer: 2000,
+            icon: "error"
+          })
+        }
+
       }
     });
 }
@@ -196,7 +217,7 @@ function delUser(userId) {
       buttons: true,
       dangerMode: true,
     })
-    .then((willDelete) => {
+    .then(function(willDelete){
       if (willDelete) {
         // 删除操作
         $.ajax({
@@ -233,7 +254,7 @@ function resetPassword(userId) {
       buttons: true,
       dangerMode: true,
     })
-    .then((willDelete) => {
+    .then(function(willDelete){
       if (willDelete) {
         // 删除操作
         $.ajax({
@@ -269,7 +290,7 @@ function resetPassword(userId) {
 }
 
 function adminChange() {
-    var isAdmin = 0
+    var isAdmin = 0;
     if ($("#isAdmin").prop('checked')){
       isAdmin = 1;
     };
