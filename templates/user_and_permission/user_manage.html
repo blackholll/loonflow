@@ -3,7 +3,7 @@
 
 {% block css %}
   <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" >
+  <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/dataTables.bootstrap.min.css' %}">
 
 
 {% endblock %}
@@ -201,10 +201,10 @@
 <!-- AdminLTE App -->
 <script src="{% static 'dist/js/adminlte.min.js' %}"></script>
 <script src="{% static 'dist/js/account/user_manage.js' %}"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.1/dist/jquery.validate.js"></script>
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="{% static 'dist/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'dist/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.validate.js' %}"></script>
+<script src="{% static 'dist/js/sweetalert.min.js' %}"></script>
 
 
 <script>
