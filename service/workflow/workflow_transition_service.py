@@ -13,7 +13,7 @@ class WorkflowTransitionService(BaseService):
 
     @classmethod
     @auto_log
-    def get_state_transition_queryset(cls, state_id):
+    def get_state_transition_queryset(cls, state_id: int)->tuple:
         """
         获取状态可以执行的操作
         get state can do transitions queryset
@@ -24,7 +24,7 @@ class WorkflowTransitionService(BaseService):
 
     @classmethod
     @auto_log
-    def get_workflow_transition_by_id(cls, transition_id):
+    def get_workflow_transition_by_id(cls, transition_id: int)->tuple:
         """
         获取transition
         get transition by id
@@ -35,7 +35,7 @@ class WorkflowTransitionService(BaseService):
 
     @classmethod
     @auto_log
-    def get_transition_by_args(cls, arg_dict):
+    def get_transition_by_args(cls, arg_dict: dict)->tuple:
         """
         获取流转
         get transtion list by params
@@ -47,7 +47,8 @@ class WorkflowTransitionService(BaseService):
 
     @classmethod
     @auto_log
-    def get_transitions_serialize_by_workflow_id(cls, workflow_id, per_page=10, page=1, query_value=''):
+    def get_transitions_serialize_by_workflow_id(cls, workflow_id: int, per_page: int=10, page: int=1,
+                                                 query_value: str='')->tuple:
         """
         根据workflow id获取工作流的流转记录
         get transition serialize record by workflow and params
@@ -109,9 +110,10 @@ class WorkflowTransitionService(BaseService):
 
     @classmethod
     @auto_log
-    def add_workflow_transition(cls, workflow_id, name, transition_type_id, timer, source_state_id,
-                                               destination_state_id, condition_expression, attribute_type_id,
-                                               field_require_check, alert_enable, alert_text, creator):
+    def add_workflow_transition(cls, workflow_id: int, name: str, transition_type_id: int, timer: int,
+                                source_state_id: int, destination_state_id: int, condition_expression: str,
+                                attribute_type_id: int, field_require_check: int, alert_enable: int, alert_text: str,
+                                creator: str)->tuple:
         transition_obj = Transition(workflow_id=workflow_id, name=name, transition_type_id=transition_type_id,
                                     timer=timer, source_state_id=source_state_id,
                                     destination_state_id=destination_state_id, condition_expression=condition_expression,
@@ -122,9 +124,10 @@ class WorkflowTransitionService(BaseService):
 
     @classmethod
     @auto_log
-    def edit_workflow_transition(cls, transition_id, workflow_id, name, transition_type_id, timer, source_state_id,
-                                 destination_state_id, condition_expression, attribute_type_id,
-                                 field_require_check, alert_enable, alert_text):
+    def edit_workflow_transition(cls, transition_id: int, workflow_id: int, name, transition_type_id: int, timer: int,
+                                 source_state_id: int, destination_state_id: int, condition_expression: str,
+                                 attribute_type_id: int, field_require_check: int, alert_enable: int,
+                                 alert_text: str)->tuple:
         transition_queryset = Transition.objects.filter(is_deleted=0, id=transition_id)
         if transition_queryset:
             transition_queryset.update(workflow_id=workflow_id, name=name, transition_type_id=transition_type_id,
@@ -136,7 +139,7 @@ class WorkflowTransitionService(BaseService):
 
     @classmethod
     @auto_log
-    def del_workflow_transition(cls, transition_id):
+    def del_workflow_transition(cls, transition_id: int)->tuple:
         transition_queryset = Transition.objects.filter(is_deleted=0, id=transition_id)
         if transition_queryset:
             transition_queryset.update(is_deleted=1)

@@ -16,7 +16,7 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_workflow_list(cls, name, page, per_page, workflow_id_list):
+    def get_workflow_list(cls, name: str, page: int, per_page: int, workflow_id_list: list)->tuple:
         """
         获取工作流列表
         get workflow list by params
@@ -53,7 +53,7 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def check_new_permission(cls, username, workflow_id):
+    def check_new_permission(cls, username: str, workflow_id: int)->tuple:
         """
         判断用户是否有新建工单的权限
         check whether user can create ticket
@@ -114,7 +114,7 @@ class WorkflowBaseService(BaseService):
             # 获取用户所有的角色
             flag, user_role_list = AccountBaseService.get_user_role_id_list(username)
             if flag is False:
-                return False, msg
+                return False, user_role_list
             limit_allow_role_str_list = limit_allow_roles.split(',')
             limit_allow_role_id_list = [int(limit_allow_role_str) for limit_allow_role_str in limit_allow_role_str_list]
             limit_allow_role_id_list = list(set(limit_allow_role_id_list))
@@ -125,7 +125,7 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_by_id(cls, workflow_id):
+    def get_by_id(cls, workflow_id: int)->tuple:
         """
         获取工作流 by id
         get workflow object by workflow id
@@ -139,7 +139,8 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_workflow(cls, name, description, notices, view_permission_check, limit_expression, display_form_str, creator):
+    def add_workflow(cls, name: str, description: str, notices: str, view_permission_check: int, limit_expression: str,
+                     display_form_str: str, creator: str)->tuple:
         """
         新增工作流
         add workflow
@@ -160,7 +161,8 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def edit_workflow(cls, workflow_id, name, description, notices, view_permission_check, limit_expression, display_form_str):
+    def edit_workflow(cls, workflow_id: int, name: str, description: str, notices: str, view_permission_check: int,
+                      limit_expression: str, display_form_str: str)->tuple:
         """
         更新工作流
         update workfow
@@ -181,7 +183,7 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def delete_workflow(cls, workflow_id):
+    def delete_workflow(cls, workflow_id: int)->tuple:
         """
         删除工作流
         delete workflow

@@ -1,7 +1,7 @@
 import json
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.hashers import make_password
 from django.db.models import Q
 from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole
 from service.base_service import BaseService
@@ -14,7 +14,7 @@ class AccountBaseService(BaseService):
     """
     @classmethod
     @auto_log
-    def get_token_by_app_name(cls, app_name):
+    def get_token_by_app_name(cls, app_name: str)->tuple:
         """
         get app's call token by app_name
         :param app_name:
@@ -25,7 +25,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_by_username(cls, username):
+    def get_user_by_username(cls, username: str)->tuple:
         """
         get user info by username
         :return:
@@ -38,7 +38,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_by_user_id(cls, user_id):
+    def get_user_by_user_id(cls, user_id: int)->tuple:
         """
         get user by user id
         :param user_id:
@@ -52,7 +52,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_name_list_by_id_list(cls, user_id_list):
+    def get_user_name_list_by_id_list(cls, user_id_list: list)->tuple:
         """
         get username list by user id list
         根据用户id的数组获取用户名的list
@@ -67,7 +67,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_role_id_list(cls, username):
+    def get_user_role_id_list(cls, username: str)->tuple:
         """
         get user's role id list by username
         :param username:
@@ -82,7 +82,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_role_info_by_user_id(cls, user_id, search_value=0, page=1, per_page=10):
+    def get_user_role_info_by_user_id(cls, user_id: int, search_value: str=0, page: int =1, per_page: int=10)->tuple:
         """
         get user's role info list by user's id and query params: role name、page、per_page
         :param user_id:
@@ -112,11 +112,11 @@ class AccountBaseService(BaseService):
                                                 label=json.dumps(role_info.label) if role_info.label else {},
                                                 creator=role_info.creator, gmt_created=str(role_info.gmt_created)[:19]))
         return True, dict(role_result_format_list=role_result_format_list,
-                          paginator_info=dict(per_page=per_page,page=page, total=paginator.count))
+                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
     @auto_log
-    def get_role_user_info_by_role_id(cls, role_id, search_value=0, page=1, per_page=10):
+    def get_role_user_info_by_role_id(cls, role_id: int, search_value: str='', page: int=1, per_page: int =10)->tuple:
         """
         get role's user info list by role_id
         :param role_id:
@@ -148,7 +148,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_up_dept_id_list(cls, username):
+    def get_user_up_dept_id_list(cls, username: str)->tuple:
         """
         get user's department id list by username, include parent department
         :param username:
@@ -171,7 +171,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_dept_approver(cls, username):
+    def get_user_dept_approver(cls, username: str)->tuple:
         """
         get user's department approver， Preferential access to the approver, without taking tl（team leader）
         :param username:
@@ -186,7 +186,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_dept_sub_dept_id_list(cls, dept_id):
+    def get_dept_sub_dept_id_list(cls, dept_id: int)->tuple:
         """
         get department's all subordinate department
         :param dept_id:
@@ -199,10 +199,10 @@ class AccountBaseService(BaseService):
         else:
             return True, []
 
-        def iter_dept_id_list(dept_id):
-            dept_obj = LoonDept.objects.filter(id=dept_id, is_deleted=0).first()
-            if dept_obj:
-                sub_dept_queryset = LoonDept.objects.filter(parent_dept_id=dept_obj.id, is_deleted=0).all()
+        def iter_dept_id_list(new_dept_id):
+            new_dept_obj = LoonDept.objects.filter(id=new_dept_id, is_deleted=0).first()
+            if new_dept_obj:
+                sub_dept_queryset = LoonDept.objects.filter(parent_dept_id=new_dept_obj.id, is_deleted=0).all()
                 for sub_dept in sub_dept_queryset:
                     if sub_dept:
                         dept_id_list.append(sub_dept.id)
@@ -213,7 +213,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_dept_username_list(cls, dept_id):
+    def get_dept_username_list(cls, dept_id: int)->tuple:
         """
         get department's all username list
         :param dept_id:
@@ -224,14 +224,14 @@ class AccountBaseService(BaseService):
             return False, sub_dept_id_list
         user_name_list = []
         if sub_dept_id_list:
-            user_queryset = LoonUser.objects.filter(dept_id__in = sub_dept_id_list).all()
+            user_queryset = LoonUser.objects.filter(dept_id__in=sub_dept_id_list).all()
             for user in user_queryset:
                 user_name_list.append(user.username)
         return True, user_name_list
 
     @classmethod
     @auto_log
-    def get_role_username_list(cls, role_id):
+    def get_role_username_list(cls, role_id: int)->tuple:
         """
         get role's username list by role_id
         :param role_id:
@@ -243,7 +243,7 @@ class AccountBaseService(BaseService):
             user_id_list.append(user_role.user_id)
         if not user_id_list:
             return True, []
-        username_queryset = LoonUser.objects.filter(id__in=(user_id_list)).all()
+        username_queryset = LoonUser.objects.filter(id__in=user_id_list).all()
         username_list = []
         for username_obj in username_queryset:
             username_list.append(username_obj.username)
@@ -251,7 +251,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_dept_by_id(cls, dept_id):
+    def get_dept_by_id(cls, dept_id: int)->tuple:
         """
         get department's info by dept_id
         :param dept_id:
@@ -261,7 +261,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_role_by_id(cls, role_id):
+    def get_role_by_id(cls, role_id: int)->tuple:
         """
         get role's info by role_id
         :param role_id:
@@ -271,7 +271,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def app_workflow_permission_list(cls, app_name):
+    def app_workflow_permission_list(cls, app_name: str)->tuple:
         """
         get app's authorised workflow_id list by app_name
         :param app_name:
@@ -301,7 +301,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def app_workflow_permission_check(cls, app_name, workflow_id):
+    def app_workflow_permission_check(cls, app_name: str, workflow_id: int)->tuple:
         """
         appname has permission for workflow check by app_name and workflow_id
         :param app_name:
@@ -319,7 +319,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def app_ticket_permission_check(cls, app_name, ticket_id):
+    def app_ticket_permission_check(cls, app_name: str, ticket_id: int)-> tuple:
         """
         appname has permission to ticket check by app_name and ticket_id
         :param app_name:
@@ -339,7 +339,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_list(cls, search_value, page=1, per_page=10):
+    def get_user_list(cls, search_value: str, page: int=1, per_page: int=10)->tuple:
         """
         get user restful info list by query params: search_value, page, per_page
         :param search_value: support user's username, and user's alias. fuzzy query
@@ -369,7 +369,8 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_user(cls, username, alias, email, phone, dept_id, is_active, is_admin, is_workflow_admin, creator, password=''):
+    def add_user(cls, username: str, alias: str, email: str, phone: str, dept_id: int, is_active: int, is_admin: int,
+                 is_workflow_admin: int, creator: str, password: str='')->tuple:
         """
         新增用户， 因为非管理员或者工作流管理员无需登录管理后台，密码字段留空
         add user, not support set password, you need reset password
@@ -394,7 +395,8 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def edit_user(cls, user_id, username, alias, email, phone, dept_id, is_active, is_admin, is_workflow_admin):
+    def edit_user(cls, user_id: int, username: str, alias: str, email: str, phone: str, dept_id: int, is_active: int,
+                  is_admin: int, is_workflow_admin: int)-> tuple:
         """
         edit user
         :param user_id:
@@ -415,7 +417,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def delete_user(cls, user_id):
+    def delete_user(cls, user_id: int)->tuple:
         """
         delete user
         :param user_id:
@@ -427,7 +429,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_role_list(cls, search_value, page=1, per_page=10):
+    def get_role_list(cls, search_value: str, page: int=1, per_page: int=10)->tuple:
         """
         获取角色列表
         get role restful list by search params
@@ -458,7 +460,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_role(cls, name, description, label, creator):
+    def add_role(cls, name: str, description: str, label: str, creator: str)->tuple:
         """
         add role
         新增角色
@@ -474,7 +476,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_role_user(cls, role_id, user_id, creator):
+    def add_role_user(cls, role_id: int, user_id: int, creator: str)->tuple:
         """
         add role's user
         新增角色用户
@@ -493,7 +495,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def delete_role_user(cls, role_user_id):
+    def delete_role_user(cls, role_user_id: int)->tuple:
         """
         删除角色用户
         :param role_user_id:
@@ -507,7 +509,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def update_role(cls, role_id, name, description, label):
+    def update_role(cls, role_id: int, name: str, description: str, label: str)-> tuple:
         """
         update role
         更新角色
@@ -525,7 +527,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def delete_role(cls, role_id):
+    def delete_role(cls, role_id: int)->tuple:
         """
         delete role record
         删除角色
@@ -540,7 +542,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_dept_list(cls, search_value, page=1, per_page=10):
+    def get_dept_list(cls, search_value: str, page: int=1, per_page: int=10)->tuple:
         """
         get dept restful list by search params
         :param search_value: department name or department description Support fuzzy queries
@@ -569,7 +571,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_dept(cls, name, parent_dept_id, leader, approver, label, creator):
+    def add_dept(cls, name: str, parent_dept_id: int, leader: str, approver: str, label: str, creator: str)->tuple:
         """
         add department
         新增部门
@@ -588,7 +590,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def update_dept(cls, dept_id, name, parent_dept_id, leader, approver, label):
+    def update_dept(cls, dept_id: int, name: str, parent_dept_id: int, leader: str, approver: str, label: str)->tuple:
         """
         update department record
         更新部门
@@ -608,7 +610,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def delete_dept(cls, dept_id):
+    def delete_dept(cls, dept_id: int)-> tuple:
         """
         delete department record
         :param dept_id:
@@ -622,7 +624,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_token_list(cls, search_value, page=1, per_page=10):
+    def get_token_list(cls, search_value: str, page: int=1, per_page: int=10)->tuple:
         """
         get app permission token list
         :param search_value: support app name fuzzy queries
@@ -646,28 +648,30 @@ class AccountBaseService(BaseService):
         token_result_object_format_list = []
         for token_result_object in token_result_object_list:
             token_result_object_format_list.append(token_result_object.get_dict())
-        return True, dict(token_result_object_format_list= token_result_object_format_list,
+        return True, dict(token_result_object_format_list=token_result_object_format_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
     @auto_log
-    def add_token_record(cls, app_name, ticket_sn_prefix, workflow_ids, username):
+    def add_token_record(cls, app_name: str, ticket_sn_prefix: str, workflow_ids: str, username: str)-> tuple:
         """
         add app token record
         :param app_name:
         :param ticket_sn_prefix:
-        :param workflows_ids:
+        :param workflow_ids:
+        :param username:
         :return:
         """
         import uuid
         token = uuid.uuid1()
-        app_token_obj = AppToken(app_name=app_name, ticket_sn_prefix=ticket_sn_prefix, workflow_ids=workflow_ids, token=token, creator=username)
+        app_token_obj = AppToken(app_name=app_name, ticket_sn_prefix=ticket_sn_prefix, workflow_ids=workflow_ids,
+                                 token=token, creator=username)
         app_token_obj.save()
         return True, dict(app_token_id=app_token_obj.id)
 
     @classmethod
     @auto_log
-    def update_token_record(cls, app_token_id, app_name, ticket_sn_prefix, workflow_ids):
+    def update_token_record(cls, app_token_id: int, app_name: str, ticket_sn_prefix: str, workflow_ids: str)->tuple:
         """
         update token record
         :param app_token_id:
@@ -687,7 +691,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def del_token_record(cls, app_token_id):
+    def del_token_record(cls, app_token_id: int)->tuple:
         """
         del app token record
         :param app_token_id:
@@ -702,7 +706,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def admin_permission_check(cls, username='', user_id=0):
+    def admin_permission_check(cls, username: str='', user_id: int=0)->tuple:
         """
         admin permission check
         :param username:
@@ -724,10 +728,11 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def workflow_admin_permission_check(cls, username='', user_id=0):
+    def workflow_admin_permission_check(cls, username: str='', user_id: int=0)->tuple:
         """
         workflow admin permission check
         :param username:
+        :param user_id:
         :return:
         """
         if username:
@@ -747,7 +752,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def admin_or_workflow_admin_check(cls, username='', user_id=0):
+    def admin_or_workflow_admin_check(cls, username: str='', user_id: int=0)-> tuple:
         """
         admin or workflow admin check
         :param username:
@@ -769,7 +774,7 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def reset_password(cls, username='', user_id=''):
+    def reset_password(cls, username: str='', user_id: int=0)-> tuple:
         """
         reset user's password
         just admin or workflow admin need login loonflow's admin,so just admin and workflow admin can rest password
@@ -777,6 +782,7 @@ class AccountBaseService(BaseService):
         :param user_id:
         :return:
         """
+        flag, result = False, ''
         if username:
             flag, result = cls.get_user_by_username(username)
         if user_id:

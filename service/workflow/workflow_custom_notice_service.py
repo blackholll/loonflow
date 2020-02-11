@@ -15,7 +15,7 @@ class WorkflowCustomNoticeService(BaseService):
 
     @classmethod
     @auto_log
-    def get_notice_list(cls, query_value, page, per_page):
+    def get_notice_list(cls, query_value: str, page: int, per_page: int)->tuple:
         """
         获取通知列表
         :param query_value:
@@ -49,7 +49,7 @@ class WorkflowCustomNoticeService(BaseService):
 
     @classmethod
     @auto_log
-    def add_custom_notice(cls, name, description, hook_url, hook_token, creator):
+    def add_custom_notice(cls, name: str, description: str, hook_url: str, hook_token: str, creator: str)->tuple:
         """
         新增自定义通知记录
         :param name:
@@ -66,17 +66,17 @@ class WorkflowCustomNoticeService(BaseService):
 
     @classmethod
     @auto_log
-    def update_custom_notice(cls, id, name, description, hook_url, hook_token, creator):
+    def update_custom_notice(cls, custom_notice_id: int, name: str, description: str, hook_url: str, hook_token: str)->tuple:
         """
         更新自定义通知
+        :param custom_notice_id:
         :param name:
         :param description:
         :param hook_url:
         :param hook_token:
-        :param creator:
         :return:
         """
-        custom_notice_obj = CustomNotice.objects.filter(id=id, is_deleted=0)
+        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id, is_deleted=0)
         if custom_notice_obj:
             custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token)
         else:
@@ -85,13 +85,13 @@ class WorkflowCustomNoticeService(BaseService):
 
     @classmethod
     @auto_log
-    def del_custom_notice(cls, id):
+    def del_custom_notice(cls, custom_notice_id: int)->tuple:
         """
         删除脚本
         :id: 
         :return:
         """
-        custom_notice_obj = CustomNotice.objects.filter(id=id, is_deleted=0)
+        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id, is_deleted=0)
         if custom_notice_obj:
             custom_notice_obj.update(is_deleted=True)
             return True, ''

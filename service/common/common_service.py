@@ -1,7 +1,5 @@
-import hashlib
-
 import time
-
+import hashlib
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 
@@ -12,7 +10,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def signature_check(cls, timestamp, signature, md5_key):
+    def signature_check(cls, timestamp: str, signature: str, md5_key: str)->tuple:
         """
         signature check
         :param timestamp:
@@ -36,7 +34,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def gen_signature(cls, app_name):
+    def gen_signature(cls, app_name: str)->tuple:
         """
         gen signature info
         :param app_name:
@@ -52,7 +50,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def gen_signature_by_token(cls, token):
+    def gen_signature_by_token(cls, token: str)->tuple:
         md5_key = token
         timestamp = str(int(time.time()))
         ori_str = timestamp + md5_key
@@ -61,7 +59,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def gen_hook_signature(cls, token):
+    def gen_hook_signature(cls, token: str)->tuple:
         """
         gen hook token signature
         :param token:
@@ -74,7 +72,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def get_model_field(cls, app_name, model_name):
+    def get_model_field(cls, app_name: str, model_name: str)->tuple:
         """
         get model's field list
         :param app_name:
@@ -92,7 +90,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def get_dict_blank_or_false_value_key_list(cls, dict_obj):
+    def get_dict_blank_or_false_value_key_list(cls, dict_obj: object)->tuple:
         """
         get blank item value's key list in dict
         :param dict_obj:
@@ -106,7 +104,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def check_dict_has_all_same_value(cls, dict_obj):
+    def check_dict_has_all_same_value(cls, dict_obj: object)->tuple:
         """
         check whether all key are equal in a dict
         :param dict_obj:

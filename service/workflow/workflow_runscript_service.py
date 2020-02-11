@@ -15,7 +15,7 @@ class WorkflowRunScriptService(BaseService):
 
     @classmethod
     @auto_log
-    def get_run_script_list(cls, query_value, page, per_page):
+    def get_run_script_list(cls, query_value: str, page: int, per_page: int)->tuple:
         """
         获取执行脚本列表
         get run script list
@@ -47,7 +47,7 @@ class WorkflowRunScriptService(BaseService):
 
     @classmethod
     @auto_log
-    def add_run_script(cls, name, saved_name, description, is_active, creator):
+    def add_run_script(cls, name: str, saved_name: str, description: str, is_active: int, creator: str)->tuple:
         """
         新增工作流脚本
         add run script
@@ -64,17 +64,18 @@ class WorkflowRunScriptService(BaseService):
 
     @classmethod
     @auto_log
-    def edit_run_script(cls, id, name, saved_name, description, is_active):
+    def edit_run_script(cls, run_script_id: int, name: str, saved_name: str, description: str, is_active: int)->tuple:
         """
         更新工作流脚本
         edit run script
+        :param run_script_id:
         :param name:
         :param saved_name:
         :param description:
         :param is_active:
         :return:
         """
-        script_obj = WorkflowScript.objects.filter(id=id, is_deleted=0)
+        script_obj = WorkflowScript.objects.filter(id=run_script_id, is_deleted=0)
         if saved_name:
             script_obj.update(name=name, saved_name=saved_name, description=description, is_active=is_active)
         else:
@@ -83,14 +84,14 @@ class WorkflowRunScriptService(BaseService):
 
     @classmethod
     @auto_log
-    def del_run_script(cls, id):
+    def del_run_script(cls, run_script_id: int)->tuple:
         """
         删除脚本
         delete run script
         :id: 
         :return:
         """
-        script_obj = WorkflowScript.objects.filter(id=id, is_deleted=0)
+        script_obj = WorkflowScript.objects.filter(id=run_script_id, is_deleted=0)
         if script_obj:
             script_obj.update(is_deleted=True)
             return True, ''
@@ -99,12 +100,12 @@ class WorkflowRunScriptService(BaseService):
 
     @classmethod
     @auto_log
-    def get_run_script_by_id(cls, id):
+    def get_run_script_by_id(cls, run_script_id: int)->tuple:
         """
         根据id获取执行脚本
         get script by id
-        :param id:
+        :param run_script_id:
         :return:
         """
-        script_obj = WorkflowScript.objects.filter(id=id, is_deleted=0).first()
+        script_obj = WorkflowScript.objects.filter(id=run_script_id, is_deleted=0).first()
         return True, dict(script_obj=script_obj)

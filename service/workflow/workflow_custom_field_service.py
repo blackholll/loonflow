@@ -13,7 +13,7 @@ class WorkflowCustomFieldService(BaseService):
 
     @classmethod
     @auto_log
-    def get_workflow_custom_field(cls, workflow_id):
+    def get_workflow_custom_field(cls, workflow_id: int):
         """
         获取工作流的自定义字段信息
         update workflow custom field
@@ -36,7 +36,7 @@ class WorkflowCustomFieldService(BaseService):
 
     @classmethod
     @auto_log
-    def get_workflow_custom_field_name_list(cls, workflow_id):
+    def get_workflow_custom_field_name_list(cls, workflow_id: int):
         """
         获取工作流自定义字段
         get workflow custom field, field_key list
@@ -48,7 +48,7 @@ class WorkflowCustomFieldService(BaseService):
 
     @classmethod
     @auto_log
-    def get_workflow_custom_field_list(cls, workflow_id, query_value, page, per_page):
+    def get_workflow_custom_field_list(cls, workflow_id: int, query_value: str, page: int, per_page: int):
         """
         获取工作流自定义字段的列表
         get workflow custom field restful info list
@@ -94,8 +94,8 @@ class WorkflowCustomFieldService(BaseService):
 
     @classmethod
     @auto_log
-    def add_record(cls, workflow_id, field_type_id, field_key, field_name, order_id, default_value, description, field_template,
-                   boolean_field_display, field_choice, label, creator):
+    def add_record(cls, workflow_id: int, field_type_id: int, field_key: str, field_name: str, order_id: int, default_value: str, description: str, field_template: str,
+                   boolean_field_display: str, field_choice: str, label: str, creator: str):
         """
         新增自定义字段记录
         add workflow custom field record
@@ -123,8 +123,9 @@ class WorkflowCustomFieldService(BaseService):
 
     @classmethod
     @auto_log
-    def edit_record(cls, custom_field_id, workflow_id, field_type_id, field_key, field_name, order_id, default_value, description, field_template,
-                   boolean_field_display, field_choice, label, creator):
+    def edit_record(cls, custom_field_id: int, workflow_id: int, field_type_id: int, field_key: str, field_name: str,
+                    order_id: int, default_value: str, description: str, field_template: str,
+                    boolean_field_display: str, field_choice: str, label: str)->tuple:
         """
         修改自定义字段记录
         update custom field record
@@ -154,7 +155,7 @@ class WorkflowCustomFieldService(BaseService):
 
     @classmethod
     @auto_log
-    def delete_record(cls, custom_field_id):
+    def delete_record(cls, custom_field_id: int)->tuple:
         """
         删除记录
         :param custom_field_id:

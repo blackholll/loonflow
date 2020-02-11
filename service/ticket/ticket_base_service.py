@@ -2,12 +2,10 @@ import copy
 import json
 import datetime
 import random
-import functools
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.ticket.models import TicketRecord, TicketCustomField, TicketFlowLog
-from apps.workflow.models import CustomField
 from service.account.account_base_service import AccountBaseService
 from service.base_service import BaseService
 from service.common.common_service import CommonService
@@ -28,7 +26,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_by_id(cls, ticket_id):
+    def get_ticket_by_id(cls, ticket_id: int)->tuple:
         """
         获取工单对象
         :param ticket_id:
@@ -42,7 +40,9 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_list(cls, sn='', title='', username='', create_start='', create_end='', workflow_ids='', state_ids='', ticket_ids= '', category='', reverse=1, per_page=10, page=1, app_name='', is_end='', is_rejected=''):
+    def get_ticket_list(cls, sn: str='', title: str='', username: str='', create_start: str='', create_end: str='',
+                        workflow_ids: str='', state_ids: str='', ticket_ids: str='', category: str='', reverse: int=1,
+                        per_page: int=10, page: int=1, app_name: str='', **kwargs):
         """
         工单列表
         :param sn:
@@ -52,14 +52,13 @@ class TicketBaseService(BaseService):
         :param create_end: 创建时间止
         :param workflow_ids: 工作流id,str,逗号隔开
         :param state_ids: 状态id,str,逗号隔开
+        :param ticket_ids: 工单id,str,逗号隔开
         :param category: 查询类别(创建的，待办的，关联的:包括创建的、处理过的、曾经需要处理但是没有处理的)
         :param reverse: 按照创建时间倒序
         :param per_page:
         :param page:
         :param app_name:
-        :param is_end: 已结束
-        :param is_rejected: 已拒绝
-
+        is_end int=0, is_rejected: int=0
         :return:
         """
         category_list = ['all', 'owner', 'duty', 'relation']
@@ -68,22 +67,16 @@ class TicketBaseService(BaseService):
         query_params = Q(is_deleted=False)
 
         # 获取app_name 有权限的workflow_id_list
-        # permission_workflow_id_list, msg = AccountBaseService.app_workflow_permission_list(app_name)
         flag, permission_workflow_id_list = AccountBaseService.app_workflow_permission_list(app_name)
 
         if not flag or not permission_workflow_id_list:
             return False, 'This app_name have not workflow permission'
         else:
             query_params &= Q(workflow_id__in=permission_workflow_id_list)
-        if is_end:
-            if is_end == '0':
-                query_params &= Q(is_end=0)
-            elif is_end == '1':
-                query_params &= Q(is_end=1)
-        if is_rejected and is_rejected == '0':
-            query_params &= Q(is_rejected=0)
-        if is_rejected and is_rejected == '1':
-            query_params &= Q(is_rejected=1)
+        if kwargs.get('is_end') is not None:
+            query_params &= Q(is_end=kwargs.get('is_end'))
+        if kwargs.get('is_rejected') is not None:
+            query_params &= Q(is_rejected=kwargs.get('is_rejected'))
 
         if sn:
             query_params &= Q(sn__startswith=sn)
@@ -128,9 +121,12 @@ class TicketBaseService(BaseService):
                 return False, user_role_id_list
             user_dept_id_str_list = [str(user_dept_id) for user_dept_id in user_dept_id_list]
             user_role_id_str_list = [str(user_role_id) for user_role_id in user_role_id_list]
-            duty_query_expression = Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username)
-            duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT, participant__in=user_dept_id_str_list)
-            duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE, participant__in=user_role_id_str_list)
+            duty_query_expression = Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                      participant=username)
+            duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT,
+                                       participant__in=user_dept_id_str_list)
+            duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE,
+                                       participant__in=user_role_id_str_list)
 
             # 多人的情况，逗号隔开，需要用extra查询实现, 这里会存在注入问题，后续改进下
             ticket_query_set1 = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", participant)'.format(username), 'participant_type_id in ({}, {})'.format(CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL)])
@@ -145,7 +141,6 @@ class TicketBaseService(BaseService):
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
 
         paginator = Paginator(ticket_objects, per_page)
-
 
         try:
             ticket_result_paginator = paginator.page(page)
@@ -192,7 +187,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def new_ticket(cls, request_data_dict, app_name=''):
+    def new_ticket(cls, request_data_dict: dict, app_name: str='')->tuple:
         """
         新建工单
         :param request_data_dict:
@@ -240,7 +235,8 @@ class TicketBaseService(BaseService):
         flag, destination_state = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
 
         # 获取目标状态的信息
-        flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_req_dict=request_data_dict)
+        flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id,
+                                                                       ticket_req_dict=request_data_dict)
         if not flag:
             return False, participant_info
         destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
@@ -259,8 +255,11 @@ class TicketBaseService(BaseService):
             is_end = False
 
         new_ticket_obj = TicketRecord(sn=ticket_sn, title=request_data_dict.get('title', ''), workflow_id=workflow_id,
-                                      state_id=destination_state_id, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id, participant=destination_participant,
-                                      participant_type_id=destination_participant_type_id, relation=username, creator=username, is_end=is_end, multi_all_person=multi_all_person)
+                                      state_id=destination_state_id, parent_ticket_id=parent_ticket_id,
+                                      parent_ticket_state_id=parent_ticket_state_id,
+                                      participant=destination_participant,
+                                      participant_type_id=destination_participant_type_id, relation=username,
+                                      creator=username, is_end=is_end, multi_all_person=multi_all_person)
         new_ticket_obj.save()
         # 更新工单关系人
         flag, result = cls.get_ticket_dest_relation(destination_participant_type_id, destination_participant)
@@ -297,7 +296,8 @@ class TicketBaseService(BaseService):
         # 如果下个状态为脚本处理，则开始执行脚本
         if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
             from tasks import run_flow_task # 放在文件开头会存在循环引用
-            run_flow_task.apply_async(args=[new_ticket_obj.id, destination_participant, destination_state_id], queue='loonflow')
+            run_flow_task.apply_async(args=[new_ticket_obj.id, destination_participant, destination_state_id],
+                                      queue='loonflow')
 
         # 如果下个状态是hook，开始触发hook
         if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
@@ -309,9 +309,11 @@ class TicketBaseService(BaseService):
         cls.handle_timer_transition(new_ticket_obj.id, destination_state_id)
 
         # 父工单逻辑处理
-        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and new_ticket_obj.parent_ticket_id and new_ticket_obj.parent_ticket_state_id:
+        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and new_ticket_obj.parent_ticket_id \
+                and new_ticket_obj.parent_ticket_state_id:
                 # 如果存在父工单，判断是否该父工单的下属子工单都已经结束状态，如果都是结束状态则自动流转父工单到下个状态
-            other_sub_ticket_queryset = TicketRecord.objects.filter(parent_ticket_id=new_ticket_obj.parent_ticket_id, parent_ticket_state_id= new_ticket_obj.parent_ticket_state_id,
+            other_sub_ticket_queryset = TicketRecord.objects.filter(parent_ticket_id=new_ticket_obj.parent_ticket_id,
+                                                                    parent_ticket_state_id= new_ticket_obj.parent_ticket_state_id,
                                                                     is_deleted=0).all()
             # 所有子工单使用相同的工作流,所以state都一样，检测是否都是ticket_obj.state_id即可判断是否都是结束状态
             other_sub_ticket_state_id_list = [other_sub_ticket.state_id for other_sub_ticket in other_sub_ticket_queryset]
@@ -327,7 +329,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def gen_ticket_sn(cls, app_name=''):
+    def gen_ticket_sn(cls, app_name: str='')->tuple:
         redis_host = settings.REDIS_HOST
         redis_db = settings.REDIS_DB
         redis_port = settings.REDIS_PORT
@@ -362,7 +364,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_field_value(cls, ticket_id, field_key):
+    def get_ticket_field_value(cls, ticket_id: int, field_key:str)->tuple:
         """
         get ticket field's value, include base filed and custom field
         :param ticket_id:
@@ -384,7 +386,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_format_custom_field_key_dict(cls, ticket_id):
+    def get_ticket_format_custom_field_key_dict(cls, ticket_id: int)->tuple:
         """
         get ticket custom field attribute to dict format
         :param ticket_id:
@@ -401,7 +403,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_custom_field_value(cls, ticket_id, field_key):
+    def get_ticket_custom_field_value(cls, ticket_id: int, field_key:str)->str:
         """
         get ticket custom field value
         :param ticket_id:
@@ -452,7 +454,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_field_name(cls, ticket_id, field_key):
+    def get_ticket_field_name(cls, ticket_id: int, field_key: str)->tuple:
         """
         get ticket field's name by field_key
         :param ticket_id:
@@ -470,7 +472,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_custom_field_name(cls, ticket_id, field_key):
+    def get_ticket_custom_field_name(cls, ticket_id: int, field_key: str)->tuple:
         """
         get ticket custom field's field_name
         :param ticket_id:
@@ -488,7 +490,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def update_ticket_custom_field(cls, ticket_id, update_dict):
+    def update_ticket_custom_field(cls, ticket_id: int, update_dict: object)->tuple:
         """
         update ticket's custom fields's value(create or update)
         :param ticket_id:
@@ -581,7 +583,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def update_ticket_field_value(cls, ticket_id, update_dict):
+    def update_ticket_field_value(cls, ticket_id: int, update_dict: object)-> tuple:
         """
         update ticket field's value
         :param ticket_id:
@@ -602,7 +604,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_ticket_flow_log(cls, kwargs):
+    def add_ticket_flow_log(cls, kwargs: dict)->tuple:
         """
         add ticket flow record
         :param kwargs:
@@ -619,7 +621,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_detail(cls, ticket_id, username):
+    def get_ticket_detail(cls, ticket_id: int, username: str)-> tuple:
         """
         get ticket's detail info, According to the current state and username.
         if user only has reade permission, the response field accord to workflow config, otherwise state config
@@ -687,7 +689,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_base_field_list(cls, ticket_id):
+    def get_ticket_base_field_list(cls, ticket_id: int)->tuple:
         """
         get ticket base field info list
         :param ticket_id:
@@ -780,7 +782,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_format_participant_info(cls, ticket_id):
+    def get_ticket_format_participant_info(cls, ticket_id: int)->tuple:
         """
         get ticket's format participant_info(include role_name, department_name and so on )
         :param ticket_id:
@@ -881,7 +883,8 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def ticket_handle_permission_check(cls, ticket_id, username, by_timer=False, by_task=False, by_hook=False):
+    def ticket_handle_permission_check(cls, ticket_id: int, username: str, by_timer: bool=False, by_task: bool=False,
+                                       by_hook: bool=False)->tuple:
         """
         handle permission check
         :param ticket_id:
@@ -971,7 +974,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def ticket_view_permission_check(cls, ticket_id, username):
+    def ticket_view_permission_check(cls, ticket_id: int, username: str)-> tuple:
         """
         check user whether have view permission if open permission check in workflow config, otherwise decide by ticket releation
         校验用户是否有工单的查看权限:先查询对应的工作流是否校验查看权限， 如果不校验直接允许，如果校验需要判断用户是否属于工单的关系人
@@ -1001,7 +1004,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_transition(cls, ticket_id, username):
+    def get_ticket_transition(cls, ticket_id: int, username: str)->tuple:
         """
         获取用户针对工单当前可以做的操作:处理权限校验、可以做的操作
         get ticket's action about some one
@@ -1043,7 +1046,8 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def handle_ticket(cls, ticket_id, request_data_dict, by_timer=False, by_task=False, by_hook=False):
+    def handle_ticket(cls, ticket_id: int, request_data_dict: dict, by_timer: bool=False, by_task: bool=False,
+                      by_hook: bool=False):
         """
         处理工单:校验必填参数,获取当前状态必填字段，更新工单基础字段，更新工单自定义字段， 更新工单流转记录，执行必要的脚本，通知消息
         此处逻辑和新建工单有较多重复，下个版本会拆出来
@@ -1222,7 +1226,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_ticket_relation(cls, ticket_id, user_str):
+    def add_ticket_relation(cls, ticket_id: int, user_str: str)->tuple:
         """
         新增工单关系人
         add ticket's relation
@@ -1241,7 +1245,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_dest_relation(cls, destination_participant_type_id, destination_participant):
+    def get_ticket_dest_relation(cls, destination_participant_type_id: int, destination_participant: str)->tuple:
         """
         获取目标处理人相应的工单关系人
         get ticket target participant's relation
@@ -1252,7 +1256,7 @@ class TicketBaseService(BaseService):
         if destination_participant_type_id in (CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI):
             add_relation = destination_participant
         elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-            flag, username_list= AccountBaseService.get_dept_username_list(int(destination_participant))
+            flag, username_list = AccountBaseService.get_dept_username_list(int(destination_participant))
             if flag is False:
                 return False, username_list
             add_relation = ','.join(username_list)
@@ -1267,7 +1271,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_flow_log(cls, ticket_id, username, per_page=10, page=1):
+    def get_ticket_flow_log(cls, ticket_id: int, username: str, per_page: int=10, page: int=1)->tuple:
         """
         获取工单流转记录
         get ticket's flow log
@@ -1341,7 +1345,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_flow_step(cls, ticket_id, username):
+    def get_ticket_flow_step(cls, ticket_id: int, username: str)->tuple:
         """
         工单的流转步骤，路径。直线流转, 步骤不会很多(因为同个状态只显示一次，隐藏的状态只有当前处于才显示，否则不显示)，默认先不分页
         get ticket flow step info
@@ -1403,7 +1407,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def update_ticket_state(cls, ticket_id, state_id, username):
+    def update_ticket_state(cls, ticket_id: int, state_id: int, username: str)->tuple:
         """
         更新状态id,暂时只变更工单状态及工单当前处理人，不考虑目标状态状态处理人类型为脚本、变量、工单字段等等逻辑
         update ticket's state by ticket_id, state_id, username
@@ -1450,7 +1454,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_tickets_states_by_ticket_id_list(cls, ticket_id_list, username):
+    def get_tickets_states_by_ticket_id_list(cls, ticket_id_list: list, username: str)->tuple:
         """
         批量获取工单状态
         get ticket's state by ticket_id_list
@@ -1471,7 +1475,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def accept_ticket(cls, ticket_id, username):
+    def accept_ticket(cls, ticket_id: int, username: str)->tuple:
         """
         accept ticket
         :param ticket_id:
@@ -1514,7 +1518,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def deliver_ticket(cls, ticket_id, username, target_username, suggestion):
+    def deliver_ticket(cls, ticket_id: int, username: str, target_username: str, suggestion: str)->tuple:
         """
         deliver ticket to other
         :param ticket_id:
@@ -1552,7 +1556,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_node_ticket(cls, ticket_id, username, target_username, suggestion):
+    def add_node_ticket(cls, ticket_id: int, username: str, target_username: str, suggestion: str):
         """
         add node to other (加签工单)
         :param ticket_id:
@@ -1592,7 +1596,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_node_ticket_end(cls, ticket_id, username, suggestion):
+    def add_node_ticket_end(cls, ticket_id: int, username: str, suggestion: str):
         """
         add node finish(加签工单完成)
         :param ticket_id:
@@ -1630,7 +1634,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def handle_timer_transition(cls, ticket_id, destination_state_id):
+    def handle_timer_transition(cls, ticket_id: int, destination_state_id: int)->tuple:
         """
         定时器处理
         :param ticket_id:
@@ -1648,7 +1652,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_all_field_value(cls, ticket_id):
+    def get_ticket_all_field_value(cls, ticket_id: int)->tuple:
         """
         工单所有字段的值
         get ticket's all field value
@@ -1678,7 +1682,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def retry_ticket_script(cls, ticket_id, username):
+    def retry_ticket_script(cls, ticket_id: int, username: str)->tuple:
         """
         重新执行工单脚本，或重新触发hook
         retry ticket script or hook
@@ -1706,10 +1710,9 @@ class TicketBaseService(BaseService):
         else:
             return False, "The ticket's participant_type is not robot or hook, do not allow retry"
 
-
     @classmethod
     @auto_log
-    def get_ticket_state_last_man(cls, ticket_id, state_id):
+    def get_ticket_state_last_man(cls, ticket_id: int, state_id: int)->tuple:
         """
         获取工单状态最后一次的处理人
         get the last handler to ticket's state
@@ -1729,7 +1732,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_count_by_args(cls, workflow_id=0, username='', period=0):
+    def get_ticket_count_by_args(cls, workflow_id: int=0, username: str='', period: int=0)->tuple:
         """
         获取工单的个数
         get ticket's count by hour period
@@ -1753,7 +1756,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_state_participant_info(cls, state_id, ticket_id=0, ticket_req_dict={}):
+    def get_ticket_state_participant_info(cls, state_id: int, ticket_id: int=0, ticket_req_dict: dict={})->tuple:
         """
         获取工单状态实际的新处理人
         get ticket's new participant by state_id
@@ -1850,7 +1853,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_state_field_info(cls, state_id):
+    def get_state_field_info(cls, state_id: int)->tuple:
         """
         获取状态字段信息
         get state's field config
@@ -1873,7 +1876,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_next_state_id_by_transition_and_ticket_info(cls, ticket_id=0, ticket_req_dict={}):
+    def get_next_state_id_by_transition_and_ticket_info(cls, ticket_id: int=0, ticket_req_dict: dict={})->tuple:
         """
         获取工单的下个状态id,需要考虑条件流转的情况
         get ticket's next state_id by transition
@@ -1934,7 +1937,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def add_comment(cls, ticket_id=0, username='', suggestion=''):
+    def add_comment(cls, ticket_id: int=0, username: str='', suggestion: str='')->tuple:
         """
         添加评论
         add comment to ticket
@@ -1965,7 +1968,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def hook_call_back(cls, ticket_id, app_name, request_data_dict):
+    def hook_call_back(cls, ticket_id: int, app_name: str, request_data_dict: dict)->tuple:
         """
         hook回调
         :param ticket_id:
@@ -2008,7 +2011,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_participant_info(cls, ticket_id):
+    def get_ticket_participant_info(cls, ticket_id: int)->tuple:
         """
         获取工单当前详细参与人信息
         get ticket's now participant info
@@ -2043,7 +2046,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def close_ticket(cls, ticket_id, username, suggestion):
+    def close_ticket(cls, ticket_id: int, username: str, suggestion: str)->tuple:
         """
         关闭工单
         close ticket: set state to end state

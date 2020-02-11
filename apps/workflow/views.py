@@ -512,7 +512,7 @@ class WorkflowStateDetailView(LoonBaseView):
         flag, result = WorkflowStateService.edit_workflow_state(state_id, workflow_id, name, sub_workflow_id, is_hidden,
                                                                 order_id, type_id, remember_last_man_enable,
                                                                 participant_type_id, participant, distribute_type_id,
-                                                                state_field_str, label, username)
+                                                                state_field_str, label)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
@@ -759,7 +759,8 @@ class WorkflowCustomNoticeDetailView(LoonBaseView):
         if flag is False:
             return api_response(-1, result, {})
 
-        result, msg = WorkflowCustomNoticeService.update_custom_notice(notice_id, name, description, hook_url, hook_token, creator)
+        result, msg = WorkflowCustomNoticeService.update_custom_notice(notice_id, name, description, hook_url,
+                                                                       hook_token)
         if result is not False:
             data = {}
             code, msg, = 0, ''
@@ -920,7 +921,7 @@ class WorkflowCustomFieldDetailView(LoonBaseView):
         field_choice = request_data_dict.get('field_choice', '')
         result, msg = WorkflowCustomFieldService.edit_record(custom_field_id, workflow_id, field_type_id, field_key, field_name, order_id,
                                                             default_value, description, field_template,
-                                                            boolean_field_display, field_choice, label, username)
+                                                            boolean_field_display, field_choice, label)
 
         if result is not False:
             code, msg, data = 0, '', {}
