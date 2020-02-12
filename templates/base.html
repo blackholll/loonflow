@@ -45,6 +45,17 @@
   
   {% block js %}
   {% endblock %}
-  
+  <script>
+    $(document).ready(function(){
+      var nowNav = "{{ active_nav }}";
+      $("#" + nowNav).addClass("active");
+      if (['user_manage', 'role_manage', 'dept_manage', 'token_manage'].indexOf(nowNav) >= 0){
+        $("#userTree").addClass("active menu-open");
+      };
+      if (['workflow_manage', 'run_script_manage', 'notice_manage'].indexOf(nowNav) >= 0){
+        $("#workflowTree").addClass("active menu-open");
+      }
+    });
+  </script>
 </body>
 </html>
