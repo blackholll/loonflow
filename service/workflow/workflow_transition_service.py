@@ -1,9 +1,8 @@
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
-from apps.workflow.models import State, Transition
+from apps.workflow.models import Transition
 from service.base_service import BaseService
-from service.common.constant_service import CONSTANT_SERVICE
 from service.common.log_service import auto_log
 
 
@@ -80,9 +79,9 @@ class WorkflowTransitionService(BaseService):
         for workflow_transitions_object in workflow_transitions_object_list:
             source_state_info = {}
             destination_state_info = {}
-            from service.workflow.workflow_state_service import WorkflowStateService
-            flag, source_state_obj = WorkflowStateService.get_workflow_state_by_id(workflow_transitions_object.source_state_id)
-            flag, destination_state_obj = WorkflowStateService.get_workflow_state_by_id(workflow_transitions_object.destination_state_id)
+            from service.workflow.workflow_state_service import workflow_state_service_ins
+            flag, source_state_obj = workflow_state_service_ins.get_workflow_state_by_id(workflow_transitions_object.source_state_id)
+            flag, destination_state_obj = workflow_state_service_ins.get_workflow_state_by_id(workflow_transitions_object.destination_state_id)
             if source_state_obj:
                 source_state_info['name'] = source_state_obj.name
                 source_state_info['id'] = source_state_obj.id
@@ -144,3 +143,6 @@ class WorkflowTransitionService(BaseService):
         if transition_queryset:
             transition_queryset.update(is_deleted=1)
         return True, ''
+
+workflow_transition_service_ins = WorkflowTransitionService()
+

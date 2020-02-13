@@ -63,4 +63,6 @@ class ConstantService(BaseService):
                                        'creator', 'is_deleted', 'gmt_created', 'gmt_modified']
 
 
-CONSTANT_SERVICE = ConstantService()
+# CONSTANT_SERVICE = ConstantService()
+constant_service_ins = ConstantService()
+

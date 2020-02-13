@@ -109,3 +109,5 @@ class WorkflowRunScriptService(BaseService):
         """
         script_obj = WorkflowScript.objects.filter(id=run_script_id, is_deleted=0).first()
         return True, dict(script_obj=script_obj)
+
+workflow_run_script_service_ins = WorkflowRunScriptService()

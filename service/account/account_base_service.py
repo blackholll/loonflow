@@ -326,9 +326,8 @@ class AccountBaseService(BaseService):
         :param ticket_id:
         :return:
         """
-        from service.ticket.ticket_base_service import TicketBaseService
-        # ticket_obj, msg = TicketBaseService.get_ticket_by_id(ticket_id)
-        flag, ticket_obj = TicketBaseService.get_ticket_by_id(ticket_id)
+        from service.ticket.ticket_base_service import ticket_base_service_ins
+        flag, ticket_obj = ticket_base_service_ins.get_ticket_by_id(ticket_id)
         if not flag:
             return False, ticket_obj
         workflow_id = ticket_obj.workflow_id
@@ -799,3 +798,6 @@ class AccountBaseService(BaseService):
                 return False, 'just admin or workflow admin can be reset password'
         else:
             return False, result
+
+
+account_base_service_ins = AccountBaseService()

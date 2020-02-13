@@ -2,13 +2,12 @@ import json
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import State
-from service.account.account_base_service import AccountBaseService
+from service.account.account_base_service import account_base_service_ins
 from service.base_service import BaseService
-from service.common.constant_service import CONSTANT_SERVICE
+from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
-from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
-from service.workflow.workflow_runscript_service import WorkflowRunScriptService
-from service.workflow.workflow_transition_service import WorkflowTransitionService
+from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
+from service.workflow.workflow_runscript_service import workflow_run_script_service_ins
 
 
 class WorkflowStateService(BaseService):
@@ -121,7 +120,7 @@ class WorkflowStateService(BaseService):
         :return:
         """
         workflow_state_obj = State.objects.filter(
-            is_deleted=0, workflow_id=workflow_id, type_id=CONSTANT_SERVICE.STATE_TYPE_START).first()
+            is_deleted=0, workflow_id=workflow_id, type_id=constant_service_ins.STATE_TYPE_START).first()
         if workflow_state_obj:
             return True, workflow_state_obj
         else:
@@ -146,7 +145,7 @@ class WorkflowStateService(BaseService):
         :return:
         """
         workflow_state_obj = State.objects.filter(
-            is_deleted=0, workflow_id=workflow_id, type_id=CONSTANT_SERVICE.STATE_TYPE_END).first()
+            is_deleted=0, workflow_id=workflow_id, type_id=constant_service_ins.STATE_TYPE_END).first()
         if workflow_state_obj:
             return True, workflow_state_obj
         else:
@@ -161,11 +160,11 @@ class WorkflowStateService(BaseService):
         :param workflow_id:
         :return:
         """
-        init_state_obj = State.objects.filter(workflow_id=workflow_id, is_deleted=False, type_id=CONSTANT_SERVICE.STATE_TYPE_START).first()
+        init_state_obj = State.objects.filter(workflow_id=workflow_id, is_deleted=False, type_id=constant_service_ins.STATE_TYPE_START).first()
         if not init_state_obj:
             return False, '该工作流尚未配置初始状态'
 
-        flag, transition_queryset = WorkflowTransitionService.get_state_transition_queryset(init_state_obj.id)
+        flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(init_state_obj.id)
         if flag is False:
             return False, transition_queryset
         transition_info_list = []
@@ -175,14 +174,14 @@ class WorkflowStateService(BaseService):
         # 工单基础字段及属性
         field_list = []
         field_list.append(dict(field_key='title', field_name=u'标题', field_value=None, order_id=20,
-                               field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR,
-                               field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的标题',
+                               field_type_id=constant_service_ins.FIELD_TYPE_STR,
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的标题',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        flag, custom_field_dict = WorkflowCustomFieldService.get_workflow_custom_field(workflow_id)
+        flag, custom_field_dict = workflow_custom_field_service_ins.get_workflow_custom_field(workflow_id)
         for key, value in custom_field_dict.items():
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=None, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
-                                   field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO,
+                                   field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
                                    default_value=custom_field_dict[key]['default_value'],
                                    description=custom_field_dict[key]['description'],
                                    field_template=custom_field_dict[key]['field_template'],
@@ -220,28 +219,28 @@ class WorkflowStateService(BaseService):
         participant_name = participant
         participant_type_name = ''
         participant_alias = ''
-        if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+        if participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
             participant_type_name = '个人'
-            flag, participant_user_obj = AccountBaseService.get_user_by_username(participant)
+            flag, participant_user_obj = account_base_service_ins.get_user_by_username(participant)
             if not flag:
                 participant_alias = participant
             else:
                 participant_alias = participant_user_obj.alias
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             participant_type_name = '多人'
             # 依次获取人员信息
             participant_name_list = participant_name.split(',')
             participant_alias_list = []
             for participant_name0 in participant_name_list:
-                flag, participant_user_obj = AccountBaseService.get_user_by_username(participant_name0)
+                flag, participant_user_obj = account_base_service_ins.get_user_by_username(participant_name0)
                 if not flag:
                     participant_alias_list.append(participant_name0)
                 else:
                     participant_alias_list.append(participant_user_obj.alias)
             participant_alias = ','.join(participant_alias_list)
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
-            flag, dept_obj = AccountBaseService.get_dept_by_id(int(participant))
+            flag, dept_obj = account_base_service_ins.get_dept_by_id(int(participant))
 
             if flag is False:
                 return False, dept_obj
@@ -252,25 +251,25 @@ class WorkflowStateService(BaseService):
                 participant_name = 'dept_id:{}'.format(participant)
                 participant_alias = ''
 
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
             participant_type_name = '角色'
-            flag, role_obj = AccountBaseService.get_role_by_id(int(participant))
+            flag, role_obj = account_base_service_ins.get_role_by_id(int(participant))
             if flag is False or (not role_obj):
                 return False, 'role is not existedor has been deleted'
             participant_name = role_obj.name
             participant_alias = participant_name
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_VARIABLE:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_VARIABLE:
             participant_type_name = '变量'
             if participant_name == 'creator':
                 participant_alias = '工单创建人'
             elif participant_name == 'creator_tl':
                 participant_alias = '工单创建人的tl'
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
             if participant:
-                flag, result = WorkflowRunScriptService.get_run_script_by_id(int(participant))
+                flag, result = workflow_run_script_service_ins.get_run_script_by_id(int(participant))
                 if flag:
                     participant_alias = result.get('script_obj').name
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             participant_type_name = 'hook'
             participant_alias = participant_name
 
@@ -352,3 +351,6 @@ class WorkflowStateService(BaseService):
         if state_obj:
             state_obj.update(is_deleted=1)
         return True, {}
+
+
+workflow_state_service_ins = WorkflowStateService()

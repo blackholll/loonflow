@@ -5,7 +5,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from service.account.account_base_service import AccountBaseService
+from service.account.account_base_service import account_base_service_ins
 from service.format_response import api_response
 from apps.loon_base_view import LoonBaseView
 from schema import Schema, Regex, And, Or, Use, Optional
@@ -41,7 +41,7 @@ class LoonUserView(LoonBaseView):
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
 
-        flag, result = AccountBaseService().get_user_list(search_value, page, per_page)
+        flag, result = account_base_service_ins.get_user_list(search_value, page, per_page)
         if flag is not False:
             data = dict(value=result.get('user_result_object_format_list'),
                         per_page=result.get('paginator_info').get('per_page'),
@@ -75,7 +75,7 @@ class LoonUserView(LoonBaseView):
         is_admin = request_data_dict.get('is_admin')
         is_workflow_admin = request_data_dict.get('is_workflow_admin')
         creator = request.user.username
-        flag, result = AccountBaseService().add_user(username, alias, email, phone, dept_id, is_active, is_admin,
+        flag, result = account_base_service_ins.add_user(username, alias, email, phone, dept_id, is_active, is_admin,
                                                      is_workflow_admin, creator, password)
         if flag is False:
             code, msg, data = -1, result, {}
@@ -118,7 +118,7 @@ class LoonUserDetailView(LoonBaseView):
         is_active = request_data_dict.get('is_active')
         is_admin = request_data_dict.get('is_admin')
         is_workflow_admin = request_data_dict.get('is_workflow_admin')
-        flag, result = AccountBaseService().edit_user(user_id, username, alias, email, phone, dept_id, is_active,
+        flag, result = account_base_service_ins.edit_user(user_id, username, alias, email, phone, dept_id, is_active,
                                                       is_admin, is_workflow_admin)
         if flag is not False:
             code, msg, data = 0, '', {}
@@ -136,7 +136,7 @@ class LoonUserDetailView(LoonBaseView):
         :return:
         """
         user_id = kwargs.get('user_id')
-        flag, result = AccountBaseService().delete_user(user_id)
+        flag, result = account_base_service_ins.delete_user(user_id)
         if flag:
             code, msg, data = 0, '', {}
             return api_response(code, msg, data)
@@ -165,7 +165,7 @@ class LoonRoleView(LoonBaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
-        flag, result = AccountBaseService().get_role_list(search_value, page, per_page)
+        flag, result = account_base_service_ins.get_role_list(search_value, page, per_page)
         if flag is not False:
             data = dict(value=result.get('role_result_object_format_list'),
                         per_page=result.get('paginator_info').get('per_page'),
@@ -192,7 +192,6 @@ class LoonRoleView(LoonBaseView):
         description = request_data_dict.get('description', '')
         label = request_data_dict.get('label', '')
         creator = request.user.username
-        account_base_service_ins = AccountBaseService()
 
         flag, result = account_base_service_ins.add_role(name=name, description=description, label=label,
                                                          creator=creator)
@@ -225,7 +224,6 @@ class LoonRoleDetailView(LoonBaseView):
         name = request_data_dict.get('name')
         description = request_data_dict.get('description')
         label = request_data_dict.get('label')
-        account_base_service_ins = AccountBaseService()
         flag, result = account_base_service_ins.update_role(role_id, name, description, label)
         if flag is False:
             return api_response(-1, result, {})
@@ -241,7 +239,6 @@ class LoonRoleDetailView(LoonBaseView):
         :return:
         """
         role_id = kwargs.get('role_id')
-        account_base_service_ins = AccountBaseService()
         flag, result = account_base_service_ins.delete_role(role_id)
         if flag is False:
             return api_response(-1, result, {})
@@ -271,7 +268,7 @@ class LoonDeptView(LoonBaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
-        flag, result = AccountBaseService().get_dept_list(search_value, page, per_page)
+        flag, result = account_base_service_ins.get_dept_list(search_value, page, per_page)
         if flag is not False:
             paginator_info = result.get('paginator_info')
             data = dict(value=result.get('dept_result_object_format_list'), per_page=paginator_info.get('per_page'),
@@ -298,7 +295,6 @@ class LoonDeptView(LoonBaseView):
         approver_str_list = request_data_dict.get('approver')
         label = request_data_dict.get('label')
         creator = request.user.username
-        account_base_service_ins = AccountBaseService()
         approver_id_list = [int(approver_str) for approver_str in approver_str_list]
         flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
         if flag is False:
@@ -338,7 +334,6 @@ class LoonDeptDetailView(LoonBaseView):
         """
         operator = request.user.username
         dept_id = kwargs.get('dept_id')
-        account_base_service_ins = AccountBaseService()
         flag, result = account_base_service_ins.delete_dept(dept_id)
         if flag is False:
             return api_response(-1, result, {})
@@ -362,8 +357,6 @@ class LoonDeptDetailView(LoonBaseView):
         approver_str_list = request_data_dict.get('approver')
         approver_id_list = [int(approver_str) for approver_str in approver_str_list]
         label = request_data_dict.get('label')
-
-        account_base_service_ins = AccountBaseService()
 
         flag, result = account_base_service_ins.get_user_by_user_id(int(leader_id))
         if flag is False:
@@ -405,7 +398,7 @@ class LoonAppTokenView(LoonBaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
-        flag, result = AccountBaseService().get_token_list(search_value, page, per_page)
+        flag, result = account_base_service_ins.get_token_list(search_value, page, per_page)
         if flag is not False:
             paginator_info = result.get('paginator_info')
             data = dict(value=result.get('token_result_object_format_list'), per_page=paginator_info.get('per_page'),
@@ -431,7 +424,7 @@ class LoonAppTokenView(LoonBaseView):
         ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
         workflow_ids = request_data_dict.get('workflow_ids', '')
         username = request.user.username
-        flag, result = AccountBaseService().add_token_record(app_name, ticket_sn_prefix, workflow_ids, username)
+        flag, result = account_base_service_ins.add_token_record(app_name, ticket_sn_prefix, workflow_ids, username)
         if flag is False:
             code, data = -1, {}
         else:
@@ -463,7 +456,7 @@ class LoonAppTokenDetailView(LoonBaseView):
         app_name = request_data_dict.get('app_name', '')
         ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
         workflow_ids = request_data_dict.get('workflow_ids', '')
-        flag, msg = AccountBaseService.update_token_record(app_token_id, app_name, ticket_sn_prefix, workflow_ids)
+        flag, msg = account_base_service_ins.update_token_record(app_token_id, app_name, ticket_sn_prefix, workflow_ids)
         if flag is False:
             code, data = -1, {}
         else:
@@ -481,7 +474,7 @@ class LoonAppTokenDetailView(LoonBaseView):
         :return:
         """
         app_token_id = kwargs.get('app_token_id')
-        flag, msg = AccountBaseService.del_token_record(app_token_id)
+        flag, msg = account_base_service_ins.del_token_record(app_token_id)
         if flag is False:
             code, data = -1, {}
         else:
@@ -534,7 +527,7 @@ class LoonUserRoleView(LoonBaseView):
         """
         user_id = kwargs.get('user_id', 0)
         search_value = request.GET.get('search_value', '')
-        flag, result = AccountBaseService.get_user_role_info_by_user_id(user_id, search_value)
+        flag, result = account_base_service_ins.get_user_role_info_by_user_id(user_id, search_value)
         if flag is not False:
             data = dict(value=result.get('role_result_format_list'), per_page=result.get('paginator_info').get('per_page'),
                         page=result.get('paginator_info').get('page'), total=result.get('paginator_info').get('total'))
@@ -562,7 +555,7 @@ class LoonRoleUserView(LoonBaseView):
         """
         role_id = kwargs.get('role_id', 0)
         search_value = request.GET.get('search_value', '')
-        flag, result = AccountBaseService.get_role_user_info_by_role_id(role_id, search_value)
+        flag, result = account_base_service_ins.get_role_user_info_by_role_id(role_id, search_value)
 
         if flag is not False:
             data = dict(value=result.get('user_result_format_list'), per_page=result.get('paginator_info').get('per_page'),
@@ -588,7 +581,6 @@ class LoonRoleUserView(LoonBaseView):
         request_data_dict = json.loads(json_str)
         user_id = request_data_dict.get('user_id', 0)
 
-        account_base_service_ins = AccountBaseService()
         flag, result = account_base_service_ins.add_role_user(role_id, user_id, creator)
         if flag is False:
             return api_response(-1, result, {})
@@ -607,7 +599,7 @@ class LoonUserResetPasswordView(LoonBaseView):
         :return:
         """
         user_id = kwargs.get('user_id')
-        flag, result = AccountBaseService().reset_password(user_id=user_id)
+        flag, result = account_base_service_ins.reset_password(user_id=user_id)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, result, {})

@@ -1,7 +1,7 @@
 import json
 from tests.base import LoonflowTest
 from tests.base import LoonflowApiCall
-from service.common.constant_service import CONSTANT_SERVICE
+from service.common.constant_service import constant_service_ins
 
 
 class TestWorkflowView(LoonflowTest):

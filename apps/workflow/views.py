@@ -3,15 +3,15 @@ import json
 from django.views import View
 from schema import Schema, Regex, And, Or, Use, Optional
 from apps.loon_base_view import LoonBaseView
-from service.account.account_base_service import AccountBaseService
+from service.account.account_base_service import account_base_service_ins
 from service.format_response import api_response
 from service.permission.manage_permission import manage_permission_check
-from service.workflow.workflow_base_service import WorkflowBaseService
-from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
-from service.workflow.workflow_custom_notice_service import WorkflowCustomNoticeService
-from service.workflow.workflow_runscript_service import WorkflowRunScriptService
-from service.workflow.workflow_state_service import WorkflowStateService
-from service.workflow.workflow_transition_service import WorkflowTransitionService
+from service.workflow.workflow_base_service import workflow_base_service_ins
+from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
+from service.workflow.workflow_custom_notice_service import workflow_custom_notice_service_ins
+from service.workflow.workflow_runscript_service import workflow_run_script_service_ins
+from service.workflow.workflow_state_service import workflow_state_service_ins
+from service.workflow.workflow_transition_service import workflow_transition_service_ins
 
 
 class WorkflowView(LoonBaseView):
@@ -37,8 +37,7 @@ class WorkflowView(LoonBaseView):
         username = request.META.get('HTTP_USERNAME')
         app_name = request.META.get('HTTP_APPNAME')
 
-        from service.account.account_base_service import AccountBaseService
-        flag, permission_workflow_id_list = AccountBaseService.app_workflow_permission_list(app_name)
+        flag, permission_workflow_id_list = account_base_service_ins.app_workflow_permission_list(app_name)
         if not flag:
             return api_response(-1, permission_workflow_id_list, {})
         if not permission_workflow_id_list:
@@ -46,7 +45,7 @@ class WorkflowView(LoonBaseView):
             code, msg, = 0, ''
             return api_response(code, msg, data)
 
-        flag, result = WorkflowBaseService.get_workflow_list(name, page, per_page, permission_workflow_id_list)
+        flag, result = workflow_base_service_ins.get_workflow_list(name, page, per_page, permission_workflow_id_list)
         if flag is not False:
             paginator_info = result.get('paginator_info')
             data = dict(value=result.get('workflow_result_restful_list'), per_page=paginator_info.get('per_page'),
@@ -76,7 +75,7 @@ class WorkflowView(LoonBaseView):
         limit_expression = request_data_dict.get('limit_expression', '')
         display_form_str = request_data_dict.get('display_form_str', '')
         creator = request.META.get('HTTP_USERNAME', '')
-        flag, result = WorkflowBaseService.add_workflow(name, description, notices, view_permission_check, limit_expression,
+        flag, result = workflow_base_service_ins.add_workflow(name, description, notices, view_permission_check, limit_expression,
                                                        display_form_str, creator)
         if flag is False:
             code, msg, data = -1, result, {}
@@ -98,15 +97,14 @@ class WorkflowInitView(LoonBaseView):
         username = request.META.get('HTTP_USERNAME')
 
         app_name = request.META.get('HTTP_APPNAME')
-        from service.account.account_base_service import AccountBaseService
         # 判断是否有工作流的权限
-        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
 
         if not (workflow_id and username):
             return api_response(-1, '请提供username', '')
-        flag, state_result = WorkflowStateService.get_workflow_init_state(workflow_id)
+        flag, state_result = workflow_state_service_ins.get_workflow_init_state(workflow_id)
         if flag is not False:
             code, msg, data = 0, '', state_result
         else:
@@ -133,12 +131,11 @@ class WorkflowDetailView(LoonBaseView):
         """
         workflow_id = kwargs.get('workflow_id')
         app_name = request.META.get('HTTP_APPNAME')
-        from service.account.account_base_service import AccountBaseService
         # 判断是否有工作流的权限
-        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        flag, workflow_result = WorkflowBaseService.get_by_id(workflow_id)
+        flag, workflow_result = workflow_base_service_ins.get_by_id(workflow_id)
         if flag is False:
             code, msg, data = -1, workflow_result, {}
         else:
@@ -177,7 +174,7 @@ class WorkflowDetailView(LoonBaseView):
         limit_expression = request_data_dict.get('limit_expression', '')
         display_form_str = request_data_dict.get('display_form_str', '')
 
-        flag, result = WorkflowBaseService.edit_workflow(workflow_id, name, description, notices, view_permission_check,
+        flag, result = workflow_base_service_ins.edit_workflow(workflow_id, name, description, notices, view_permission_check,
                                                         limit_expression, display_form_str)
         if flag is False:
             code, msg, data = -1, result, {}
@@ -196,12 +193,11 @@ class WorkflowDetailView(LoonBaseView):
         """
         app_name = request.META.get('HTTP_APPNAME')
         workflow_id = kwargs.get('workflow_id')
-        from service.account.account_base_service import AccountBaseService
         # 判断是否有工作流的权限
-        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        flag, result = WorkflowBaseService.delete_workflow(workflow_id)
+        flag, result = workflow_base_service_ins.delete_workflow(workflow_id)
         if flag is False:
             code, msg, data = -1, msg, {}
         else:
@@ -241,7 +237,7 @@ class WorkflowTransitionView(LoonBaseView):
         query_value = request_data.get('search_value', '')
         # if not username:
         #     return api_response(-1, '请提供username', '')
-        flag, result = WorkflowTransitionService.get_transitions_serialize_by_workflow_id(workflow_id, per_page, page, query_value)
+        flag, result = workflow_transition_service_ins.get_transitions_serialize_by_workflow_id(workflow_id, per_page, page, query_value)
 
         if flag is not False:
             paginator_info = result.get('paginator_info')
@@ -277,7 +273,7 @@ class WorkflowTransitionView(LoonBaseView):
         field_require_check = int(request_data_dict.get('field_require_check', 0))
         alert_enable = int(request_data_dict.get('alert_enable', 0))
         alert_text = request_data_dict.get('alert_text', '')
-        flag, result = WorkflowTransitionService.add_workflow_transition(workflow_id, name, transition_type_id, timer, source_state_id,
+        flag, result = workflow_transition_service_ins.add_workflow_transition(workflow_id, name, transition_type_id, timer, source_state_id,
                                                destination_state_id, condition_expression, attribute_type_id,
                                                field_require_check, alert_enable, alert_text, username)
         if flag is not False:
@@ -329,7 +325,7 @@ class WorkflowTransitionDetailView(LoonBaseView):
         alert_enable = int(request_data_dict.get('alert_enable', 0))
         alert_text = request_data_dict.get('alert_text', '')
         transition_id = kwargs.get('transition_id')
-        flag, result = WorkflowTransitionService.edit_workflow_transition(transition_id, workflow_id, name,
+        flag, result = workflow_transition_service_ins.edit_workflow_transition(transition_id, workflow_id, name,
                                                                           transition_type_id, timer, source_state_id,
                                                                           destination_state_id, condition_expression,
                                                                           attribute_type_id, field_require_check,
@@ -351,7 +347,7 @@ class WorkflowTransitionDetailView(LoonBaseView):
         :return:
         """
         transition_id = kwargs.get('transition_id')
-        flag, result = WorkflowTransitionService.del_workflow_transition(transition_id)
+        flag, result = workflow_transition_service_ins.del_workflow_transition(transition_id)
         if flag is not False:
             data = {}
             code, msg, = 0, ''
@@ -375,7 +371,7 @@ class StateView(LoonBaseView):
         if not username:
             return api_response(-1, '请提供username', '')
 
-        flag, state_info_dict = WorkflowStateService.get_restful_state_info_by_id(state_id)
+        flag, state_info_dict = workflow_state_service_ins.get_restful_state_info_by_id(state_id)
         if flag is not False:
             code, data, msg = 0, state_info_dict, ''
         else:
@@ -413,7 +409,7 @@ class WorkflowStateView(LoonBaseView):
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         # if not username:
         #     return api_response(-1, '请提供username', '')
-        flag, result = WorkflowStateService.get_workflow_states_serialize(workflow_id, per_page, page, search_value)
+        flag, result = workflow_state_service_ins.get_workflow_states_serialize(workflow_id, per_page, page, search_value)
 
         if flag is not False:
             paginator_info = result.get('paginator_info')
@@ -454,7 +450,7 @@ class WorkflowStateView(LoonBaseView):
         label = request_data_dict.get('label', '')
         workflow_id = kwargs.get('workflow_id')
 
-        flag, result = WorkflowStateService.add_workflow_state(workflow_id, name, sub_workflow_id, is_hidden, order_id,
+        flag, result = workflow_state_service_ins.add_workflow_state(workflow_id, name, sub_workflow_id, is_hidden, order_id,
                                                                type_id, remember_last_man_enable, participant_type_id,
                                                                participant, distribute_type_id, state_field_str, label,
                                                                username)
@@ -509,7 +505,7 @@ class WorkflowStateDetailView(LoonBaseView):
         workflow_id = kwargs.get('workflow_id')
         state_id = kwargs.get('state_id')
 
-        flag, result = WorkflowStateService.edit_workflow_state(state_id, workflow_id, name, sub_workflow_id, is_hidden,
+        flag, result = workflow_state_service_ins.edit_workflow_state(state_id, workflow_id, name, sub_workflow_id, is_hidden,
                                                                 order_id, type_id, remember_last_man_enable,
                                                                 participant_type_id, participant, distribute_type_id,
                                                                 state_field_str, label)
@@ -531,7 +527,7 @@ class WorkflowStateDetailView(LoonBaseView):
         """
         app_name = request.META.get('HTTP_APPNAME')
         state_id = kwargs.get('state_id')
-        flag, result = WorkflowStateService.del_workflow_state(state_id)
+        flag, result = workflow_state_service_ins.del_workflow_state(state_id)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
@@ -558,7 +554,7 @@ class WorkflowRunScriptView(LoonBaseView):
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         if not username:
             return api_response(-1, '请提供username', '')
-        flag, result = WorkflowRunScriptService.get_run_script_list(search_value, page, per_page)
+        flag, result = workflow_run_script_service_ins.get_run_script_list(search_value, page, per_page)
 
         if flag is not False:
             paginator_info = result.get('paginator_info')
@@ -591,7 +587,7 @@ class WorkflowRunScriptView(LoonBaseView):
         script_name = request.POST.get('script_name', '')
         script_desc = request.POST.get('script_desc', '')
         is_active = request.POST.get('is_active', '0')
-        flag, result = WorkflowRunScriptService.add_run_script(script_name, script_file_name, script_desc, is_active, request.user.username)
+        flag, result = workflow_run_script_service_ins.add_run_script(script_name, script_file_name, script_desc, is_active, request.user.username)
         if flag is not False:
             data, code, msg = dict(script_id=result.get('script_id')), 0, ''
         else:
@@ -626,7 +622,7 @@ class WorkflowRunScriptDetailView(LoonBaseView):
         script_name = request.POST.get('script_name', '')
         script_desc = request.POST.get('script_desc', '')
         is_active = request.POST.get('is_active', '0')
-        flag, result = WorkflowRunScriptService.edit_run_script(run_script_id, script_name, script_file_name, script_desc, is_active)
+        flag, result = workflow_run_script_service_ins.edit_run_script(run_script_id, script_name, script_file_name, script_desc, is_active)
         if flag is not False:
             code, msg, data = 0, '', {}
         else:
@@ -643,7 +639,7 @@ class WorkflowRunScriptDetailView(LoonBaseView):
         :return:
         """
         run_script_id = kwargs.get('run_script_id')
-        result, msg = WorkflowRunScriptService.del_run_script(run_script_id)
+        result, msg = workflow_run_script_service_ins.del_run_script(run_script_id)
         if result is not False:
             code, msg, data = 0, '', {}
         else:
@@ -679,7 +675,7 @@ class WorkflowCustomNoticeView(LoonBaseView):
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         if not username:
             return api_response(-1, '请提供username', '')
-        result, msg = WorkflowCustomNoticeService.get_notice_list(search_value, page, per_page)
+        result, msg = workflow_custom_notice_service_ins.get_notice_list(search_value, page, per_page)
 
         if result is not False:
             data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
@@ -709,13 +705,12 @@ class WorkflowCustomNoticeView(LoonBaseView):
         hook_url = request_data_dict.get('hook_url', '')
         hook_token = request_data_dict.get('hook_token', '')
         creator = request.user.username
-        account_base_service_ins = AccountBaseService()
 
         flag, result = account_base_service_ins.admin_permission_check(creator)
         if flag is False:
             return api_response(-1, result, {})
 
-        result, msg = WorkflowCustomNoticeService.add_custom_notice(name, description, hook_url, hook_token, creator)
+        result, msg = workflow_custom_notice_service_ins.add_custom_notice(name, description, hook_url, hook_token, creator)
         if result is not False:
             data = {}
             code, msg,  = 0, ''
@@ -753,13 +748,12 @@ class WorkflowCustomNoticeDetailView(LoonBaseView):
         hook_url = request_data_dict.get('hook_url', '')
         hook_token = request_data_dict.get('hook_token', '')
         creator = request.user.username
-        account_base_service_ins = AccountBaseService()
 
         flag, result = account_base_service_ins.admin_permission_check(creator)
         if flag is False:
             return api_response(-1, result, {})
 
-        result, msg = WorkflowCustomNoticeService.update_custom_notice(notice_id, name, description, hook_url,
+        result, msg = workflow_custom_notice_service_ins.update_custom_notice(notice_id, name, description, hook_url,
                                                                        hook_token)
         if result is not False:
             data = {}
@@ -778,7 +772,7 @@ class WorkflowCustomNoticeDetailView(LoonBaseView):
         :return:
         """
         notice_id = kwargs.get('notice_id')
-        result, msg = WorkflowCustomNoticeService.del_custom_notice(notice_id)
+        result, msg = workflow_custom_notice_service_ins.del_custom_notice(notice_id)
         if result is not False:
             code, msg, data = 0, '', {}
         else:
@@ -818,7 +812,7 @@ class WorkflowCustomFieldView(LoonBaseView):
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         if not username:
             return api_response(-1, '请提供username', '')
-        flag, result = WorkflowCustomFieldService.get_workflow_custom_field_list(kwargs.get('workflow_id'), search_value, page, per_page)
+        flag, result = workflow_custom_field_service_ins.get_workflow_custom_field_list(kwargs.get('workflow_id'), search_value, page, per_page)
 
         if flag is not False:
             paginator_info = result.get('paginator_info')
@@ -843,8 +837,7 @@ class WorkflowCustomFieldView(LoonBaseView):
         username = request.META.get('HTTP_USERNAME')
         workflow_id = kwargs.get('workflow_id')
         # 判断是否有工作流的权限
-        from service.account.account_base_service import AccountBaseService
-        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
         json_str = request.body.decode('utf-8')
@@ -861,7 +854,7 @@ class WorkflowCustomFieldView(LoonBaseView):
         default_value = request_data_dict.get('default_value', '')
         boolean_field_display = request_data_dict.get('boolean_field_display', '')
         field_choice = request_data_dict.get('field_choice', '')
-        flag, result = WorkflowCustomFieldService.add_record(workflow_id, field_type_id, field_key, field_name, order_id,
+        flag, result = workflow_custom_field_service_ins.add_record(workflow_id, field_type_id, field_key, field_name, order_id,
                                                              default_value, description, field_template,
                                                              boolean_field_display, field_choice, label, username)
 
@@ -901,8 +894,7 @@ class WorkflowCustomFieldDetailView(LoonBaseView):
         username = request.META.get('HTTP_USERNAME')
         workflow_id = kwargs.get('workflow_id')
         # 判断是否有工作流的权限
-        from service.account.account_base_service import AccountBaseService
-        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
         json_str = request.body.decode('utf-8')
@@ -919,7 +911,7 @@ class WorkflowCustomFieldDetailView(LoonBaseView):
         default_value = request_data_dict.get('default_value', '')
         boolean_field_display = request_data_dict.get('boolean_field_display', '')
         field_choice = request_data_dict.get('field_choice', '')
-        result, msg = WorkflowCustomFieldService.edit_record(custom_field_id, workflow_id, field_type_id, field_key, field_name, order_id,
+        result, msg = workflow_custom_field_service_ins.edit_record(custom_field_id, workflow_id, field_type_id, field_key, field_name, order_id,
                                                             default_value, description, field_template,
                                                             boolean_field_display, field_choice, label)
 
@@ -937,11 +929,10 @@ class WorkflowCustomFieldDetailView(LoonBaseView):
         workflow_id = kwargs.get('workflow_id')
         custom_field_id = kwargs.get('custom_field_id')
         # 判断是否有工作流的权限
-        from service.account.account_base_service import AccountBaseService
-        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
+        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        flag, result = WorkflowCustomFieldService.delete_record(custom_field_id)
+        flag, result = workflow_custom_field_service_ins.delete_record(custom_field_id)
         if flag is not False:
             data = dict(value={'custom_field_id': result})
             code, msg, = 0, ''

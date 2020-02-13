@@ -26,11 +26,11 @@ import json
 import requests
 from apps.ticket.models import TicketRecord
 from apps.workflow.models import Transition, State, WorkflowScript, Workflow, CustomNotice
-from service.account.account_base_service import AccountBaseService
-from service.common.constant_service import CONSTANT_SERVICE
-from service.ticket.ticket_base_service import TicketBaseService
-from service.common.common_service import CommonService
-from service.workflow.workflow_transition_service import WorkflowTransitionService
+from service.account.account_base_service import account_base_service_ins
+from service.common.constant_service import constant_service_ins
+from service.ticket.ticket_base_service import TicketBaseService, ticket_base_service_ins
+from service.common.common_service import CommonService, common_service_ins
+from service.workflow.workflow_transition_service import WorkflowTransitionService, workflow_transition_service_ins
 from django.conf import settings
 
 try:
@@ -79,7 +79,7 @@ def run_flow_task(ticket_id, script_id_str, state_id, action_from='loonrobot'):
     """
     script_id = int(script_id_str)
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-    if ticket_obj.participant == script_id_str and ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+    if ticket_obj.participant == script_id_str and ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
         ## 校验脚本是否合法
         # 获取脚本名称
         script_obj = WorkflowScript.objects.filter(id=script_id, is_deleted=False, is_active=True).first()
@@ -110,17 +110,17 @@ def run_flow_task(ticket_id, script_id_str, state_id, action_from='loonrobot'):
         transition_obj = Transition.objects.filter(source_state_id=state_id, is_deleted=False).first()
 
         new_ticket_flow_dict = dict(ticket_id=ticket_id, transition_id=transition_obj.id,
-                                    suggestion=script_result_msg, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT,
+                                    suggestion=script_result_msg, participant_type_id=constant_service_ins.PARTICIPANT_TYPE_ROBOT,
                                     participant='脚本:(id:{}, name:{})'.format(script_obj.id, script_obj.name), state_id=state_id, creator='loonrobot')
 
-        TicketBaseService.add_ticket_flow_log(new_ticket_flow_dict)
+        ticket_base_service_ins.add_ticket_flow_log(new_ticket_flow_dict)
         if not script_result:
             # 脚本执行失败，状态不更新,标记任务执行结果
             ticket_obj.script_run_last_result = False
             ticket_obj.save()
             return False, script_result_msg
         # 自动执行流转
-        flag, msg = TicketBaseService.handle_ticket(ticket_id, dict(username='loonrobot',
+        flag, msg = ticket_base_service_ins.handle_ticket(ticket_id, dict(username='loonrobot',
                                                                     suggestion='脚本执行完成后自行流转',
                                                                     transition_id=transition_obj.id), False, True)
         if flag:
@@ -143,7 +143,7 @@ def timer_transition(ticket_id, state_id, date_time, transition_id):
     # 需要满足工单此状态后续无其他操作才自动流转
     # 查询该工单此状态所有操作
     # flow_log_set, msg = TicketBaseService().get_ticket_flow_log(ticket_id, 'loonrobot', per_page=1000)
-    flag, result = TicketBaseService().get_ticket_flow_log(ticket_id, 'loonrobot', per_page=1000)
+    flag, result = ticket_base_service_ins.get_ticket_flow_log(ticket_id, 'loonrobot', per_page=1000)
     if flag is False:
         return False, result
     flow_log_list = result.get('ticket_flow_log_restful_list')
@@ -152,7 +152,7 @@ def timer_transition(ticket_id, state_id, date_time, transition_id):
             return True, '后续有操作，定时器失效'
     # 执行流转
     handle_ticket_data = dict(transition_id=transition_id, username='loonrobot', suggestion='定时器流转')
-    TicketBaseService().handle_ticket(ticket_id, handle_ticket_data, True)
+    ticket_base_service_ins.handle_ticket(ticket_id, handle_ticket_data, True)
 
 
 @app.task
@@ -183,31 +183,31 @@ def send_ticket_notice(ticket_id):
     content_template = workflow_obj.content_template
 
     # 获取工单所有字段的变量
-    flag, ticket_value_info = TicketBaseService.get_ticket_all_field_value(ticket_id)
+    flag, ticket_value_info = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
     if flag is False:
         return False, ticket_value_info
     title_result = title_template.format(**ticket_value_info)
     content_result = content_template.format(**ticket_value_info)
     # 获取工单最后一条操作记录
-    flag, result = TicketBaseService.get_ticket_flow_log(ticket_id, 'loonrobot')
+    flag, result = ticket_base_service_ins.get_ticket_flow_log(ticket_id, 'loonrobot')
     flow_log_list = result.get('ticket_flow_log_restful_list')
 
     last_flow_log = flow_log_list[0]
     participant_info_list = []
     participant_username_list = []
     from apps.account.models import LoonUser
-    if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+    if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
         participant_username_list = [ticket_obj.participant]
     elif ticket_obj.participant_type_id in (
-    CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL):
+        constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL):
         participant_username_list = ticket_obj.participant.split(',')
-    elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
-        flag, participant_username_list = AccountBaseService.get_role_username_list(ticket_obj.participant)
+    elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
+        flag, participant_username_list = account_base_service_ins.get_role_username_list(ticket_obj.participant)
         if flag is False:
             return False, participant_username_list
 
-    elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-        flag, participant_username_list = AccountBaseService.get_dept_username_list(ticket_obj.participant)
+    elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
+        flag, participant_username_list = account_base_service_ins.get_dept_username_list(ticket_obj.participant)
         if not flag:
             return flag, participant_username_list
 
@@ -228,7 +228,7 @@ def send_ticket_notice(ticket_id):
         hook_url = notice_obj.hook_url
         hook_token = notice_obj.hook_token
         # gen signature
-        flag, headers = CommonService().gen_signature_by_token(hook_token)
+        flag, headers = common_service_ins.gen_signature_by_token(hook_token)
         try:
             r = requests.post(hook_url, headers=headers, json=params)
             result = r.json()
@@ -255,7 +255,7 @@ def flow_hook_task(ticket_id):
     state_obj = State.objects.filter(id=state_id, is_deleted=0).first()
 
     participant_type_id = state_obj.participant_type_id
-    if participant_type_id != CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+    if participant_type_id != constant_service_ins.PARTICIPANT_TYPE_HOOK:
         return False, ''
     hook_config = state_obj.participant
     hook_config_dict= json.loads(hook_config)
@@ -263,11 +263,10 @@ def flow_hook_task(ticket_id):
     hook_token = hook_config_dict.get('hook_token')
     wait = hook_config_dict.get('wait')
 
-    flag, msg = CommonService().gen_hook_signature(hook_token)
+    flag, msg = common_service_ins.gen_hook_signature(hook_token)
     if not flag:
         return False, msg
-    # all_ticket_data, msg = TicketBaseService().get_ticket_all_field_value(ticket_id)
-    flag, all_ticket_data = TicketBaseService().get_ticket_all_field_value(ticket_id)
+    flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
     r = requests.post(hook_url, headers=msg, json=all_ticket_data, timeout=10)
 
     result = r.json()
@@ -282,7 +281,7 @@ def flow_hook_task(ticket_id):
             all_ticket_data_json = json.dumps(all_ticket_data)
             TicketBaseService().add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0,
                                                          suggestion=result.get('msg'),
-                                                         participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK,
+                                                         participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
                                                          participant='hook', state_id=state_id,
                                                          ticket_data=all_ticket_data_json,
                                                          creator='loonrobot'
@@ -290,29 +289,29 @@ def flow_hook_task(ticket_id):
             return True, ''
         else:
             # 不等待hook目标回调，直接流转
-            flag, transition_queryset = WorkflowTransitionService().get_state_transition_queryset(state_id)
+            flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(state_id)
             transition_id = transition_queryset[0]  # hook状态只支持一个流转
 
             new_request_dict = {}
             new_request_dict.update({'transition_id': transition_id, 'suggestion': msg, 'username': 'loonrobot'})
             # 执行流转
-            flag, msg = TicketBaseService().handle_ticket(ticket_id, new_request_dict, by_hook=True)
+            flag, msg = ticket_base_service_ins.handle_ticket(ticket_id, new_request_dict, by_hook=True)
             if not flag:
                 return False, msg
 
     else:
-        TicketBaseService().update_ticket_field_value({'script_run_last_result': False})
+        ticket_base_service_ins.update_ticket_field_value({'script_run_last_result': False})
 
-        flag, all_ticket_data = TicketBaseService().get_ticket_all_field_value(ticket_id)
+        flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
         # date等格式需要转换为str
         for key, value in all_ticket_data.items():
             if type(value) not in [int, str, bool, float]:
                 all_ticket_data[key] = str(all_ticket_data[key])
 
         all_ticket_data_json = json.dumps(all_ticket_data)
-        TicketBaseService().add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0,
+        ticket_base_service_ins.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0,
                                                      suggestion=result.get('msg'),
-                                                     participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK,
+                                                     participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
                                                      participant='hook', state_id=state_id, ticket_data=all_ticket_data_json,
                                                      creator='loonrobot'
                                                      ))

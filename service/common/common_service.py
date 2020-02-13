@@ -120,5 +120,7 @@ class CommonService(BaseService):
         return True, ''
 
 
+common_service_ins = CommonService()
+
 if __name__ == '__main__':
-    print(CommonService().check_dict_has_all_same_value({'a': {'a': 1, 'b': 2}, 'b': {'a': 1, 'b': 2}}))
+    print(common_service_ins.check_dict_has_all_same_value({'a': {'a': 1, 'b': 2}, 'b': {'a': 1, 'b': 2}}))

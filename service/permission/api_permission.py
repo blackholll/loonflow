@@ -1,8 +1,8 @@
 import json
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
-from service.account.account_base_service import AccountBaseService
-from service.common.common_service import CommonService
+from service.account.account_base_service import AccountBaseService, account_base_service_ins
+from service.common.common_service import CommonService, common_service_ins
 
 
 class ApiPermissionCheck(MiddlewareMixin):
@@ -37,11 +37,11 @@ class ApiPermissionCheck(MiddlewareMixin):
         if not app_name:
             return False, 'appname is not provide in request header'
 
-        flag, result = AccountBaseService.get_token_by_app_name(app_name)
+        flag, result = account_base_service_ins.get_token_by_app_name(app_name)
         if flag is False:
             return False, result
         if not result:
             return False, 'Appname:{} in request header is unauthorized, please contact administrator to add ' \
                           'authorization for appname:{} in loonflow'.format(app_name, app_name)
 
-        return CommonService.signature_check(timestamp, signature, result.token)
+        return common_service_ins.signature_check(timestamp, signature, result.token)

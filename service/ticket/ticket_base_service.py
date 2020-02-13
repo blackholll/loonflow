@@ -6,15 +6,15 @@ from django.db.models import Q
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.ticket.models import TicketRecord, TicketCustomField, TicketFlowLog
-from service.account.account_base_service import AccountBaseService
+from apps.workflow.models import CustomField
+from service.account.account_base_service import account_base_service_ins
 from service.base_service import BaseService
-from service.common.common_service import CommonService
-from service.common.constant_service import CONSTANT_SERVICE
+from service.common.common_service import common_service_ins
+from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
-from service.workflow.workflow_base_service import WorkflowBaseService
-from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
-from service.workflow.workflow_state_service import WorkflowStateService
-from service.workflow.workflow_transition_service import WorkflowTransitionService
+from service.workflow.workflow_base_service import workflow_base_service_ins
+from service.workflow.workflow_state_service import workflow_state_service_ins
+from service.workflow.workflow_transition_service import workflow_transition_service_ins
 from service.redis_pool import POOL
 
 
@@ -68,7 +68,7 @@ class TicketBaseService(BaseService):
         query_params = Q(is_deleted=False)
 
         # 获取app_name 有权限的workflow_id_list
-        flag, permission_workflow_id_list = AccountBaseService.app_workflow_permission_list(app_name)
+        flag, permission_workflow_id_list = account_base_service_ins.app_workflow_permission_list(app_name)
 
         if not flag or not permission_workflow_id_list:
             return False, 'This app_name have not workflow permission'
@@ -111,26 +111,26 @@ class TicketBaseService(BaseService):
         elif category == 'duty':
             # 获取用户部门id列表, 角色id列表，工单的实际当前处理人只会有个人、多人、角色、部门、脚本(变量、工单字段、父工单字段这些类型会在工单流转的时候计算为实际的值)
             # user_obj, msg = AccountBaseService.get_user_by_username(username)
-            flag, user_obj = AccountBaseService.get_user_by_username(username)
+            flag, user_obj = account_base_service_ins.get_user_by_username(username)
             if not flag:
                 return False, user_obj
-            user_dept_id_list_flag, user_dept_id_list = AccountBaseService.get_user_up_dept_id_list(username)
-            user_role_id_list_flag, user_role_id_list = AccountBaseService.get_user_role_id_list(username)
+            user_dept_id_list_flag, user_dept_id_list = account_base_service_ins.get_user_up_dept_id_list(username)
+            user_role_id_list_flag, user_role_id_list = account_base_service_ins.get_user_role_id_list(username)
             if user_dept_id_list_flag is False:
                 return False, user_dept_id_list
             if user_role_id_list_flag is False:
                 return False, user_role_id_list
             user_dept_id_str_list = [str(user_dept_id) for user_dept_id in user_dept_id_list]
             user_role_id_str_list = [str(user_role_id) for user_role_id in user_role_id_list]
-            duty_query_expression = Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+            duty_query_expression = Q(participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                                       participant=username)
-            duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT,
+            duty_query_expression |= Q(participant_type_id=constant_service_ins.PARTICIPANT_TYPE_DEPT,
                                        participant__in=user_dept_id_str_list)
-            duty_query_expression |= Q(participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE,
+            duty_query_expression |= Q(participant_type_id=constant_service_ins.PARTICIPANT_TYPE_ROLE,
                                        participant__in=user_role_id_str_list)
 
             # 多人的情况，逗号隔开，需要用extra查询实现, 这里会存在注入问题，后续改进下
-            ticket_query_set1 = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", participant)'.format(username), 'participant_type_id in ({}, {})'.format(CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL)])
+            ticket_query_set1 = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", participant)'.format(username), 'participant_type_id in ({}, {})'.format(constant_service_ins.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL)])
             query_params &= duty_query_expression
             ticket_query_set2 = TicketRecord.objects.filter(query_params)
 
@@ -154,19 +154,19 @@ class TicketBaseService(BaseService):
         ticket_result_object_list = ticket_result_paginator.object_list
         ticket_result_restful_list = []
         for ticket_result_object in ticket_result_object_list:
-            flag, state_obj = WorkflowStateService.get_workflow_state_by_id(ticket_result_object.state_id)
+            flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_result_object.state_id)
             state_name = state_obj.name
             flag, participant_info = cls.get_ticket_format_participant_info(ticket_result_object.id)
 
-            flag, workflow_obj = WorkflowBaseService.get_by_id(ticket_result_object.workflow_id)
+            flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_result_object.workflow_id)
             workflow_info_dict = dict(workflow_id=workflow_obj.id, workflow_name=workflow_obj.name)
 
-            flag, creator_obj = AccountBaseService.get_user_by_username(ticket_result_object.creator)
+            flag, creator_obj = account_base_service_ins.get_user_by_username(ticket_result_object.creator)
             if not flag:
                 dept_id = creator_obj.dept_id
                 # 获取部门信息
                 # dept_info, msg = AccountBaseService.get_dept_by_id(dept_id)
-                flag, dept_info = AccountBaseService.get_dept_by_id(dept_id)
+                flag, dept_info = account_base_service_ins.get_dept_by_id(dept_id)
                 if flag is False or (not dept_info):
                     dept_dict_info = dict(id=dept_id, name='')
                 else:
@@ -208,12 +208,12 @@ class TicketBaseService(BaseService):
         request_field_arg_list = [key for key, value in request_data_dict.items() if (key not in ['workflow_id', 'suggestion', 'username'])]
 
         # 判断用户是否有权限新建该工单
-        has_permission, msg = WorkflowBaseService.check_new_permission(username, workflow_id)
+        has_permission, msg = workflow_base_service_ins.check_new_permission(username, workflow_id)
         if not has_permission:
             return False, msg
         # 获取工单必填信息
         ## 获取工作流初始状态
-        flag, start_state = WorkflowStateService.get_workflow_start_state(workflow_id)
+        flag, start_state = workflow_state_service_ins.get_workflow_start_state(workflow_id)
         if flag is False:
             return False, start_state
         # 获取初始状态必填字段 及允许更新的字段
@@ -222,7 +222,7 @@ class TicketBaseService(BaseService):
         update_field_list = state_info_dict.get('update_field_list', [])
 
         # 校验是否所有必填字段都有提供，如果transition_id对应设置为不校验必填则直接通过
-        flag, req_transition_obj = WorkflowTransitionService.get_workflow_transition_by_id(transition_id)
+        flag, req_transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(transition_id)
         if req_transition_obj.field_require_check:
             for require_field in require_field_list:
                 if require_field not in request_field_arg_list:
@@ -233,7 +233,7 @@ class TicketBaseService(BaseService):
         else:
             return False, msg
 
-        flag, destination_state = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
+        flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
 
         # 获取目标状态的信息
         flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id,
@@ -250,7 +250,7 @@ class TicketBaseService(BaseService):
             return False, msg
         ticket_sn = result.get('ticket_sn')
         # 新增工单基础表数据
-        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END:
+        if destination_state.type_id == constant_service_ins.STATE_TYPE_END:
             is_end = True
         else:
             is_end = False
@@ -285,7 +285,7 @@ class TicketBaseService(BaseService):
 
         all_ticket_data_json = json.dumps(all_ticket_data)
         new_ticket_flow_log_dict = dict(ticket_id=new_ticket_obj.id, transition_id=transition_id, suggestion=suggestion,
-                                        participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
+                                        participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL, participant=username,
                                         state_id=start_state.id, ticket_data=all_ticket_data_json)
         add_ticket_flow_log_result, msg = cls.add_ticket_flow_log(new_ticket_flow_log_dict)
         if not add_ticket_flow_log_result:
@@ -295,13 +295,13 @@ class TicketBaseService(BaseService):
         send_ticket_notice.apply_async(args=[new_ticket_obj.id], queue='loonflow')
 
         # 如果下个状态为脚本处理，则开始执行脚本
-        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+        if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
             from tasks import run_flow_task # 放在文件开头会存在循环引用
             run_flow_task.apply_async(args=[new_ticket_obj.id, destination_participant, destination_state_id],
                                       queue='loonflow')
 
         # 如果下个状态是hook，开始触发hook
-        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+        if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             from tasks import flow_hook_task  # 放在文件开头会存在循环引用
             flow_hook_task.apply_async(args=[new_ticket_obj.id], queue='loonflow')
 
@@ -310,7 +310,7 @@ class TicketBaseService(BaseService):
         cls.handle_timer_transition(new_ticket_obj.id, destination_state_id)
 
         # 父工单逻辑处理
-        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and new_ticket_obj.parent_ticket_id \
+        if destination_state.type_id == constant_service_ins.STATE_TYPE_END and new_ticket_obj.parent_ticket_id \
                 and new_ticket_obj.parent_ticket_state_id:
                 # 如果存在父工单，判断是否该父工单的下属子工单都已经结束状态，如果都是结束状态则自动流转父工单到下个状态
             other_sub_ticket_queryset = TicketRecord.objects.filter(parent_ticket_id=new_ticket_obj.parent_ticket_id,
@@ -321,7 +321,7 @@ class TicketBaseService(BaseService):
             if set(other_sub_ticket_state_id_list) == set([new_ticket_obj.state_id]):
                 parent_ticket_obj = TicketRecord.objects.filter(id=new_ticket_obj.parent_ticket_id, is_deleted=0).first()
                 parent_ticket_state_id = parent_ticket_obj.state_id
-                flag, parent_ticket_transition_queryset = WorkflowTransitionService.get_state_transition_queryset(parent_ticket_state_id)
+                flag, parent_ticket_transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(parent_ticket_state_id)
                 # 含有子工单的工单状态只支持单路径流转到下个状态
                 parent_ticket_transition_id = parent_ticket_transition_queryset[0].id
                 cls.handle_ticket(parent_ticket_obj.id, dict(transition_id=parent_ticket_transition_id,
@@ -358,7 +358,7 @@ class TicketBaseService(BaseService):
         if not app_name:
             sn_prefix = 'loonflow'
         else:
-            flag, result = AccountBaseService.get_token_by_app_name(app_name)
+            flag, result = account_base_service_ins.get_token_by_app_name(app_name)
             if flag is False:
                 return False, result
 
@@ -379,7 +379,7 @@ class TicketBaseService(BaseService):
         :param field_key:
         :return:
         """
-        if field_key in CONSTANT_SERVICE.TICKET_BASE_FIELD_LIST:
+        if field_key in constant_service_ins.TICKET_BASE_FIELD_LIST:
             ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
             ticket_obj_dict = ticket_obj.__dict__
             value = ticket_obj_dict.get(field_key)
@@ -430,33 +430,33 @@ class TicketBaseService(BaseService):
             # has not been assignment
             value = None
         else:
-            if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
+            if field_type_id == constant_service_ins.FIELD_TYPE_STR:
                 value = ticket_custom_field_obj.char_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_INT:
                 value = ticket_custom_field_obj.int_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_FLOAT:
                 value = ticket_custom_field_obj.float_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_BOOL:
                 value = ticket_custom_field_obj.bool_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_DATE:
                 value = str(ticket_custom_field_obj.date_value)
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_DATETIME:
                 value = str(ticket_custom_field_obj.datetime_value)
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_RADIO:
                 value = ticket_custom_field_obj.radio_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_CHECKBOX:
                 value = ticket_custom_field_obj.checkbox_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_SELECT:
                 value = ticket_custom_field_obj.select_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_MULTI_SELECT:
                 value = ticket_custom_field_obj.multi_select_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_TEXT:
                 value = ticket_custom_field_obj.text_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_USERNAME:
                 value = ticket_custom_field_obj.username_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_MULTI_USERNAME:
                 value = ticket_custom_field_obj.multi_username_value
-            elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+            elif field_type_id == constant_service_ins.FIELD_TYPE_ATTACHMENT:
                 value = ticket_custom_field_obj.char_value
         return True, dict(value=value)
 
@@ -469,7 +469,7 @@ class TicketBaseService(BaseService):
         :param field_key:
         :return:
         """
-        if field_key in CONSTANT_SERVICE.TICKET_BASE_FIELD_LIST:
+        if field_key in constant_service_ins.TICKET_BASE_FIELD_LIST:
             return True, dict(field_name=field_key)
         else:
             flag, result = cls.get_ticket_custom_field_name(ticket_id, field_key)
@@ -506,7 +506,7 @@ class TicketBaseService(BaseService):
         :return:
         """
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
-        flag, format_custom_field_dict = WorkflowCustomFieldService.get_workflow_custom_field(ticket_obj.workflow_id)
+        flag, format_custom_field_dict = workflow_custom_field_service_ins.get_workflow_custom_field(ticket_obj.workflow_id)
         if flag is False:
             return False, format_custom_field_dict
         format_custom_field_dict= format_custom_field_dict
@@ -529,62 +529,62 @@ class TicketBaseService(BaseService):
                         pass
                 else:
                     if ticket_custom_field_queryset:
-                        if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
+                        if field_type_id == constant_service_ins.FIELD_TYPE_STR:
                             ticket_custom_field_queryset.update(char_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_INT:
                             ticket_custom_field_queryset.update(int_value=int(update_dict.get(key)))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_FLOAT:
                             ticket_custom_field_queryset.update(float_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_BOOL:
                             ticket_custom_field_queryset.update(bool_value=int(update_dict.get(key)))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_DATE:
                             ticket_custom_field_queryset.update(date_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_DATETIME:
                             ticket_custom_field_queryset.update(datetime_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_RADIO:
                             ticket_custom_field_queryset.update(radio_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_CHECKBOX:
                             ticket_custom_field_queryset.update(checkbox_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_SELECT:
                             ticket_custom_field_queryset.update(select_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_MULTI_SELECT:
                             ticket_custom_field_queryset.update(multi_select_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_TEXT:
                             ticket_custom_field_queryset.update(text_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_USERNAME:
                             ticket_custom_field_queryset.update(username_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_MULTI_USERNAME:
                             ticket_custom_field_queryset.update(multi_username_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_ATTACHMENT:
                             ticket_custom_field_queryset.update(char_value=update_dict.get(key))
                     elif not ticket_custom_field_queryset:
-                        if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
+                        if field_type_id == constant_service_ins.FIELD_TYPE_STR:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'], ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_INT:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, int_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_FLOAT:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, float_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_BOOL:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, bool_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_DATE:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, date_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_DATETIME:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, datetime_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_RADIO:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, radio_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_CHECKBOX:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, checkbox_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_SELECT:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, select_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_MULTI_SELECT:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, multi_select_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_TEXT:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, text_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_USERNAME:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, username_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_MULTI_USERNAME:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, multi_username_value=update_dict.get(key))
-                        elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                        elif field_type_id == constant_service_ins.FIELD_TYPE_ATTACHMENT:
                             new_ticket_custom_field_record = TicketCustomField(name=format_custom_field_dict[key]['field_name'],ticket_id=ticket_id, field_key=key, field_type_id=field_type_id, char_value=update_dict.get(key))
                         new_ticket_custom_field_record.save()
         return True, ''
@@ -600,7 +600,7 @@ class TicketBaseService(BaseService):
         """
         base_field_dict = {}
         for key, value in update_dict.items():
-            if key in CONSTANT_SERVICE.TICKET_BASE_FIELD_LIST:
+            if key in constant_service_ins.TICKET_BASE_FIELD_LIST:
                 base_field_dict[key] = value
         # ticket base field
         if base_field_dict:
@@ -656,7 +656,7 @@ class TicketBaseService(BaseService):
         new_field_list = []
 
         if handle_permission:
-            flag, state_obj = WorkflowStateService.get_workflow_state_by_id(ticket_obj.state_id)
+            flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_obj.state_id)
             if flag is False:
                 return False, msg
             state_field_str = state_obj.state_field_str
@@ -668,18 +668,18 @@ class TicketBaseService(BaseService):
                     new_field_list.append(field)
         else:
             # only read permission
-            flag, workflow_obj = WorkflowBaseService.get_by_id(workflow_id=ticket_obj.workflow_id)
+            flag, workflow_obj = workflow_base_service_ins.get_by_id(workflow_id=ticket_obj.workflow_id)
             display_form_field_list = json.loads(workflow_obj.display_form_str)
             for field in field_list:
                 if field['field_key'] in display_form_field_list:
                     new_field_list.append(field)
         # order by field's order id
         new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
-        flag, creator_obj = AccountBaseService.get_user_by_username(ticket_obj.creator)
+        flag, creator_obj = account_base_service_ins.get_user_by_username(ticket_obj.creator)
         if flag:
             dept_id = creator_obj.dept_id
             # get creator's department info
-            flag, dept_info = AccountBaseService.get_dept_by_id(dept_id)
+            flag, dept_info = account_base_service_ins.get_dept_by_id(dept_id)
             if flag is False or (not dept_info):
                 dept_dict_info = dict(id=dept_id, name='')
             else:
@@ -704,7 +704,7 @@ class TicketBaseService(BaseService):
         :return:
         """
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
-        flag, state_obj = WorkflowStateService.get_workflow_state_by_id(ticket_obj.state_id)
+        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_obj.state_id)
         if flag is False:
             return False, state_obj
         state_name = state_obj.name
@@ -714,26 +714,26 @@ class TicketBaseService(BaseService):
         flag, participant_info_dict = cls.get_ticket_format_participant_info(ticket_id)
         if flag is False:
             return False, participant_info_dict
-        flag, workflow_obj = WorkflowBaseService.get_by_id(ticket_obj.workflow_id)
+        flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_obj.workflow_id)
         if flag is False:
             return False, workflow_obj
         workflow_name = workflow_obj.name
 
-        field_list.append(dict(field_key='sn', field_name=u'流水号', field_value=ticket_obj.sn, order_id=10, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的流水号', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        field_list.append(dict(field_key='title', field_name=u'标题', field_value=ticket_obj.title, order_id=20, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的标题', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        field_list.append(dict(field_key='state_id', field_name=u'状态id', field_value=ticket_obj.state_id, order_id=40, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单当前状态的id', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        field_list.append(dict(field_key='participant_info.participant_name', field_name=u'当前处理人', field_value=participant_info_dict['participant_name'], order_id=50, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的当前处理人', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        field_list.append(dict(field_key='participant_info.participant_alias', field_name=u'当前处理人', field_value=participant_info_dict['participant_alias'], order_id=55, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单当前处理人(alias)', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='sn', field_name=u'流水号', field_value=ticket_obj.sn, order_id=10, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的流水号', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='title', field_name=u'标题', field_value=ticket_obj.title, order_id=20, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的标题', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='state_id', field_name=u'状态id', field_value=ticket_obj.state_id, order_id=40, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单当前状态的id', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='participant_info.participant_name', field_name=u'当前处理人', field_value=participant_info_dict['participant_name'], order_id=50, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的当前处理人', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='participant_info.participant_alias', field_name=u'当前处理人', field_value=participant_info_dict['participant_alias'], order_id=55, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单当前处理人(alias)', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
 
-        field_list.append(dict(field_key='workflow.workflow_name', field_name=u'工作流名称', field_value=workflow_name, order_id=60, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单所属工作流的名称', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='workflow.workflow_name', field_name=u'工作流名称', field_value=workflow_name, order_id=60, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单所属工作流的名称', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
 
-        field_list.append(dict(field_key='creator', field_name=u'创建人', field_value=ticket_obj.creator, order_id=80, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的创建人', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        field_list.append(dict(field_key='gmt_created', field_name=u'创建时间', field_value=str(ticket_obj.gmt_created)[:19], order_id=100, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的创建时间', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        field_list.append(dict(field_key='gmt_modified', field_name=u'更新时间', field_value=str(ticket_obj.gmt_modified)[:19], order_id=120, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单的更新时间', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
-        field_list.append(dict(field_key='state.state_name', field_name=u'状态名', field_value=state_name, order_id=41, field_type_id=CONSTANT_SERVICE.FIELD_TYPE_STR, field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO, description='工单当前状态的名称', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='creator', field_name=u'创建人', field_value=ticket_obj.creator, order_id=80, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的创建人', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='gmt_created', field_name=u'创建时间', field_value=str(ticket_obj.gmt_created)[:19], order_id=100, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的创建时间', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='gmt_modified', field_name=u'更新时间', field_value=str(ticket_obj.gmt_modified)[:19], order_id=120, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的更新时间', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(field_key='state.state_name', field_name=u'状态名', field_value=state_name, order_id=41, field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单当前状态的名称', field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
 
         # ticket's all custom field
-        flag, custom_field_dict = WorkflowCustomFieldService.get_workflow_custom_field(ticket_obj.workflow_id)
+        flag, custom_field_dict = workflow_custom_field_service_ins.get_workflow_custom_field(ticket_obj.workflow_id)
         custom_field_key_list = [key for key, value in custom_field_dict.items()]
         ticket_custom_field_objs = TicketCustomField.objects.filter(ticket_id=ticket_id, field_key__in=custom_field_key_list, is_deleted=0).all()
         key_value_dict = {}
@@ -746,38 +746,38 @@ class TicketBaseService(BaseService):
                 field_value = None
             else:
                 # get field value base it type
-                if field_type_id == CONSTANT_SERVICE.FIELD_TYPE_STR:
+                if field_type_id == constant_service_ins.FIELD_TYPE_STR:
                     field_value = field_value_obj.char_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_INT:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_INT:
                     field_value = field_value_obj.int_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_FLOAT:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_FLOAT:
                     field_value = field_value_obj.float_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_BOOL:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_BOOL:
                     field_value = field_value_obj.bool_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATE:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_DATE:
                     field_value = str(field_value_obj.date_value)
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_DATETIME:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_DATETIME:
                     field_value = str(field_value_obj.datetime_value)
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_RADIO:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_RADIO:
                     field_value = field_value_obj.radio_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_CHECKBOX:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_CHECKBOX:
                     field_value = field_value_obj.checkbox_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_SELECT:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_SELECT:
                     field_value = field_value_obj.select_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_SELECT:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_MULTI_SELECT:
                     field_value = field_value_obj.multi_select_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_TEXT:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_TEXT:
                     field_value = field_value_obj.text_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_USERNAME:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_USERNAME:
                     field_value = field_value_obj.username_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_MULTI_USERNAME:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_MULTI_USERNAME:
                     field_value = field_value_obj.multi_username_value
-                elif field_type_id == CONSTANT_SERVICE.FIELD_TYPE_ATTACHMENT:
+                elif field_type_id == constant_service_ins.FIELD_TYPE_ATTACHMENT:
                     field_value = field_value_obj.char_value
 
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=field_value, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
-                                   field_attribute=CONSTANT_SERVICE.FIELD_ATTRIBUTE_RO,
+                                   field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
                                    default_value=custom_field_dict[key]['default_value'],
                                    description=custom_field_dict[key]['description'],
                                    field_template=custom_field_dict[key]['field_template'],
@@ -802,21 +802,21 @@ class TicketBaseService(BaseService):
         participant_type_id = ticket_obj.participant_type_id
         participant_type_name = ''
         participant_alias = ''
-        if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+        if participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
             participant_type_name = '个人'
             # participant_user_obj, msg = AccountBaseService.get_user_by_username(participant)
-            flag, participant_user_obj = AccountBaseService.get_user_by_username(participant)
+            flag, participant_user_obj = account_base_service_ins.get_user_by_username(participant)
             if flag:
                 participant_alias = participant_user_obj.alias
             else:
                 participant_alias = participant
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             participant_type_name = '多人'
             # 依次获取人员信息
             participant_name_list = participant_name.split(',')
             participant_alias_list = []
             for participant_name0 in participant_name_list:
-                flag, participant_user_obj = AccountBaseService.get_user_by_username(participant_name0)
+                flag, participant_user_obj = account_base_service_ins.get_user_by_username(participant_name0)
                 if flag:
                     participant_alias_list.append(participant_user_obj.alias)
                 else:
@@ -840,25 +840,25 @@ class TicketBaseService(BaseService):
         #             participant_alias0_list.append('{}({})未处理:{}'.format(participant_alias0, key, value.get('transition_name')))
         #     participant_alias = ';'.join(participant_alias0_list)
 
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
             # dept_obj, msg = AccountBaseService.get_dept_by_id(int(ticket_obj.participant))
-            flag, dept_obj = AccountBaseService.get_dept_by_id(int(ticket_obj.participant))
+            flag, dept_obj = account_base_service_ins.get_dept_by_id(int(ticket_obj.participant))
             if flag is False:
                 return False, dept_obj
             if not dept_obj:
                 return False, 'dept_id:{} is not existed or has been deleted'.format(ticket_obj.participant)
             participant_name = dept_obj.name
             participant_alias = participant_name
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
             participant_type_name = '角色'
-            flag, role_obj = AccountBaseService.get_role_by_id(int(ticket_obj.participant))
+            flag, role_obj = account_base_service_ins.get_role_by_id(int(ticket_obj.participant))
 
             if flag is False or (not role_obj):
                 return False, 'role is not existed or has been deleted'
             participant_name = role_obj.name
             participant_alias = participant_name
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
             # 脚本类型参数与人是脚本记录的id
             from apps.workflow.models import WorkflowScript
             script_obj = WorkflowScript.objects.filter(id=int(participant), is_deleted=0).first()
@@ -872,7 +872,7 @@ class TicketBaseService(BaseService):
             multi_all_person_dict = json.loads(ticket_obj.multi_all_person)
             participant_alias0_list = []
             for key, value in multi_all_person_dict.items():
-                flag, participant_user_obj = AccountBaseService.get_user_by_username(key)
+                flag, participant_user_obj = account_base_service_ins.get_user_by_username(key)
                 if not flag:
                     participant_alias0 = key
                 else:
@@ -906,7 +906,7 @@ class TicketBaseService(BaseService):
         if not ticket_obj:
             return False, '工单不存在或已被删除'
         ticket_state_id = ticket_obj.state_id
-        flag, transition_queryset = WorkflowTransitionService.get_state_transition_queryset(ticket_state_id)
+        flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(ticket_state_id)
 
         if flag is False:
             return False, transition_queryset
@@ -914,7 +914,7 @@ class TicketBaseService(BaseService):
         if not transition_queryset:
             return True, dict(permission=False, msg='工单当前状态无需操作')
 
-        flag, state_obj = WorkflowStateService.get_workflow_state_by_id(ticket_state_id)
+        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_state_id)
         if not state_obj:
             return True, dict(permission=False, msg='工单当前状态id不存在或已被删除')
 
@@ -933,19 +933,19 @@ class TicketBaseService(BaseService):
 
         current_participant_count = 1  # 当前处理人个数，用于当处理人大于1时 可能需要先接单再处理
 
-        if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+        if participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
             if username != participant:
                 return True, dict(permission=False, need_accept=False, in_add_node=False,
                                   msg='not crrent participant, no permission')
                 # return None, '非当前处理人，无权处理'
-        elif participant_type_id in [CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL]:
+        elif participant_type_id in [constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL]:
             if username not in participant.split(','):
                 return True, dict(permission=False, need_accept=False, in_add_node=False,
                                   msg='not crrent participant, no permission')
                 # return None, '非当前处理人，无权处理'
             current_participant_count = len(participant.split(','))
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-            flag, dept_user_list = AccountBaseService.get_dept_username_list(dept_id=int(participant))
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
+            flag, dept_user_list = account_base_service_ins.get_dept_username_list(dept_id=int(participant))
             if flag is False:
                 return flag, dept_user_list
             if username not in dept_user_list:
@@ -954,8 +954,8 @@ class TicketBaseService(BaseService):
                                   msg='not current participant, no permission')
             current_participant_count = len(dept_user_list)
 
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
-            flag, role_user_list = AccountBaseService.get_role_username_list(int(participant))
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
+            flag, role_user_list = account_base_service_ins.get_role_username_list(int(participant))
             if not flag:
                 return False, role_user_list
             if username not in role_user_list:
@@ -969,7 +969,7 @@ class TicketBaseService(BaseService):
             # return None, '非当前处理人，无权处理'
         # PARTICIPANT_TYPE_VARIABLE, PARTICIPANT_TYPE_FIELD, PARTICIPANT_TYPE_PARENT_FIELD类型会在流转时保存为实际的处理人
 
-        if current_participant_count > 1 and state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ACTIVE:
+        if current_participant_count > 1 and state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ACTIVE:
             need_accept = True
         else:
             need_accept = False
@@ -993,13 +993,13 @@ class TicketBaseService(BaseService):
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         if not ticket_obj:
             return False, 'ticket is not existed or has been deleted'
-        flag, workflow_obj = WorkflowBaseService.get_by_id(ticket_obj.workflow_id)
+        flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_obj.workflow_id)
         if flag is False:
             return False, workflow_obj
         if not workflow_obj.view_permission_check:
             return True, "this ticket's workflow config did not open view permission check"
         else:
-            flag, user_obj = AccountBaseService.get_user_by_username(username)
+            flag, user_obj = account_base_service_ins.get_user_by_username(username)
             if flag is False:
                 return False, 'user is not existed or has been deleted'
             else:
@@ -1033,16 +1033,16 @@ class TicketBaseService(BaseService):
             # in add node state, just allow 'finish' action, after finish the ticket's participant will be set add_node_man
             transition_dict_list = [dict(transition_id=0, transition_name='完成', field_require_check=False,
                                          is_accept=False, in_add_node=True, alert_enable=False, alert_text='',
-                                         attribute_type_id=CONSTANT_SERVICE.TRANSITION_ATTRIBUTE_TYPE_OTHER)]
+                                         attribute_type_id=constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER)]
             return True, dict(transition_dict_list=transition_dict_list)
 
         if result.get('need_accept'):
             transition_dict_list = [dict(transition_id=0, transition_name='接单', field_require_check=False,
                                          is_accept=True, in_add_node=False, alert_enable=False, alert_text='',
-                                         attribute_type_id=CONSTANT_SERVICE.TRANSITION_ATTRIBUTE_TYPE_OTHER)]
+                                         attribute_type_id=constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER)]
             return transition_dict_list, ''
 
-        flag, transition_queryset = WorkflowTransitionService.get_state_transition_queryset(ticket_obj.state_id)
+        flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(ticket_obj.state_id)
         transition_dict_list = []
         for transition in transition_queryset:
             transition_dict = dict(transition_id=transition.id, transition_name=transition.name,
@@ -1089,7 +1089,7 @@ class TicketBaseService(BaseService):
         if result.get('in_add_node'):
             return False, '工单当前处于加签中，只允许加签完成操作'
 
-        flag, state_obj = WorkflowStateService.get_workflow_state_by_id(ticket_obj.state_id)
+        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_obj.state_id)
         if flag is False:
             return False, state_obj
 
@@ -1099,7 +1099,7 @@ class TicketBaseService(BaseService):
         update_field_list = state_info_dict.get('update_field_list', [])
 
         # 校验是否所有必填字段都有提供，如果transition_id对应设置为不校验必填则直接通过
-        flag, req_transition_obj = WorkflowTransitionService.get_workflow_transition_by_id(transition_id)
+        flag, req_transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(transition_id)
         if req_transition_obj.field_require_check:
 
             request_field_arg_list = [key for key, value in request_data_dict.items() if (key not in ['workflow_id', 'suggestion', 'username'])]
@@ -1113,16 +1113,16 @@ class TicketBaseService(BaseService):
         else:
             return False, msg
 
-        flag, destination_state = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
+        flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
 
         # 判断当前处理人类型是否为全部处理，如果处理类型为全部处理（根据json.loads(ticket_obj.multi_all_person)来判断），且有人未处理，则工单状态不变，只记录处理过程
         if json.loads(ticket_obj.multi_all_person):
             multi_all_person = ticket_obj.multi_all_person
             multi_all_person_dict = json.loads(multi_all_person)
-            flag, result = CommonService.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
+            flag, result = common_service_ins.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
             if flag and result.get('result_list'):
                 multi_all_person_dict[username] = dict(transition_id=transition_id, transition_name=req_transition_obj.name)
-                has_all_same_value, msg = CommonService.check_dict_has_all_same_value(multi_all_person_dict)
+                has_all_same_value, msg = common_service_ins.check_dict_has_all_same_value(multi_all_person_dict)
                 if has_all_same_value:
                     # 所有人处理的transition都一致,则工单进入下个状态
                     flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id,
@@ -1134,12 +1134,12 @@ class TicketBaseService(BaseService):
                 else:
                     # 处理人没有没有全部处理完成或者处理动作不一致
                     destination_participant_type_id = ticket_obj.participant_type_id
-                    flag, result = CommonService.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
+                    flag, result = common_service_ins.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
                     destination_participant = ','.join(result.get('result_list'))
 
         else:
             # 当前处理人类型非全部处理
-            flag, destination_state = WorkflowStateService.get_workflow_state_by_id(destination_state_id)
+            flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
             if not destination_state:
                 return False, msg
             # 获取目标状态的信息
@@ -1150,16 +1150,16 @@ class TicketBaseService(BaseService):
             destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
             destination_participant = participant_info.get('destination_participant', '')
             multi_all_person_dict = {}
-            if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
+            if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL:
                 for key in destination_participant.split(','):
                     multi_all_person_dict[key] = {}
             multi_all_person = json.dumps(multi_all_person_dict)
             # 如果开启了了记忆最后处理人，那么处理人为之前的处理人
-            if destination_state.remember_last_man_enable and ticket_obj.participant_type_id != CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL:
+            if destination_state.remember_last_man_enable and ticket_obj.participant_type_id != constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL:
                 ## 获取此状态的最后处理人
                 flag, result = cls.get_ticket_state_last_man(ticket_id, destination_state.id)
                 if not flag and result.get('last_man'):
-                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+                    destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
                     destination_participant = result.get('last_man')
 
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
@@ -1167,9 +1167,9 @@ class TicketBaseService(BaseService):
         ticket_obj.participant_type_id = destination_participant_type_id
         ticket_obj.participant = destination_participant
         ticket_obj.multi_all_person = multi_all_person
-        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END:
+        if destination_state.type_id == constant_service_ins.STATE_TYPE_END:
             ticket_obj.is_end = True
-        if req_transition_obj.attribute_type_id == CONSTANT_SERVICE.TRANSITION_ATTRIBUTE_TYPE_REFUSE:
+        if req_transition_obj.attribute_type_id == constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_REFUSE:
             # 如果操作为拒绝操作，则工单状态为被拒绝，否则更新为否
             ticket_obj.is_rejected = True
         else:
@@ -1197,7 +1197,7 @@ class TicketBaseService(BaseService):
         if not by_task:
             # 脚本执行完自动触发的流转，因为在run_flow_task已经有记录操作日志，所以此次不再记录
             cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
-                                     participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, participant=username,
+                                     participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL, participant=username,
                                      state_id=source_ticket_state_id, creator=username, ticket_data=json.dumps(ticket_all_data)))
 
         # 通知消息
@@ -1207,7 +1207,7 @@ class TicketBaseService(BaseService):
         # 定时器逻辑
         cls.handle_timer_transition(ticket_id, destination_state_id)
 
-        if destination_state.type_id == CONSTANT_SERVICE.STATE_TYPE_END and ticket_obj.parent_ticket_id and ticket_obj.parent_ticket_state_id:
+        if destination_state.type_id == constant_service_ins.STATE_TYPE_END and ticket_obj.parent_ticket_id and ticket_obj.parent_ticket_state_id:
             # 如果存在父工单，判断是否该父工单的下属子工单都已经结束状态，如果都是结束状态则自动流转父工单到下个状态
             other_sub_ticket_queryset = TicketRecord.objects.filter(parent_ticket_id=ticket_obj.parent_ticket_id, parent_ticket_state_id=ticket_obj.parent_ticket_state_id,
                                                                     is_deleted=0).all()
@@ -1216,17 +1216,17 @@ class TicketBaseService(BaseService):
             if set(other_sub_ticket_state_id_list) == set([ticket_obj.state_id]):
                 parent_ticket_obj = TicketRecord.objects.filter(id=ticket_obj.parent_ticket_id, is_deleted=0).first()
                 parent_ticket_state_id = parent_ticket_obj.state_id
-                flag, parent_ticket_transition_queryset = WorkflowTransitionService.get_state_transition_queryset(parent_ticket_state_id)
+                flag, parent_ticket_transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(parent_ticket_state_id)
                 # 含有子工单的工单状态只支持单路径流转到下个状态
                 parent_ticket_transition_id = parent_ticket_transition_queryset[0].id
                 cls.handle_ticket(parent_ticket_obj.id, dict(transition_id=parent_ticket_transition_id,
                                                              username='loonrobot', suggestion='所有子工单处理完毕，自动流转'))
-        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+        if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
             from tasks import run_flow_task  # 放在文件开头会存在循环引用
             run_flow_task.apply_async(args=[ticket_id, destination_participant, destination_state_id], queue='loonflow')
 
         # 如果下个状态是hook，开始触发hook
-        if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+        if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             from tasks import flow_hook_task  # 放在文件开头会存在循环引用
             flow_hook_task.apply_async(args=[ticket_id], queue='loonflow')
 
@@ -1261,15 +1261,15 @@ class TicketBaseService(BaseService):
         :param destination_participant:
         :return:
         """
-        if destination_participant_type_id in (CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI):
+        if destination_participant_type_id in (constant_service_ins.PARTICIPANT_TYPE_PERSONAL, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI):
             add_relation = destination_participant
-        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-            flag, username_list = AccountBaseService.get_dept_username_list(int(destination_participant))
+        elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
+            flag, username_list = account_base_service_ins.get_dept_username_list(int(destination_participant))
             if flag is False:
                 return False, username_list
             add_relation = ','.join(username_list)
-        elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
-            flag, username_list = AccountBaseService.get_role_username_list(int(destination_participant))
+        elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
+            flag, username_list = account_base_service_ins.get_role_username_list(int(destination_participant))
             if flag is False:
                 return False, username_list
             add_relation = ','.join(username_list)
@@ -1302,26 +1302,26 @@ class TicketBaseService(BaseService):
 
         ticket_flow_log_restful_list = []
         for ticket_flow_log in ticket_result_paginator.object_list:
-            flag, state_obj = WorkflowStateService.get_workflow_state_by_id(ticket_flow_log.state_id)
+            flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_flow_log.state_id)
             if ticket_flow_log.transition_id:
-                flag, transition_obj = WorkflowTransitionService.get_workflow_transition_by_id(ticket_flow_log.transition_id)
+                flag, transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(ticket_flow_log.transition_id)
                 transition_name = transition_obj.name
                 attribute_type_id = transition_obj.attribute_type_id
             else:
                 # 考虑到人工干预修改工单状态， transition_id为0
-                if ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_DELIVER:
+                if ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_DELIVER:
                     transition_name = '转交操作'
-                elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE:
+                elif ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_ADD_NODE:
                     transition_name = '加签操作'
-                elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE_END:
+                elif ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_ADD_NODE_END:
                     transition_name = '加签完成操作'
-                elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT:
+                elif ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_ACCEPT:
                     transition_name = '接单操作'
-                elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_COMMENT:
+                elif ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_COMMENT:
                     transition_name = '新增评论'
                 else:
                     transition_name = '未知操作'
-                attribute_type_id = CONSTANT_SERVICE.TRANSITION_ATTRIBUTE_TYPE_OTHER
+                attribute_type_id = constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER
 
             state_info_dict = dict(state_id=state_obj.id, state_name=state_obj.name)
             transition_info_dict = dict(transition_id=ticket_flow_log.transition_id, transition_name=transition_name,
@@ -1331,8 +1331,8 @@ class TicketBaseService(BaseService):
                                     participant_alias=ticket_flow_log.participant,
                                     participant_email='', participant_phone=''
                                     )
-            if ticket_flow_log.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
-                flag, participant_query_obj = AccountBaseService.get_user_by_username(ticket_flow_log.participant)
+            if ticket_flow_log.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
+                flag, participant_query_obj = account_base_service_ins.get_user_by_username(ticket_flow_log.participant)
                 if flag:
                     participant_info.update(participant_alias=participant_query_obj.alias,
                                             participant_email=participant_query_obj.email,
@@ -1366,7 +1366,7 @@ class TicketBaseService(BaseService):
         if not ticket_obj:
             return False, '工单不存在或已被删除'
         workflow_id = ticket_obj.workflow_id
-        flag, state_objs = WorkflowStateService.get_workflow_states(workflow_id)
+        flag, state_objs = workflow_state_service_ins.get_workflow_states(workflow_id)
         ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all()
 
         state_step_dict_list = []
@@ -1378,18 +1378,18 @@ class TicketBaseService(BaseService):
                     if ticket_flow_log.state_id == state_obj.id:
                         # 此部分和get_ticket_flow_log代码冗余，后续会简化下
                         if ticket_flow_log.transition_id:
-                            flag, transition_obj = WorkflowTransitionService.get_workflow_transition_by_id(ticket_flow_log.transition_id)
+                            flag, transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(ticket_flow_log.transition_id)
                             transition_name = transition_obj.name
                         else:
-                            if ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_DELIVER:
+                            if ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_DELIVER:
                                 transition_name = '转交操作'
-                            elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE:
+                            elif ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_ADD_NODE:
                                 transition_name = '加签操作'
-                            elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE_END:
+                            elif ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_ADD_NODE_END:
                                 transition_name = '加签完成操作'
-                            elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT:
+                            elif ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_ACCEPT:
                                 transition_name = '接单操作'
-                            elif ticket_flow_log.intervene_type_id == CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_COMMENT:
+                            elif ticket_flow_log.intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_COMMENT:
                                 transition_name = '新增评论'
                             else:
                                 transition_name = '未知操作'
@@ -1398,8 +1398,8 @@ class TicketBaseService(BaseService):
                                                 participant_alias=ticket_flow_log.participant,
                                                 participant_email='', participant_phone=''
                                                 )
-                        if ticket_flow_log.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
-                            flag, participant_query_obj = AccountBaseService.get_user_by_username(
+                        if ticket_flow_log.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
+                            flag, participant_query_obj = account_base_service_ins.get_user_by_username(
                                 ticket_flow_log.participant)
                             if flag:
                                 participant_info.update(participant_alias=participant_query_obj.alias,
@@ -1428,7 +1428,7 @@ class TicketBaseService(BaseService):
         if not ticket_obj:
             return False, '工单不存在'
         source_state_id = ticket_obj.state_id
-        flag, state_obj = WorkflowStateService.get_workflow_state_by_id(state_id)
+        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(state_id)
         if not state_obj:
             return False, state_obj
         if state_obj.workflow_id == ticket_obj.workflow_id:
@@ -1449,11 +1449,11 @@ class TicketBaseService(BaseService):
 
             all_ticket_data_json = json.dumps(all_ticket_data)
 
-            cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0, suggestion='强制修改工单状态', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+            cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0, suggestion='强制修改工单状态', participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                                          participant=username, state_id=source_state_id, ticket_data=all_ticket_data_json))
 
             # 如果目标状态是脚本处理中，需要触发脚本处理
-            if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+            if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
                 from tasks import run_flow_task  # 放在文件开头会存在循环引用
                 run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id],
                                           queue='loonflow')
@@ -1475,7 +1475,7 @@ class TicketBaseService(BaseService):
         for ticket in ticket_queryset:
             ticket_state_id_dict[ticket.id] = ticket.state_id
         ticket_state_id_list = [ticket_obj.state_id for ticket_obj in ticket_queryset]
-        flag, state_info_dict = WorkflowStateService.get_states_info_by_state_id_list(ticket_state_id_list)
+        flag, state_info_dict = workflow_state_service_ins.get_states_info_by_state_id_list(ticket_state_id_list)
         new_result = {}
         for key, value in ticket_state_id_dict.items():
             new_result[key] = dict(state_id=value, state_name=state_info_dict[value])
@@ -1502,7 +1502,7 @@ class TicketBaseService(BaseService):
             cls.add_ticket_relation(ticket_id, username)
 
             ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
-            ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+            ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
             ticket_obj.participant = username
             ticket_obj.save()
 
@@ -1516,7 +1516,7 @@ class TicketBaseService(BaseService):
             all_ticket_data_json = json.dumps(all_ticket_data)
 
             ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='接单处理', participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
-                                        intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ACCEPT,
+                                        intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_ACCEPT,
                                         participant=username, state_id=ticket_obj.state_id, creator=username,
                                         ticket_data=all_ticket_data_json)
             cls.add_ticket_flow_log(ticket_flow_log_dict)
@@ -1543,7 +1543,7 @@ class TicketBaseService(BaseService):
 
         cls.add_ticket_relation(ticket_id, target_username)
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
-        ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+        ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = target_username
         ticket_obj.save()
         # add flow log
@@ -1556,7 +1556,7 @@ class TicketBaseService(BaseService):
         all_ticket_data_json = json.dumps(all_ticket_data)
 
         ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
-                                    intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_DELIVER,
+                                    intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_DELIVER,
                                     participant=username, state_id=ticket_obj.state_id, creator=username,
                                     ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
@@ -1581,7 +1581,7 @@ class TicketBaseService(BaseService):
 
         cls.add_ticket_relation(ticket_id, target_username)
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
-        ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+        ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = target_username
         ticket_obj.in_add_node = True
         ticket_obj.add_node_man = username
@@ -1596,7 +1596,7 @@ class TicketBaseService(BaseService):
 
         all_ticket_data_json = json.dumps(all_ticket_data)
         ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
-                                    intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE,
+                                    intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_ADD_NODE,
                                     participant=username, state_id=ticket_obj.state_id, creator=username,
                                     ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
@@ -1619,7 +1619,7 @@ class TicketBaseService(BaseService):
             return False, result.get('msg')
 
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
-        ticket_obj.participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+        ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = ticket_obj.add_node_man
         ticket_obj.in_add_node = False
         ticket_obj.add_node_man = ''
@@ -1633,8 +1633,8 @@ class TicketBaseService(BaseService):
 
         all_ticket_data_json = json.dumps(all_ticket_data)
 
-        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
-                                    intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_ADD_NODE_END,
+        ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion, participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
+                                    intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_ADD_NODE_END,
                                     participant=username, state_id=ticket_obj.state_id, creator=username,
                                     ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
@@ -1650,10 +1650,10 @@ class TicketBaseService(BaseService):
         :return:
         """
         # 定时器处理逻辑，如果新的状态所属transition有配置定时器，那么创建一个定时器流转的任务
-        flag, destination_transition_queryset = WorkflowTransitionService.get_state_transition_queryset(destination_state_id)
+        flag, destination_transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(destination_state_id)
         if destination_transition_queryset:
             for destination_transition in destination_transition_queryset:
-                if destination_transition.transition_type_id == CONSTANT_SERVICE.TRANSITION_TYPE_TIMER:
+                if destination_transition.transition_type_id == constant_service_ins.TRANSITION_TYPE_TIMER:
                     from tasks import timer_transition
                     timer_transition.apply_async(args=[ticket_id, destination_state_id, datetime.datetime.now(), destination_transition.id], countdown=destination_transition.timer, queue='loonflow')
         return True, ''
@@ -1675,7 +1675,7 @@ class TicketBaseService(BaseService):
         field_info_dict = ticket_obj.get_dict()
         # 获取自定义字段的值
         ## 获取工单自定义字段
-        flag, result = WorkflowCustomFieldService.get_workflow_custom_field_name_list(ticket_obj.workflow_id)
+        flag, result = workflow_custom_field_service_ins.get_workflow_custom_field_name_list(ticket_obj.workflow_id)
         if flag is False:
             return False, result
         ticket_custom_field_key_list = result.get('ticket_custom_field_key_list')
@@ -1704,13 +1704,13 @@ class TicketBaseService(BaseService):
         # if ticket_obj.participant_type_id is not CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
         #     return False, "The ticket's participant_type is not robot, do not allow retry"
 
-        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
+        if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
             # 先重置上次执行结果
             ticket_obj.script_run_last_result = True
             ticket_obj.save()
             from tasks import run_flow_task  # 放在文件开头会存在循环引用问题
             run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id, '{}_retry'.format(username)], queue='loonflow')
-        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+        elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             ticket_obj.script_run_last_result = True
             ticket_obj.save()
             from tasks import flow_hook_task
@@ -1785,11 +1785,11 @@ class TicketBaseService(BaseService):
             creator = ticket_req_dict.get('username')
             multi_all_person = "{}"
 
-        flag, state_obj = WorkflowStateService.get_workflow_state_by_id(state_id)
+        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(state_id)
         participant_type_id, participant = state_obj.participant_type_id, state_obj.participant
         destination_participant_type_id, destination_participant = participant_type_id, participant
 
-        if participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_FIELD:
+        if participant_type_id == constant_service_ins.PARTICIPANT_TYPE_FIELD:
             if not ticket_id:
                 # ticket_id 不存在，则为新建工单，从请求的数据中获取
                 destination_participant = ticket_req_dict.get(participant, '')
@@ -1803,53 +1803,53 @@ class TicketBaseService(BaseService):
                 else:
                     # 处理工单时未提供字段的值,则从工单当前字段值中获取
                     destination_participant, msg = cls.get_ticket_field_value(ticket_id, participant)
-            destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+            destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
 
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PARENT_FIELD:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PARENT_FIELD:
             destination_participant, msg = cls.get_ticket_field_value(parent_ticket_id, participant)
-            destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+            destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
 
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_VARIABLE:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_VARIABLE:
             if participant == 'creator':
-                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
                 destination_participant = creator
             elif participant == 'creator_tl':
                 # 获取用户的tl或审批人(优先审批人)
-                flag, approver = AccountBaseService.get_user_dept_approver(creator)
+                flag, approver = account_base_service_ins.get_user_dept_approver(creator)
                 if flag is False:
                     return False, approver
 
-                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
+                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
                 if len(approver.split(',')) > 1:
-                    destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI
+                    destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
                 destination_participant = approver
 
-        elif participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             destination_participant = '***'  # 敏感数据，不保存工单基础表中
 
-        if destination_participant_type_id in (CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT, CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE) \
-                and state_obj.distribute_type_id in (CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_RANDOM, CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ALL):
+        if destination_participant_type_id in (constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_DEPT, constant_service_ins.PARTICIPANT_TYPE_ROLE) \
+                and state_obj.distribute_type_id in (constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM, constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL):
             # 处理人为角色，部门，或者角色都可能是为多个人，需要根据状态的分配方式计算实际的处理人
-            if destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
+            if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
                 destination_participant_list = destination_participant.split(',')
-            elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-                flag, destination_participant_list = AccountBaseService.get_dept_username_list(int(destination_participant))
+            elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
+                flag, destination_participant_list = account_base_service_ins.get_dept_username_list(int(destination_participant))
                 if flag is False:
                     return False, destination_participant_list
 
-            elif destination_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
-                flag, destination_participant_list = AccountBaseService.get_role_username_list(int(destination_participant))
+            elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
+                flag, destination_participant_list = account_base_service_ins.get_role_username_list(int(destination_participant))
                 if flag is False:
                     return False, destination_participant_list
-            if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_RANDOM:
+            if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM:
                 # 如果是随机处理,则随机设置处理人
                 destination_participant = random.sample(destination_participant_list, 1)[0]
-                destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL
-            if state_obj.distribute_type_id == CONSTANT_SERVICE.STATE_DISTRIBUTE_TYPE_ALL:
+                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+            if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL:
                 # destination_participant_type_id = CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL  # 不新增类型，直接用原来的类型。这样方便待办查询
                 multi_all_person_dict = {}
                 for destination_participant_0 in destination_participant_list:
@@ -1868,17 +1868,17 @@ class TicketBaseService(BaseService):
         :param state_id:
         :return:
         """
-        flag, state_obj = WorkflowStateService.get_workflow_state_by_id(state_id)
+        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(state_id)
         if flag is False:
             return False, state_obj
 
         state_field_dict = json.loads(state_obj.state_field_str)
         require_field_list, update_field_list = [], []
         for key, value in state_field_dict.items():
-            if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_REQUIRED:
+            if value == constant_service_ins.FIELD_ATTRIBUTE_REQUIRED:
                 require_field_list.append(key)
                 update_field_list.append(key)
-            if value == CONSTANT_SERVICE.FIELD_ATTRIBUTE_OPTIONAL:
+            if value == constant_service_ins.FIELD_ATTRIBUTE_OPTIONAL:
                 update_field_list.append(key)
         return True, dict(require_field_list=require_field_list, update_field_list=update_field_list)
 
@@ -1902,7 +1902,7 @@ class TicketBaseService(BaseService):
             # 新建工单获取工单的初始状态
             if not workflow_id:
                 return False, 'new ticket need arg workflow_id'
-            flag, start_state = WorkflowStateService.get_workflow_start_state(workflow_id)
+            flag, start_state = workflow_state_service_ins.get_workflow_start_state(workflow_id)
             if flag is False:
                 return False, start_state
             source_state_id = start_state.id
@@ -1911,7 +1911,7 @@ class TicketBaseService(BaseService):
             flag, ticket_obj = cls.get_ticket_by_id(ticket_id)
             source_state_id = ticket_obj.state_id
 
-        flag, transition_queryset = WorkflowTransitionService.get_transition_by_args(dict(source_state_id=source_state_id, id=transition_id))
+        flag, transition_queryset = workflow_transition_service_ins.get_transition_by_args(dict(source_state_id=source_state_id, id=transition_id))
         if not transition_queryset:
             return False, 'transition_id is invalid'
 
@@ -1965,8 +1965,8 @@ class TicketBaseService(BaseService):
 
         all_ticket_data_json = json.dumps(all_ticket_data)
         new_flow_log = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
-                            participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
-                            participant=username, state_id=all_ticket_data.get('state_id'), intervene_type_id=CONSTANT_SERVICE.TRANSITION_INTERVENE_TYPE_COMMENT,
+                            participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
+                            participant=username, state_id=all_ticket_data.get('state_id'), intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_COMMENT,
                             ticket_data=all_ticket_data_json, creator=username)
 
         flag, msg = cls.add_ticket_flow_log(new_flow_log)
@@ -1985,13 +1985,13 @@ class TicketBaseService(BaseService):
         :return:
         """
         # 校验请求app_name是否有hook回调该工单权限
-        flag, msg = AccountBaseService().app_ticket_permission_check(app_name, ticket_id)
+        flag, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not flag:
             return False, msg
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
 
         # 检查工单处理人类型为hook中
-        if ticket_obj.participant_type_id != CONSTANT_SERVICE.PARTICIPANT_TYPE_HOOK:
+        if ticket_obj.participant_type_id != constant_service_ins.PARTICIPANT_TYPE_HOOK:
             return False, '工单当前处理人类型非hook，不执行回调操作'
 
         result = request_data_dict.get('result', True)
@@ -2004,7 +2004,7 @@ class TicketBaseService(BaseService):
             return True, ''
 
         state_id = ticket_obj.state_id
-        flag, transition_queryset = WorkflowTransitionService().get_state_transition_queryset(state_id)
+        flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(state_id)
         transition_id = transition_queryset[0]  # hook状态只支持一个流转
 
         new_request_dict = field_value
@@ -2030,18 +2030,18 @@ class TicketBaseService(BaseService):
         from apps.account.models import LoonUser
         participant_username_list, participant_info_list = [], []
 
-        if ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+        if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
             participant_username_list = [ticket_obj.participant]
         elif ticket_obj.participant_type_id in (
-        CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL):
+                constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL):
             participant_username_list = ticket_obj.participant.split(',')
-        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_ROLE:
-            flag, participant_username_list = AccountBaseService.get_role_username_list(ticket_obj.participant)
+        elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
+            flag, participant_username_list = account_base_service_ins.get_role_username_list(ticket_obj.participant)
             if flag is False:
                 return False, participant_username_list
 
-        elif ticket_obj.participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_DEPT:
-            flag, participant_username_list = AccountBaseService.get_dept_username_list(ticket_obj.participant)
+        elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
+            flag, participant_username_list = account_base_service_ins.get_dept_username_list(ticket_obj.participant)
             if flag is False:
                 return False, participant_username_list
 
@@ -2069,7 +2069,7 @@ class TicketBaseService(BaseService):
             return False, '工单不存在或已被删除'
         workflow_id = ticket_obj.workflow_id
         # 查询工作流的结束状态
-        flag, state_obj = WorkflowStateService.get_workflow_end_state(workflow_id)
+        flag, state_obj = workflow_state_service_ins.get_workflow_end_state(workflow_id)
         if flag is False:
             return False, state_obj
 
@@ -2083,7 +2083,7 @@ class TicketBaseService(BaseService):
 
         all_ticket_data_json = json.dumps(all_ticket_data)
         ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='强制关闭工单:{}'.format(suggestion),
-                                    participant_type_id=CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL,
+                                    participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                                     participant=username, state_id=state_obj.id, ticket_data=all_ticket_data_json,
                                     )
 
@@ -2096,3 +2096,5 @@ class TicketBaseService(BaseService):
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
 
+
+ticket_base_service_ins = TicketBaseService()

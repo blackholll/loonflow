@@ -166,3 +166,5 @@ class WorkflowCustomFieldService(BaseService):
             custom_field_queryset.update(is_deleted=True)
         return True, ''
 
+
+workflow_custom_field_service_ins = WorkflowCustomFieldService()

@@ -97,3 +97,6 @@ class WorkflowCustomNoticeService(BaseService):
             return True, ''
         else:
             return False, 'the record is not exist or has been deleted'
+
+
+workflow_custom_notice_service_ins = WorkflowCustomNoticeService()

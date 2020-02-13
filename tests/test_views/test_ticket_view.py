@@ -2,7 +2,7 @@ import json
 from tests.base import LoonflowTest
 from django.test.client import Client
 from tests.base import LoonflowApiCall
-from service.common.constant_service import CONSTANT_SERVICE
+from service.common.constant_service import constant_service_ins
 
 
 class TestTicketView(LoonflowTest):
@@ -92,9 +92,9 @@ class TestTicketView(LoonflowTest):
         last_ticket_id = last_ticket_obj.id
         ticket_participant_type_id = last_ticket_obj.participant_type_id
         ticket_participant = last_ticket_obj.participant
-        if ticket_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_PERSONAL:
+        if ticket_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
             username= ticket_participant
-        elif ticket_participant_type_id == CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI:
+        elif ticket_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             username = ticket_participant.split(',')[0]
         url = '/api/v1.0/tickets/{}/transitions'.format(last_ticket_id)
         result = LoonflowApiCall().api_call('get', url, dict(username=username))

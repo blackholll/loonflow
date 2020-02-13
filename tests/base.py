@@ -16,8 +16,8 @@ class LoonflowApiCall(object):
     loonflow api调用
     """
     def __init__(self):
-        from service.common.common_service import CommonService
-        flag, msg = CommonService.gen_signature('ops')
+        from service.common.common_service import common_service_ins
+        flag, msg = common_service_ins.gen_signature('ops')
         if not flag:
             return dict(code=-1, msg=msg)
         self.signature = msg.get('signature', '')

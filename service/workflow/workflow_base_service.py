@@ -4,7 +4,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import Workflow
 from service.base_service import BaseService
 from service.common.log_service import auto_log
-from service.account.account_base_service import AccountBaseService
+from service.account.account_base_service import AccountBaseService, account_base_service_ins
 
 
 class WorkflowBaseService(BaseService):
@@ -76,14 +76,15 @@ class WorkflowBaseService(BaseService):
         limit_allow_depts = limit_expression_dict.get('allow_depts')
         limit_allow_roles = limit_expression_dict.get('allow_roles')
 
+        from service.ticket.ticket_base_service import ticket_base_service_ins
+
         if limit_period:
-            from service.ticket.ticket_base_service import TicketBaseService
             if limit_expression_dict.get('level'):
                 if limit_expression_dict.get('level') == 1:
-                    flag, result = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, username=username, period=limit_period)
+                    flag, result = ticket_base_service_ins.get_ticket_count_by_args(workflow_id=workflow_id, username=username, period=limit_period)
                     count_result = result.get('count_result')
                 elif limit_expression_dict.get('level') == 2:
-                    flag, result = TicketBaseService.get_ticket_count_by_args(workflow_id=workflow_id, period=limit_period)
+                    flag, result = ticket_base_service_ins.get_ticket_count_by_args(workflow_id=workflow_id, period=limit_period)
                     count_result = result.get('count_result')
                 else:
                     return False, 'level in limit_expression is invalid'
@@ -112,7 +113,7 @@ class WorkflowBaseService(BaseService):
                 return False, 'user is not in allow dept'
         if limit_allow_roles:
             # 获取用户所有的角色
-            flag, user_role_list = AccountBaseService.get_user_role_id_list(username)
+            flag, user_role_list = account_base_service_ins.get_user_role_id_list(username)
             if flag is False:
                 return False, user_role_list
             limit_allow_role_str_list = limit_allow_roles.split(',')
@@ -194,3 +195,6 @@ class WorkflowBaseService(BaseService):
         if workflow_obj:
             workflow_obj.update(is_deleted=True)
         return True, ''
+
+
+workflow_base_service_ins = WorkflowBaseService()
