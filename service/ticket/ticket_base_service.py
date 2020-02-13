@@ -15,6 +15,7 @@ from service.workflow.workflow_base_service import WorkflowBaseService
 from service.workflow.workflow_custom_field_service import WorkflowCustomFieldService
 from service.workflow.workflow_state_service import WorkflowStateService
 from service.workflow.workflow_transition_service import WorkflowTransitionService
+from service.redis_pool import POOL
 
 
 class TicketBaseService(BaseService):
@@ -336,31 +337,38 @@ class TicketBaseService(BaseService):
         redis_password = settings.REDIS_PASSWORD
         import redis
         r = redis.Redis(host=redis_host, port=redis_port, db=redis_db, password=redis_password)
+
+        redis_conn = redis.Redis(connection_pool=POOL)
+
         import datetime
         ticket_day_count_key = 'ticket_day_count_{}'.format(str(datetime.datetime.now())[:10])
-        ticket_day_count = r.get(ticket_day_count_key)
-        if ticket_day_count is None:
+        ticket_day_count = redis_conn.get(ticket_day_count_key)
+        if ticket_day_count is not None:
+            new_ticket_day_count = redis_conn.incr(ticket_day_count_key)
+        else:
             # 查询数据库中个数
             # 今天和明天
             today = str(datetime.datetime.now())[:10] + " 00:00:00"
             next_day = str(datetime.datetime.now() + datetime.timedelta(days=1))[:10] + " 00:00:00"
             # 包括is_deleted=1的数据
-
-            ticket_day_count = TicketRecord.objects.filter(gmt_created__gte=today, gmt_created__lte=next_day).count()
-        new_ticket_day_count = int(ticket_day_count) + 1
-        r.set(ticket_day_count_key, new_ticket_day_count, 86400)
+            ticket_day_count = TicketRecord.objects.filter(gmt_created__gte=today, gmt_created__lt=next_day).count()
+            new_ticket_day_count = int(ticket_day_count) + 1
+            redis_conn.set(ticket_day_count_key, new_ticket_day_count, 86400)
         now_day = datetime.datetime.now()
         if not app_name:
             sn_prefix = 'loonflow'
         else:
-            # app_token_obj, msg = AccountBaseService.get_token_by_app_name(app_name)
             flag, result = AccountBaseService.get_token_by_app_name(app_name)
             if flag is False:
                 return False, result
 
             sn_prefix = result.ticket_sn_prefix
+        if settings.DEPLOY_ZONE:
+            # for multi computer room deploy and use separate redis server
+            zone_info = '{}_'.format(settings.DEPLOY_ZONE)
 
-        return True, dict(ticket_sn='%s_%04d%02d%02d%04d' % (sn_prefix, now_day.year, now_day.month, now_day.day, new_ticket_day_count))
+        return True, dict(ticket_sn='%s_%s%04d%02d%02d%04d' % (sn_prefix, zone_info, now_day.year, now_day.month,
+                                                               now_day.day, new_ticket_day_count))
 
     @classmethod
     @auto_log
