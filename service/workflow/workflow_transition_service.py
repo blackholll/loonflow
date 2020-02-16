@@ -144,5 +144,6 @@ class WorkflowTransitionService(BaseService):
             transition_queryset.update(is_deleted=1)
         return True, ''
 
+
 workflow_transition_service_ins = WorkflowTransitionService()
 
