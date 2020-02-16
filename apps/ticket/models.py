@@ -81,3 +81,12 @@ class TicketCustomField(BaseModel):
     class Meta:
         verbose_name = '工单自定义字段'
         verbose_name_plural = '工单自定义字段'
+
+
+class TicketUser(BaseModel):
+    """
+    工单关系人, 用于加速待办工单及关联工单列表查询
+    """
+    ticket = models.ForeignKey(TicketRecord, to_field='id', db_constraint=False, on_delete=False)
+    username = models.CharField('关系人', max_length=100)
+    in_process = models.BooleanField('待处理中', default=False)

@@ -5,7 +5,7 @@ import random
 from django.db.models import Q
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.ticket.models import TicketRecord, TicketCustomField, TicketFlowLog
+from apps.ticket.models import TicketRecord, TicketCustomField, TicketFlowLog, TicketUser
 from apps.workflow.models import CustomField
 from service.account.account_base_service import account_base_service_ins
 from service.base_service import BaseService
@@ -74,10 +74,10 @@ class TicketBaseService(BaseService):
             return False, 'This app_name have not workflow permission'
         else:
             query_params &= Q(workflow_id__in=permission_workflow_id_list)
-        if kwargs.get('is_end') is not None:
-            query_params &= Q(is_end=kwargs.get('is_end'))
-        if kwargs.get('is_rejected') is not None:
-            query_params &= Q(is_rejected=kwargs.get('is_rejected'))
+        if kwargs.get('is_end') != '':
+            query_params &= Q(is_end=int(kwargs.get('is_end')))
+        if kwargs.get('is_rejected') != '':
+            query_params &= Q(is_rejected=int(kwargs.get('is_rejected')))
 
         if sn:
             query_params &= Q(sn__startswith=sn)
@@ -109,35 +109,16 @@ class TicketBaseService(BaseService):
             query_params &= Q(creator=username)
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
         elif category == 'duty':
-            # 获取用户部门id列表, 角色id列表，工单的实际当前处理人只会有个人、多人、角色、部门、脚本(变量、工单字段、父工单字段这些类型会在工单流转的时候计算为实际的值)
-            # user_obj, msg = AccountBaseService.get_user_by_username(username)
-            flag, user_obj = account_base_service_ins.get_user_by_username(username)
-            if not flag:
-                return False, user_obj
-            user_dept_id_list_flag, user_dept_id_list = account_base_service_ins.get_user_up_dept_id_list(username)
-            user_role_id_list_flag, user_role_id_list = account_base_service_ins.get_user_role_id_list(username)
-            if user_dept_id_list_flag is False:
-                return False, user_dept_id_list
-            if user_role_id_list_flag is False:
-                return False, user_role_id_list
-            user_dept_id_str_list = [str(user_dept_id) for user_dept_id in user_dept_id_list]
-            user_role_id_str_list = [str(user_role_id) for user_role_id in user_role_id_list]
-            duty_query_expression = Q(participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
-                                      participant=username)
-            duty_query_expression |= Q(participant_type_id=constant_service_ins.PARTICIPANT_TYPE_DEPT,
-                                       participant__in=user_dept_id_str_list)
-            duty_query_expression |= Q(participant_type_id=constant_service_ins.PARTICIPANT_TYPE_ROLE,
-                                       participant__in=user_role_id_str_list)
-
-            # 多人的情况，逗号隔开，需要用extra查询实现, 这里会存在注入问题，后续改进下
-            ticket_query_set1 = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", participant)'.format(username), 'participant_type_id in ({}, {})'.format(constant_service_ins.PARTICIPANT_TYPE_MULTI, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI_ALL)])
+            # 为了加快查询速度，该结果从ticket_usr表中获取。 对于部门、角色、这种处理人类型的，工单流转后 修改了部门或角色对应的人员会存在这些人无法在待办列表中查询到工单
+            duty_query_expression = Q(ticketuser__in_process=True, ticketuser__username=username)
             query_params &= duty_query_expression
-            ticket_query_set2 = TicketRecord.objects.filter(query_params)
-
-            ticket_objects = (ticket_query_set1 | ticket_query_set2).order_by(order_by_str)
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
 
         elif category == 'relation':
-            ticket_objects = TicketRecord.objects.filter(query_params).extra(where=['FIND_IN_SET("{}", relation)'.format(username)]).order_by(order_by_str)
+            relation_query_expression = Q(ticketuser__username=username)
+            query_params &= relation_query_expression
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
+
         else:
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
 
@@ -262,10 +243,14 @@ class TicketBaseService(BaseService):
                                       participant_type_id=destination_participant_type_id, relation=username,
                                       creator=username, is_end=is_end, multi_all_person=multi_all_person)
         new_ticket_obj.save()
+
         # 更新工单关系人
         flag, result = cls.get_ticket_dest_relation(destination_participant_type_id, destination_participant)
         if flag is True:
-            flag, result = cls.add_ticket_relation(new_ticket_obj.id, result.get('add_relation'))  # 更新关系人信息
+            flag, result = cls.update_ticket_relation(new_ticket_obj.id, result.get('add_relation'), ticket_creator=username)
+
+
+
         # 新增自定义字段，只保存required_field
         request_data_dict_allow = {}
         for key, value in request_data_dict.items():
@@ -1180,7 +1165,7 @@ class TicketBaseService(BaseService):
         flag, result = cls.get_ticket_dest_relation(destination_participant_type_id, destination_participant)
 
         if flag and result.get('add_relation'):
-            new_relation, msg = cls.add_ticket_relation(ticket_id, result.get('add_relation'))  # 更新关系人信息
+            new_relation, msg = cls.update_ticket_relation(ticket_id, result.get('add_relation'))  # 更新关系人信息
 
         # 只更新需要更新的字段
         update_field_dict = {}
@@ -1253,6 +1238,47 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
+    def update_ticket_relation(cls, ticket_id: int, user_str: str, ticket_creator: str='')->tuple:
+        """
+        更新工单关系人
+        :param ticket_id:
+        :param user_str:
+        :param ticket_creator:
+        :return:
+        """
+        # ticket record table, for display ticket detail
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
+        new_relation_set = set(ticket_obj.relation.split(',') + user_str.split(',') + [ticket_creator])  # 去重， 但是可能存在空元素
+        new_relation_list = [new_relation0 for new_relation0 in new_relation_set if new_relation0]  # 去掉空元素
+        new_relation = ','.join(new_relation_list)  # 去重
+        ticket_obj.relation = new_relation
+        ticket_obj.save()
+
+        # ticket user table, for ticket list query
+        if ticket_creator:
+            # if ticket_creator is not null, is mean new ticket, should add creator
+            new_record = TicketUser(ticket_id=ticket_id, username=ticket_creator)
+            new_record.save()
+
+        user_str_list = user_str.split(',')
+
+        existed_record_queryset = TicketUser.objects.filter(ticket_id=ticket_id, username__in=user_str_list).all()
+        user_need_update_list = [existed_record.username for existed_record in existed_record_queryset]
+        user_need_add_list = [user_str for user_str in user_str_list if user_str not in user_need_update_list]
+
+        TicketUser.objects.filter(ticket_id=ticket_id, username__in=user_need_update_list).update(in_process=True)
+        insert_list = []
+        for user_need_add in user_need_add_list:
+            insert_list.append(TicketUser(ticket_id=ticket_id, username=user_need_add, in_process=True))
+        TicketUser.objects.bulk_create(insert_list)
+
+        # 非在user_str中的 更新为in_process=False
+        TicketUser.objects.filter(ticket_id=ticket_id).exclude(username__in=user_str_list).all().update(in_process=False)
+
+        return True, ''
+
+    @classmethod
+    @auto_log
     def get_ticket_dest_relation(cls, destination_participant_type_id: int, destination_participant: str)->tuple:
         """
         获取目标处理人相应的工单关系人
@@ -1261,7 +1287,7 @@ class TicketBaseService(BaseService):
         :param destination_participant:
         :return:
         """
-        if destination_participant_type_id in (constant_service_ins.PARTICIPANT_TYPE_PERSONAL, CONSTANT_SERVICE.PARTICIPANT_TYPE_MULTI):
+        if destination_participant_type_id in (constant_service_ins.PARTICIPANT_TYPE_PERSONAL, constant_service_ins.PARTICIPANT_TYPE_MULTI):
             add_relation = destination_participant
         elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
             flag, username_list = account_base_service_ins.get_dept_username_list(int(destination_participant))
@@ -1499,7 +1525,7 @@ class TicketBaseService(BaseService):
 
         if result.get('need_accept'):
             # update ticket relation people
-            cls.add_ticket_relation(ticket_id, username)
+            cls.update_ticket_relation(ticket_id, username)
 
             ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
             ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
@@ -1541,7 +1567,7 @@ class TicketBaseService(BaseService):
         if result.get('permission') is False:
             return False, result.get('msg')
 
-        cls.add_ticket_relation(ticket_id, target_username)
+        cls.update_ticket_relation(ticket_id, target_username)
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = target_username
@@ -1579,7 +1605,7 @@ class TicketBaseService(BaseService):
         if result.get('permission') is False:
             return False, result.get('msg')
 
-        cls.add_ticket_relation(ticket_id, target_username)
+        cls.update_ticket_relation(ticket_id, target_username)
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = target_username
