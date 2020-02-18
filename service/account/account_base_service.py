@@ -286,7 +286,7 @@ class AccountBaseService(BaseService):
             workflow_id_list = []
             for workflow_obj in workflow_query_set:
                 workflow_id_list.append(workflow_obj.id)
-            return True, workflow_id_list
+            return True, dict(workflow_id_list=workflow_id_list)
 
         app_token_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
         if not app_token_obj:
@@ -295,9 +295,9 @@ class AccountBaseService(BaseService):
         if workflow_ids:
             workflow_id_list = workflow_ids.split(',')
             workflow_id_list = [int(workflow_id) for workflow_id in workflow_id_list]
-            return True, workflow_id_list
+            return True, dict(workflow_id_list=workflow_id_list)
         else:
-            return True, []
+            return True, dict(workflow_id_list=[])
 
     @classmethod
     @auto_log
@@ -310,9 +310,9 @@ class AccountBaseService(BaseService):
         """
         if app_name == 'loonflow':
             return True, ''
-        flag, app_workflow_permission_list = cls.app_workflow_permission_list(app_name)
+        flag, result = cls.app_workflow_permission_list(app_name)
 
-        if flag and app_workflow_permission_list and workflow_id in app_workflow_permission_list:
+        if flag and result.get('workflow_id_list') and workflow_id in result.get('workflow_id_list'):
             return True, ''
         else:
             return False, 'the app has no permission to the workflow_id'

@@ -37,10 +37,11 @@ class WorkflowView(LoonBaseView):
         username = request.META.get('HTTP_USERNAME')
         app_name = request.META.get('HTTP_APPNAME')
 
-        flag, permission_workflow_id_list = account_base_service_ins.app_workflow_permission_list(app_name)
+        flag, result = account_base_service_ins.app_workflow_permission_list(app_name)
+
         if not flag:
-            return api_response(-1, permission_workflow_id_list, {})
-        if not permission_workflow_id_list:
+            return api_response(-1, result, {})
+        if not result.get('workflow_id_list'):
             data = dict(value=[], per_page=per_page, page=page, total=0)
             code, msg, = 0, ''
             return api_response(code, msg, data)

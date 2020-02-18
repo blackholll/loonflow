@@ -1,8 +1,6 @@
 import datetime, time
 from django.db import models
 from apps.loon_base_model import BaseModel
-from service.common.constant_service import constant_service_ins
-# Create your models here.
 
 
 class TicketRecord(BaseModel):

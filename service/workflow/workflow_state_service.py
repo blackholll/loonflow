@@ -132,7 +132,8 @@ class WorkflowStateService(BaseService):
         state_queryset = State.objects.filter(is_deleted=0, id__in=state_id_list).all()
         state_info_dict = {}
         for state in state_queryset:
-            state_info_dict[state.id] = state.name
+            state_dict = state.get_dict()
+            state_info_dict[state.id] = state_dict
         return True, state_info_dict
 
     @classmethod
