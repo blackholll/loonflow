@@ -45,6 +45,7 @@ class WorkflowView(LoonBaseView):
             data = dict(value=[], per_page=per_page, page=page, total=0)
             code, msg, = 0, ''
             return api_response(code, msg, data)
+        permission_workflow_id_list = result.get('workflow_id_list')
 
         flag, result = workflow_base_service_ins.get_workflow_list(name, page, per_page, permission_workflow_id_list)
         if flag is not False:

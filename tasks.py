@@ -302,17 +302,10 @@ def flow_hook_task(ticket_id):
     else:
         ticket_base_service_ins.update_ticket_field_value({'script_run_last_result': False})
 
-        flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
-        # date等格式需要转换为str
-        for key, value in all_ticket_data.items():
-            if type(value) not in [int, str, bool, float]:
-                all_ticket_data[key] = str(all_ticket_data[key])
+        flag, result = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
 
-        all_ticket_data_json = json.dumps(all_ticket_data)
-        ticket_base_service_ins.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0,
-                                                     suggestion=result.get('msg'),
-                                                     participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
-                                                     participant='hook', state_id=state_id, ticket_data=all_ticket_data_json,
-                                                     creator='loonrobot'
-                                                     ))
-
+        all_ticket_data_json = result.get('all_field_value_json')
+        ticket_base_service_ins.add_ticket_flow_log(
+            dict(ticket_id=ticket_id, transition_id=0, suggestion=result.get('msg'),
+                 participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
+                 participant='hook', state_id=state_id, ticket_data=all_ticket_data_json, creator='loonrobot' ))
