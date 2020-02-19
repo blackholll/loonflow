@@ -8,6 +8,7 @@ from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
 from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
 from service.workflow.workflow_runscript_service import workflow_run_script_service_ins
+from service.workflow.workflow_transition_service import workflow_transition_service_ins
 
 
 class WorkflowStateService(BaseService):
@@ -61,16 +62,14 @@ class WorkflowStateService(BaseService):
         workflow_states_object_list = workflow_states_result_paginator.object_list
         workflow_states_restful_list = []
         for workflow_states_object in workflow_states_object_list:
-            flag, participant_info = WorkflowStateService.get_format_participant_info(workflow_states_object.participant_type_id, workflow_states_object.participant)
-            result_dict = dict(id=workflow_states_object.id, name=workflow_states_object.name, workflow_id=workflow_states_object.workflow_id,
-                               sub_workflow_id=workflow_states_object.sub_workflow_id, is_hidden=workflow_states_object.is_hidden,
-                               order_id=workflow_states_object.order_id, type_id=workflow_states_object.type_id,
-                               participant_type_id=workflow_states_object.participant_type_id, participant=workflow_states_object.participant,
-                               distribute_type_id=workflow_states_object.distribute_type_id,
-                               state_field_str=json.loads(workflow_states_object.state_field_str), label=json.loads(workflow_states_object.label),
-                               creator=workflow_states_object.creator, participant_info=participant_info,
-                               remember_last_man_enable=1 if workflow_states_object.remember_last_man_enable else 0,
-                               gmt_created=str(workflow_states_object.gmt_created)[:19])
+            flag, participant_info = WorkflowStateService.get_format_participant_info(
+                workflow_states_object.participant_type_id, workflow_states_object.participant)
+            result_dict = workflow_states_object.get_dict()
+            result_dict['state_field_str'] = json.loads(result_dict['state_field_str'])
+            result_dict['label'] = json.loads(result_dict['label'])
+            result_dict['state_field_str'] = json.loads(result_dict['state_field_str'])
+            result_dict['participant_info'] = participant_info
+
             workflow_states_restful_list.append(result_dict)
         return True, dict(workflow_states_restful_list=workflow_states_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
@@ -101,13 +100,13 @@ class WorkflowStateService(BaseService):
             workflow_state = State.objects.filter(id=state_id, is_deleted=False).first()
             if not workflow_state:
                 return False, '工单状态不存在或已被删除'
-            state_info_dict = dict(id=workflow_state.id, name=workflow_state.name, workflow_id=workflow_state.workflow_id,
-                                   sub_workflow_id=workflow_state.sub_workflow_id, distribute_type_id=workflow_state.distribute_type_id,
-                                   is_hidden=workflow_state.is_hidden, order_id=workflow_state.order_id, type_id=workflow_state.type_id,
-                                   participant_type_id=workflow_state.participant_type_id, participant=workflow_state.participant,
-                                   state_field=json.loads(workflow_state.state_field_str), label=json.loads(workflow_state.label),
-                                   creator=workflow_state.creator, gmt_created=str(workflow_state.gmt_created)[:19]
-                                   )
+            state_info_dict = dict(
+                id=workflow_state.id, name=workflow_state.name, workflow_id=workflow_state.workflow_id,
+                sub_workflow_id=workflow_state.sub_workflow_id, distribute_type_id=workflow_state.distribute_type_id,
+                is_hidden=workflow_state.is_hidden, order_id=workflow_state.order_id, type_id=workflow_state.type_id,
+                participant_type_id=workflow_state.participant_type_id, participant=workflow_state.participant,
+                state_field=json.loads(workflow_state.state_field_str), label=json.loads(workflow_state.label),
+                creator=workflow_state.creator, gmt_created=str(workflow_state.gmt_created)[:19])
             return True, state_info_dict
 
     @classmethod
@@ -174,19 +173,22 @@ class WorkflowStateService(BaseService):
 
         # 工单基础字段及属性
         field_list = []
-        field_list.append(dict(field_key='title', field_name=u'标题', field_value=None, order_id=20,
-                               field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的标题',
-                               field_choice={}, boolean_field_display={}, default_value=None, field_template='', label={}))
+        field_list.append(dict(
+            field_key='title', field_name=u'标题', field_value=None, order_id=20,
+            field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
+            description='工单的标题', field_choice={}, boolean_field_display={}, default_value=None, field_template='',
+            label={}))
         flag, custom_field_dict = workflow_custom_field_service_ins.get_workflow_custom_field(workflow_id)
         for key, value in custom_field_dict.items():
-            field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'], field_value=None, order_id=custom_field_dict[key]['order_id'],
+            field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'],
+                                   field_value=None, order_id=custom_field_dict[key]['order_id'],
                                    field_type_id=custom_field_dict[key]['field_type_id'],
                                    field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
                                    default_value=custom_field_dict[key]['default_value'],
                                    description=custom_field_dict[key]['description'],
                                    field_template=custom_field_dict[key]['field_template'],
-                                   boolean_field_display=json.loads(custom_field_dict[key]['boolean_field_display']) if custom_field_dict[key]['boolean_field_display'] else {},  # 之前model允许为空了，为了兼容先这么写,
+                                   boolean_field_display=json.loads(custom_field_dict[key]['boolean_field_display'])
+                                   if custom_field_dict[key]['boolean_field_display'] else {},  # 之前model允许为空了，为了兼容先这么写,
                                    field_choice=json.loads(custom_field_dict[key]['field_choice']),
                                    label=json.loads(custom_field_dict[key]['label'])
                                    ))
@@ -203,7 +205,8 @@ class WorkflowStateService(BaseService):
         # 字段排序
         new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
         state_info_dict = init_state_obj.get_dict()
-        state_info_dict.update(field_list=new_field_list, label=json.loads(init_state_obj.label), transition=transition_info_list)
+        state_info_dict.update(
+            field_list=new_field_list, label=json.loads(init_state_obj.label), transition=transition_info_list)
         state_info_dict.pop('state_field_str')
         return True, state_info_dict
 
@@ -301,10 +304,11 @@ class WorkflowStateService(BaseService):
         :param creator:
         :return:
         """
-        workflow_state_obj = State(workflow_id=workflow_id, name=name, sub_workflow_id=sub_workflow_id, is_hidden=is_hidden,
-                                   order_id=order_id, type_id=type_id, remember_last_man_enable=remember_last_man_enable,
-                                   participant_type_id=participant_type_id, participant=participant, distribute_type_id=distribute_type_id,
-                                   state_field_str=state_field_str, label=label, creator=creator)
+        workflow_state_obj = State(
+            workflow_id=workflow_id, name=name, sub_workflow_id=sub_workflow_id, is_hidden=is_hidden, order_id=order_id,
+            type_id=type_id, remember_last_man_enable=remember_last_man_enable, participant_type_id=participant_type_id,
+            participant=participant, distribute_type_id=distribute_type_id, state_field_str=state_field_str,
+            label=label, creator=creator)
         workflow_state_obj.save()
         return True, dict(workflow_state_id=workflow_state_obj.id)
 

@@ -44,10 +44,13 @@ class WorkflowBaseService(BaseService):
         workflow_result_object_list = workflow_result_paginator.object_list
         workflow_result_restful_list = []
         for workflow_result_object in workflow_result_object_list:
-            workflow_result_restful_list.append(dict(id=workflow_result_object.id, name=workflow_result_object.name, description=workflow_result_object.description,
-                                                     notices=workflow_result_object.notices, view_permission_check=workflow_result_object.view_permission_check,
-                                                     limit_expression=workflow_result_object.limit_expression, display_form_str=workflow_result_object.display_form_str,
-                                                     creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19]))
+            workflow_result_restful_list.append(
+                dict(id=workflow_result_object.id, name=workflow_result_object.name,
+                     description=workflow_result_object.description, notices=workflow_result_object.notices,
+                     view_permission_check=workflow_result_object.view_permission_check,
+                     limit_expression=workflow_result_object.limit_expression,
+                     display_form_str=workflow_result_object.display_form_str,
+                     creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19]))
         return True, dict(workflow_result_restful_list=workflow_result_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
@@ -81,10 +84,12 @@ class WorkflowBaseService(BaseService):
         if limit_period:
             if limit_expression_dict.get('level'):
                 if limit_expression_dict.get('level') == 1:
-                    flag, result = ticket_base_service_ins.get_ticket_count_by_args(workflow_id=workflow_id, username=username, period=limit_period)
+                    flag, result = ticket_base_service_ins.get_ticket_count_by_args(
+                        workflow_id=workflow_id, username=username, period=limit_period)
                     count_result = result.get('count_result')
                 elif limit_expression_dict.get('level') == 2:
-                    flag, result = ticket_base_service_ins.get_ticket_count_by_args(workflow_id=workflow_id, period=limit_period)
+                    flag, result = ticket_base_service_ins.get_ticket_count_by_args(
+                        workflow_id=workflow_id, period=limit_period)
                     count_result = result.get('count_result')
                 else:
                     return False, 'level in limit_expression is invalid'
@@ -93,7 +98,8 @@ class WorkflowBaseService(BaseService):
                 if not limit_expression_dict.get('count'):
                     return False, 'count is need when level is not none'
                 if count_result > limit_expression_dict.get('count'):
-                    return False, '{} tickets can be created in {}hours when workflow_id is {}'.format(limit_count, limit_period, workflow_id)
+                    return False, '{} tickets can be created in {}hours when workflow_id is {}'\
+                        .format(limit_count, limit_period, workflow_id)
 
         if limit_allow_persons:
             if username not in limit_allow_persons.split(','):
@@ -154,8 +160,9 @@ class WorkflowBaseService(BaseService):
         :param creator:
         :return:
         """
-        workflow_obj = Workflow(name=name, description=description, notices=notices, view_permission_check=view_permission_check,
-                                limit_expression=limit_expression,display_form_str=display_form_str, creator=creator)
+        workflow_obj = Workflow(name=name, description=description, notices=notices,
+                                view_permission_check=view_permission_check, limit_expression=limit_expression,
+                                display_form_str=display_form_str, creator=creator)
         workflow_obj.save()
 
         return True, dict(workflow_id=workflow_obj.id)
@@ -178,7 +185,8 @@ class WorkflowBaseService(BaseService):
         """
         workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0)
         if workflow_obj:
-            workflow_obj.update(name=name, description=description, notices=notices, view_permission_check=view_permission_check,
+            workflow_obj.update(name=name, description=description, notices=notices,
+                                view_permission_check=view_permission_check,
                                 limit_expression=limit_expression, display_form_str=display_form_str)
         return True, ''
 

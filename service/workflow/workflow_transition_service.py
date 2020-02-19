@@ -80,8 +80,10 @@ class WorkflowTransitionService(BaseService):
             source_state_info = {}
             destination_state_info = {}
             from service.workflow.workflow_state_service import workflow_state_service_ins
-            flag, source_state_obj = workflow_state_service_ins.get_workflow_state_by_id(workflow_transitions_object.source_state_id)
-            flag, destination_state_obj = workflow_state_service_ins.get_workflow_state_by_id(workflow_transitions_object.destination_state_id)
+            flag, source_state_obj = workflow_state_service_ins.get_workflow_state_by_id(
+                workflow_transitions_object.source_state_id)
+            flag, destination_state_obj = workflow_state_service_ins.get_workflow_state_by_id(
+                workflow_transitions_object.destination_state_id)
             if source_state_obj:
                 source_state_info['name'] = source_state_obj.name
                 source_state_info['id'] = source_state_obj.id
@@ -89,20 +91,11 @@ class WorkflowTransitionService(BaseService):
             if destination_state_obj:
                 destination_state_info['name'] = destination_state_obj.name
                 destination_state_info['id'] = destination_state_obj.id
-            result_dict = dict(id=workflow_transitions_object.id, name=workflow_transitions_object.name,
-                               creator=workflow_transitions_object.creator,
-                               source_state_id=workflow_transitions_object.source_state_id,
-                               source_state_info=source_state_info,
-                               destination_state_info=destination_state_info,
-                               destination_state_id=workflow_transitions_object.destination_state_id,
-                               transition_type_id=workflow_transitions_object.transition_type_id,
-                               timer=workflow_transitions_object.timer,
-                               condition_expression=workflow_transitions_object.condition_expression,
-                               attribute_type_id=workflow_transitions_object.attribute_type_id,
-                               field_require_check=workflow_transitions_object.field_require_check,
-                               alert_enable=workflow_transitions_object.alert_enable,
-                               alert_text=workflow_transitions_object.alert_text,
-                               gmt_created=str(workflow_transitions_object.gmt_created)[:19])
+
+            result_dict = workflow_transitions_object.get_dict()
+            result_dict['source_state_info'] = source_state_info
+            result_dict['destination_state_info'] = destination_state_info
+
             workflow_transitions_restful_list.append(result_dict)
         return True, dict(workflow_transitions_restful_list=workflow_transitions_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
@@ -115,7 +108,8 @@ class WorkflowTransitionService(BaseService):
                                 creator: str)->tuple:
         transition_obj = Transition(workflow_id=workflow_id, name=name, transition_type_id=transition_type_id,
                                     timer=timer, source_state_id=source_state_id,
-                                    destination_state_id=destination_state_id, condition_expression=condition_expression,
+                                    destination_state_id=destination_state_id,
+                                    condition_expression=condition_expression,
                                     attribute_type_id=attribute_type_id, field_require_check=field_require_check,
                                     alert_enable=alert_enable, alert_text=alert_text, creator=creator)
         transition_obj.save()
@@ -131,7 +125,8 @@ class WorkflowTransitionService(BaseService):
         if transition_queryset:
             transition_queryset.update(workflow_id=workflow_id, name=name, transition_type_id=transition_type_id,
                                        timer=timer, source_state_id=source_state_id,
-                                       destination_state_id=destination_state_id, condition_expression=condition_expression,
+                                       destination_state_id=destination_state_id,
+                                       condition_expression=condition_expression,
                                        attribute_type_id=attribute_type_id, field_require_check=field_require_check,
                                        alert_enable=alert_enable, alert_text=alert_text)
         return True, ''

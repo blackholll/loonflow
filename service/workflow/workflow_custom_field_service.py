@@ -27,11 +27,12 @@ class WorkflowCustomFieldService(BaseService):
                 label = custom_field.label
             else:
                 label = '{}'
-            format_custom_field_dict[custom_field.field_key] = dict(workflow_id=custom_field.workflow_id, field_type_id=custom_field.field_type_id,
-                                                                    field_name=custom_field.field_name,order_id=custom_field.order_id,
-                                                                    default_value=custom_field.default_value, description=custom_field.description,
-                                                                    field_template=custom_field.field_template, boolean_field_display=custom_field.boolean_field_display,
-                                                                    field_choice=custom_field.field_choice, label=label)
+            format_custom_field_dict[custom_field.field_key] = dict(
+                workflow_id=custom_field.workflow_id, field_type_id=custom_field.field_type_id,
+                field_name=custom_field.field_name,order_id=custom_field.order_id,
+                default_value=custom_field.default_value, description=custom_field.description,
+                field_template=custom_field.field_template, boolean_field_display=custom_field.boolean_field_display,
+                field_choice=custom_field.field_choice, label=label)
         return True, format_custom_field_dict
 
     @classmethod
@@ -44,7 +45,8 @@ class WorkflowCustomFieldService(BaseService):
         :return:
         """
         custom_field_queryset = CustomField.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
-        return True, dict(ticket_custom_field_key_list=[custom_field.field_key for custom_field in custom_field_queryset])
+        return True, dict(
+            ticket_custom_field_key_list=[custom_field.field_key for custom_field in custom_field_queryset])
 
     @classmethod
     @auto_log
@@ -60,7 +62,8 @@ class WorkflowCustomFieldService(BaseService):
         """
         query_params = Q(is_deleted=False, workflow_id=workflow_id)
         if query_value:
-            query_params &= Q(field_key__contains=query_value) | Q(description__contains=query_value) |Q(field_name__contains=query_value)
+            query_params &= Q(field_key__contains=query_value) | Q(description__contains=query_value) \
+                            | Q(field_name__contains=query_value)
 
         workflow_custom_field_queryset = CustomField.objects.filter(query_params).order_by('id')
         paginator = Paginator(workflow_custom_field_queryset, per_page)
@@ -75,20 +78,11 @@ class WorkflowCustomFieldService(BaseService):
         workflow_custom_field_result_list = workflow_custom_field_result_paginator.object_list
         workflow_custom_field_result_restful_list = []
         for workflow_custom_field_result_object in workflow_custom_field_result_list:
-            workflow_custom_field_result_restful_list.append(dict(id=workflow_custom_field_result_object.id,
-                                                                  field_type_id=workflow_custom_field_result_object.field_type_id,
-                                                                  field_key=workflow_custom_field_result_object.field_key,
-                                                                  field_name=workflow_custom_field_result_object.field_name,
-                                                                  order_id=workflow_custom_field_result_object.order_id,
-                                                                  default_value=workflow_custom_field_result_object.default_value,
-                                                                  description=workflow_custom_field_result_object.description,
-                                                                  field_template=workflow_custom_field_result_object.field_template,
-                                                                  boolean_field_display=json.loads(workflow_custom_field_result_object.boolean_field_display),
-                                                                  field_choice=json.loads(workflow_custom_field_result_object.field_choice),
-                                                                  label=json.loads(workflow_custom_field_result_object.label) if workflow_custom_field_result_object.label else {},
-                                                                  creator=workflow_custom_field_result_object.creator,
-                                                                  gmt_created=str(workflow_custom_field_result_object.gmt_created)[:19]
-                                                                  ))
+            custom_field_dict = workflow_custom_field_result_object.get_dict()
+            custom_field_dict['boolean_field_display'] = json.loads(custom_field_dict['boolean_field_display'])
+            custom_field_dict['label'] = json.loads(custom_field_dict['label'])
+
+            workflow_custom_field_result_restful_list.append(custom_field_dict)
         return True, dict(workflow_custom_field_result_restful_list=workflow_custom_field_result_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 

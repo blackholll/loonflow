@@ -39,12 +39,7 @@ class WorkflowCustomNoticeService(BaseService):
         custom_notice_result_object_list = custom_notice_result_paginator.object_list
         custom_notice_result_restful_list = []
         for custom_notice_result_object in custom_notice_result_object_list:
-            custom_notice_result_restful_list.append(dict(id=custom_notice_result_object.id, name=custom_notice_result_object.name,
-                                                          description=custom_notice_result_object.description,
-                                                          creator=custom_notice_result_object.creator,
-                                                          hook_url=custom_notice_result_object.hook_url,
-                                                          hook_token=custom_notice_result_object.hook_token,
-                                                          gmt_created=str(custom_notice_result_object.gmt_created)[:19]))
+            custom_notice_result_restful_list.append(custom_notice_result_object.get_dict())
         return custom_notice_result_restful_list, dict(per_page=per_page, page=page, total=paginator.count)
 
     @classmethod

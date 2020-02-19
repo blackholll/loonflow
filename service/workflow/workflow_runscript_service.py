@@ -40,8 +40,11 @@ class WorkflowRunScriptService(BaseService):
         run_script_result_object_list = run_script_result_paginator.object_list
         run_script_result_restful_list = []
         for run_script_result_object in run_script_result_object_list:
-            run_script_result_restful_list.append(dict(id=run_script_result_object.id, name=run_script_result_object.name, description=run_script_result_object.description,
-                                                       saved_name=run_script_result_object.saved_name.name, is_active=run_script_result_object.is_active, creator=run_script_result_object.creator, gmt_created=str(run_script_result_object.gmt_created)[:19]))
+            run_script_result_restful_list.append(dict(
+                id=run_script_result_object.id, name=run_script_result_object.name,
+                description=run_script_result_object.description, saved_name=run_script_result_object.saved_name.name,
+                is_active=run_script_result_object.is_active, creator=run_script_result_object.creator,
+                gmt_created=str(run_script_result_object.gmt_created)[:19]))
         return True, dict(run_script_result_restful_list=run_script_result_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
@@ -58,7 +61,8 @@ class WorkflowRunScriptService(BaseService):
         :param creator:
         :return:
         """
-        script_obj = WorkflowScript(name=name, saved_name=saved_name, description=description, is_active=is_active, creator=creator)
+        script_obj = WorkflowScript(name=name, saved_name=saved_name, description=description, is_active=is_active,
+                                    creator=creator)
         script_obj.save()
         return True, dict(script_id=script_obj.id)
 
@@ -109,5 +113,6 @@ class WorkflowRunScriptService(BaseService):
         """
         script_obj = WorkflowScript.objects.filter(id=run_script_id, is_deleted=0).first()
         return True, dict(script_obj=script_obj)
+
 
 workflow_run_script_service_ins = WorkflowRunScriptService()
