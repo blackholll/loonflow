@@ -82,6 +82,20 @@ class TicketBaseService(BaseService):
         if kwargs.get('is_rejected') != '':
             query_params &= Q(is_rejected=int(kwargs.get('is_rejected')))
 
+        if kwargs.get('from_admin') != '':
+            # 管理员查看， 获取其有权限的工作流列表
+            flag, result = workflow_base_service_ins.get_workflow_manage_list(username
+                                                                              )
+            if flag is False:
+                return False, result
+            workflow_list = result.get('workflow_list')
+            workflow_admin_id_list = [workflow['id'] for workflow in workflow_list]
+            query_params &= Q(workflow_id__in=workflow_admin_id_list)
+
+            if kwargs.get('creator') != '':
+                # 管理员查询的情况下才可用
+                query_params &= Q(creator=kwargs.get('creator'))
+
         if sn:
             query_params &= Q(sn__startswith=sn)
         if title:

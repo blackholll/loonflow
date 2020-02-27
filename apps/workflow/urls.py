@@ -3,10 +3,11 @@ from django.urls import path
 from apps.workflow.views import StateView, WorkflowView, WorkflowInitView, WorkflowStateView, WorkflowRunScriptView, \
     WorkflowRunScriptDetailView, WorkflowCustomNoticeView, WorkflowCustomNoticeDetailView, WorkflowDetailView, \
     WorkflowTransitionView, WorkflowCustomFieldView, WorkflowCustomFieldDetailView, WorkflowStateDetailView, \
-    WorkflowTransitionDetailView
+    WorkflowTransitionDetailView, WorkflowUserAdminView
 
 urlpatterns = [
     path('', WorkflowView.as_view()),
+    path('/user_admin', WorkflowUserAdminView.as_view()),
     path('/<int:workflow_id>/init_state', WorkflowInitView.as_view()),
     path('/<int:workflow_id>', WorkflowDetailView.as_view()),
     path('/<int:workflow_id>/states', WorkflowStateView.as_view()),

@@ -73,6 +73,26 @@ def workflow_manage_view(request):
 
 
 @login_required
+def ticket_manage_view(request):
+    """
+    工单管理列表
+    :param request:
+    :return:
+    """
+    return render(request, 'ticket/ticket_manage.html', {'active_nav': 'ticket_manage'})
+
+
+@login_required
+def ticket_manage_detail_view(request, ticket_id):
+    """
+    工单管理详情
+    :param request:
+    :return:
+    """
+    return render(request, 'ticket/ticket_manage_detail.html', {'active_nav': 'ticket_manage'})
+
+
+@login_required
 def workflow_manage_edit_view(request, workflow_id):
     """
     工作流编辑

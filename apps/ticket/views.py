@@ -39,14 +39,19 @@ class TicketListView(LoonBaseView):
         page = int(request_data.get('page', 1))
         is_end = request_data.get('is_end', '')
         is_rejected = request_data.get('is_rejected', '')
+        from_admin = request_data.get('from_admin', '')
+        creator = request_data.get('creator', '')
 
         # 待办,关联的,创建
         category = request_data.get('category')
         # app_name
         app_name = request.META.get('HTTP_APPNAME')
 
-        flag, result = ticket_base_service_ins.get_ticket_list(sn=sn, title=title, username=username, create_start=create_start, create_end=create_end, workflow_ids=workflow_ids, state_ids=state_ids, ticket_ids=ticket_ids,
-                                                                            category=category, reverse=reverse, per_page=per_page, page=page, app_name=app_name, is_end=is_end, is_rejected=is_rejected)
+        flag, result = ticket_base_service_ins.get_ticket_list(
+            sn=sn, title=title, username=username, create_start=create_start, create_end=create_end,
+            workflow_ids=workflow_ids, state_ids=state_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
+            per_page=per_page, page=page, app_name=app_name, is_end=is_end, is_rejected=is_rejected,
+            from_admin=from_admin, creator=creator)
         if flag is not False:
             paginator_info = result.get('paginator_info')
             data = dict(value=result.get('ticket_result_restful_list'), per_page=paginator_info.get('per_page'),
@@ -137,7 +142,6 @@ class TicketView(LoonBaseView):
         else:
             code, data = -1, {}
         return api_response(code, msg, data)
-
 
 class TicketTransition(LoonBaseView):
     """

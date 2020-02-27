@@ -80,7 +80,7 @@ class WorkflowCustomFieldService(BaseService):
         for workflow_custom_field_result_object in workflow_custom_field_result_list:
             custom_field_dict = workflow_custom_field_result_object.get_dict()
             custom_field_dict['boolean_field_display'] = json.loads(custom_field_dict['boolean_field_display'])
-            custom_field_dict['label'] = json.loads(custom_field_dict['label'])
+            custom_field_dict['label'] = json.loads(custom_field_dict['label']) if custom_field_dict['label'] else {}
 
             workflow_custom_field_result_restful_list.append(custom_field_dict)
         return True, dict(workflow_custom_field_result_restful_list=workflow_custom_field_result_restful_list,

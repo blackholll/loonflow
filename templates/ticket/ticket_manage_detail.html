@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{%load staticfiles%}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'dist/css/dataTables.bootstrap.min.css' %}">
+
+
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+      工单管理
+      <small><a href="/manage/ticket_manage">工单管理</a></small>
+    </h1>
+    <ol class="breadcrumb">
+      <li><a href="/manage/ticket_manage"><i class="fa fa-dashboard"></i> 工单详情</a></li>
+    </ol>
+  </section>
+  <div class="row">
+
+      <!-- /.box -->
+  </div>
+  </section>
+      <!-- /.col -->
+   
+  <!-- /.content -->
+  
+</div>
+
+<!-- /.content-wrapper -->
+
+{% endblock %}
+
+{% block js %}
+<!-- jQuery 3 -->
+<script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="{% static 'bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+<script src="{% static 'bower_components/select2/dist/js/select2.full.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'dist/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static 'dist/js/jquery.validate.js' %}"></script>
+<script src="{% static 'dist/js/sweetalert.min.js' %}"></script>
+<script src="{% static 'dist/js/ticket/ticket_manage.js' %}"></script>
+
+
+
+<script>
+</script>
+{% endblock %}

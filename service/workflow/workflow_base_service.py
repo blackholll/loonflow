@@ -1,7 +1,7 @@
 import json
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.workflow.models import Workflow
+from apps.workflow.models import Workflow, WorkflowAdmin
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
@@ -43,7 +43,9 @@ class WorkflowBaseService(BaseService):
             workflow_result_paginator = paginator.page(paginator.num_pages)
         workflow_result_object_list = workflow_result_paginator.object_list
         workflow_result_restful_list = []
+        workflow_result_id_list = []
         for workflow_result_object in workflow_result_object_list:
+            workflow_result_id_list.append(workflow_result_object.id)
             workflow_result_restful_list.append(
                 dict(id=workflow_result_object.id, name=workflow_result_object.name,
                      description=workflow_result_object.description, notices=workflow_result_object.notices,
@@ -51,8 +53,38 @@ class WorkflowBaseService(BaseService):
                      limit_expression=workflow_result_object.limit_expression,
                      display_form_str=workflow_result_object.display_form_str,
                      creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19]))
+        # 获取工作流管理员信息
+        workflow_admin_queryset = WorkflowAdmin.objects.filter(
+            workflow_id__in=workflow_result_id_list, is_deleted=0).all()
+        for workflow_result_restful in workflow_result_restful_list:
+            workflow_admin_list = []
+            for workflow_admin_object in workflow_admin_queryset:
+                if workflow_admin_object.workflow_id == workflow_result_restful['id']:
+                    workflow_admin_list.append(workflow_admin_object.username)
+
+            workflow_result_restful['workflow_admin'] = ','.join(workflow_admin_list)
+
         return True, dict(workflow_result_restful_list=workflow_result_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
+
+    @classmethod
+    @auto_log
+    def get_workflow_manage_list(cls, username: str)->tuple:
+        """
+        获取有管理权限的工作流列表
+        :param username:
+        :return:
+        """
+        # 作为工作流创建人+工作流管理员的工作流
+        workflow_admin_queryset = WorkflowAdmin.objects.filter(username=username, is_deleted=0).all()
+        workflow_admin_id_list = [workflow_admin.id for workflow_admin in workflow_admin_queryset]
+
+        workflow_queryset = Workflow.objects.filter(
+            Q(creator=username, is_deleted=0) | Q(id__in=workflow_admin_id_list, is_deleted=0)).all()
+
+        workflow_restful_list = [workflow.get_dict() for workflow in workflow_queryset]
+
+        return True, dict(workflow_list=workflow_restful_list)
 
     @classmethod
     @auto_log
@@ -147,7 +179,7 @@ class WorkflowBaseService(BaseService):
     @classmethod
     @auto_log
     def add_workflow(cls, name: str, description: str, notices: str, view_permission_check: int, limit_expression: str,
-                     display_form_str: str, creator: str)->tuple:
+                     display_form_str: str, creator: str, workflow_admin: str)->tuple:
         """
         新增工作流
         add workflow
@@ -158,19 +190,25 @@ class WorkflowBaseService(BaseService):
         :param limit_expression:
         :param display_form_str:
         :param creator:
+        :param workflow_admin:
         :return:
         """
         workflow_obj = Workflow(name=name, description=description, notices=notices,
                                 view_permission_check=view_permission_check, limit_expression=limit_expression,
                                 display_form_str=display_form_str, creator=creator)
         workflow_obj.save()
-
+        workflow_admin_insert_list = []
+        if workflow_admin:
+            for username in workflow_admin.split(','):
+                workflow_admin_insert_list.append(WorkflowAdmin(
+                    workflow_id=workflow_obj.id, username=username, creator=creator))
+            WorkflowAdmin.objects.bulk_create(workflow_admin_insert_list)
         return True, dict(workflow_id=workflow_obj.id)
 
     @classmethod
     @auto_log
     def edit_workflow(cls, workflow_id: int, name: str, description: str, notices: str, view_permission_check: int,
-                      limit_expression: str, display_form_str: str)->tuple:
+                      limit_expression: str, display_form_str: str, workflow_admin: str)->tuple:
         """
         更新工作流
         update workfow
@@ -181,6 +219,7 @@ class WorkflowBaseService(BaseService):
         :param view_permission_check:
         :param limit_expression:
         :param display_form_str:
+        :param workflow_admin:
         :return:
         """
         workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0)
@@ -188,6 +227,30 @@ class WorkflowBaseService(BaseService):
             workflow_obj.update(name=name, description=description, notices=notices,
                                 view_permission_check=view_permission_check,
                                 limit_expression=limit_expression, display_form_str=display_form_str)
+        # 更新工作流管理员
+        if workflow_admin:
+            workflow_admin_list = workflow_admin.split(',')
+            # 查询已经存在的记录
+            workflow_admin_existed_queryset = WorkflowAdmin.objects.filter(
+                workflow_id=workflow_id, username__in=workflow_admin_list, is_deleted=0).all()
+            workflow_admin_existed_list = [workflow_admin_existed.username for workflow_admin_existed
+                                           in workflow_admin_existed_queryset]
+            # 删除移除掉的
+            WorkflowAdmin.objects.filter(workflow_id=workflow_id, is_deleted=0)\
+                .exclude(username__in=workflow_admin_list).update(is_deleted=1)
+
+            # 新增新添加的
+            workflow_admin_need_add_list = list(set(workflow_admin_list) - set(workflow_admin_existed_list))
+            workflow_admin_need_add_insert_list = []
+            for workflow_admin_need_add in workflow_admin_need_add_list:
+                workflow_admin_need_add_insert_list.append(WorkflowAdmin(
+                    workflow_id=workflow_id, username=workflow_admin_need_add))
+            WorkflowAdmin.objects.bulk_create(workflow_admin_need_add_insert_list)
+
+        else:
+            # 删除所有记录
+            WorkflowAdmin.objects.filter(workflow_id=workflow_id, is_deleted=0).update(is_deleted=1)
+
         return True, ''
 
     @classmethod

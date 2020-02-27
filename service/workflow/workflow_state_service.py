@@ -67,7 +67,6 @@ class WorkflowStateService(BaseService):
             result_dict = workflow_states_object.get_dict()
             result_dict['state_field_str'] = json.loads(result_dict['state_field_str'])
             result_dict['label'] = json.loads(result_dict['label'])
-            result_dict['state_field_str'] = json.loads(result_dict['state_field_str'])
             result_dict['participant_info'] = participant_info
 
             workflow_states_restful_list.append(result_dict)

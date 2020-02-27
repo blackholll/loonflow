@@ -34,6 +34,7 @@
                   <th>名称</th>
                   <th>描述</th>
                   <th>工单查看权限校验</th>
+                  <th>管理员</th>
                   <th>创建人</th>
                   <th>创建时间</th>
                   <th>操作</th>
@@ -109,20 +110,30 @@
                           <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}</p>
                         </div>
                     </div>
-                    <div class="form-group">
-                      <label for="contentTemplate" class="col-sm-3 control-label">内容模板</label>
-                      <div class="col-sm-9">
-                        <input type="text" class="form-control" id="contentTemplate" value="标题:{title}, 创建时间:{gmt_created}">
-                        <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}</p>
-                      </div>
-                  </div>
+                        <div class="form-group">
+                          <label for="contentTemplate" class="col-sm-3 control-label">内容模板</label>
+                          <div class="col-sm-9">
+                            <input type="text" class="form-control" id="contentTemplate" value="标题:{title}, 创建时间:{gmt_created}">
+                            <p class="help-block">工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}</p>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <label for="workflowAdmin" class="col-sm-3 control-label">管理员</label>
+                          <div class="col-sm-9">
+                            <select class="form-control select2" multiple="multiple" id="workflowAdmin" data-placeholder="选择该工作流的管理员"
+                                    style="width: 100%;">
+                            </select>
+                            <p class="help-block">除loonflow管理员及该工作流创建人外，该工作流的管理员也可以编辑该工作流</p>
+                          </div>
+                        </div>
                       <!-- /.box-body -->
-                      <div class="box-footer">
-                        <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-                        <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitWorkflow();" />
+                        <div class="box-footer">
+                          <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                          <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitWorkflow();" />
+                        </div>
+                        <!-- /.box-footer -->
                       </div>
-                      <!-- /.box-footer -->
-                    </form>
+                  </form>
               </div>
             </div>
             <!-- /.modal-content -->

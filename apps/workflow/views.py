@@ -76,14 +76,31 @@ class WorkflowView(LoonBaseView):
         view_permission_check = request_data_dict.get('view_permission_check', 1)
         limit_expression = request_data_dict.get('limit_expression', '')
         display_form_str = request_data_dict.get('display_form_str', '')
+        workflow_admin = request_data_dict.get('workflow_admin', '')
         creator = request.META.get('HTTP_USERNAME', '')
         flag, result = workflow_base_service_ins.add_workflow(name, description, notices, view_permission_check, limit_expression,
-                                                       display_form_str, creator)
+                                                       display_form_str, creator, workflow_admin)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
             code, msg, data = 0, '', {'workflow_id': result.get('workflow_id')}
         return api_response(code, msg, data)
+
+
+class WorkflowUserAdminView(LoonBaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        获取用户管理的工作流信息
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        username = request.META.get('HTTP_USERNAME')
+        flag, result = workflow_base_service_ins.get_workflow_manage_list(username)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', result.get('workflow_list'))
 
 
 class WorkflowInitView(LoonBaseView):
@@ -175,9 +192,11 @@ class WorkflowDetailView(LoonBaseView):
         view_permission_check = request_data_dict.get('view_permission_check', 1)
         limit_expression = request_data_dict.get('limit_expression', '')
         display_form_str = request_data_dict.get('display_form_str', '')
+        workflow_admin = request_data_dict.get('workflow_admin', '')
 
-        flag, result = workflow_base_service_ins.edit_workflow(workflow_id, name, description, notices, view_permission_check,
-                                                        limit_expression, display_form_str)
+        flag, result = workflow_base_service_ins.edit_workflow(
+            workflow_id, name, description, notices, view_permission_check, limit_expression, display_form_str,
+            workflow_admin)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
@@ -823,7 +842,7 @@ class WorkflowCustomFieldView(LoonBaseView):
                         total=paginator_info.get('total'))
             code, msg, = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, {}, ''
         return api_response(code, msg, data)
 
     @manage_permission_check('workflow_admin')

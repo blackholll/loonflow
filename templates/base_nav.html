@@ -24,6 +24,9 @@
     </li>
     {% endif %}
     {% if request.user.is_admin or request.user.is_workflow_admin %}
+    <li id="ticket_manage"><a href="/manage/ticket_manage"><i class="fa fa-list-alt"></i> <span>工单管理</span></a></li>
+    {% endif %}
+    {% if request.user.is_admin or request.user.is_workflow_admin %}
     <li id="workflowTree" class="treeview">
       <a href="#"><i class="fa fa-user"></i> <span>工作流管理</span>
         <span class="pull-right-container">

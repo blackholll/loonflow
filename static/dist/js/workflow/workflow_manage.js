@@ -19,7 +19,45 @@
 
           });
   });
-  $('#customNoticeSelect').select2({placeholderOption: "first", allowClear:true});
+
+  $('#workflowAdmin').select2({
+      placeholderOption: "first",
+      allowClear:true,
+      language: {
+        searching: function() {
+            return "输入用户名称搜索...";
+        }
+    },
+    ajax: {
+      url: "/api/v1.0/accounts/users",
+      delay: 300,
+      dataType: 'json',
+      data: function (params) {
+        var query = {
+          search_value: params.term,
+          per_page: 10000,
+        }
+        return query;
+      },
+      processResults: function (data) {
+      console.log('处理结果', data);
+      return {
+        results: data.data.value.map(function(item) {
+          console.log(item.name);
+          return {
+            id: item.username,
+            text: item.username + "(id:" + item.id + "," + "alias:" + item.alias + ")"
+          };
+
+        })
+      };
+
+    },
+      },
+
+    cache: true
+    });
+
   $('#workflow_table').DataTable({
   ordering: false,
   "serverSide":true,
@@ -63,6 +101,7 @@
       { "data": "description" },
       {render: function(data, type, full){if (full.view_permission_check){return "是"}return "否"}},
       { "data": "creator" },
+      { "data": "workflow_admin" },
       { "data": "gmt_created" },
       {render: function(data, type, full){var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');return ('<div><a  onclick="showEditForm(' + rosJson + ')' + '"' + '>编辑</a>/<a onclick="delWorkflow(' + full.id + ')' + '"'+  '>删除</a>/<a target="_blank" href="/manage/workflow_manage/'+ full.id + '"'+ '>配置</a>/<a target="_blank" href="/manage/workflow_flow_chart/'+ full.id + '"'+ '>查看流程图</a></div>')}}
   ]
@@ -74,6 +113,10 @@
     if(data.notices){
       var notice_ids_arr = data.notices.split(",");
       $("#customNoticeSelect").val(notice_ids_arr).trigger("change");
+    }
+      if(data.workflow_admin){
+      var workflow_admin_arr = data.workflow_admin.split(",");
+      $("#workflowAdmin").val(workflow_admin_arr).trigger("change");
     }
     if (data.view_permission_check) {
       $('#viewPermissionCheck').attr('checked', true);
@@ -102,6 +145,17 @@
       };
     };
     var noticeScriptSelectStr = noticeScriptSelectArray.join(',');
+
+
+    var workflowAdminSelect = document.getElementById("workflowAdmin");
+    var workflowAdminArray = [];
+    for(i=0; i<workflowAdminSelect.length; i++){
+      if(workflowAdminSelect.options[i].selected){
+        workflowAdminArray.push(workflowAdminSelect[i].value);
+      };
+    };
+    var workflowAdminStr = workflowAdminArray.join(',');
+
 
     var limitExpression = $("#limitExpression").val();
     var displayFormStr = $("#displayFormStr").val();
@@ -133,7 +187,8 @@
       notices: noticeScriptSelectStr,
       view_permission_check: viewPermissionCheck,
       limit_expression: limitExpression,
-      display_form_str: displayFormStr
+      display_form_str: displayFormStr,
+      workflow_admin: workflowAdminStr,
     }
     if (!workflowId){
       $.ajax({
