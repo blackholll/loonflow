@@ -296,16 +296,22 @@ class LoonDeptView(LoonBaseView):
         label = request_data_dict.get('label')
         creator = request.user.username
         approver_id_list = [int(approver_str) for approver_str in approver_str_list]
-        flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
-        if flag is False:
-            return api_response(-1, result, {})
-        approver_username_list = result.get('username_list')
-        approver_username_str = ','.join(approver_username_list)
-        flag, result = account_base_service_ins.get_user_by_user_id(int(leader_id))
-        if flag is False:
-            return api_response(-1, result, {})
-        leader = result.username
+        if approver_id_list:
+            flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
+            if flag is False:
+                return api_response(-1, result, {})
+            approver_username_list = result.get('username_list')
+            approver_username_str = ','.join(approver_username_list)
+        else:
+            approver_username_str = ''
 
+        if leader_id:
+            flag, result = account_base_service_ins.get_user_by_user_id(int(leader_id))
+            if flag is False:
+                return api_response(-1, result, {})
+            leader = result.username
+        else:
+            leader = ''
         flag, result = account_base_service_ins.add_dept(name, parent_dept_id, leader, approver_username_str, label, creator)
         if flag is False:
             return api_response(-1, result, {})

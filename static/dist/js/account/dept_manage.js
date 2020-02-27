@@ -63,14 +63,22 @@ function submitDept() {
   var deptName = $("#deptName").val();
   var deptLabel = $("#deptLabel").val();
   var parent_dept_id = $("#parent_dept_id").val();
+  if (! parent_dept_id) {
+    parent_dept_id = 0
+  }
+
   var deptLeader = $("#deptLeader").val();
+  if (!deptLeader) {
+    deptLeader='';
+  }
+
   var deptApprover = $("#deptApprover").val();
   var paramData = {
     name: deptName,
     label: deptLabel,
     parent_dept_id: parent_dept_id,
     leader: deptLeader,
-    approver: deptApprover
+    approver: deptApprover.join(',')
   }
   if (deptId) {
     $.ajax({
