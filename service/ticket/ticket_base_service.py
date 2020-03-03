@@ -575,7 +575,7 @@ class TicketBaseService(BaseService):
         """
         flag, result = cls.ticket_handle_permission_check(ticket_id, username)
 
-        if flag is False or result.get('permission'):
+        if flag is False or not result.get('permission'):
             view_permission, msg = cls.ticket_view_permission_check(ticket_id, username)
             if not view_permission:
                 return False, msg
@@ -729,7 +729,7 @@ class TicketBaseService(BaseService):
                 field_value = None
             else:
                 value_enum = constant_service_ins.FIELD_VALUE_ENUM
-                field_value = field_value_obj.get(value_enum.get(field_type_id))
+                field_value = field_value_obj.get_dict().get(value_enum.get(field_type_id))
             boolean_field_display = json.loads(
                 custom_field_dict[key]['boolean_field_display']) if custom_field_dict[key]['boolean_field_display'] \
                 else {}  # 之前model允许为空了，为了兼容先这么写
@@ -1407,9 +1407,11 @@ class TicketBaseService(BaseService):
                                                         state_id=ticket_flow_log.state_id,
                                                         attribute_type_id=attribute_type_id,
                                                         gmt_created=str(ticket_flow_log.gmt_created)[:19]))
+                state_flow_log_list = sorted(state_flow_log_list, key=lambda keys: keys['id'],reverse=True)
                 ticket_state_step_dict['state_flow_log_list'] = state_flow_log_list
                 state_step_dict_list.append(ticket_state_step_dict)
-        return True, dict(state_step_dict_list=state_step_dict_list)
+                state_step_dict_list = sorted(state_step_dict_list, key=lambda keys: keys['order_id'])
+        return True, dict(state_step_dict_list=state_step_dict_list, current_state_id=ticket_obj.state_id)
 
     @classmethod
     @auto_log
@@ -1435,6 +1437,8 @@ class TicketBaseService(BaseService):
                 transition_name = '接单操作'
             elif intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_COMMENT:
                 transition_name = '新增评论'
+            elif intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_CLOSE:
+                transition_name = '强制关闭'
             else:
                 transition_name = '未知操作'
             attribute_type_id = constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER
@@ -1442,13 +1446,14 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def update_ticket_state(cls, ticket_id: int, state_id: int, username: str)->tuple:
+    def update_ticket_state(cls, ticket_id: int, state_id: int, username: str, suggestion: str)->tuple:
         """
         更新状态id,暂时只变更工单状态及工单当前处理人，不考虑目标状态状态处理人类型为脚本、变量、工单字段等等逻辑
         update ticket's state by ticket_id, state_id, username
         :param ticket_id:
         :param state_id:
         :param username:
+        :param suggestion:
         :return:
         """
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
@@ -1474,7 +1479,7 @@ class TicketBaseService(BaseService):
 
             all_ticket_data_json = result.get('all_field_value_json')
 
-            cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0, suggestion='强制修改工单状态',
+            cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
                                          participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                                          participant=username, state_id=source_state_id,
                                          ticket_data=all_ticket_data_json))
@@ -2130,6 +2135,7 @@ class TicketBaseService(BaseService):
         all_ticket_data_json = result.get('all_field_value_json')
         ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='强制关闭工单:{}'.format(suggestion),
                                     participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
+                                    intervene_type_id = constant_service_ins.TRANSITION_INTERVENE_TYPE_CLOSE,
                                     participant=username, state_id=state_obj.id, ticket_data=all_ticket_data_json,
                                     )
 
@@ -2141,6 +2147,63 @@ class TicketBaseService(BaseService):
 
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
+
+    @classmethod
+    @auto_log
+    def delete_ticket(cls, ticket_id: int, username: str, suggestion: str)->tuple:
+        """
+        删除工单，建议仅用于管理干预删除工单
+        :param ticket_id:
+        :param username:
+        :param suggestion:
+        :return:
+        """
+        flag, result = cls.get_ticket_by_id(ticket_id)
+        if flag is False:
+            return False, result
+        result.is_deleted = True
+        result.save()
+        # 记录操作日志
+        flag, result = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
+
+        all_ticket_data_json = result.get('all_field_value_json')
+        ticket_base_service_ins.add_ticket_flow_log(
+            dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
+                 intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_DELETE,
+                 participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
+                 participant=username, state_id=result.state_id, ticket_data=all_ticket_data_json, creator=username))
+
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def ticket_admin_permission_check(cls, ticket_id: int = 0, username: str = '') -> tuple:
+        """
+        校验用户是否是该工单的工作流管理员,以判断是否有权限对该工单干预处理
+        :param username:
+        :param ticket_id:
+        :return:
+        """
+        # 超级管理员拥有所有工作流管理权限
+        flag, result = account_base_service_ins.get_user_by_username(username)
+        if flag is False:
+            return False, result
+        if result.is_admin:
+            return True, "admin user has all ticket's intervention manage permission"
+
+        flag, result = cls.get_ticket_by_id(ticket_id)
+        if flag is False:
+            return False, result
+        workflow_id = result.workflow_id
+        flag, result = workflow_base_service_ins.get_workflow_manage_list(username)
+        if flag is False:
+            return False, result
+        workflow_list = result.get('workflow_list')
+        workflow_id_list = [workflow['id'] for workflow in workflow_list]
+        if workflow_id in workflow_id_list:
+            return True, ''
+        else:
+            return False, 'user has no permission to manage this ticket'
 
 
 ticket_base_service_ins = TicketBaseService()

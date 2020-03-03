@@ -111,7 +111,7 @@ class TicketView(LoonBaseView):
             return api_response(-1, '参数不全，请提供username', '')
         flag, result = ticket_base_service_ins.get_ticket_detail(ticket_id, username)
         if flag:
-            code, data = 0, dict(value=result.get('ticket_result_dict'))
+            code, data = 0, dict(value=result)
         else:
             code, data = -1, {}
         return api_response(code, msg, data)
@@ -134,7 +134,7 @@ class TicketView(LoonBaseView):
         request_data_dict.update(dict(username=request.META.get('HTTP_USERNAME')))
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not app_permission_check:
-            return api_response(-1, msg, '')
+            return api_response(-1, msg, {})
 
         result, msg = ticket_base_service_ins.handle_ticket(ticket_id, request_data_dict)
         if result or result is not False:
@@ -142,6 +142,33 @@ class TicketView(LoonBaseView):
         else:
             code, data = -1, {}
         return api_response(code, msg, data)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        删除工单，仅用于管理员干预处理工单，loonflow管理后台的功能
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        # 校验工单权限
+        ticket_id = kwargs.get('ticket_id')
+        username = request.META.get('HTTP_USERNAME')
+        json_str = request.body.decode('utf-8')
+        suggestion = ''
+        if json_str:
+            request_data_dict = json.loads(json_str)
+            suggestion = request_data_dict.get('suggestion')
+
+        flag, result = ticket_base_service_ins.ticket_admin_permission_check(ticket_id, username)
+        if flag is False:
+            return api_response(-1, result, {})
+        flag, result = ticket_base_service_ins.delete_ticket(ticket_id, username, suggestion)
+        if flag is False:
+            return api_response(-1, result, {})
+        else:
+            return api_response(0, '', {})
+
 
 class TicketTransition(LoonBaseView):
     """
@@ -217,10 +244,9 @@ class TicketFlowStep(LoonBaseView):
         if not username:
             return api_response(-1, '参数不全，请提供username', '')
 
-        result, msg = ticket_base_service_ins.get_ticket_flow_step(ticket_id, username)
         flag, result = ticket_base_service_ins.get_ticket_flow_step(ticket_id, username)
         if flag is not False:
-            data = dict(value=result.get('state_step_dict_list'))
+            data = dict(value=result.get('state_step_dict_list'), current_state_id=result.get('current_state_id'))
             code, msg,  = 0, ''
         else:
             code, data = -1, ''
@@ -253,6 +279,7 @@ class TicketState(LoonBaseView):
         # username = request_data_dict.get('username', '')  # 可用于权限控制
         username = request.META.get('HTTP_USERNAME')
         state_id = request_data_dict.get('state_id')
+        suggestion = request_data_dict.get('suggestion', '')
 
         app_name = request.META.get('HTTP_APPNAME')
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
@@ -264,7 +291,7 @@ class TicketState(LoonBaseView):
             msg = '请提供新的状态id'
             data = ''
         else:
-            result, msg = ticket_base_service_ins.update_ticket_state(ticket_id, state_id, username)
+            result, msg = ticket_base_service_ins.update_ticket_state(ticket_id, state_id, username, suggestion)
             if result:
                 code, msg, data = 0, msg, ''
             else:
