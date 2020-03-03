@@ -1439,6 +1439,8 @@ class TicketBaseService(BaseService):
                 transition_name = '新增评论'
             elif intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_CLOSE:
                 transition_name = '强制关闭'
+            elif intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_ALTER_STATE:
+                transition_name = '强制修改状态'
             else:
                 transition_name = '未知操作'
             attribute_type_id = constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER
@@ -1481,6 +1483,7 @@ class TicketBaseService(BaseService):
 
             cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
                                          participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
+                                         intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_ALTER_STATE,
                                          participant=username, state_id=source_state_id,
                                          ticket_data=all_ticket_data_json))
 
@@ -2135,7 +2138,7 @@ class TicketBaseService(BaseService):
         all_ticket_data_json = result.get('all_field_value_json')
         ticket_flow_log_dict = dict(ticket_id=ticket_id, transition_id=0, suggestion='强制关闭工单:{}'.format(suggestion),
                                     participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
-                                    intervene_type_id = constant_service_ins.TRANSITION_INTERVENE_TYPE_CLOSE,
+                                    intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_CLOSE,
                                     participant=username, state_id=state_obj.id, ticket_data=all_ticket_data_json,
                                     )
 

@@ -40,7 +40,7 @@ $(document).ready(function(){
           if (result.code===0){
               var stepList = [];
               var activeId = 0;
-              var nowId = 1;
+              var nowId = 0;
               var activeStateId = result.data.current_state_id;
               result.data.value.map(function(res){
                   if (res.state_id === activeStateId){
@@ -250,7 +250,7 @@ function submitDeliverTicket(){
 function submitStateTicket(){
   //修改工单状态
   var ticketId = getTicketId();
-  var targetState =  $("#targetState").val();
+  var targetState =  Number($("#targetState").val());
   var suggestion = $("#stateSuggestion").val();
   var params = {state_id:targetState, suggestion:suggestion};
   $.ajax({
