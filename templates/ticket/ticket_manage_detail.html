@@ -9,7 +9,7 @@
 
 {% block content %}
 <!-- Content Header (Page header) -->
-<section class="content-header">
+  <section class="content-header">
     <h1>
       工单管理
       <small><a href="/manage/ticket_manage">工单管理</a></small>
@@ -17,195 +17,168 @@
     <ol class="breadcrumb">
       <li><a href="/manage/ticket_manage"><i class="fa fa-dashboard"></i> 工单详情</a></li>
     </ol>
-</section>
-<section class="content">
-<div class="box">
-  <div class="box box-default collapsed-box">
-    <div class="box-header">
-      <h3 class="box-title">流程图</h3>
-      <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
-        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+  </section>
+  <section class="content">
+    <div class="box">
+      <div class="box box-default collapsed-box">
+        <div class="box-header">
+          <h3 class="box-title">流程图</h3>
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+        </div>
       </div>
-    </div>
-    <!-- /.box-header -->
-    <div class="box-body">
-        <!-- /.col -->
-      <!-- /.row -->
-    </div>
-  </div>
-  
-  <div class="box box-default collapsed-box">
-    <div class="box-header">
-      <h3 class="box-title">操作记录</h3>
-      <div class="box-tools pull-right">
-        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
-        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+      
+      <div class="box box-default collapsed-box">
+        <div class="box-header">
+          <h3 class="box-title">操作记录</h3>
+          <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
+            <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-remove"></i></button>
+          </div>
+        </div>
+        <div class="box-body">
+          <div class="row" id="flowLog">
+          </div>
+        </div>
       </div>
-    </div>
-    <!-- /.box-header -->
-    <div class="box-body">
-      <div class="row" id="flowLog">
 
-
-        <!-- /.col -->
-      </div>
-      <!-- /.row -->
-    </div>
-  </div>
-
-  <div class="box">
-    <div class="box-header">
-      <h3 class="box-title">工单详情</h3>
-    </div>
-    <div class="box-body">
-      <div class="row">
-        <div id="ticketStep"></div>
-        <!-- /.col -->
-      </div>
-        <form id="ticketDetailForm">
-            <!-- /.box-body -->
+      <div class="box">
+        <div class="box-header">
+          <h3 class="box-title">工单详情</h3>
+        </div>
+        <div class="box-body">
+          <div class="row">
+            <div id="ticketStep"></div>
+          </div>
+          <form id="ticketDetailForm">
           </form>
-    </div>
-  </div>
-
-  <div class="box">
-    <div class="box-header">
-      <h3 class="box-title">管理员操作</h3>
-    </div>
-    <div class="box-body">
-      <button type="button" class="btn btn-info" style="margin:5px" onclick="showDeliverModal()">转交</button>
-      <button type="button" class="btn btn-danger" onclick="showCloseModal()">强制关闭</button>
-      <button type="button" class="btn btn-danger" onclick="showStateModal()">强制修改状态</button>
-    </div>
-  </div>
-
-  <div class="modal fade" id="ticketAllActionModal">
-    <div class="modal-dialog" style="width: 980px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">操作记录</h4>
-        </div>
-        <div class="modal-body" id="ticketAllAction">
         </div>
       </div>
-    </div>
-  </div>
-  
-  <div class="modal fade" id="ticketDeliverModal">
-    <div class="modal-dialog" style="width: 980px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">转交处理人</h4>
+
+      <div class="box">
+        <div class="box-header">
+          <h3 class="box-title">管理员操作</h3>
         </div>
-        <form class="form-horizontal"  id='ticket_deliver_form'>
-          <div class="box-body">
-            <div class="form-group">
-                <label for="deliverTarget" class="col-sm-3 control-label">选择转交人<span style="color:red">*</span></label>
-                <div class="col-sm-9">
-                  <select class="form-control select2" id="deliverTarget" data-placeholder="选择转交对象"
-                                    style="width: 100%;">
-                            </select>
-                  <p class="help-block">输入关键词搜索转交对象</p>
+        <div class="box-body">
+          <button type="button" class="btn btn-info" style="margin:5px" onclick="showDeliverModal()">转交</button>
+          <button type="button" class="btn btn-danger" onclick="showCloseModal()">强制关闭</button>
+          <button type="button" class="btn btn-danger" onclick="showStateModal()">强制修改状态</button>
+        </div>
+      </div>
+
+      <div class="modal fade" id="ticketAllActionModal">
+        <div class="modal-dialog" style="width: 980px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">操作记录</h4>
+            </div>
+            <div class="modal-body" id="ticketAllAction">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal fade" id="ticketDeliverModal">
+        <div class="modal-dialog" style="width: 980px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">转交处理人</h4>
+            </div>
+            <form class="form-horizontal"  id='ticket_deliver_form'>
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="deliverTarget" class="col-sm-3 control-label">选择转交人<span style="color:red">*</span></label>
+                  <div class="col-sm-9">
+                    <select class="form-control select2" id="deliverTarget" data-placeholder="选择转交对象"
+                                      style="width: 100%;">
+                              </select>
+                    <p class="help-block">输入关键词搜索转交对象</p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="deliverSuggestion" class="col-sm-3 control-label">转交意见<span style="color:red">*</span></label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="deliverSuggestion" required="true" placeholder="请输入你的处理意见">
+                  </div>
+                </div>
+                <input type="text" class="form-control" id="customFieldId" style="display:none">
+              </div>
+              <div class="box-footer">
+                <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitDeliverTicket();" />
+              </div>
+              <!-- /.box-footer -->
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="ticketCloseModal">
+        <div class="modal-dialog" style="width: 980px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">强制关闭工单</h4>
+            </div>
+            <form class="form-horizontal"  id='ticket_deliver_form'>
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="deliverSuggestion" class="col-sm-3 control-label">关闭意见</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="closeSuggestion" required="true" placeholder="请输入你的处理意见">
+                  </div>
                 </div>
               </div>
-              <div class="form-group">
-              <label for="deliverSuggestion" class="col-sm-3 control-label">转交意见<span style="color:red">*</span></label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control" id="deliverSuggestion" required="true" placeholder="请输入你的处理意见">
+              <div class="box-footer">
+                <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitCloseTicket();" />
               </div>
-            </div>
-            </div>
-            
-            <input type="text" class="form-control" id="customFieldId" style="display:none">
-            
+            </form>
           </div>
-          <!-- /.box-body -->
-          <div class="box-footer">
-            <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-            <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitDeliverTicket();" />
-          </div>
-          </div>
-          <!-- /.box-footer -->
-        </form>
-    </div>
-  </div>
-  
-  <div class="modal fade" id="ticketCloseModal">
-    <div class="modal-dialog" style="width: 980px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">强制关闭工单</h4>
         </div>
-        <form class="form-horizontal"  id='ticket_deliver_form'>
-          <div class="box-body">
-              <div class="form-group">
-              <label for="deliverSuggestion" class="col-sm-3 control-label">关闭意见</label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control" id="closeSuggestion" required="true" placeholder="请输入你的处理意见">
-              </div>
-            </div>
-            </div>
-                        
-          </div>
-          <!-- /.box-body -->
-          <div class="box-footer">
-            <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-            <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitCloseTicket();" />
-          </div>
-          </div>
-          <!-- /.box-footer -->
-        </form>
-    </div>
-  </div>
+      </div>
 
-  <div class="modal fade" id="ticketStateModal">
-    <div class="modal-dialog" style="width: 980px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">强制修改工单状态</h4>
-        </div>
-        <form class="form-horizontal"  id='ticket_deliver_form'>
-          <div class="form-group">
+      <div class="modal fade" id="ticketStateModal">
+        <div class="modal-dialog" style="width: 980px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">强制修改工单状态</h4>
+            </div>
+            <form class="form-horizontal"  id='ticket_deliver_form'>
+              <div class="form-group">
                 <label for="targetState" class="col-sm-3 control-label">选择目标状态<span style="color:red">*</span></label>
                 <div class="col-sm-9">
                   <select class="form-control select2" id="targetState" data-placeholder="选择模板状态"
                                     style="width: 100%;">
                   </select>
                 </div>
-            </div>
-          <div class="box-body">
-              <div class="form-group">
-              <label for="deliverSuggestion" class="col-sm-3 control-label">处理意见</label>
-              <div class="col-sm-9">
-                <input type="text" class="form-control" id="stateSuggestion" required="true" placeholder="请输入你的处理意见">
               </div>
-            </div>
-            </div>
-                        
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="deliverSuggestion" class="col-sm-3 control-label">处理意见</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="stateSuggestion" required="true" placeholder="请输入你的处理意见">
+                  </div>
+                </div>
+              </div>
+              <div class="box-footer">
+                <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitStateTicket();" />
+              </div>
+            </form>
           </div>
-          <!-- /.box-body -->
-          <div class="box-footer">
-            <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-            <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitStateTicket();" />
-          </div>
-          </div>
-          <!-- /.box-footer -->
-        </form>
-    </div>
-  </div>
-
-
-
-</section>
+        </div>
+      </div>
+  </section>
 
 {% endblock %}
 

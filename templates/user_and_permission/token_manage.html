@@ -4,13 +4,11 @@
 {% block css %}
   <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
   <link rel="stylesheet" href="{% static 'dist/css/dataTables.bootstrap.min.css' %}">
-
-
 {% endblock %}
 
 {% block content %}
 <!-- Content Header (Page header) -->
-<section class="content-header">
+  <section class="content-header">
     <h1>
       用户及权限
       <small>调用权限</small>
@@ -19,9 +17,8 @@
       <li><a href="/manage/token_manage"><i class="fa fa-dashboard"></i> 部门</a></li>
     </ol>
   </section>
-  <div class="row">
-    
-    <section class="content-header">
+  <section class="content">
+    <div class="row">
       <div class="col-md-12">
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#appTokenModal">
             新增
@@ -44,17 +41,11 @@
       
             </tbody>
           </table>
-        
         </div>
       </div>
-    </section>
-      <!-- /.box -->
-  </div>
-  </section>
-      <!-- /.col -->
-   
-  <!-- /.content -->
-  <div class="modal fade" id="appTokenModal">
+    </div>
+
+    <div class="modal fade" id="appTokenModal">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -96,17 +87,12 @@
                 </form>
           </div>
         </div>
-        <!-- /.modal-content -->
-      <!-- /.modal-dialog -->
+      </div>
     </div>
-  </div>
-  
-</div>
 
-<!-- /.content-wrapper -->
+    </section>
 
 {% endblock %}
-
 {% block js %}
 <!-- jQuery 3 -->
 <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>

@@ -10,7 +10,7 @@
 
 {% block content %}
 <!-- Content Header (Page header) -->
-<section class="content-header">
+  <section class="content-header">
     <h1>
       工作流管理
       <small>执行脚本管理</small>
@@ -19,16 +19,16 @@
       <li><a href="/manage/workflow_manage"><i class="fa fa-dashboard"></i> 工作流管理</a></li>
     </ol>
   </section>
-  <div class="row">
-    <section class="content-header">
+  <section class="content">
+    <div class="row">
       <div class="callout callout-info">
         建议使用hook方式替代执行脚本。通过使用hook方式将任务逻辑写在自己的业务系统中,工单状态到达时loonflow将请求hook地址来触发任务执行
       </div>
       <div class="col-md-12">
         <div class="box box-default">
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#runScriptModal">
-                新增
-            </button>
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#runScriptModal">
+              新增
+          </button>
           <table id="run_script_table" class="table table-striped table-bordered dataTable no-footer" >
             <thead>
               <tr>
@@ -46,77 +46,55 @@
             </tbody>
           </table>      
         </div>                
-      <!-- </div> -->
       </div>
       <div class="modal fade" id="runScriptModal">
-          <div class="modal-dialog" style="width: 980px;">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">工作流脚本</h4>
-              </div>
-              <div class="modal-body">
-                  <form class="form-horizontal" id='run_script_form'>
-                      <div class="box-body">
-                        <div class="form-group">
-                          <label for="scriptName" class="col-sm-3 control-label">名称</label> 
-                          <div class="col-sm-9">
-                            <input type="text" class="form-control" id="scriptName" placeholder="请输入工作流名称">
-                          </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="scriptDesc" class="col-sm-3 control-label">描述</label> 
-                            <div class="col-sm-9">
-                              <input type="text" class="form-control" id="scriptDesc" placeholder="请输入工作流描述">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="WorkflowScriptFile" class="col-sm-3 control-label">选择脚本</label>
-                            <div class="col-sm-9">
-                              <input type="file" id="WorkflowScriptFile" accept=".py">
-                              <p class="help-block" id=nowScriptFile></p>   
-                              <p class="help-block">仅支持python脚本,media/workflow_script/demo_script.py为示例脚本，请参考编写</p>
-                            </div>
-                        </div>
-                        <div class="checkbox">
-                            <label for="isActive" class="col-sm-3 control-label">可用</label>
-                              <div class="col-sm-9">
-                                <input type="checkbox" id='isActive' checked>
-                                <p class="help-block">开启后，该脚本才可以被选择和被实际执行</p>
-                              </div>
-                              <input type="text" class="form-control" id="WorkflowScriptId" style="display:none">
-                              
-                            </label>
-                          </div>
-                      </div>
-                      <!-- /.box-body -->
-                      <div class="box-footer">
-                        <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-                        <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitWorkflowScript();" />
-                      </div>
-                      <!-- /.box-footer -->
-                    </form>
-              </div>
+        <div class="modal-dialog" style="width: 980px;">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">工作流脚本</h4>
             </div>
-            <!-- /.modal-content -->
+            <div class="modal-body">
+              <form class="form-horizontal" id='run_script_form'>
+                <div class="box-body">
+                  <div class="form-group">
+                    <label for="scriptName" class="col-sm-3 control-label">名称</label> 
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="scriptName" placeholder="请输入工作流名称">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="scriptDesc" class="col-sm-3 control-label">描述</label> 
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="scriptDesc" placeholder="请输入工作流描述">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="WorkflowScriptFile" class="col-sm-3 control-label">选择脚本</label>
+                    <div class="col-sm-9">
+                      <input type="file" id="WorkflowScriptFile" accept=".py">
+                      <p class="help-block" id="nowScriptFile"></p>   
+                      <p class="help-block">仅支持python脚本,media/workflow_script/demo_script.py为示例脚本，请参考编写</p>
+                    </div>
+                  </div>
+                  <div class="checkbox">
+                    <label for="isActive" class="col-sm-3 control-label">可用</label>
+                    <div class="col-sm-9">
+                      <input type="checkbox" id='isActive' checked>
+                      <p class="help-block">开启后，该脚本才可以被选择和被实际执行</p>
+                    </div>
+                    <input type="text" class="form-control" id="WorkflowScriptId" style="display:none">
+                  </div>
+                </div>
+                <div class="box-footer">
+                  <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitWorkflowScript();" />
+                </div>
+              </form>
+            </div>
           </div>
-          <!-- /.modal-dialog -->
       </div>
-
-
-      
-    </section>
-      <!-- /.box -->
-  </div>
   </section>
-      <!-- /.col -->
-   
-  <!-- /.content -->
-  
-</div>
-
-<!-- /.content-wrapper -->
 
 {% endblock %}
 

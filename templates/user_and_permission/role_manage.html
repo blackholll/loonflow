@@ -2,16 +2,13 @@
 {%load staticfiles%}
 
 {% block css %}
-
   <link rel="stylesheet" href="{% static 'dist/css/dataTables.bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'bower_components/select2/dist/css/select2.min.css' %}">
-
-
 {% endblock %}
 
 {% block content %}
 <!-- Content Header (Page header) -->
-<section class="content-header">
+  <section class="content-header">
     <h1>
       用户及权限
       <small>角色列表</small>
@@ -20,164 +17,154 @@
       <li><a href="/manage/role_manage"><i class="fa fa-dashboard"></i> 角色</a></li>
     </ol>
   </section>
-  <div class="row">
-    <section class="content-header">
+  <section class="content">
     <div class="callout callout-info">
-        如果你需要从别的系统(如企业内部统一登录系统)同步角色信息，建议通过定时任务脚本来直接操作loonflow数据库实现
-      </div>
+      如果你需要从别的系统(如企业内部统一登录系统)同步角色信息，建议通过定时任务脚本来直接操作loonflow数据库实现
+    </div>
+    <div class="row">
       <div class="col-md-12">
         <div class="box box-default">
           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#RoleModal">
                 新增
           </button>
-        <table id="role_table" class="table table-striped table-bordered dataTable no-footer" >
-          <thead>
-            <tr>
-                <th>ID</th>
-                <th>角色名</th>
-                <th>角色描述</th>
-                <th>标签</th>
-                <th>创建人</th>
-                <th>创建时间</th>
-                <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-    
-          </tbody>
-        </table>
-        
+          <table id="role_table" class="table table-striped table-bordered dataTable no-footer" >
+            <thead>
+              <tr>
+                  <th>ID</th>
+                  <th>角色名</th>
+                  <th>角色描述</th>
+                  <th>标签</th>
+                  <th>创建人</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+      
+            </tbody>
+          </table>
+        </div>
       </div>
-      </div>
-    </section>
-      <!-- /.box -->
-  </div>
-  </section>
-      <!-- /.col -->
-   
-  <!-- /.content -->
-  <div class="modal fade" id="roleUserModal">
+    </div>
+
+    <div class="modal fade" id="roleUserModal">
+        <div class="modal-dialog" style="width: 980px;">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="roleUserTitle"></h4>
+              </div>
+              <div class="modal-body">
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#AddRoleUserModal">
+                  新增
+                </button>
+                <table id="role_user_table" class="table table-striped table-bordered dataTable no-footer" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>用户名</th>
+                      <th>姓名</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div> 
+    </div>
+
+    <div class="modal fade" id="RoleModal">
       <div class="modal-dialog" style="width: 980px;">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title" id="roleUserTitle"></h4>
-            </div>
-            <div class="modal-body">
-              <button type="button" class="btn btn-success" data-toggle="modal" data-target="#AddRoleUserModal">
-                新增
-              </button>
-              <table id="role_user_table" class="table table-striped table-bordered dataTable no-footer" style="width:100%">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>用户名</th>
-                    <th>姓名</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody>
-                </tbody>
-              </table>
-            </div>
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">角色</h4>
+          </div>
+          <div class="modal-body">
+            <form class="form-horizontal" id='role_form'>
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="roleName" class="col-sm-3 control-label" required="true">角色名<span style="color:red">*</span></label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="roleName" required="true" placeholder="请输入角色名称">
+                  </div>
+                </div>
+                <div class="form-group">
+                    <label for="roleDescription" class="col-sm-3 control-label">角色描述</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="roleDescription" placeholder="请输入角色的相关描述信息">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="roleLabel" class="col-sm-3 control-label">标签</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="roleLabel" placeholder="标签用于自己定制，如从别的系统同步过来时对应关联信息，格式自定">
+                    </div>
+                </div>
+
+                <input type="text" class="form-control" id="roleId" style="display:none">
+
+              </div>
+              <div >
+                <div class="callout callout-info">
+                  如果你需要从别的系统(如企业内部统一登录系统)同步角色信息，建议通过定时任务脚本来直接操作loonflow数据库实现
+                </div>
+                </div>
+
+              <!-- /.box-body -->
+              <div class="box-footer">
+                <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitRole();" />
+              </div>
+              <!-- /.box-footer -->
+            </form>
           </div>
         </div>
-  
-  </div>
-
-  <div class="modal fade" id="RoleModal">
-    <div class="modal-dialog" style="width: 980px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">角色</h4>
-        </div>
-        <div class="modal-body">
-          <form class="form-horizontal" id='role_form'>
-            <div class="box-body">
-              <div class="form-group">
-                <label for="roleName" class="col-sm-3 control-label" required="true">角色名<span style="color:red">*</span></label>
-                <div class="col-sm-9">
-                  <input type="text" class="form-control" id="roleName" required="true" placeholder="请输入角色名称">
-                </div>
-              </div>
-              <div class="form-group">
-                  <label for="roleDescription" class="col-sm-3 control-label">角色描述</label>
-                  <div class="col-sm-9">
-                    <input type="text" class="form-control" id="roleDescription" placeholder="请输入角色的相关描述信息">
-                  </div>
-              </div>
-              <div class="form-group">
-                  <label for="roleLabel" class="col-sm-3 control-label">标签</label>
-                  <div class="col-sm-9">
-                    <input type="text" class="form-control" id="roleLabel" placeholder="标签用于自己定制，如从别的系统同步过来时对应关联信息，格式自定">
-                  </div>
-              </div>
-
-              <input type="text" class="form-control" id="roleId" style="display:none">
-
-            </div>
-            <div >
-              <div class="callout callout-info">
-                如果你需要从别的系统(如企业内部统一登录系统)同步角色信息，建议通过定时任务脚本来直接操作loonflow数据库实现
-              </div>
-              </div>
-
-            <!-- /.box-body -->
-            <div class="box-footer">
-              <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-              <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitRole();" />
-            </div>
-            <!-- /.box-footer -->
-          </form>
-        </div>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+        <!-- /.modal-dialog -->
     </div>
-      <!-- /.modal-dialog -->
-    </div>
-  </div>
 
-
-  <div class="modal fade" id="AddRoleUserModal">
-    <div class="modal-dialog" style="width: 980px;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span></button>
-          <h4 class="modal-title">角色</h4>
-        </div>
-        <div class="modal-body">
-          <form class="form-horizontal" id='add_role_user_form'>
-            <div class="box-body">
-              <div class="form-group">
-                <label for="roleName" class="col-sm-3 control-label" required="true">选择用户<span style="color:red">*</span></label>
-                <div class="col-sm-9">
-                  <select class="form-control select2" id="roleUserId" data-placeholder="请输入用户名称查询"
-                            style="width: 100%;">
-                    </select>
+    <div class="modal fade" id="AddRoleUserModal">
+      <div class="modal-dialog" style="width: 980px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">角色</h4>
+          </div>
+          <div class="modal-body">
+            <form class="form-horizontal" id='add_role_user_form'>
+              <div class="box-body">
+                <div class="form-group">
+                  <label for="roleName" class="col-sm-3 control-label" required="true">选择用户<span style="color:red">*</span></label>
+                  <div class="col-sm-9">
+                    <select class="form-control select2" id="roleUserId" data-placeholder="请输入用户名称查询"
+                              style="width: 100%;">
+                      </select>
+                  </div>
                 </div>
+                <input type="text" class="form-control" id="addRoleUserRoleId" style="display:none">
+                <div class="box-footer">
+                <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
+                <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitRoleUser();" />
               </div>
-              <input type="text" class="form-control" id="addRoleUserRoleId" style="display:none">
-              <div class="box-footer">
-              <!-- <button type="submit" class="btn btn-info pull-right">确定</button> -->
-              <input type="button" value="保存" class="btn btn-info pull-right" onclick = "submitRoleUser();" />
-            </div>
-            </div>
+              </div>
 
-            <!-- /.box-footer -->
-          </form>
+              <!-- /.box-footer -->
+            </form>
+          </div>
         </div>
+        <!-- /.modal-content -->
       </div>
-      <!-- /.modal-content -->
+        <!-- /.modal-dialog -->
     </div>
-      <!-- /.modal-dialog -->
-    </div>
-  </div>
+  </section>
 
-</div>
 
 <!-- /.content-wrapper -->
 

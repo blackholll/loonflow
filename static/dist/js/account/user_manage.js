@@ -305,3 +305,108 @@ function adminChange() {
       $("#userPassword").attr("disabled", true);
     }
 }
+
+$("#user_form").validate();
+
+$('#userDeptId').select2({
+    placeholderOption: "first",
+    allowClear:true,
+    language: {
+      searching: function() {
+          return "输入部门名称搜索...";
+      }
+  },
+  ajax: {
+    url: "/api/v1.0/accounts/depts",
+    delay: 300,
+    dataType: 'json',
+    data: function (params) {
+      var query = {
+        search_value: params.term,
+        per_page: 10000,
+      }
+      return query;
+    },
+    processResults: function (data) {
+    console.log('处理结果', data);
+    return {
+      results: data.data.value.map(function(item) {
+        console.log(item.name);
+        return {
+          id: item.id,
+          text: item.name + "(id:" + item.id + ")"
+        };
+
+      })
+    };
+
+  },
+    },
+
+  cache: true
+  });
+
+$("#userRoleModal").on("hidden.bs.modal", function() {
+  $(this).removeData("bs.modal");
+  // $('#user_role_table').dataTable().Rows.Clear()
+  $('#user_role_table').dataTable().fnClearTable();
+  $('#user_role_table').dataTable().fnDestroy();
+  });
+
+$('#user_table').DataTable({
+ordering: false,
+"serverSide":true,
+"bFilter":true,
+"lengthMenu": [10, 25, 50, 100 ],
+"language": {
+  "searchPlaceholder": "用户名或姓名模糊搜索"
+},
+
+ajax: function (data, callback, settings) {
+  console.log(data);
+  var param = {};
+  param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
+  param.page = (data.start / data.length)+1;//当前页码
+  param.search_value=data.search.value;
+  console.log(param);    
+  $.ajax({
+    type: "GET",
+    url: "/api/v1.0/accounts/users",
+    cache: false,  //禁用缓存
+    data: param,  //传入组装的参数
+    dataType: "json",
+    success: function (result) {
+      var returnData = {};
+      returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
+      returnData.recordsTotal = result.data.total;//返回数据全部记录
+      returnData.recordsFiltered = result.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+      returnData.data = result.data.value;//返回的数据列表
+      //console.log(returnData);
+      //调用DataTables提供的callback方法，代表数据已封装完成并传回DataTables进行渲染
+      //此时的数据需确保正确无误，异常判断应在执行此回调前自行处理完毕
+      callback(returnData);
+      },
+    
+  })
+  
+},
+columns: [
+    { "data": "id"},
+    { "data": "username" },
+    { "data": "alias" },
+    { "data": "email" },
+    { "data": "phone" },
+    { "data": "dept_info", render:function (data, type, full) {return data.dept_name} },
+    { "data": "is_active", render:function (data, type, full) {if(data){return "正常"} else{return "未激活"}}},
+    { "data": "is_admin", render:function (data, type, full) {if(data){return "是"} else{return "否"}}},
+    { "data": "is_workflow_admin", render:function (data, type, full) {if(data){return "是"} else{return "否"}}},
+    { "data": "creator_info", render:function (data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
+    // { "data": "creator_info", render:function (data, type, full) {return data.creator_username}},
+    // { "data": "creator_info"},
+    { "data": "gmt_created" },
+    {render: function(data, type, full){
+      var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');
+      return ('<div><a onclick="showEditUserForm('+ rosJson + ')' + '"' + '>编辑</a>' + '/' + '<a onclick="resetPassword(' + full.id + ')' +'"'+'>重置密码</a>'+ '/' +'<a  onclick="showUserRole(' + full.id + ',' + "'" + full.username + "'" + ')' + '"' + '>查看角色</a>' + '/' + '<a onclick="delUser(' + full.id + ')' + '"'+ '>删除</a>' + ' </div>')
+    }}
+]
+})
