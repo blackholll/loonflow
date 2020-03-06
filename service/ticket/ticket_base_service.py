@@ -2164,18 +2164,18 @@ class TicketBaseService(BaseService):
         flag, result = cls.get_ticket_by_id(ticket_id)
         if flag is False:
             return False, result
-        result.is_deleted = True
-        result.save()
-        # 记录操作日志
-        flag, result = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
 
-        all_ticket_data_json = result.get('all_field_value_json')
+        flag, result_data = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
+        all_ticket_data_json = result_data.get('all_field_value_json')
+
         ticket_base_service_ins.add_ticket_flow_log(
             dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
                  intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_DELETE,
                  participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                  participant=username, state_id=result.state_id, ticket_data=all_ticket_data_json, creator=username))
 
+        result.is_deleted = True
+        result.save()
         return True, ''
 
     @classmethod
