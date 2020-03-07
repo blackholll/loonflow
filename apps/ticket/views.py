@@ -598,3 +598,22 @@ class TicketClose(LoonBaseView):
             code, msg, data = -1, msg, {}
         return api_response(code, msg, data)
 
+
+class TicketsNumStatistics(LoonBaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        工单个数统计
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        start_date = kwargs.get('start_date', '')
+        end_date = kwargs.get('end_date', '')
+        username = request.META.get('HTTP_USERNAME')
+
+        flag, result = ticket_base_service_ins.get_ticket_num_statistics(start_date, end_date, username)
+        if flag:
+            return api_response(0, '', result.get('result_list'))
+        else:
+            return api_response(-1, result, {})

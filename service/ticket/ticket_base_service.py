@@ -2208,5 +2208,47 @@ class TicketBaseService(BaseService):
         else:
             return False, 'user has no permission to manage this ticket'
 
+    @classmethod
+    @auto_log
+    def get_ticket_num_statistics(cls, start_date: str='', end_date: str='', username: str='') ->tuple:
+        """
+        工单统计
+        :param start_date:
+        :param end_date:
+        :param username:
+        :return:
+        """
+        # 获取用户有权限的工作流
+        flag, result = workflow_base_service_ins.get_workflow_manage_list(username)
+        if flag is False:
+            return False, result
+        workflow_list = result.get('workflow_list')
+        workflow_id_list = [workflow.get('id') for workflow in workflow_list]
+        from django.db.models import Count
+        query_params = {'is_deleted': 0, 'workflow_id__in': workflow_id_list}
+        if start_date:
+            query_params['gmt_gte'] = start_date
+        if end_date:
+            query_params['gmt_gte'] = end_date
+
+        queryset_result = TicketRecord.objects.filter(**query_params).extra(
+            select={'year': 'year(gmt_created)', 'month': 'month(gmt_created)', 'day': 'day(gmt_created)',
+                    'workflow_id': 'workflow_id'}).values('year', 'month', 'day', 'workflow_id').annotate(
+            count_len=Count('gmt_created')).order_by()
+
+        workflow_id_dict = {}
+        for workflow in workflow_list:
+            workflow_id_dict[workflow.get('id')] = workflow
+
+        result_list = []
+        for queryset in queryset_result:
+            date_str = '%d-%02d-%02d' % (queryset['year'], queryset['month'], queryset['day'])
+            workflow_name = workflow_id_dict[queryset['workflow_id']]['name']
+            result_list.append(dict(day=date_str, type=workflow_name, count=queryset['count_len']))
+        # 按日期排序
+        result_list = sorted(result_list, key=lambda r: r['day'])
+
+        return True, dict(result_list=result_list)
+
 
 ticket_base_service_ins = TicketBaseService()

@@ -75,12 +75,17 @@ class WorkflowBaseService(BaseService):
         :param username:
         :return:
         """
-        # 作为工作流创建人+工作流管理员的工作流
-        workflow_admin_queryset = WorkflowAdmin.objects.filter(username=username, is_deleted=0).all()
-        workflow_admin_id_list = [workflow_admin.id for workflow_admin in workflow_admin_queryset]
+        # 如果是admin,拥有所有工作流的权限
+        flag, result = account_base_service_ins.admin_permission_check()
+        if flag:
+            workflow_queryset = Workflow.objects.filter(is_deleted=0).all()
+        else:
+            # 作为工作流创建人+工作流管理员的工作流
+            workflow_admin_queryset = WorkflowAdmin.objects.filter(username=username, is_deleted=0).all()
+            workflow_admin_id_list = [workflow_admin.id for workflow_admin in workflow_admin_queryset]
 
-        workflow_queryset = Workflow.objects.filter(
-            Q(creator=username, is_deleted=0) | Q(id__in=workflow_admin_id_list, is_deleted=0)).all()
+            workflow_queryset = Workflow.objects.filter(
+                Q(creator=username, is_deleted=0) | Q(id__in=workflow_admin_id_list, is_deleted=0)).all()
 
         workflow_restful_list = [workflow.get_dict() for workflow in workflow_queryset]
 
