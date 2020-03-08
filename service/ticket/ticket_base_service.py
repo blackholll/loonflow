@@ -1290,7 +1290,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_flow_log(cls, ticket_id: int, username: str, per_page: int=10, page: int=1)->tuple:
+    def get_ticket_flow_log(cls, ticket_id: int, username: str, per_page: int=10, page: int=1, ticket_data=0)->tuple:
         """
         获取工单流转记录
         get ticket's flow log
@@ -1298,6 +1298,7 @@ class TicketBaseService(BaseService):
         :param username:
         :param per_page:
         :param page:
+        :param ticket_data: 是否返回当前工单所有字段信息
         :return:
         """
         ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all().order_by('-id')
@@ -1338,15 +1339,19 @@ class TicketBaseService(BaseService):
                                             participant_phone=participant_query_obj.phone
                                             )
 
-            ticket_flow_log_restful_list.append(dict(id=ticket_flow_log.id, ticket_id=ticket_id, state=state_info_dict,
-                                                     transition=transition_info_dict,
-                                                     intervene_type_id=ticket_flow_log.intervene_type_id,
-                                                     participant_type_id=ticket_flow_log.participant_type_id,
-                                                     participant=ticket_flow_log.participant,
-                                                     participant_info=participant_info,
-                                                     suggestion=ticket_flow_log.suggestion,
-                                                     gmt_created=str(ticket_flow_log.gmt_created)[:19]
-                                                     ))
+            ticket_flow_log_restful = dict(id=ticket_flow_log.id, ticket_id=ticket_id, state=state_info_dict,
+                                           transition=transition_info_dict,
+                                           intervene_type_id=ticket_flow_log.intervene_type_id,
+                                           participant_type_id=ticket_flow_log.participant_type_id,
+                                           participant=ticket_flow_log.participant,
+                                           participant_info=participant_info,
+                                           suggestion=ticket_flow_log.suggestion,
+                                           gmt_created=str(ticket_flow_log.gmt_created)[:19]
+                                           )
+            if ticket_data:
+                ticket_flow_log_restful.update(ticket_data=json.loads(ticket_flow_log.ticket_data))
+
+            ticket_flow_log_restful_list.append(dict(ticket_flow_log_restful))
 
         return True, dict(ticket_flow_log_restful_list=ticket_flow_log_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))

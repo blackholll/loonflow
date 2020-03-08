@@ -458,7 +458,6 @@ class WorkflowStateView(LoonBaseView):
         app_name = request.META.get('HTTP_APPNAME')
         username = request.META.get('HTTP_USERNAME')
         name = request_data_dict.get('name', '')
-        sub_workflow_id = request_data_dict.get('sub_workflow_id', 0)
         is_hidden = request_data_dict.get('is_hidden', 0)
         order_id = int(request_data_dict.get('order_id', 0))
         type_id = int(request_data_dict.get('type_id', 0))
@@ -471,7 +470,7 @@ class WorkflowStateView(LoonBaseView):
         label = request_data_dict.get('label', '')
         workflow_id = kwargs.get('workflow_id')
 
-        flag, result = workflow_state_service_ins.add_workflow_state(workflow_id, name, sub_workflow_id, is_hidden, order_id,
+        flag, result = workflow_state_service_ins.add_workflow_state(workflow_id, name, is_hidden, order_id,
                                                                type_id, remember_last_man_enable, participant_type_id,
                                                                participant, distribute_type_id, state_field_str, label,
                                                                username)

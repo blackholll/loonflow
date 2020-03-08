@@ -547,7 +547,6 @@ function getWorkflowId() {
 
   function showEditStateForm(data){
     $("#stateName").val(data.name);
-    $("#subWorkflowId").val(data.sub_workflow_id);
     if (data.is_hidden) {
       $("#isHidden").attr('checked', true);
     } else {
@@ -616,7 +615,6 @@ function getWorkflowId() {
 
     var paramData = {
       name: stateName,
-      sub_workflow_id: Number(subWorkflowId),
       is_hidden: Number(isHidden),
       order_id: Number(stateOrderId),
       type_id: Number(stateTypeId),

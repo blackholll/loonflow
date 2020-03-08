@@ -620,9 +620,20 @@ get
 
 - 请求参数
 
-无
 
-- 返回数据
+.. list-table::
+   :header-rows: 1
+
+   * - 参数名
+     - 类型
+     - 必填
+     - 说明
+   * - ticket_data
+     - int
+     - 否
+     - 是否返回每个操作时工单的所有字段信息，默认否
+
+- 返回数据（ticket_data未传或ticket_data传0）
 
 ::
 
@@ -715,6 +726,134 @@ get
     "code": 0
   }
 
+- 返回数据（ticket_data传1）
+
+::
+
+  {
+	"msg": "",
+	"data": {
+		"total": 4,
+		"value": [{
+				"state": {
+					"state_name": "发起人-确认中",
+					"state_id": 5
+				},
+				"transition": {
+					"transition_name": "确认完成",
+					"transition_id": 5,
+					"attribute_type_id": 3
+				},
+				"ticket_id": 1,
+				"participant_info": {
+					"participant_email": "lilei@163.com",
+					"participant_alias": "李磊",
+					"participant_phone": "13888888888",
+					"participant": "lilei",
+					"participant_type_id": 1
+				},
+				"gmt_modified": "2018-04-30 15:57:26",
+				"gmt_created": "2018-04-30 15:56:02",
+				"suggestion": "已经生效，感谢",
+				"ticket_data": {
+					"title": "xxx",
+					"sn": "xxxxx",
+					"state_id": 1,
+					"ticket_id": 1,
+					"gmt_modified": "2018-04-30 15:57:26",
+					"gmt_created": "2018-04-30 15:56:02",
+					"xxxx": "....."
+				}
+			},
+			{
+				"state": {
+					"state_name": "技术人员-处理中",
+					"state_id": 4
+				},
+				"transition": {
+					"transition_name": "处理完成",
+					"transition_id": 4
+				},
+				"ticket_id": 1,
+				"participant_info": {
+					"participant_email": "lilei@163.com",
+					"participant_alias": "李磊",
+					"participant_phone": "13888888888",
+					"participant": "lilei",
+					"participant_type_id": 1
+				},
+				"gmt_modified": "2018-04-30 15:57:14",
+				"gmt_created": "2018-04-30 15:55:32",
+				"suggestion": "处理完成",
+				"ticket_data": {
+					"title": "xxx",
+					"sn": "xxxxx",
+					"state_id": 1,
+					"ticket_id": 1,
+					"gmt_modified": "2018-04-30 15:57:26",
+					"gmt_created": "2018-04-30 15:56:02",
+					"xxxx": "....."
+				}
+			},
+			{
+				"state": {
+					"state_name": "TL审批中",
+					"state_id": 3
+				},
+				"transition": {
+					"transition_name": "同意",
+					"transition_id": 3
+				},
+				"ticket_id": 1,
+				"participant_info": {
+					"participant_email": "lilei@163.com",
+					"participant_alias": "李磊",
+					"participant_phone": "13888888888",
+					"participant": "lilei",
+					"participant_type_id": 1
+				},
+				"gmt_modified": "2018-04-30 15:57:00",
+				"gmt_created": "2018-04-30 15:53:19",
+				"suggestion": "同意处理",
+				"ticket_data": {
+					"title": "xxx",
+					"sn": "xxxxx",
+					"state_id": 1,
+					"ticket_id": 1,
+					"gmt_modified": "2018-04-30 15:57:26",
+					"gmt_created": "2018-04-30 15:56:02",
+					"xxxx": "....."
+				}
+			},
+			{
+				"state": {
+					"state_name": "新建中",
+					"state_id": 1
+				},
+				"transition": {
+					"transition_name": "提交",
+					"transition_id": 1
+				},
+				"ticket_id": 1,
+				"gmt_modified": "2018-04-30 15:52:35",
+				"gmt_created": "2018-04-10 17:39:33",
+				"suggestion": "请尽快处理，谢谢",
+				"ticket_data": {
+					"title": "xxx",
+					"sn": "xxxxx",
+					"state_id": 1,
+					"ticket_id": 1,
+					"gmt_modified": "2018-04-30 15:57:26",
+					"gmt_created": "2018-04-30 15:56:02",
+					"xxxx": "....."
+				}
+			}
+		],
+		"page": 1,
+		"per_page": 10
+	},
+	"code": 0
+}
 
 ----------------
 工单处理步骤记录

@@ -282,7 +282,7 @@ class WorkflowStateService(BaseService):
 
     @classmethod
     @auto_log
-    def add_workflow_state(cls, workflow_id: int, name: str, sub_workflow_id: int, is_hidden: int, order_id: int,
+    def add_workflow_state(cls, workflow_id: int, name: str, is_hidden: int, order_id: int,
                            type_id: int, remember_last_man_enable: int, participant_type_id: int, participant: str,
                            distribute_type_id: int, state_field_str: str, label: str, creator: str)->tuple:
         """
@@ -290,7 +290,6 @@ class WorkflowStateService(BaseService):
         add workflow state
         :param workflow_id:
         :param name:
-        :param sub_workflow_id:
         :param is_hidden:
         :param order_id:
         :param type_id:
@@ -304,7 +303,7 @@ class WorkflowStateService(BaseService):
         :return:
         """
         workflow_state_obj = State(
-            workflow_id=workflow_id, name=name, sub_workflow_id=sub_workflow_id, is_hidden=is_hidden, order_id=order_id,
+            workflow_id=workflow_id, name=name, is_hidden=is_hidden, order_id=order_id,
             type_id=type_id, remember_last_man_enable=remember_last_man_enable, participant_type_id=participant_type_id,
             participant=participant, distribute_type_id=distribute_type_id, state_field_str=state_field_str,
             label=label, creator=creator)

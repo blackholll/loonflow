@@ -893,9 +893,30 @@
 <ul class="simple">
 <li><p>请求参数</p></li>
 </ul>
-<p>无</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ticket_data</p></td>
+<td><p>int</p></td>
+<td><p>否</p></td>
+<td><p>是否返回每个操作时工单的所有字段信息，默认否</p></td>
+</tr>
+</tbody>
+</table>
 <ul class="simple">
-<li><p>返回数据</p></li>
+<li><p>返回数据（ticket_data未传或ticket_data传0）</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -987,6 +1008,135 @@
 <span class="p">}</span>
 </pre></div>
 </div>
+<ul class="simple">
+<li><p>返回数据（ticket_data传1）</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+      <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+              <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+              <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[{</span>
+                              <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;发起人-确认中&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">5</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;确认完成&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                                      <span class="s2">&quot;attribute_type_id&quot;</span><span class="p">:</span> <span class="mi">3</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:26&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:56:02&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;已经生效，感谢&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;ticket_data&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="s2">&quot;xxxxx&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:26&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:56:02&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;xxxx&quot;</span><span class="p">:</span> <span class="s2">&quot;.....&quot;</span>
+                              <span class="p">}</span>
+                      <span class="p">},</span>
+                      <span class="p">{</span>
+                              <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;技术人员-处理中&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">4</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;处理完成&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">4</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:14&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:55:32&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;处理完成&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;ticket_data&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="s2">&quot;xxxxx&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:26&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:56:02&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;xxxx&quot;</span><span class="p">:</span> <span class="s2">&quot;.....&quot;</span>
+                              <span class="p">}</span>
+                      <span class="p">},</span>
+                      <span class="p">{</span>
+                              <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;TL审批中&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">3</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">3</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:00&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:53:19&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意处理&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;ticket_data&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="s2">&quot;xxxxx&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:26&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:56:02&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;xxxx&quot;</span><span class="p">:</span> <span class="s2">&quot;.....&quot;</span>
+                              <span class="p">}</span>
+                      <span class="p">},</span>
+                      <span class="p">{</span>
+                              <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;新建中&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;提交&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+                              <span class="p">},</span>
+                              <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:52:35&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-10 17:39:33&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;请尽快处理，谢谢&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;ticket_data&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="s2">&quot;xxxxx&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:26&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:56:02&quot;</span><span class="p">,</span>
+                                      <span class="s2">&quot;xxxx&quot;</span><span class="p">:</span> <span class="s2">&quot;.....&quot;</span>
+                              <span class="p">}</span>
+                      <span class="p">}</span>
+              <span class="p">],</span>
+              <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+              <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="mi">10</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>}</p>
 </div>
 <div class="section" id="id12">
 <h2>工单处理步骤记录<a class="headerlink" href="#id12" title="永久链接至标题">¶</a></h2>
