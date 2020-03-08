@@ -1,0 +1,285 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>如何运行 &mdash; loonflow 1.0.0 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="版本升级" href="update.html" />
+    <link rel="prev" title="如何获取代码" href="get_source.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> loonflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">关于loonflow</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="what.html">loonflow是什么</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preface.html">前言</a></li>
+<li class="toctree-l1"><a class="reference internal" href="os.html">操作系统支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="get_source.html">如何获取代码</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">如何运行</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">开发环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">生产环境</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="update.html">版本升级</a></li>
+<li class="toctree-l1"><a class="reference internal" href="related_terms.html">相关术语</a></li>
+<li class="toctree-l1"><a class="reference internal" href="infrastructure.html">基础架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="code_structure.html">代码结构</a></li>
+</ul>
+<p class="caption"><span class="caption-text">管理后台</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../manage/login.html">登录管理后台</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/sync_account.html">同步用户信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/workflow_config.html">工作流配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html">用户管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id2">角色管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id3">部门管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id4">调用权限</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/authentication.html">接口调用鉴权</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/call_logic.html">接口调用逻辑</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/workflow.html">工作流相关接口</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/ticket.html">工单相关接口</a></li>
+</ul>
+<p class="caption"><span class="caption-text">相关常量</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../constant.html">相关常量</a></li>
+</ul>
+<p class="caption"><span class="caption-text">常见问题</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../q&amp;a.html">常见问题</a></li>
+</ul>
+<p class="caption"><span class="caption-text">其他</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">其他</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">loonflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>如何运行</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/about/start.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>如何运行<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<div class="section" id="id2">
+<h2>开发环境<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>创建数据库并修改settings/dev.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)</p></li>
+<li><p>修改tasks.py中DJANGO_SETTINGS_MODULE对应的配置文件为实际使用的配置文件</p></li>
+<li><p>创建python虚拟环境: python3.5</p></li>
+<li><p>安装依赖包: pip install -r requirements/dev.txt</p></li>
+<li><p>启动redis(用于生成唯一的工单流水号+celery异步任务[执行脚本、通知脚本])</p></li>
+<li><p>初始化数据库</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">makemigrations</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">migrate</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>创建初始账户: python manage.py createsuperuser</p></li>
+<li><p>启动开发环境: python manage.py runserver 如果需要启动在其他端口:python manage.py runserver 8888</p></li>
+<li><p>启动celery任务: celery -A tasks worker -l info -Q loonflow</p></li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>生产环境<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>生产环境建议使用nginx+uwsgi的方式部署</p></li>
+<li><p>创建数据库并修改settings/pro.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)</p></li>
+<li><p>修改tasks.py中DJANGO_SETTINGS_MODULE对应的配置文件为实际使用的配置文件</p></li>
+<li><p>创建python虚拟环境:python3.5</p></li>
+<li><p>安装依赖包: pip install -r requirements/pro.txt</p></li>
+<li><p>启动redis(用于生成唯一的工单流水号+celery异步任务[执行脚本、通知脚本])</p></li>
+<li><p>初始化数据库:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">makemigrations</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">migrate</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>创建初始账户: python manage.py createsuperuser</p></li>
+<li><p>启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow –logfile=xxx.log –pidfile=xxx.pid # -c参数为启动的celery进程数， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="update.html" class="btn btn-neutral float-right" title="版本升级" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="get_source.html" class="btn btn-neutral float-left" title="如何获取代码" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, blackholll
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

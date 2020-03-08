@@ -499,7 +499,7 @@ class TicketScriptRetry(LoonBaseView):
             api_response(-1, 'need arg username', '')
         result, msg = ticket_base_service_ins.retry_ticket_script(ticket_id, username)
         if result:
-            code, msg, data = 0, 'Ticket script retry start successful', ''
+            code, msg, data = 0, 'Ticket script or hook retry start successful', ''
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)

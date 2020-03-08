@@ -1759,11 +1759,13 @@ class TicketBaseService(BaseService):
             from tasks import run_flow_task  # 放在文件开头会存在循环引用问题
             run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id,
                                             '{}_retry'.format(username)], queue='loonflow')
+            return True, ''
         elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             ticket_obj.script_run_last_result = True
             ticket_obj.save()
             from tasks import flow_hook_task
             flow_hook_task.apply_async(args=[ticket_id], queue='loonflow')
+            return True, ''
         else:
             return False, "The ticket's participant_type is not robot or hook, do not allow retry"
 

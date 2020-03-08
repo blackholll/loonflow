@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>接口调用鉴权 &mdash; loonflow 1.0.0 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="接口调用逻辑" href="call_logic.html" />
+    <link rel="prev" title="同步用户信息" href="../manage/sync_account.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> loonflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">关于loonflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/what.html">loonflow是什么</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/preface.html">前言</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/os.html">操作系统支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/get_source.html">如何获取代码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/start.html">如何运行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/update.html">版本升级</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/related_terms.html">相关术语</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/infrastructure.html">基础架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/code_structure.html">代码结构</a></li>
+</ul>
+<p class="caption"><span class="caption-text">管理后台</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../manage/login.html">登录管理后台</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/sync_account.html">同步用户信息</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API文档</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">接口调用鉴权</a></li>
+<li class="toctree-l1"><a class="reference internal" href="call_logic.html">接口调用逻辑</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">loonflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>接口调用鉴权</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api_docs/authentication.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>接口调用鉴权<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<p>Loonflow作为工作流引擎，正确是的使用姿势是各个系统的后端通过http api调用按照各自的需求来完成工单展示、工单新建、工单处理逻辑
+在loonflow的管理后台中”账户-调用token”中新新增记录.填写调用方app_name新增后会生成一个签名token.调用方将签名信息写到
+http header中来调用具体的api 签名算法如下:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="n">timestamp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())[:</span><span class="mi">10</span><span class="p">]</span>
+<span class="n">ori_str</span> <span class="o">=</span> <span class="n">timestamp</span> <span class="o">+</span> <span class="n">token</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">ori_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>api调用:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">headers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">appname</span><span class="o">=</span><span class="n">app_name</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">)</span>
+
+<span class="c1"># get</span>
+<span class="n">get_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">per_page</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:8000/api/v1.0/tickets&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">get_data</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+<span class="c1"># post</span>
+<span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">target_username</span><span class="o">=</span><span class="s1">&#39;lisi&#39;</span><span class="p">,</span> <span class="n">suggestion</span><span class="o">=</span><span class="s1">&#39;请协助提供更多信息&#39;</span><span class="p">)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;http://127.0.0.1:8000/api/v1.0/tickets/</span><span class="si">{ticket_id}</span><span class="s1">/add_node&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+<span class="c1"># patch</span>
+<span class="n">requsts</span><span class="o">.</span><span class="n">patch</span><span class="p">,</span><span class="n">传参同post</span>
+
+<span class="c1"># put</span>
+<span class="n">requests</span><span class="o">.</span><span class="n">put</span><span class="p">,</span> <span class="n">传参同post</span>
+</pre></div>
+</div>
+<p>注意: 开发阶段如果需要在postman中测试接口，避免每次都需要重新生成签名，可以将service.permission.api_permission.ApiPermissionCheck中签名有效期改长些</p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="call_logic.html" class="btn btn-neutral float-right" title="接口调用逻辑" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../manage/sync_account.html" class="btn btn-neutral float-left" title="同步用户信息" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, blackholll
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

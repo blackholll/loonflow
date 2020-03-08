@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>同步用户信息 &mdash; loonflow 1.0.0 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="工作流配置" href="workflow_config.html" />
+    <link rel="prev" title="登录管理后台" href="login.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> loonflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">关于loonflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/what.html">loonflow是什么</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/preface.html">前言</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/os.html">操作系统支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/get_source.html">如何获取代码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/start.html">如何运行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/update.html">版本升级</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/related_terms.html">相关术语</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/infrastructure.html">基础架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/code_structure.html">代码结构</a></li>
+</ul>
+<p class="caption"><span class="caption-text">管理后台</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="login.html">登录管理后台</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">同步用户信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow_config.html">工作流配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user&amp;permission.html">用户管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user&amp;permission.html#id2">角色管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user&amp;permission.html#id3">部门管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user&amp;permission.html#id4">调用权限</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/authentication.html">接口调用鉴权</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/call_logic.html">接口调用逻辑</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/workflow.html">工作流相关接口</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/ticket.html">工单相关接口</a></li>
+</ul>
+<p class="caption"><span class="caption-text">相关常量</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../constant.html">相关常量</a></li>
+</ul>
+<p class="caption"><span class="caption-text">常见问题</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../q&amp;a.html">常见问题</a></li>
+</ul>
+<p class="caption"><span class="caption-text">其他</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">其他</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">loonflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>同步用户信息</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/manage/sync_account.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>同步用户信息<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<p>同步账户中用户、角色、用户角色(用户具有的角色)、部门信息。 loonflow中工单的流转过程中需要根据用户的相关信息来确定新的处理人，
+因为不同公司用户组织架构信息保存方式各不一样(如ldap、AD或者直接保存在企业微信、钉钉等等)，需要你自己编写用户组织信息的脚本，
+定时将你司的最新用户组织信息同步到loonflow中。可参考从AD中同步。 非常欢迎大家将自己的脚本pr到https://github.com/blackholll/loonflow-helper。</p>
+<p>注意:</p>
+<ul class="simple">
+<li><p>loonflow中的用户只是用于流转的时候确定新的处理人，无需要用户登录loonflow的管理后台，所以同步脚本中往loonflow插入用户记录时，密码随便插入。当然超级管理员除外(超级管理员可以通过python manage.py createsuperuser命令来创建)</p></li>
+<li><p>用户表中 dept_id为loonflow的部门表中主键id， 非你司用户信息中的部门id。 同步部门时可以将你司部门id保存在loonflow部门表中的label字段中来关联.label字段建议使用字段的json格式，方便以后扩展。如{“source_dept_id”:11}</p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="workflow_config.html" class="btn btn-neutral float-right" title="工作流配置" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="login.html" class="btn btn-neutral float-left" title="登录管理后台" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, blackholll
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

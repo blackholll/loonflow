@@ -1,0 +1,402 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>工作流配置 &mdash; loonflow 1.0.0 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="用户管理" href="user&amp;permission.html" />
+    <link rel="prev" title="同步用户信息" href="sync_account.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> loonflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">关于loonflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/what.html">loonflow是什么</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/preface.html">前言</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/os.html">操作系统支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/get_source.html">如何获取代码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/start.html">如何运行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/update.html">版本升级</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/related_terms.html">相关术语</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/infrastructure.html">基础架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/code_structure.html">代码结构</a></li>
+</ul>
+<p class="caption"><span class="caption-text">管理后台</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="login.html">登录管理后台</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sync_account.html">同步用户信息</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">工作流配置</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">自定义通知</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">自定义执行脚本</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">工作流</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">状态</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">流转</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user&amp;permission.html">用户管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user&amp;permission.html#id2">角色管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user&amp;permission.html#id3">部门管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user&amp;permission.html#id4">调用权限</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/authentication.html">接口调用鉴权</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/call_logic.html">接口调用逻辑</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/workflow.html">工作流相关接口</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/ticket.html">工单相关接口</a></li>
+</ul>
+<p class="caption"><span class="caption-text">相关常量</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../constant.html">相关常量</a></li>
+</ul>
+<p class="caption"><span class="caption-text">常见问题</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../q&amp;a.html">常见问题</a></li>
+</ul>
+<p class="caption"><span class="caption-text">其他</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">其他</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">loonflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>工作流配置</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/manage/workflow_config.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>工作流配置<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<div class="section" id="id2">
+<h2>自定义通知<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<p>自定义通知的管理权限仅限loonflow管理员，即用户表中is_admin为true的用户。通知hook添加后，工作流管理员在配置工作流时可以选择这些通知。
+其中hook_url为提供通知服务的地址，token作为计算签名的密钥，当工作流选择了通知，那么通过此工作流创建的工单状态发送变化时都会触发hook。
+loonflow将会对这个hook_url发送一个post请求，请求头中包括签名，计算方式方式同loonflow校验api请求的签名算法。请求内容中包括工单最新
+的处理人信息，被请求方可以根据这个处理人信息发送通知消息。hook服务方建议校验请求头中的签名后再响应请求。</p>
+<p>签名算法</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">gen_signature_by_token</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span><span class="o">-&gt;</span><span class="nb">tuple</span><span class="p">:</span>
+  <span class="n">md5_key</span> <span class="o">=</span> <span class="n">token</span>
+  <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+  <span class="n">ori_str</span> <span class="o">=</span> <span class="n">timestamp</span> <span class="o">+</span> <span class="n">md5_key</span>
+  <span class="n">tar_str</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">ori_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+  <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">signature</span><span class="o">=</span><span class="n">tar_str</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>loonflow发送hook请求时，header头中将包含signature 和timestamp。</p>
+<p>请求内容中将包含以下参数</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;title_result&#39;</span><span class="p">:</span> <span class="n">title_result</span><span class="p">,</span> <span class="c1"># 通知标题，在工作流配置中会配置标题模板，此处将根据工单的信息生成实际的标题</span>
+  <span class="s1">&#39;content_result&#39;</span><span class="p">:</span> <span class="n">content_result</span><span class="p">,</span> <span class="c1"># 通知内容，在工作流配置中会配置内容模板，此处将根据工单的信息生成实际的内容</span>
+  <span class="s1">&#39;participant_type_id&#39;</span><span class="p">:</span> <span class="n">ticket_obj</span><span class="o">.</span><span class="n">participant_type_id</span><span class="p">,</span> <span class="c1"># 当前参与人类型, 类型定义见文档中&quot;常量说明&quot;, hook服务方需根据类型决定是否发送消息</span>
+  <span class="s1">&#39;ticket_value_info&#39;</span><span class="p">:</span> <span class="n">ticket_value_info</span><span class="p">,</span>  <span class="c1"># 该字段中将包含工单所有字段的值，一般情况下发送消息时候根据标题和内容发送即可，</span>
+  <span class="s1">&#39;last_flow_log&#39;</span><span class="p">:</span> <span class="n">last_flow_log</span><span class="p">,</span>  <span class="c1"># 工单的最近一条处理记录，发送通知消息时可以根据自己需要决定消息中是否包含这个信息</span>
+  <span class="s1">&#39;participant_info_list&#39;</span><span class="p">:</span> <span class="n">participant_info_list</span>  <span class="c1"># 工单的当前处理人信息列表， 是一个数组，每个记录中都包含处理人的username, alias, email, phone</span>
+ <span class="p">}</span>
+</pre></div>
+</div>
+<p>新建自定义通知</p>
+<blockquote>
+<div><div class="figure align-default">
+<img alt="../_images/hook_notice.png" src="../_images/hook_notice.png" />
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h2>自定义执行脚本<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
+<p>0.3版本开始loonflow已经支持配置状态时设置hook方式,此方式可以替代执行脚本方式, 不建议使用执行脚本的方式。 执行脚本存在以下缺陷</p>
+<div class="line-block">
+<div class="line">1.脚本需要上传到loonflow服务端，且保存在media目录，虽然被重命名了，但是只要支持文件名就可以直接访问，而执行脚本中通常会包含密码等敏感信息，有安全风险</div>
+<div class="line">2.因为需要保存脚本文件到media目录，loonflow迁移时需要迁移此部分文件</div>
+<div class="line">3.容器集群中部署时，还需要挂载分布式文件存储以保证容器迁移时可以继续访问磁盘内容，维护成本高</div>
+<div class="line">4.loonflow是工作流引擎，执行脚本内容无法控制，很容易引入一些耗时(如轮询)或者耗资源的运算，这些运算将拖慢loonflow的性能</div>
+</div>
+<p>新建自定义脚本</p>
+<blockquote>
+<div><div class="figure align-default">
+<img alt="../_images/run_script.png" src="../_images/run_script.png" />
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="id4">
+<h2>工作流<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h2>
+<p>创建一个工作流包括四个部分，创建工作流基础信息、添加工作流的自定义字段、添加状态、添加流转。 在创建和编辑工作流时可以指定对应的管理员，
+只有工作流对应的管理员、工作流创建人、loonflow超级管理员才有工作流的编辑权限。拥有工作流管理员权限的用户可以新增和维护自己相关
+(自己创建的、作为管理员的)的工作流</p>
+<p>选择通知：loonflow超级管理员在通知管理中添加通知后，工作流管理员即可在新建或编辑工作流时候选择这些通知。</p>
+<p>工单查看权限校验：开启后，以工单的关联人(创建人、曾经的处理人)的名义调用工单详情接口才可以返回详情信息</p>
+<p>限制表达式：默认”{}”，限制周期({“period”:24} 24小时), 限制次数({“count”:1}在限制周期内只允许提交1次), 限制级别({“level”:1}
+针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({“allow_persons”:”zhangsan,lisi”}只允许张三提交工单,
+{“allow_depts”:”1,2”}只允许部门id为1和2的用户提交工单，{“allow_roles”:”1,2”}只允许角色id为1和2的用户提交工单)。符合限制
+表达式规则时调用创建工单接口会返回code=-1,同时msg中将有相应的说明</p>
+<p>标题模板：用于发送通知时，确定通知的标题</p>
+<p>内容模板：用于发送通知，确定通知的内容</p>
+<p>管理员： 工作流的创建人和这里的管理员有权限修改配置此工作流， 另外loonflow的超级管理员拥有对所有工作流的配置查看权限</p>
+<blockquote>
+<div><div class="figure align-default">
+<img alt="../_images/new_workflow.png" src="../_images/new_workflow.png" />
+</div>
+</div></blockquote>
+<p>每个类型的工作流有各自不同的字段， 通过自定义字段可以为工作流新增独有的字段</p>
+<p>字段标识：自定义字段需要有个标识，需要为英文字母+下划线，如reason、problem_description</p>
+<p>字段名称：自定义字段的名称，如请假理由、问题描述等</p>
+<p>字段类型：支持字符串、整形、浮点型、布尔、日期、日期时间、单选框、多选框、下拉列表、多选下拉列表、文本域、用户名、多选用户名、附件。
+其中单选、多选、下拉、多选下拉默认支持给定可选范围的情况，如果你需要可选项通过接口获取，请使用字符串类型，然后在”标签“中填写前后端约定好的信息。
+由前端针对这个字段特殊处理。附件类型需要调用方自己处理上传逻辑后将附件路径随其他字段一起提交，loonflow只保存附件路径。关于用户名类型字段，
+调用方前端可以显示一个搜索用户的可选框，然后提交被选择的username或者逗号隔开的多个被选择username(多选用户名类型)。</p>
+<p>顺序ID：用于指定工单详情界面中字段的布局顺序，调用方前端需要根据这个id来布局字段</p>
+<p>默认值：调用方前端当用户未填写内容时，可以根据这个信息给定默认值显示</p>
+<p>布尔显示定义：当字段类型是布尔类型时，可以通过定义来显示不同的文字，如{“1”:”是”,”0”:”否”}或{“1”:”需要”,”0”:”不需要”}，注意数字也需要引号</p>
+<p>选项：用于指定单选、多选、下拉框、多选下拉框字段的可选项目，格式为json如:{“1”:”中国”, “2”:”美国”},{“ch”:”中国”, “us”:”美国”}注意数字也需要引号</p>
+<p>标签：用于特殊字段，通过与调用方约定标签内容，可以实现任意的字段表现形式，格式为json,如{“table”:”<a class="reference external" href="http://xxx.com/table">http://xxx.com/table</a>”}
+可以表示从http://xxx.com/table 获取信息，然后显示为一个表格</p>
+<p>模板： 用于文本域类型字段前端根据此模板显示默认值</p>
+<div class="figure align-default">
+<img alt="../_images/customfield.png" src="../_images/customfield.png" />
+</div>
+</div>
+<div class="section" id="id5">
+<h2>状态<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<p>工单会存在各种状态，工单的处理过程也就是工单的状态的变化，loonflow对于工作流的状态支持各种灵活的配置</p>
+<p>名称： 状态的名称，如创建中、编辑中、tl审批中、结束等等</p>
+<p>是否隐藏： 开启后，获取工单步骤接口将不返回此状态(工单当前处于隐藏状态除外)。因为step图是线性的，
+而loonflow工作流状态是支持环状关联的，所以在step图需要将一些旁支状态隐藏掉</p>
+<p>顺序id： 用于指定“获取工单步骤”接口中返回的状态id，因为step图是线性的，
+而loonflow工作流状态是支持环状关联的，所以在step图显示时需要给定每个状态的显示顺序</p>
+<p>状态类型： 状态分为三个状态，初始状态、普通状态、结束状态，一个工作必须包含一个初始状态、一个结束状态、0-N个普通状态，
+初始状态用于创建工单时根据这个状态及状态关联的流转来确定可以做的提交操作(提交、新建、保存等等)。结束状态表示工单到此状态后
+将无法被继续处理，建议只设置一个结束状态，否则 “强制关闭工单”接口将无法正常关闭工单(无法确定结束状态是哪个)</p>
+<p>是否记忆最后处理人： 开启后，到达此状态时会先检查之前是否有人在此状态处理过，如果有则处理人为最后一次处理的人，
+使用场景如：运维处理中状态下处理人有A、B、C，其中A处理了工单，然后到达发起人确认状态时，发起人发现处理的有问题，
+那么发起人可能是希望将工单退回到之前处理的A。而不是A、B、C都收到工单</p>
+<p>参与人类型： 参与人类型包括个人、多人、部门、角色、脚本(建议使用hook替代)、工单字段、父工单字段、hook、无。
+注意：如果需要在此状态创建子工单，需要将参与人类型设置为个人，参与人使用loonrobot</p>
+<p>参与人：参与人信息根据参与人类型不同而不同，如果参与人类型是个人，那么参与人需要填写用户的username。 如果参与人类型是多人，
+那么参与人需要填写多个username,用逗号隔开，如zhansan,lisi。如果参与人类型是部门，则参与人填写loonflow部门记录中的部门id。
+如果参与人类型是角色，则参与人填写loonflow角色记录中的id.如果参与人类型是脚本（建议使用hook方式替代），
+则填写“工作流配置”-“执行脚本”中的脚本id。如果参与人类型是工单字段，则参与人填写工作流基础字段或者此工作流定义的自定义字段的字段标识
+如username, agent。如果参与人类型是父工单字段，则填写工单的对应字段的标识。如果参与人类型是hook，那么参与人填写
+{“hook_url”:”<a class="reference external" href="http://xxx.com/xxx">http://xxx.com/xxx</a>”, “hook_token”:”xxxx”, “wait”:true}，其中hook_url是要触发hook的目标地址，
+hook_token用于签名计算，hook签名算法如下,触发hook请求时候会将timestamp 和signature添加到请求头中，
+hook服务端应该在收到请求后先校验签名的有效性然后才响应hook请求。如果参会人类型填写无，那么处理人信息留空。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="n">timestamp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())[:</span><span class="mi">10</span><span class="p">]</span>
+<span class="n">ori_str</span> <span class="o">=</span> <span class="n">timestamp</span> <span class="o">+</span> <span class="n">token</span>
+<span class="n">signature</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">ori_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>分配方式： 分配方式包括直接处理、主动接单、随机分配、全部处理。如果设置为直接处理，工单的当前处理人可以直接点击配置的流
+转(如同意、拒绝、完成)来处理。如果设置为主动接单，则当前处理人需要先接单，然后才可以按照配置的流转来处理(表现形式为获取用
+户可执行的操作接口只会返回接单这个流转，具体参考关于接单接口的纤细描述)。 如果设置为随机分配，那么系统会自动将工单处理人设置
+为有处理权限的人之间的一个，只有这个人可以处理。如果设置为全部处理，则需要此状态的所有参与人都处理完且处理操作一致，才会改变
+工单的状态。</p>
+<p>表单字段： 状态的表单字段用于定义当用户有对该工单处理权限时，当前状态工单详情中应该显示哪些字段以及这些字段是否可编辑。其中
+1表示只读，2表示必填，3表示可选，示例：{“gmt_created”:1,”title”:2, “sn”:1}, 内置特殊字段
+participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,
+workflow.workflow_name:工作流名称，</p>
+<p>状态标签：json格式，可以使用此配置实现不同状态各种定制化需求，如在服务器申请工单的tl审批阶段显示发起人拥有的所有服务器权限列表，
+那么状态标签可以设置为{“display_server”:1}，标签具体内容与调用方约定好即可，</p>
+<div class="figure align-default">
+<img alt="../_images/workflow_state_edit.png" src="../_images/workflow_state_edit.png" />
+</div>
+</div>
+<div class="section" id="id6">
+<h2>流转<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h2>
+<p>流转用于定义每个状态之间的变化途径。</p>
+<p>名称：定义流转的名称，表现为工单详情中用户可以点击的操作，如“提交”、“保存”、“同意”、“拒绝”、“完成”、“关闭”等等</p>
+<p>流转类型：流转类型包括常规流转和定时器流转。如果选择定时器流转，需要设定定时器的时间。</p>
+<p>定时器：单位是秒，如果流转配置了定时器，当工单处于这个流转的源状态停留对应定时器的时间后未做任何操作，那么定时器会触发工单自动流转到下个状态。
+使用场景如：客服类工单超过SLA无人处理，自动流转到客服团队leader处理</p>
+<p>源状态：流转的源状态，即这个流转是在某个状态下可以执行</p>
+<p>目标状态：触发流转后工单的状态将改变为这个目标状态。当流转类型为条件流转时，这里的目标状态将无效，以条件表达式中设定的条件目标状态来流转</p>
+<p>条件表达式：流转条件表达式，根据表达式中的条件来确定流转的下个状态，格式为[{“expression”:”{days} &gt; 3 and {days} ≤10”,
+“target_state_id”:11},{“expression”:”{days} &gt;10”, “target_state_id”:12}] 其中{}用于填充工单的字段key,
+运算时会换算成实际的值，当符合条件下个状态将变为target_state_id中的值,表达式只支持简单的运算或datetime/time运算.
+loonflow会以首次匹配成功的条件为准，所以多个条件不要有冲突</p>
+<p>属性类型：因为别的审批系统中对于每个操作可能只有同意还是拒绝，所以此处加个属性用于与其他审批系统对接，另外也根据根据这个属性来判断工单是否被拒绝
+(工单列表查询支持是否被拒绝这个条件)</p>
+<p>是否校验必填项: 默认在用户点击操作的时候需要校验工单表单的必填项,如果设置为否则不检查。用于如”退回”属性的操作，不需要填写表单内容</p>
+<p>点击弹窗提示： 可以用于当用户在处理工单时做特定操作时，弹窗提示信息。 如用户点击”拒绝”时弹窗提示要求用户确认是否真的拒绝，避免点错</p>
+<p>弹窗内容: 当启用”点击弹窗提示“时可以设置弹窗中的内容</p>
+<div class="figure align-default">
+<img alt="../_images/workflow_transition_edit.png" src="../_images/workflow_transition_edit.png" />
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="user&amp;permission.html" class="btn btn-neutral float-right" title="用户管理" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sync_account.html" class="btn btn-neutral float-left" title="同步用户信息" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, blackholll
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

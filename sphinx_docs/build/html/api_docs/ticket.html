@@ -1,0 +1,2028 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>工单相关接口 &mdash; loonflow 1.0.0 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="相关常量" href="../constant.html" />
+    <link rel="prev" title="工作流相关接口" href="workflow.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> loonflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">关于loonflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/what.html">loonflow是什么</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/preface.html">前言</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/os.html">操作系统支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/get_source.html">如何获取代码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/start.html">如何运行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/update.html">版本升级</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/related_terms.html">相关术语</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/infrastructure.html">基础架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/code_structure.html">代码结构</a></li>
+</ul>
+<p class="caption"><span class="caption-text">管理后台</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../manage/login.html">登录管理后台</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/sync_account.html">同步用户信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/workflow_config.html">工作流配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html">用户管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id2">角色管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id3">部门管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id4">调用权限</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API文档</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">接口调用鉴权</a></li>
+<li class="toctree-l1"><a class="reference internal" href="call_logic.html">接口调用逻辑</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">工作流相关接口</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">工单相关接口</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">获取工单列表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">新建工单</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">获取工单详情</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">获取工单可以做的操作</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">接单</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">转交</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">加签</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">加签处理完成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">处理工单</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">获取工单流转记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">工单处理步骤记录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id13">修改工单状态</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id14">批量获取工单状态</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id15">修改工单字段的值</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hook">重试工单脚本/hook任务</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id16">新增工单评论/注释</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id17">工单hook回调</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id18">工单当前的参与人详情</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id19">强制关闭工单</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">相关常量</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../constant.html">相关常量</a></li>
+</ul>
+<p class="caption"><span class="caption-text">常见问题</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../q&amp;a.html">常见问题</a></li>
+</ul>
+<p class="caption"><span class="caption-text">其他</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">其他</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">loonflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>工单相关接口</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api_docs/ticket.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>工单相关接口<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<div class="section" id="id2">
+<h2>获取工单列表<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>sn</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>流水号，支持根据sn的前几位模糊查询</p></td>
+</tr>
+<tr class="row-odd"><td><p>title</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>工单标题，模糊查询</p></td>
+</tr>
+<tr class="row-even"><td><p>create_start</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>创建时间起</p></td>
+</tr>
+<tr class="row-odd"><td><p>create_end</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>创建时间止</p></td>
+</tr>
+<tr class="row-even"><td><p>workflow_ids</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>工作流ids，逗号隔开多个工作流id, 如”1,2,3”</p></td>
+</tr>
+<tr class="row-odd"><td><p>state_ids</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>状态ids,逗号隔开多个状态id,如”1,2,3”</p></td>
+</tr>
+<tr class="row-even"><td><p>ticket_ids</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>工单ids, 逗号隔开多个id，如”1,2,3”</p></td>
+</tr>
+<tr class="row-odd"><td><p>reverse</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>是否按照创建时间倒序，”0”或者”1”，默认倒序</p></td>
+</tr>
+<tr class="row-even"><td><p>page</p></td>
+<td><p>int</p></td>
+<td><p>否</p></td>
+<td><p>页码，默认1</p></td>
+</tr>
+<tr class="row-odd"><td><p>per_page</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>每页个数，默认10</p></td>
+</tr>
+<tr class="row-even"><td><p>is_end</p></td>
+<td><p>int</p></td>
+<td><p>否</p></td>
+<td><p>是否已经结束的工单,0(未结束),1(已结束)或者不提供(不过滤是否已经结束)</p></td>
+</tr>
+<tr class="row-odd"><td><p>is_rejected</p></td>
+<td><p>int</p></td>
+<td><p>否</p></td>
+<td><p>是否已被拒绝的工单，0(未被拒绝),1(被拒绝）或者不提供(不过滤是否已被拒绝)</p></td>
+</tr>
+<tr class="row-even"><td><p>category</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>类型(‘all’:所有工单, ‘owner’:我创建的工单, ‘duty’:我的待处理工单, ‘relation’:我的关联工单[包括我新建的、我处理过的、曾经需要我处理过的工单。注意这里只考虑历史状态，工单将来状态的处理人不考虑])</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_name&quot;</span><span class="p">:</span> <span class="s2">&quot;zhangsan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_name&quot;</span><span class="p">:</span> <span class="s2">&quot;个人&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;张三&quot;</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-15 07:16:38&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;parent_ticket_state_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;发起人-确认中&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;parent_ticket_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;vpn申请&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-22 07:26:54&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;workflow&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;workflow_name&quot;</span><span class="p">:</span> <span class="s2">&quot;vpn申请&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">2</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="s2">&quot;loonflow_201805150001&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17</span>
+    <span class="p">}],</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="mi">10</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>新建工单<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>workflow_id</p></td>
+<td><p>int</p></td>
+<td><p>是</p></td>
+<td><p>工作流id(工单关联的工作流的id)</p></td>
+</tr>
+<tr class="row-odd"><td><p>transition_id</p></td>
+<td><p>int</p></td>
+<td><p>是</p></td>
+<td><p>新建工单时候的流转id（通过workflow/{id}/init_state接口可以获取新建工单时允许的transition）</p></td>
+</tr>
+<tr class="row-even"><td><p>parent_ticket_id</p></td>
+<td><p>int</p></td>
+<td><p>否</p></td>
+<td><p>父工单的id(用于子工单的逻辑，如果新建的工单是某个工单的子工单需要填写父工单的id)</p></td>
+</tr>
+<tr class="row-odd"><td><p>parent_ticket_state_id</p></td>
+<td><p>int</p></td>
+<td><p>否</p></td>
+<td><p>父工单的状态（子工单是和父工单的某个状态关联的），如果提供parent_ticket_id，则此参数也必须</p></td>
+</tr>
+<tr class="row-even"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>处理意见（与处理工单类型，用户在处理工单的时候点击了按钮操作 可以填写附加的一些意见如:麻烦尽快处理）</p></td>
+</tr>
+<tr class="row-odd"><td><p>其他必填字段</p></td>
+<td><p>N/A</p></td>
+<td><p>否</p></td>
+<td><p>其他必填字段或可选字段（在配置工作流过程中,会配置工作流初始状态必填和可选的字段。在新建工单时候必须提供必填字段。如请假申请工单，配置了自定义字段请假天数days，工单初始状态也设置了days为必填，那么新建此类工单时候就必选提供days)</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>获取工单详情<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<p>无</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<dl>
+<dt>::</dt><dd><dl>
+<dt>{</dt><dd><p>“code”: 0,
+“msg”: “”,
+“data”: {</p>
+<blockquote>
+<div><dl>
+<dt>“value”: {</dt><dd><p>“workflow_id”: 2,
+“in_add_node”: true,
+“gmt_created”: “2018-05-15 07:16:38”,
+“id”: 17,
+“relation”: “guiji,wangwu,lilei”,
+“title”: “vpnu7533u8bf72”,
+“sn”: “loonflow_201805150001”,
+“parent_ticket_id”: 0,
+“creator”: “lilei”,
+“script_run_last_result”: true,
+“gmt_modified”: “2018-05-22 07:26:54”,
+“is_rejected”: false,
+“multi_all_person”: “{}”,
+“creator_info”: {</p>
+<blockquote>
+<div><p>“email”: “<a class="reference external" href="mailto:lilei&#37;&#52;&#48;163&#46;com">lilei<span>&#64;</span>163<span>&#46;</span>com</a>”,
+“alias”: “u674eu78ca”,
+“dept_info”: {</p>
+<blockquote>
+<div><dl class="simple">
+<dt>“creator_info”: {</dt><dd><p>“creator_id”: 1,
+“creator_alias”: “u8d85u7ea7u7ba1u7406u5458”</p>
+</dd>
+</dl>
+<p>},
+“leader”: “lilei”,
+“parent_dept_info”: {</p>
+<blockquote>
+<div><p>“parent_dept_name”: “u603bu90e8”,
+“parent_dept_id”: 1</p>
+</div></blockquote>
+<p>},
+“approver_info”: [],
+“parent_dept_id”: 1,
+“name”: “u6280u672fu90e8”,
+“is_deleted”: false,
+“creator”: “admin”,
+“gmt_modified”: “2018-05-09 06:45:27”,
+“label”: “”,
+“id”: 2,
+“approver”: “”,
+“gmt_created”: “2018-04-14 23:37:06”,
+“leader_info”: {</p>
+<blockquote>
+<div><p>“leader_alias”: “u674eu78ca”,
+“leader_username”: “lilei”</p>
+</div></blockquote>
+<p>}</p>
+</div></blockquote>
+<p>},
+“username”: “lilei”,
+“phone”: “13888888888”,
+“is_active”: true</p>
+</div></blockquote>
+<p>},
+“participant_type_id”: 3,
+“state_id”: 10,
+“is_end”: false,
+“is_deleted”: false,
+“field_list”: [{</p>
+<blockquote>
+<div><p>“field_value”: “loonflow_201805150001”,
+“label”: {},
+“boolean_field_display”: {},
+“field_type_id”: 5,
+“field_template”: “”,
+“field_choice”: {},
+“field_key”: “sn”,
+“field_attribute”: 1,
+“description”: “u5de5u5355u7684u6d41u6c34u53f7”,
+“default_value”: null,
+“order_id”: 10,
+“field_name”: “u6d41u6c34u53f7”</p>
+</div></blockquote>
+<dl class="simple">
+<dt>}, {</dt><dd><p>“field_value”: “u53d1u8d77u4eba-u786eu8ba4u4e2d”,
+“label”: {},
+“boolean_field_display”: {},
+“field_type_id”: 5,
+“field_template”: “”,
+“field_choice”: {},
+“field_key”: “state.state_name”,
+“field_attribute”: 1,
+“description”: “u5de5u5355u5f53u524du72b6u6001u7684u540du79f0”,
+“default_value”: null,
+“order_id”: 41,
+“field_name”: “u72b6u6001u540d”</p>
+</dd>
+<dt>}, {</dt><dd><p>“field_value”: “u603bu90e8”,
+“label”: {},
+“boolean_field_display”: {},
+“field_type_id”: 5,
+“field_template”: “”,
+“field_choice”: {},
+“field_key”: “participant_info.participant_name”,
+“field_attribute”: 1,
+“description”: “u5de5u5355u7684u5f53u524du5904u7406u4eba”,
+“default_value”: null,
+“order_id”: 50,
+“field_name”: “u5f53u524du5904u7406u4eba”</p>
+</dd>
+<dt>}, {</dt><dd><p>“field_value”: “vpnu7533u8bf7”,
+“label”: {},
+“boolean_field_display”: {},
+“field_type_id”: 5,
+“field_template”: “”,
+“field_choice”: {},
+“field_key”: “workflow.workflow_name”,
+“field_attribute”: 1,
+“description”: “u5de5u5355u6240u5c5eu5de5u4f5cu6d41u7684u540du79f0”,
+“default_value”: null,
+“order_id”: 60,
+“field_name”: “u5de5u4f5cu6d41u540du79f0”</p>
+</dd>
+</dl>
+<p>}],
+“parent_ticket_state_id”: 0,
+“add_node_man”: “zhangsan”,
+“participant”: “1”</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>}</p>
+</dd>
+</dl>
+<p>}</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="id5">
+<h2>获取工单可以做的操作<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/transitions</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<p>无</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;提交&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_require_check&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>  <span class="c1"># 默认为ture,如果此为否时， 不校验表单必填内容</span>
+        <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;is_accept&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> <span class="c1"># 不是接单,</span>
+        <span class="s2">&quot;in_add_node&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> <span class="c1"># 不处于加签状态下</span>
+        <span class="s2">&quot;enable_alert&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>  <span class="c1"># 是否弹窗告警，可用于当用户点击此操作的时确定是否弹窗信息</span>
+        <span class="s2">&quot;alert_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span> <span class="c1"># 弹窗中的消息内容</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;保存&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_require_check&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>  <span class="c1"># 默认为ture,如果此为否时， 不校验表单必填内容</span>
+        <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;is_accept&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> <span class="c1"># 不是接单,</span>
+        <span class="s2">&quot;in_add_node&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> <span class="c1"># 不处于加签状态下</span>
+        <span class="s2">&quot;enable_alert&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>  <span class="c1"># 是否弹窗告警，可用于当用户点击此操作的时确定是否弹窗信息</span>
+        <span class="s2">&quot;alert_text&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span> <span class="c1"># 弹窗中的消息内容</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+    <span class="p">},</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>如果当前处理人超过一个人(处理人类型为多人，部门、角色都有可能实际为多个人)，且当前状态的分配方式为主动接单，则会要求先接单,返回数据如下。
+处理时需要处理人先接单(点击接单按钮时 调用接单接口).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;接单&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_accept&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>  <span class="c1"># 接单,</span>
+        <span class="s2">&quot;in_add_node&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+        <span class="s2">&quot;field_require_check&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>当工单当前处于加签状态下，返回格式如下。 则用户点击“完成”按钮时，需要调用完成加签操作接口</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;完成&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_accept&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+        <span class="s2">&quot;in_add_node&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span> <span class="c1"># 处于加签状态</span>
+        <span class="s2">&quot;field_require_check&quot;</span><span class="p">:</span> <span class="n">false</span>
+      <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>接单<a class="headerlink" href="#id6" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/accept</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<p>无</p>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>使用接口获取工单当前可以做的的操作后，如果data.value.is_accept==true,则需要用户先接单才能处理，即页面显示接单按钮，
+用户点击后调用接单接口，将工单的当前处理人设置该用户</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>转交<a class="headerlink" href="#id7" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/deliver</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>target_username</p></td>
+<td><p>varchar</p></td>
+<td><p>是</p></td>
+<td><p>转交对象的用户名</p></td>
+</tr>
+<tr class="row-odd"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>转交意见</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>在工单处理界面可以显示一个按钮“转交”，当用户认为当前工单自己处理不了时，可以将工单转交给合适的人处理</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h2>加签<a class="headerlink" href="#id8" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/add_node</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>target_username</p></td>
+<td><p>varchar</p></td>
+<td><p>是</p></td>
+<td><p>加签对象的用户名</p></td>
+</tr>
+<tr class="row-odd"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>加签意见</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>当用户A提交了一个权限申请工单，达到运维人员处理人中状态，作为运维人员的B在处理过程中发现需要C先处理或者提供一些必要的信息，B才能处理。
+那么B在处理工单界面可以点击”加签“按钮，弹窗中选择C。 系统调用loonflow的加签接口将工单加签给C。C处理完后点击”完成“按钮，
+系统调用loonflow的加签完成接口， 工单处理人将回到B. 那么B就可以按照之前既定流程正常流转下去</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id9">
+<h2>加签处理完成<a class="headerlink" href="#id9" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/add_node_end</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>加签完成意见</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>使用场景 当A将工单加签给B.B在处理工单时候，界面将只显示“完成“按钮，点击后后端调用此接口，将工单基础表中的is_add_node设置为false</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id10">
+<h2>处理工单<a class="headerlink" href="#id10" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>patch</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>transition_id</p></td>
+<td><p>int</p></td>
+<td><p>是</p></td>
+<td><p>流转id</p></td>
+</tr>
+<tr class="row-odd"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>处理意见（与处理工单类型，用户在处理工单的时候点击了按钮操作 可以填写附加的一些意见如:麻烦尽快处理）</p></td>
+</tr>
+<tr class="row-even"><td><p>其他必填字段</p></td>
+<td><p>N/A</p></td>
+<td><p>否</p></td>
+<td><p>其他必填字段或可选字段（在配置工作流过程中,会配置工作流每个状态的必填和可选的字段。在处理工单时候必须提供必填字段。如请假申请工单，配置了自定义字段请假天数days，工单初始状态也设置了days为必填，那么处理此类工单时候就必选提供days)。工单详情接口中有当前处理是时必选的字段</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id11">
+<h2>获取工单流转记录<a class="headerlink" href="#id11" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/flowlogs</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<p>无</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;发起人-确认中&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">5</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;确认完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+          <span class="s2">&quot;attribute_type_id&quot;</span><span class="p">:</span> <span class="mi">3</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:26&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:56:02&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;已经生效，感谢&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+      <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;技术人员-处理中&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">4</span>
+        <span class="p">},</span>
+      <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;处理完成&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">4</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:14&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:55:32&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;处理完成&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+      <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;TL审批中&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">3</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">3</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:57:00&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:53:19&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意处理&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+      <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;新建中&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;提交&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;ticket_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:52:35&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-10 17:39:33&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;请尽快处理，谢谢&quot;</span>
+      <span class="p">}],</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="p">},</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id12">
+<h2>工单处理步骤记录<a class="headerlink" href="#id12" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/flowsteps</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<p>无</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+      <span class="s2">&quot;state_flow_log_list&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;test11111&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span>
+      <span class="s2">&quot;state_flow_log_list&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;2233222&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+      <span class="s2">&quot;state_flow_log_list&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-15 07:16:38&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;提交&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">7</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">}],</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;发起人-新建中&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+      <span class="s2">&quot;state_flow_log_list&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-15 07:20:40&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意申请&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">8</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">33</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">}],</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;发起人tl-审批中&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+      <span class="s2">&quot;state_flow_log_list&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 06:42:00&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;接单处理&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;未知操作&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">36</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 06:49:55&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">37</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 06:57:31&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;接单处理&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;未知操作&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">38</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 06:57:36&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">39</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 06:58:41&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 07:01:53&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">41</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 07:03:34&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">43</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 07:04:45&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 07:31:29&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">47</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 23:21:00&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">49</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 23:24:03&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">51</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 23:24:44&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">53</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 23:33:26&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;轨迹&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;同意&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">9</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">}],</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;运维人员-审批中&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+      <span class="s2">&quot;state_flow_log_list&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 07:01:54&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;False</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;脚本执行完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 07:03:34&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;False</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;脚本执行完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">44</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 07:04:45&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;False</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;脚本执行完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 07:31:29&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;脚本执行完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 23:21:00&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;脚本执行完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 23:24:03&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;脚本执行完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">52</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 23:24:44&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;脚本执行完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">54</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-16 23:33:26&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;demo_script.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;脚本执行完成&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">56</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+      <span class="p">}],</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;授权脚本-自动执行中&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+      <span class="s2">&quot;state_flow_log_list&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-17 06:45:58&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;李磊&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;请处理&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;转交操作&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">57</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-17 06:47:46&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;张三&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;zhangsan&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;participant_email&quot;</span><span class="p">:</span> <span class="s2">&quot;zhangsan@163.com&quot;</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;请协助处理&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;zhangsan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;加签操作&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">58</span><span class="p">,</span>
+        <span class="s2">&quot;intervene_type_id&quot;</span><span class="p">:</span> <span class="mi">2</span>
+      <span class="p">}],</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;发起人-确认中&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+      <span class="s2">&quot;state_flow_log_list&quot;</span><span class="p">:</span> <span class="p">[],</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+      <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;结束&quot;</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id13">
+<h2>修改工单状态<a class="headerlink" href="#id13" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/state</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>put</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>state_id</p></td>
+<td><p>int</p></td>
+<td><p>是</p></td>
+<td><p>目标状态id</p></td>
+</tr>
+<tr class="row-odd"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>处理意见</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>用于干预工单的当前状态,可以直接将工单状态修改为指定状态，系统会根据state_id获取对应的处理人信息</p>
+<ul class="simple">
+<li><p>返回格式</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id14">
+<h2>批量获取工单状态<a class="headerlink" href="#id14" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/states</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ticket_ids</p></td>
+<td><p>varchar</p></td>
+<td><p>是</p></td>
+<td><p>工单ids,逗号隔开的字符串</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>调用方自己保存工单基础信息 并根据loonflow中工单id关联，在显示工单列表时直接从自己后端获取工单列表。 但是工单状态需要实时从loonflow中获取，那么可以
+通过此接口获取一页工单列表每个工单的状态</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;发起人-编辑中&quot;</span>
+      <span class="p">},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;state_name&quot;</span><span class="p">:</span> <span class="s2">&quot;新建中&quot;</span>
+      <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id15">
+<h2>修改工单字段的值<a class="headerlink" href="#id15" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/fields</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>patch</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>需要修改值的字段的key1</p></td>
+<td><p>varchar</p></td>
+<td><p>是</p></td>
+<td><p>如需要修改标题，则就是title</p></td>
+</tr>
+<tr class="row-odd"><td><p>需要修改值的字段的key2</p></td>
+<td><p>varchar</p></td>
+<td><p>是</p></td>
+<td><p>如需要修改标题，则就是title</p></td>
+</tr>
+<tr class="row-even"><td><p>其他需要修改的字段的字段标识</p></td>
+<td><p>varchar</p></td>
+<td><p>是</p></td>
+<td><p>如需要修改标题，则就是title</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hook">
+<h2>重试工单脚本/hook任务<a class="headerlink" href="#hook" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/retry_script</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<p>无</p>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>当工单的脚本(或者hook[v0.3.17版本支持])执行失败后，工单详情接口中获取的数据中script_run_last_result为false.
+这时可以在工单详情界面 step图中此状态下显示有个”重试按钮“，用户点击此按钮后，可以调用此接口重新执行或重新触发hook</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket script or hook retry start successful&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id16">
+<h2>新增工单评论/注释<a class="headerlink" href="#id16" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/comments</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>是</p></td>
+<td><p>处理意见（与处理工单类型，用户在处理工单的时候点击了按钮操作 可以填写附加的一些意见如:麻烦尽快处理）</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id17">
+<h2>工单hook回调<a class="headerlink" href="#id17" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/hook_call_back</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>result</p></td>
+<td><p>boolean</p></td>
+<td><p>是</p></td>
+<td><p>hook任务执行是否成功</p></td>
+</tr>
+<tr class="row-odd"><td><p>msg</p></td>
+<td><p>varchar</p></td>
+<td><p>是</p></td>
+<td><p>hook执行输出信息,可留空’’</p></td>
+</tr>
+<tr class="row-even"><td><p>field_value</p></td>
+<td><p>dict object</p></td>
+<td><p>否</p></td>
+<td><p>需要修改值的字段. 这些字段需要在状态表单设置中为可选或者必填</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>当工作流状态设置处理人类型为hook，工单到达此状态时，会触发hook请求，被请求方可以执行一些操作，执行完成后回调用loonflow,
+告知loonflow任务执行结果，以触发loonflow中工单状态的流转(当hook配置中wait为true时，无需回调，hook发出后会立即触发流转)</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id18">
+<h2>工单当前的参与人详情<a class="headerlink" href="#id18" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/participant_info</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>此接口将返回该工单当前的参与人详细信息，如果是部门或角色会返回对应部门角色下所有用户。调用方可基于此提供工单催办的功能。
+用户在前端点击催办按钮，前端弹窗要求用户选择通知的类型：短信、邮件、微信、钉钉等等 以及需要的备注信息，
+然后调用方后端发送相应的通知消息给工单的当前处理人</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;participant_info_list&quot;</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">&quot;alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u8d85\u7ea7\u7ba1\u7406\u5458</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;blackholll@163.com&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u8f68\u8ff9</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji@163.com&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u674e\u78ca</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5f20\u4e09</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;zhangsan&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;zhangsan@163.com&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u674e\u56db</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;lisi&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;lisi@163.com&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u738b\u4e94</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;wangwu&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;wangwu@163.com&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u6770\u514b</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;jack&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;jack@163.com&quot;</span>
+    <span class="p">}],</span>
+    <span class="s2">&quot;participant_username_list&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;admin&quot;</span><span class="p">,</span> <span class="s2">&quot;guiji&quot;</span><span class="p">,</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span> <span class="s2">&quot;zhangsan&quot;</span><span class="p">,</span> <span class="s2">&quot;lisi&quot;</span><span class="p">,</span> <span class="s2">&quot;wangwu&quot;</span><span class="p">,</span> <span class="s2">&quot;jack&quot;</span><span class="p">]</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id19">
+<h2>强制关闭工单<a class="headerlink" href="#id19" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/close</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>关闭原因</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>超级管理员在查看工单详情时，可以在界面上显示一个强制关闭工单的按钮，点击后调用关闭工单按钮，实现强制关闭工单</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../constant.html" class="btn btn-neutral float-right" title="相关常量" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="workflow.html" class="btn btn-neutral float-left" title="工作流相关接口" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, blackholll
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

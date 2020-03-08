@@ -1,0 +1,685 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="zh-CN" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="zh-CN" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>工作流相关接口 &mdash; loonflow 1.0.0 文档</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="工单相关接口" href="ticket.html" />
+    <link rel="prev" title="接口调用逻辑" href="call_logic.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> loonflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">关于loonflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/what.html">loonflow是什么</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/preface.html">前言</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/os.html">操作系统支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/get_source.html">如何获取代码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/start.html">如何运行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/update.html">版本升级</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/related_terms.html">相关术语</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/infrastructure.html">基础架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/code_structure.html">代码结构</a></li>
+</ul>
+<p class="caption"><span class="caption-text">管理后台</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../manage/login.html">登录管理后台</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/sync_account.html">同步用户信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/workflow_config.html">工作流配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html">用户管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id2">角色管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id3">部门管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id4">调用权限</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API文档</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">接口调用鉴权</a></li>
+<li class="toctree-l1"><a class="reference internal" href="call_logic.html">接口调用逻辑</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">工作流相关接口</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">获取工作流列表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">获取工作流初始状态</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">获取工作流状态详情</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">获取工作流状态列表</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ticket.html">工单相关接口</a></li>
+</ul>
+<p class="caption"><span class="caption-text">相关常量</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../constant.html">相关常量</a></li>
+</ul>
+<p class="caption"><span class="caption-text">常见问题</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../q&amp;a.html">常见问题</a></li>
+</ul>
+<p class="caption"><span class="caption-text">其他</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">其他</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">loonflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>工作流相关接口</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api_docs/workflow.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>工作流相关接口<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<div class="section" id="id2">
+<h2>获取工作流列表<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/workflows</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>获取到工作流列表后，用户选择对应的工作流来新建对应的工单。如果需要多级类型，可以在调用方系统保存对应关系。
+如调用方的“权限申请-VPN权限申请“对应loonflow中id为1的workflow,调用方的“权限申请-服务器权限申请“对应loonflow中id为2的workflow</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>page</p></td>
+<td><p>int</p></td>
+<td><p>否</p></td>
+<td><p>页码，默认1</p></td>
+</tr>
+<tr class="row-odd"><td><p>per_page</p></td>
+<td><p>int</p></td>
+<td><p>否</p></td>
+<td><p>每页个数，默认10</p></td>
+</tr>
+<tr class="row-even"><td><p>name</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>支持根据workflow name模糊查询</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;请假申请&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;请假申请&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-23 20:49:32&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;vpn申请&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;vpn权限申请&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-06 12:32:36&quot;</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>获取工作流初始状态<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/workflows/{workflow_id}/init_state</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<p>无</p>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>用于获取创建工单时对应工作流的初始状态信息，返回内容包括创建工单时需要填写的表单内容，可以执行的提交操作</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;新建中&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;distribute_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;wangfei&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;is_hidden&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-23 20:53:33&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;transition&quot;</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;提交&quot;</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;transition_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;transition_name&quot;</span><span class="p">:</span> <span class="s2">&quot;保存&quot;</span>
+    <span class="p">}],</span>
+    <span class="s2">&quot;sub_workflow_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;field_list&quot;</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+      <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;标题&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span>
+      <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;leave_proxy&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+      <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;代理人&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+      <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;leave_end&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+      <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;结束时间&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+      <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;leave_start&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+      <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;开始时间&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+      <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;leave_type&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+      <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;请假类型&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="s2">&quot;年假&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="s2">&quot;调休&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="s2">&quot;病假&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;4&quot;</span><span class="p">:</span> <span class="s2">&quot;婚假&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">45</span><span class="p">,</span>
+      <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;leave_reason&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span>
+      <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;请假原因及相关附件&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+      <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;leave_days&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+      <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+      <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;请假天数(0.5的倍数)&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">}]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>获取工作流状态详情<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/workflows/states/{state_id}</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<p>无</p>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>略</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u65b0\u5efa\u4e2d</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;sub_workflow_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;distribute_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;is_hidden&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+    <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;wangfei&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;state_field&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;leave_start&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;leave_end&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;leave_days&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;leave_proxy&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;leave_type&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;leave_reason&quot;</span><span class="p">:</span> <span class="mi">2</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+    <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-23 20:53:33&quot;</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>获取工作流状态列表<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/workflows/{workflow_id}/states</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>get</p>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>可用于用户查询工单列表时选择工作流类型后，显示该工作流类型拥有的状态，然后可以再根据工单当前状态来查询。 另外可用于管理员干预工单强制修改状态时 允许选择的目标状态</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">[{</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-23 20:53:33&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-13 11:42:11&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;is_deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u65b0\u5efa\u4e2d</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;sub_workflow_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;is_hidden&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;remember_last_man_enable&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;wangfei&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;distribute_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;state_field_str&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;leave_start&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;leave_end&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;leave_days&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;leave_proxy&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;leave_type&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;leave_reason&quot;</span><span class="p">:</span> <span class="mi">2</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+      <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;wangfei&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_name&quot;</span><span class="p">:</span> <span class="s2">&quot;wangfei&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u4e2a\u4eba</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;wangfei&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:45:48&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-14 06:44:10&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;is_deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u53d1\u8d77\u4eba</span><span class="s2">-</span><span class="se">\u7f16\u8f91\u4e2d</span><span class="s2">1&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;sub_workflow_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;is_hidden&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;type_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;remember_last_man_enable&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;creator&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;distribute_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;state_field_str&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;leave_end&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;leave_days&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;state.state_name&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_proxy&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_start&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;leave_reason&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s2">&quot;leave_type&quot;</span><span class="p">:</span> <span class="mi">3</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+      <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;creator&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_name&quot;</span><span class="p">:</span> <span class="s2">&quot;creator&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u53d8\u91cf</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5de5\u5355\u521b\u5efa\u4eba</span><span class="s2">&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:46:42&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-11-27 07:20:33&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;is_deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;TL</span><span class="se">\u5ba1\u6279\u4e2d</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;sub_workflow_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;is_hidden&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="s2">&quot;type_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;remember_last_man_enable&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;creator_tl&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;distribute_type_id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="s2">&quot;state_field_str&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;leave_reason&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_start&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_type&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_proxy&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_end&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_days&quot;</span><span class="p">:</span> <span class="mi">1</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;tech_er_in&quot;</span><span class="p">:</span> <span class="s2">&quot;qa&quot;</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;creator_tl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_name&quot;</span><span class="p">:</span> <span class="s2">&quot;creator_tl&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u53d8\u91cf</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5de5\u5355\u521b\u5efa\u4eba\u7684</span><span class="s2">tl&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:47:58&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-13 11:42:59&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;is_deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u4eba\u4e8b\u90e8\u95e8</span><span class="s2">-</span><span class="se">\u5904\u7406\u4e2d</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;sub_workflow_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;is_hidden&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+      <span class="s2">&quot;type_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;remember_last_man_enable&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;distribute_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;state_field_str&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_start&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_end&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_days&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_proxy&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_type&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;leave_reason&quot;</span><span class="p">:</span> <span class="mi">1</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+      <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_name&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u4e2a\u4eba</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u8d85\u7ea7\u7ba1\u7406\u5458</span><span class="s2">&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span> <span class="p">{</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:51:41&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-11 06:52:39&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;is_deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u7ed3\u675f</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;sub_workflow_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;is_hidden&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+      <span class="s2">&quot;type_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;remember_last_man_enable&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;distribute_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;state_field_str&quot;</span><span class="p">:</span> <span class="p">{},</span>
+      <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+      <span class="s2">&quot;participant_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_name&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;participant_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+      <span class="p">}</span>
+    <span class="p">}],</span>
+    <span class="s2">&quot;per_page&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="mi">5</span>
+  <span class="p">},</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ticket.html" class="btn btn-neutral float-right" title="工单相关接口" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="call_logic.html" class="btn btn-neutral float-left" title="接口调用逻辑" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2020, blackholll
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
