@@ -216,6 +216,12 @@
 <h1>调用权限<a class="headerlink" href="#id4" title="永久链接至标题">¶</a></h1>
 <p>loonflow给每个调用方应用分配一个token,用于生成调用时请求头中的签名。同时可以限定每个应用可以操作的工作流列表，
 以及定义每个应用创建工单时，工单流水号的规则。</p>
+<p>调用应用：建议用英文字母，如客服系统调用可以用kefu,oa系统调用可以用oa</p>
+<p>工单前缀: 用于指定生成工单的流水号规则，如设定为kefu,则生成的流水号为kefu_202003080001</p>
+<p>工作流权限: 指定使用此应用调用loonflow接口时，可以操作的工作流列表，创建工单时只能选择这些工作流，查看工单列表时也只能选择这些类型的工单</p>
+<div class="figure align-default">
+<img alt="../_images/app_token.png" src="../_images/app_token.png" />
+</div>
 </div>
 
 

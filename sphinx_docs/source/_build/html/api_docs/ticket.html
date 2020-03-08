@@ -97,6 +97,11 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../manage/login.html">登录管理后台</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../manage/sync_account.html">同步用户信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/workflow_config.html">工作流配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html">用户管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id2">角色管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id3">部门管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id4">调用权限</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API文档</span></p>
 <ul class="current">
@@ -129,6 +134,14 @@
 <p class="caption"><span class="caption-text">相关常量</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../constant.html">相关常量</a></li>
+</ul>
+<p class="caption"><span class="caption-text">常见问题</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../q&amp;a.html">常见问题</a></li>
+</ul>
+<p class="caption"><span class="caption-text">其他</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../other.html">其他</a></li>
 </ul>
 
             
@@ -420,142 +433,121 @@
 <ul class="simple">
 <li><p>返回数据</p></li>
 </ul>
-<dl>
-<dt>::</dt><dd><dl>
-<dt>{</dt><dd><p>“code”: 0,
-“msg”: “”,
-“data”: {</p>
-<blockquote>
-<div><dl>
-<dt>“value”: {</dt><dd><p>“workflow_id”: 2,
-“in_add_node”: true,
-“gmt_created”: “2018-05-15 07:16:38”,
-“id”: 17,
-“relation”: “guiji,wangwu,lilei”,
-“title”: “vpnu7533u8bf72”,
-“sn”: “loonflow_201805150001”,
-“parent_ticket_id”: 0,
-“creator”: “lilei”,
-“script_run_last_result”: true,
-“gmt_modified”: “2018-05-22 07:26:54”,
-“is_rejected”: false,
-“multi_all_person”: “{}”,
-“creator_info”: {</p>
-<blockquote>
-<div><p>“email”: “<a class="reference external" href="mailto:lilei&#37;&#52;&#48;163&#46;com">lilei<span>&#64;</span>163<span>&#46;</span>com</a>”,
-“alias”: “u674eu78ca”,
-“dept_info”: {</p>
-<blockquote>
-<div><dl class="simple">
-<dt>“creator_info”: {</dt><dd><p>“creator_id”: 1,
-“creator_alias”: “u8d85u7ea7u7ba1u7406u5458”</p>
-</dd>
-</dl>
-<p>},
-“leader”: “lilei”,
-“parent_dept_info”: {</p>
-<blockquote>
-<div><p>“parent_dept_name”: “u603bu90e8”,
-“parent_dept_id”: 1</p>
-</div></blockquote>
-<p>},
-“approver_info”: [],
-“parent_dept_id”: 1,
-“name”: “u6280u672fu90e8”,
-“is_deleted”: false,
-“creator”: “admin”,
-“gmt_modified”: “2018-05-09 06:45:27”,
-“label”: “”,
-“id”: 2,
-“approver”: “”,
-“gmt_created”: “2018-04-14 23:37:06”,
-“leader_info”: {</p>
-<blockquote>
-<div><p>“leader_alias”: “u674eu78ca”,
-“leader_username”: “lilei”</p>
-</div></blockquote>
-<p>}</p>
-</div></blockquote>
-<p>},
-“username”: “lilei”,
-“phone”: “13888888888”,
-“is_active”: true</p>
-</div></blockquote>
-<p>},
-“participant_type_id”: 3,
-“state_id”: 10,
-“is_end”: false,
-“is_deleted”: false,
-“field_list”: [{</p>
-<blockquote>
-<div><p>“field_value”: “loonflow_201805150001”,
-“label”: {},
-“boolean_field_display”: {},
-“field_type_id”: 5,
-“field_template”: “”,
-“field_choice”: {},
-“field_key”: “sn”,
-“field_attribute”: 1,
-“description”: “u5de5u5355u7684u6d41u6c34u53f7”,
-“default_value”: null,
-“order_id”: 10,
-“field_name”: “u6d41u6c34u53f7”</p>
-</div></blockquote>
-<dl class="simple">
-<dt>}, {</dt><dd><p>“field_value”: “u53d1u8d77u4eba-u786eu8ba4u4e2d”,
-“label”: {},
-“boolean_field_display”: {},
-“field_type_id”: 5,
-“field_template”: “”,
-“field_choice”: {},
-“field_key”: “state.state_name”,
-“field_attribute”: 1,
-“description”: “u5de5u5355u5f53u524du72b6u6001u7684u540du79f0”,
-“default_value”: null,
-“order_id”: 41,
-“field_name”: “u72b6u6001u540d”</p>
-</dd>
-<dt>}, {</dt><dd><p>“field_value”: “u603bu90e8”,
-“label”: {},
-“boolean_field_display”: {},
-“field_type_id”: 5,
-“field_template”: “”,
-“field_choice”: {},
-“field_key”: “participant_info.participant_name”,
-“field_attribute”: 1,
-“description”: “u5de5u5355u7684u5f53u524du5904u7406u4eba”,
-“default_value”: null,
-“order_id”: 50,
-“field_name”: “u5f53u524du5904u7406u4eba”</p>
-</dd>
-<dt>}, {</dt><dd><p>“field_value”: “vpnu7533u8bf7”,
-“label”: {},
-“boolean_field_display”: {},
-“field_type_id”: 5,
-“field_template”: “”,
-“field_choice”: {},
-“field_key”: “workflow.workflow_name”,
-“field_attribute”: 1,
-“description”: “u5de5u5355u6240u5c5eu5de5u4f5cu6d41u7684u540du79f0”,
-“default_value”: null,
-“order_id”: 60,
-“field_name”: “u5de5u4f5cu6d41u540du79f0”</p>
-</dd>
-</dl>
-<p>}],
-“parent_ticket_state_id”: 0,
-“add_node_man”: “zhangsan”,
-“participant”: “1”</p>
-</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
-<p>}</p>
-</dd>
-</dl>
-<p>}</p>
-</dd>
-</dl>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="s2">&quot;in_add_node&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-15 07:16:38&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
+      <span class="s2">&quot;relation&quot;</span><span class="p">:</span> <span class="s2">&quot;guiji,wangwu,lilei&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;vpn</span><span class="se">\u7533\u8bf7</span><span class="s2">2&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="s2">&quot;loonflow_201805150001&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;parent_ticket_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;script_run_last_result&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+      <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-22 07:26:54&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;is_rejected&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;multi_all_person&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;creator_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u674e\u78ca</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dept_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;creator_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;creator_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;creator_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u8d85\u7ea7\u7ba1\u7406\u5458</span><span class="s2">&quot;</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;leader&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;parent_dept_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;parent_dept_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u603b\u90e8</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;parent_dept_id&quot;</span><span class="p">:</span> <span class="mi">1</span>
+          <span class="p">},</span>
+          <span class="s2">&quot;approver_info&quot;</span><span class="p">:</span> <span class="p">[],</span>
+          <span class="s2">&quot;parent_dept_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u6280\u672f\u90e8</span><span class="s2">&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;is_deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+          <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-09 06:45:27&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+          <span class="s2">&quot;approver&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-14 23:37:06&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;leader_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;leader_alias&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u674e\u78ca</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;leader_username&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span>
+          <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phone&quot;</span><span class="p">:</span> <span class="s2">&quot;13888888888&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_active&quot;</span><span class="p">:</span> <span class="n">true</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+      <span class="s2">&quot;state_id&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+      <span class="s2">&quot;is_end&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;is_deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;field_list&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="s2">&quot;loonflow_201805150001&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;boolean_field_display&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;field_template&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;sn&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5de5\u5355\u7684\u6d41\u6c34\u53f7</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+        <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u6d41\u6c34\u53f7</span><span class="s2">&quot;</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u53d1\u8d77\u4eba</span><span class="s2">-</span><span class="se">\u786e\u8ba4\u4e2d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;boolean_field_display&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;field_template&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;state.state_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5de5\u5355\u5f53\u524d\u72b6\u6001\u7684\u540d\u79f0</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+        <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">41</span><span class="p">,</span>
+        <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u72b6\u6001\u540d</span><span class="s2">&quot;</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u603b\u90e8</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;boolean_field_display&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;field_template&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;participant_info.participant_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5de5\u5355\u7684\u5f53\u524d\u5904\u7406\u4eba</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+        <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5f53\u524d\u5904\u7406\u4eba</span><span class="s2">&quot;</span>
+      <span class="p">},</span> <span class="p">{</span>
+        <span class="s2">&quot;field_value&quot;</span><span class="p">:</span> <span class="s2">&quot;vpn</span><span class="se">\u7533\u8bf7</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;boolean_field_display&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;field_type_id&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;field_template&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_choice&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;field_key&quot;</span><span class="p">:</span> <span class="s2">&quot;workflow.workflow_name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;field_attribute&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5de5\u5355\u6240\u5c5e\u5de5\u4f5c\u6d41\u7684\u540d\u79f0</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;default_value&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+        <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+        <span class="s2">&quot;field_name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u5de5\u4f5c\u6d41\u540d\u79f0</span><span class="s2">&quot;</span>
+      <span class="p">}],</span>
+      <span class="s2">&quot;parent_ticket_state_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;add_node_man&quot;</span><span class="p">:</span> <span class="s2">&quot;zhangsan&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="id5">
 <h2>获取工单可以做的操作<a class="headerlink" href="#id5" title="永久链接至标题">¶</a></h2>
