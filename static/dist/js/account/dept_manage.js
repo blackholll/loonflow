@@ -39,7 +39,14 @@
       { "data": "id"},
       { "data": "name" },
       { "data": "parent_dept_info", render: function(data, type, full) {return data.parent_dept_name}},
-      { "data": "leader_info", render: function(data, type, full) {return data.leader_alias + "(" + data.leader_username  +")"} },
+      { "data": "leader_info", render: function(data, type, full) {
+        if (data.leader_username) {
+          return data.leader_alias + "(" + data.leader_username  +")"
+          } else {
+            return data.leader_alias
+          }
+        } 
+      },
       { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
       { "data": "label" },
       { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
