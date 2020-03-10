@@ -267,9 +267,11 @@ def flow_hook_task(ticket_id):
     if not flag:
         return False, msg
     flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
-    r = requests.post(hook_url, headers=msg, json=all_ticket_data, timeout=10)
-
-    result = r.json()
+    try:
+        r = requests.post(hook_url, headers=msg, json=all_ticket_data, timeout=10)
+        result = r.json()
+    except Exception as e:
+        result = dict(code=-1, msg=e.__str__())
     if result.get('code') == 0:
         # 调用成功
         if wait:

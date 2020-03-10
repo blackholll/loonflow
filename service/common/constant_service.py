@@ -38,6 +38,7 @@ class ConstantService(BaseService):
         self.TRANSITION_INTERVENE_TYPE_DELETE = 6  # 删除操作
         self.TRANSITION_INTERVENE_TYPE_CLOSE = 7  # 强制关闭操作
         self.TRANSITION_INTERVENE_TYPE_ALTER_STATE = 8  # 强制修改状态操作
+        self.TRANSITION_INTERVENE_TYPE_HOOK = 9  # hook操作
 
         self.FIELD_TYPE_STR = 5  # 字符串类型
         self.FIELD_TYPE_INT = 10  # 整形类型

@@ -142,10 +142,14 @@ loonflow发送hook请求时，header头中将包含signature 和timestamp。
 那么参与人需要填写多个username,用逗号隔开，如zhansan,lisi。如果参与人类型是部门，则参与人填写loonflow部门记录中的部门id。
 如果参与人类型是角色，则参与人填写loonflow角色记录中的id.如果参与人类型是脚本（建议使用hook方式替代），
 则填写“工作流配置”-“执行脚本”中的脚本id。如果参与人类型是工单字段，则参与人填写工作流基础字段或者此工作流定义的自定义字段的字段标识
-如username, agent。如果参与人类型是父工单字段，则填写工单的对应字段的标识。如果参与人类型是hook，那么参与人填写
-{"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true}，其中hook_url是要触发hook的目标地址，
-hook_token用于签名计算，hook签名算法如下,触发hook请求时候会将timestamp 和signature添加到请求头中，
-hook服务端应该在收到请求后先校验签名的有效性然后才响应hook请求。如果参会人类型填写无，那么处理人信息留空。
+如username, agent。如果参与人类型是父工单字段，则填写工单的对应字段的标识。如果参会人类型填写无，那么处理人信息留空。
+如果参与人类型是hook，那么参与人填写{"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true}，
+其中hook_url是要触发hook的目标地址，hook_token用于签名计算,你的hook服务端需要保存此hook_token，hook签名算法如下方代码区,
+触发hook请求时候会将timestamp和signature添加到请求头中，hook服务端应该在收到请求后按照相同的签名算法先校验签名的有效性然后才响应hook请求。
+wait的值可以是true或者false,如果wait的值是false那么工单触发hook成功(hook服务端返回json类型数据，其中code=0)后直接进入新的状态(触发失败的话
+即code=-1 或者服务端无响应或者http status非200工单会标记script_run_last_result为False，你可以调用“重试工单脚本/任务”重新触发hook)，
+如果wait的值是true那么工单触发hook后会停留在当前状态，直到hook方回调(回调逻辑见文档中“工单相关接口”-"工单hook回调")loonflow成功
+(请求参数中result=True)后工单的状态才继续流转。
 
 ::
 

@@ -1632,15 +1632,15 @@ post
      - 类型
      - 必填
      - 说明
-   * - result	
+   * - result
      - boolean
      - 是
-     - hook任务执行是否成功
-   * - msg	
+     - hook任务执行是否成功， false, true
+   * - msg
      - varchar
      - 是
      - hook执行输出信息,可留空''
-   * - field_value	
+   * - field_value
      - dict object
      - 否
      - 需要修改值的字段. 这些字段需要在状态表单设置中为可选或者必填
@@ -1648,7 +1648,9 @@ post
 - 使用场景
 
 当工作流状态设置处理人类型为hook，工单到达此状态时，会触发hook请求，被请求方可以执行一些操作，执行完成后回调用loonflow,
-告知loonflow任务执行结果，以触发loonflow中工单状态的流转(当hook配置中wait为true时，无需回调，hook发出后会立即触发流转)
+告知loonflow任务执行结果，以触发loonflow中工单状态的流转(当hook配置中wait为true时，无需回调，hook发出后会立即触发流转)。回调参数如果
+result为false,那么loonflow会标记该工单的script_run_last_result为False(获取工单详情接口也会返回此标识，前端可以根据这个标识来显示一个
+重试的按钮，用户点击这个重试按钮后调用"重试工单脚本/hook任务"接口)，同时也会将msg(你可以传失败的原因)中的内容记录到工单流转记录中。
 
 - 返回数据
 
