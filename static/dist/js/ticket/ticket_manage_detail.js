@@ -217,7 +217,11 @@ function submitDeliverTicket(){
   var ticketId = getTicketId();
   var targetUser =  $("#deliverTarget").val();
   var suggestion = $("#deliverSuggestion").val();
-  var params = {target_username:targetUser, suggestion:suggestion};
+  var params = {
+    target_username:targetUser,
+    suggestion:suggestion,
+    from_admin:1  // 管理员强制转交
+  };
   $.ajax({
     url: "/api/v1.0/tickets/" + ticketId + '/deliver',
     type: "POST",

@@ -1576,12 +1576,6 @@ class TicketBaseService(BaseService):
         :param suggestion: suggestion for deliver
         :return:
         """
-        flag, result = cls.ticket_handle_permission_check(ticket_id, username)
-        if flag is False:
-            return False, result
-        if result.get('permission') is False:
-            return False, result.get('msg')
-
         cls.update_ticket_relation(ticket_id, target_username)
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL

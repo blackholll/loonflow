@@ -259,8 +259,7 @@ class TicketState(LoonBaseView):
     """
     put_schema = Schema({
         'state_id': And(int, lambda n: n != 0, error='state_id is needed and type should be int'),
-        'transition_id': And(int, lambda n: n != 0, error='transition_id is needed and type should be int'),
-        str: object
+        Optional('suggestion'): str,
     })
 
     def put(self, request, *args, **kwargs):
@@ -276,27 +275,27 @@ class TicketState(LoonBaseView):
             return api_response(-1, 'patch参数为空', {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data_dict.get('username', '')  # 可用于权限控制
         username = request.META.get('HTTP_USERNAME')
         state_id = request_data_dict.get('state_id')
         suggestion = request_data_dict.get('suggestion', '')
 
         app_name = request.META.get('HTTP_APPNAME')
+        # 调用来源应用是否有此工单对应工作流的权限校验
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not app_permission_check:
             return api_response(-1, msg, '')
 
-        if not state_id:
-            code = -1
-            msg = '请提供新的状态id'
-            data = ''
+        # 强制修改工单状态需要对应工作流的管理员或者超级管理员
+        flag, result = ticket_base_service_ins.ticket_admin_permission_check(ticket_id, username)
+        if flag is False:
+            return api_response(-1, result, {})
+
+        flag, result = ticket_base_service_ins.update_ticket_state(ticket_id, state_id, username, suggestion)
+        if flag is False:
+            return api_response(-1, result, {})
         else:
-            result, msg = ticket_base_service_ins.update_ticket_state(ticket_id, state_id, username, suggestion)
-            if result:
-                code, msg, data = 0, msg, ''
-            else:
-                code, msg, data = -1, msg, ''
-        return api_response(code, msg, data)
+            return api_response(0, '', {})
+
 
 
 class TicketsStates(LoonBaseView):
@@ -351,6 +350,7 @@ class TicketAccept(LoonBaseView):
 class TicketDeliver(LoonBaseView):
     post_schema = Schema({
         'target_username': And(str, lambda n: n != '', error='target_username is needed'),
+        Optional('from_admin'): int,
         Optional('suggestion'): str,
     })
 
@@ -369,11 +369,24 @@ class TicketDeliver(LoonBaseView):
         username = request.META.get('HTTP_USERNAME')
         target_username = request_data_dict.get('target_username', '')
         suggestion = request_data_dict.get('suggestion', '')
+        from_admin = request_data_dict.get('from_admin', 0)
 
         app_name = request.META.get('HTTP_APPNAME')
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not app_permission_check:
-            return api_response(-1, msg, '')
+            return api_response(-1, msg, {})
+
+        if from_admin:
+            flag, result = ticket_base_service_ins.ticket_admin_permission_check(ticket_id, username)
+            if flag is False:
+                return api_response(-1, result, {})
+        else:
+            # 非管理员操作，校验用户是否有处理权限
+            flag, result = ticket_base_service_ins.ticket_handle_permission_check(ticket_id, username)
+            if flag is False:
+                return api_response(-1, result, {})
+            if result.get('permission') is False:
+                return api_response(-1, result.get('msg'), {})
 
         result, msg = ticket_base_service_ins.deliver_ticket(ticket_id, username, target_username, suggestion)
         if result:
@@ -590,6 +603,11 @@ class TicketClose(LoonBaseView):
         request_data_dict = json.loads(json_str)
         username = request.META.get('HTTP_USERNAME')
         suggestion = request_data_dict.get('suggestion', '')
+
+        # 强制关闭工单需要对应工作流的管理员或者超级管理员
+        flag, result = ticket_base_service_ins.ticket_admin_permission_check(ticket_id, username)
+        if flag is False:
+            return api_response(-1, result, {})
 
         flag, msg = ticket_base_service_ins.close_ticket(ticket_id, username, suggestion)
         if flag:

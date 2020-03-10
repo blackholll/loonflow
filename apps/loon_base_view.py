@@ -19,7 +19,7 @@ class LoonBaseView(View):
             handler = self.http_method_not_allowed
         request_method = request.method.lower()
         meth_schema = getattr(self, request.method.lower() + '_schema', None)
-        if meth_schema and request_method in ['post', 'patch']:
+        if meth_schema and request_method in ['post', 'patch', 'put']:
             try:
                 json_dict = simplejson.loads(request.body)
                 meth_schema.validate(json_dict)
