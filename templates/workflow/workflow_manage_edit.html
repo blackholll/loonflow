@@ -225,14 +225,14 @@
                                     <label for="stateTypeId" class="col-sm-3 control-label">状态类型<span style="color:red">*</span></label>
                                     <div class="col-sm-9">
                                       <select class="form-control select2" id="stateTypeId" data-placeholder="选择该应用有权限的工作流"
-                                        style="width: 100%;">
+                                        style="width: 100%;" onchange="stateTypeChange();">
                                         <option value="0">普通状态</option>
                                         <option value="1">初始状态</option>
                                         <option value="2">结束状态</option>
                                         
 
                                       </select>
-                                      <p class="help-block">每个工作流都需要有一个初始状态，一个结束状态，其他为普通状态</p>
+                                      <p class="help-block">每个工作流都需要有一个初始状态，一个结束状态，其他为普通状态。初始状态及结束状态无需设置参与人类型及参与人</p>
                                     </div>
                                 </div>
                                 <div class="checkbox">
@@ -244,7 +244,7 @@
                                       
                                     </label>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" id="stateParticipantTypeIdDiv">
                                     <label for="stateParticipantTypeId" class="col-sm-3 control-label">参与人类型</label>
                                     <div class="col-sm-9">
                                       <select class="form-control select2" id="stateParticipantTypeId" data-placeholder="选择该应用有权限的工作流"
@@ -266,12 +266,12 @@
                                       结束状态处理人类型和处理人也请选择无和留空，因为结束状态无需人再处理</p>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" id="stateParticipantDiv">
                                     <label for="stateParticipant" class="col-sm-3 control-label">参与人</label> 
                                     <div class="col-sm-9">
                                       <input type="text" class="form-control" id="stateParticipant" placeholder="请根据参与人类型填写相应的参与人">
-                                      <p class="help-block">可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator:工单的创建人,creator_tl:工单创建人的TL)\脚本记录的id等，包含子工作流的需要设置处理人为loonrobot。 当处理人类型为hook方式时,处理人需要按照如下规则配置
-                                      {"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true}。详见https://github.com/blackholll/loonflow/wiki 中新建状态</p>
+                                      <p class="help-block">个人(username)\多人(多个username以,隔开\部门(部门id)\角色(角色id)\变量(creator:工单的创建人,creator_tl:工单创建人的TL)\脚本记录的id等，需要在此状态创建子工单时需要设置此处处理人为loonrobot。 当处理人类型为hook方式时,处理人需要按照如下规则配置
+                                      {"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true, "extra_info":"xxxx"}。详见文档</p>
 
                                     </div>
                                 </div>

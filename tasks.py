@@ -262,11 +262,14 @@ def flow_hook_task(ticket_id):
     hook_url = hook_config_dict.get('hook_url')
     hook_token = hook_config_dict.get('hook_token')
     wait = hook_config_dict.get('wait')
+    extra_info = hook_config_dict.get('extra_info')
 
     flag, msg = common_service_ins.gen_hook_signature(hook_token)
     if not flag:
         return False, msg
     flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
+    if extra_info is not None:
+        all_ticket_data.update(dict(extra_info=extra_info))
     try:
         r = requests.post(hook_url, headers=msg, json=all_ticket_data, timeout=10)
         result = r.json()

@@ -560,6 +560,11 @@ function getWorkflowId() {
 
     $("#stateOrderId").val(data.order_id);
     $("#stateTypeId").val(data.type_id);
+    if (data.type_id !== 0){
+      // 不显示参与人类型及参与人
+      $("#stateParticipantTypeIdDiv").hide();
+      $("#stateParticipantDiv").hide();
+    }
     $("#stateParticipantTypeId").val(data.participant_type_id);
     $("#stateParticipant").val(data.participant);
     $("#stateDistributeTypeId").val(data.distribute_type_id);
@@ -900,4 +905,18 @@ function getWorkflowId() {
         });
       }
     });
+  }
+
+  function stateTypeChange() {
+    console.log('state change ');
+    if ($("#stateTypeId").val() !== '0'){
+      // 不显示参与人类型及参与人
+      $("#stateParticipantTypeId").val('0');
+      $("#stateParticipant").val('');
+      $("#stateParticipantTypeIdDiv").hide();
+      $("#stateParticipantDiv").hide();  
+    } else {
+      $("#stateParticipantTypeIdDiv").show();
+      $("#stateParticipantDiv").show(); 
+    }
   }
