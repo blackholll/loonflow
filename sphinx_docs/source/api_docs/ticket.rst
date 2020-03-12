@@ -882,6 +882,7 @@ get
 
   {
     "data": {
+      "current_state_id": 2  //工单当前状态id
       "value": [{
         "state_id": 17,
         "state_flow_log_list": [],

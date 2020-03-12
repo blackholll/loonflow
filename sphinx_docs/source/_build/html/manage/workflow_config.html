@@ -301,14 +301,29 @@ loonflow将会对这个hook_url发送一个post请求，请求头中包括签名
 那么参与人需要填写多个username,用逗号隔开，如zhansan,lisi。如果参与人类型是部门，则参与人填写loonflow部门记录中的部门id。
 如果参与人类型是角色，则参与人填写loonflow角色记录中的id.如果参与人类型是脚本（建议使用hook方式替代），
 则填写“工作流配置”-“执行脚本”中的脚本id。如果参与人类型是工单字段，则参与人填写工作流基础字段或者此工作流定义的自定义字段的字段标识
-如username, agent。如果参与人类型是父工单字段，则填写工单的对应字段的标识。如果参与人类型是hook，那么参与人填写
-{“hook_url”:”<a class="reference external" href="http://xxx.com/xxx">http://xxx.com/xxx</a>”, “hook_token”:”xxxx”, “wait”:true}，其中hook_url是要触发hook的目标地址，
-hook_token用于签名计算，hook签名算法如下,触发hook请求时候会将timestamp 和signature添加到请求头中，
-hook服务端应该在收到请求后先校验签名的有效性然后才响应hook请求。如果参会人类型填写无，那么处理人信息留空。</p>
+如username, agent。如果参与人类型是父工单字段，则填写工单的对应字段的标识。如果参会人类型填写无，那么处理人信息留空。
+如果参与人类型是hook，那么参与人填写{“hook_url”:”<a class="reference external" href="http://xxx.com/xxx">http://xxx.com/xxx</a>”, “hook_token”:”xxxx”, “wait”:true, “extra_info”:”xxx”}，
+其中hook_url是要触发hook的目标地址，hook_token用于签名计算,你的hook服务端需要保存此hook_token，hook签名算法如下方代码区,
+触发hook请求时候会将timestamp和signature添加到请求头中，hook服务端应该在收到请求后按照相同的签名算法先校验签名的有效性然后才响应hook请求。
+wait的值可以是true或者false,如果wait的值是false那么工单触发hook成功(hook服务端返回json类型数据，其中code=0)后直接进入新的状态(触发失败的话
+即code=-1 或者服务端无响应或者http status非200工单会标记script_run_last_result为False，你可以调用“重试工单脚本/任务”重新触发hook)，
+如果wait的值是true那么工单触发hook后会停留在当前状态，直到hook方回调(回调逻辑见文档中“工单相关接口”-“工单hook回调”)loonflow成功
+(请求参数中result=True)后工单的状态才继续流转。extra_info(非必填)可以用于传一些额外的信息，loonflow会将这个信息连同工单信息传给hook服务端。</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
 <span class="n">timestamp</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())[:</span><span class="mi">10</span><span class="p">]</span>
 <span class="n">ori_str</span> <span class="o">=</span> <span class="n">timestamp</span> <span class="o">+</span> <span class="n">token</span>
 <span class="n">signature</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">ori_str</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>hook触发时loonflow向hook_url服务端post请求时带的数据如下：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>{
+  &quot;id&quot;:11,
+  &quot;sn&quot;:&quot;loonflow202002020001&quot;,
+  &quot;title&quot;:&quot;xxx&quot;,
+  &quot;state_id&quot;:1,
+  ...., //等等工单的所有字段的值
+  &quot;extra_info&quot;: &quot;xxxx&quot;, // 此处如果你配置hook的时候指定了extra_info那么会有这个字段，如果没配置就没这个信息
+}
 </pre></div>
 </div>
 <p>分配方式： 分配方式包括直接处理、主动接单、随机分配、全部处理。如果设置为直接处理，工单的当前处理人可以直接点击配置的流
