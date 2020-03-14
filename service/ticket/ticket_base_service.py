@@ -1902,10 +1902,16 @@ class TicketBaseService(BaseService):
             if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
                 destination_participant_list = destination_participant.split(',')
             elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-                flag, destination_participant_list = account_base_service_ins.get_dept_username_list(
-                    int(destination_participant))
-                if flag is False:
-                    return False, destination_participant_list
+                # 支持多部门
+                destination_department_id_list = destination_participant.split(',')
+                destination_participant_list = []
+                for destination_department_id in destination_department_id_list:
+                    flag, destination_participant_list0 = account_base_service_ins.get_dept_username_list(
+                        int(destination_department_id))
+                    if flag is False:
+                        return False, destination_participant_list0
+                    destination_participant_list.append(destination_participant_list0)
+                destination_participant_list = list(set(destination_participant_list))
 
             elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
                 flag, destination_participant_list = account_base_service_ins.get_role_username_list(
