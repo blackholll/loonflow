@@ -12,6 +12,12 @@ class ConstantService(BaseService):
         self.STATE_DISTRIBUTE_TYPE_RANDOM = 3  # 随机分配(V0.2版本支持)
         self.STATE_DISTRIBUTE_TYPE_ALL = 4  # 全部处理(V0.2版本支持)
 
+        self.TICKET_ACT_STATE_DRAFT = 0  # 草稿中
+        self.TICKET_ACT_STATE_ONGOING = 1  # 进行中
+        self.TICKET_ACT_STATE_BACK = 2  # 被退回
+        self.TICKET_ACT_STATE_RETREAT = 3  # 被撤回
+        self.TICKET_ACT_STATE_FINISH = 4  # 已完成
+
         self.PARTICIPANT_TYPE_PERSONAL = 1  # 个人
         self.PARTICIPANT_TYPE_MULTI = 2  # 多人
         self.PARTICIPANT_TYPE_DEPT = 3  # 部门

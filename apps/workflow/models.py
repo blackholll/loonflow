@@ -40,6 +40,8 @@ class State(BaseModel):
     is_hidden = models.BooleanField('是否隐藏', default=False, help_text='设置为True时,获取工单步骤api中不显示此状态(当前处于此状态时除外)')
     order_id = models.IntegerField('状态顺序', default=0, help_text='用于工单步骤接口时，step上状态的顺序(因为存在网状情况，所以需要人为设定顺序),值越小越靠前')
     type_id = models.IntegerField('状态类型id', default=0, help_text='0.普通类型 1.初始状态(用于新建工单时,获取对应的字段必填及transition信息) 2.结束状态(此状态下的工单不得再处理，即没有对应的transition)')
+    enable_retreat = models.BooleanField('允许撤回', default=False, help_text='开启后允许工单创建人在此状态直接撤回工单到初始状态')
+
     remember_last_man_enable = models.BooleanField('记忆最后处理人', default=False, help_text='开启后，到达此状态时会先检查之前是否有人在此状态处理过，如果有则处理人为最后一次处理的人')
     participant_type_id = models.IntegerField('参与者类型id', default=1, blank=True, help_text='0.无处理人,1.个人,2.多人,3.部门,4.角色,5.变量(支持工单创建人,创建人的leader),6.脚本,7.工单的字段内容(如表单中的"测试负责人"，需要为用户名或者逗号隔开的多个用户名),8.父工单的字段内容。 初始状态请选择类型5，参与人填creator')
     participant = models.CharField('参与者', default='', blank=True, max_length=100, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator,creator_tl)\脚本记录的id等，包含子工作流的需要设置处理人为loonrobot')

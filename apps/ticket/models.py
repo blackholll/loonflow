@@ -19,8 +19,7 @@ class TicketRecord(BaseModel):
     in_add_node = models.BooleanField('加签状态中', default=False, help_text='是否处于加签状态下')
     add_node_man = models.CharField('加签人', max_length=50, default='', blank=True, help_text='加签操作的人，工单当前处理人处理完成后会回到该处理人，当处于加签状态下才有效')
     script_run_last_result = models.BooleanField(u'脚本最后一次执行结果', default=True)
-    is_end = models.BooleanField('已结束', default=False, help_text='工单是否已处于结束状态')
-    is_rejected = models.BooleanField('被拒绝', default=False, help_text='工单是否处于被拒绝状态')
+    act_state_id = models.IntegerField('进行状态', help_text='当前工单的进行状态,详见service.constant_service中定义')
     multi_all_person = models.CharField('全部处理的结果', max_length=1000, default='{}', blank=True, help_text='需要当前状态处理人全部处理时实际的处理结果，json格式')
 
 
