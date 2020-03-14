@@ -364,10 +364,15 @@ class LoonDeptDetailView(LoonBaseView):
         approver_id_list = [int(approver_str) for approver_str in approver_str_list]
         label = request_data_dict.get('label')
 
-        flag, result = account_base_service_ins.get_user_by_user_id(int(leader_id))
-        if flag is False:
-            return api_response(-1, result, {})
-        leader = result.username
+        if leader_id:
+            ok, result = account_base_service_ins.get_user_by_user_id(
+                int(leader_id)
+            )
+            if not ok:
+                return api_response(-1, result, {})
+            leader = result.username
+        else:
+            leader = None
 
         flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
         if flag is False:
