@@ -62,7 +62,7 @@ class TicketBaseService(BaseService):
         :param per_page:
         :param page:
         :param app_name:
-        is_end int=0, is_rejected: int=0
+        act_state_id: int=0 进行状态, 0 草稿中、1.进行中 2.被退回 3.被撤回 4.完成
         :return:
         """
         category_list = ['all', 'owner', 'duty', 'relation']
@@ -77,10 +77,8 @@ class TicketBaseService(BaseService):
             return False, 'This app_name have not workflow permission'
         else:
             query_params &= Q(workflow_id__in=result.get('workflow_id_list'))
-        if kwargs.get('is_end') != '':
-            query_params &= Q(is_end=int(kwargs.get('is_end')))
-        if kwargs.get('is_rejected') != '':
-            query_params &= Q(is_rejected=int(kwargs.get('is_rejected')))
+        if kwargs.get('act_state_id') != '':
+            query_params &= Q(act_state_id=int(kwargs.get('act_state_id')))
 
         if kwargs.get('from_admin') != '':
             # 管理员查看， 获取其有权限的工作流列表
@@ -250,14 +248,19 @@ class TicketBaseService(BaseService):
         ticket_sn = result.get('ticket_sn')
 
         # 新增工单基础表数据
-        is_end = True if destination_state.type_id == constant_service_ins.STATE_TYPE_END else False
+        if destination_state.type_id == constant_service_ins.STATE_TYPE_END:
+            act_state_id = constant_service_ins.TICKET_ACT_STATE_FINISH
+        elif destination_state.type_id == constant_service_ins.STATE_TYPE_START:
+            act_state_id = constant_service_ins.TICKET_ACT_STATE_DRAFT
+        else:
+            act_state_id = constant_service_ins.TICKET_ACT_STATE_ONGOING
 
         new_ticket_obj = TicketRecord(sn=ticket_sn, title=request_data_dict.get('title', ''), workflow_id=workflow_id,
                                       state_id=destination_state_id, parent_ticket_id=parent_ticket_id,
                                       parent_ticket_state_id=parent_ticket_state_id,
                                       participant=destination_participant,
                                       participant_type_id=destination_participant_type_id, relation=username,
-                                      creator=username, is_end=is_end, multi_all_person=multi_all_person)
+                                      creator=username, act_state_id=act_state_id, multi_all_person=multi_all_person)
         new_ticket_obj.save()
 
         # 更新工单关系人
@@ -627,9 +630,17 @@ class TicketBaseService(BaseService):
         else:
             creator_info = dict(username=ticket_obj.creator, alias='', is_active=False, email='', phone='',
                                 dept_info={})
-
+        # 当前状态信息
+        flag, result = workflow_state_service_ins.get_workflow_state_by_id(ticket_obj.state_id)
+        if flag is False:
+            return False, result
+        state_info = result.get_dict()
+        if state_info['participant_type_id'] == constant_service_ins.PARTICIPANT_TYPE_HOOK:
+            state_info['participant'] = 'hook'
+        state_info['state_field_str'] = json.loads(state_info['state_field_str'])
+        state_info['label'] = json.loads(state_info['label'])
         ticket_result_dict = ticket_obj.get_dict()
-        ticket_result_dict.update(dict(field_list=new_field_list, creator_info=creator_info))
+        ticket_result_dict.update(dict(field_list=new_field_list, creator_info=creator_info, state_info=state_info))
         return True, ticket_result_dict
 
     @classmethod
@@ -1118,12 +1129,15 @@ class TicketBaseService(BaseService):
         ticket_obj.participant = destination_participant
         ticket_obj.multi_all_person = multi_all_person
         if destination_state.type_id == constant_service_ins.STATE_TYPE_END:
-            ticket_obj.is_end = True
-        if req_transition_obj.attribute_type_id == constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_REFUSE:
-            # 如果操作为拒绝操作，则工单状态为被拒绝，否则更新为否
-            ticket_obj.is_rejected = True
+            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_FINISH
+        elif destination_state.type_id == constant_service_ins.STATE_TYPE_START:
+            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_DRAFT
         else:
-            ticket_obj.is_rejected = False
+            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_ONGOING
+
+        if req_transition_obj.attribute_type_id == constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_REFUSE:
+            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_BACK
+
         ticket_obj.save()
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要考虑下个处理人是部门、角色等的情况
         flag, result = cls.get_ticket_dest_relation(destination_participant_type_id, destination_participant)
@@ -1448,6 +1462,8 @@ class TicketBaseService(BaseService):
                 transition_name = '强制修改状态'
             elif intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_HOOK:
                 transition_name = 'hook操作'
+            elif intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_RETREAT:
+                transition_name = '撤回操作'
             else:
                 transition_name = '未知操作'
             attribute_type_id = constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER
@@ -2278,6 +2294,71 @@ class TicketBaseService(BaseService):
         result_list = sorted(result_list, key=lambda r: r['day'])
 
         return True, dict(result_list=result_list)
+
+    @classmethod
+    @auto_log
+    def retreat_ticket(cls, ticket_id: int, username: str='', suggestion: str='')->tuple:
+        """
+        撤回工单
+        :param ticket_id:
+        :param username:
+        :param suggestion:
+        :return:
+        """
+        # 判断用户是否有撤回权限，工单的创建人，且当前状态允许撤回
+        flag, ticket_result = cls.get_ticket_by_id(ticket_id)
+        if flag is False:
+            return False, ticket_result
+        if ticket_result.creator != username:
+            return False, "just ticket's creator can retreat ticket in specific state that enable retreat"
+        workflow_id = ticket_result.workflow_id
+        flag, result = workflow_state_service_ins.get_workflow_state_by_id(ticket_result.id)
+        if result.enable_retreat is False:
+            return False, 'now state can not be retreat'
+        flag, result = workflow_state_service_ins.get_workflow_start_state(workflow_id)
+        if flag is False:
+            return False, result
+        ticket_result.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+        ticket_result.participant = ticket_result.creator
+        ticket_result.save()
+        # 新增操作记录
+        flag, result = cls.get_ticket_all_field_value_json(ticket_result.id)
+        if flag is False:
+            return False, result
+
+        all_ticket_data_json = result.get('all_field_value_json')
+        new_ticket_flow_log_dict = dict(ticket_id=ticket_result.id, transition_id=0, suggestion=suggestion,
+                                        intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_RETREAT,
+                                        participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
+                                        participant=username, state_id=ticket_result.state_id,
+                                        ticket_data=all_ticket_data_json
+                                        )
+        cls.add_ticket_flow_log(new_ticket_flow_log_dict)
+        return True, ''
+
+    def close_ticket_permission_check(cls, ticket_id: int, username: str)->tuple:
+        """
+        用户是否有强制关闭工单的权限
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        # 强制关闭工单需要对应工作流的管理员或者超级管理员 或者处于初始状态的工单由创建人直接关闭
+        flag, result = ticket_base_service_ins.ticket_admin_permission_check(ticket_id, username)
+        if flag is False:
+            # 判断是否属于初始状态 且用户为工单创建人
+            flag, ticket_result = cls.get_ticket_by_id(ticket_id)
+            if flag is False:
+                return False, ticket_result
+            flag, start_state_result = workflow_state_service_ins.get_workflow_start_state(ticket_id)
+            if flag is False:
+                return False,  start_state_result
+            if ticket_result.creator == username and ticket_result.state_id == start_state_result.id:
+                return True, "ticket's creator can close ticket in start state"
+            else:
+                return False, "just ticket's creator can close ticket in start state or workflow_admin can close ticket in any state"
+        else:
+            return True, "ticket's workflow admin casn close ticket in any state"
 
 
 ticket_base_service_ins = TicketBaseService()

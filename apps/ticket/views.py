@@ -37,8 +37,7 @@ class TicketListView(LoonBaseView):
         reverse = int(request_data.get('reverse', 1))
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
-        is_end = request_data.get('is_end', '')
-        is_rejected = request_data.get('is_rejected', '')
+        act_state_id = request_data.get('act_state_id', '')
         from_admin = request_data.get('from_admin', '')
         creator = request_data.get('creator', '')
 
@@ -50,8 +49,8 @@ class TicketListView(LoonBaseView):
         flag, result = ticket_base_service_ins.get_ticket_list(
             sn=sn, title=title, username=username, create_start=create_start, create_end=create_end,
             workflow_ids=workflow_ids, state_ids=state_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
-            per_page=per_page, page=page, app_name=app_name, is_end=is_end, is_rejected=is_rejected,
-            from_admin=from_admin, creator=creator)
+            per_page=per_page, page=page, app_name=app_name, act_state_id=act_state_id, from_admin=from_admin,
+            creator=creator)
         if flag is not False:
             paginator_info = result.get('paginator_info')
             data = dict(value=result.get('ticket_result_restful_list'), per_page=paginator_info.get('per_page'),
@@ -113,7 +112,7 @@ class TicketView(LoonBaseView):
         if flag:
             code, data = 0, dict(value=result)
         else:
-            code, data = -1, {}
+            code, data, msg = -1, {}, result
         return api_response(code, msg, data)
 
     def patch(self, request, *args, **kwargs):
@@ -341,7 +340,7 @@ class TicketAccept(LoonBaseView):
 
         result, msg = ticket_base_service_ins.accept_ticket(ticket_id, username)
         if result:
-            code, msg, data = 0, msg, result
+            code, msg, data = 0, msg, {}
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
@@ -424,7 +423,7 @@ class TicketAddNode(LoonBaseView):
 
         result, msg = ticket_base_service_ins.add_node_ticket(ticket_id, username, target_username, suggestion)
         if result:
-            code, msg, data = 0, msg, result
+            code, msg, data = 0, msg, {}
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
@@ -458,7 +457,7 @@ class TicketAddNodeEnd(LoonBaseView):
 
         result, msg = ticket_base_service_ins.add_node_ticket_end(ticket_id, username, suggestion)
         if result:
-            code, msg, data = 0, msg, result
+            code, msg, data = 0, msg, {}
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
@@ -488,7 +487,7 @@ class TicketField(LoonBaseView):
 
         result, msg = ticket_base_service_ins.update_ticket_field_value(ticket_id, request_data_dict)
         if result:
-            code, msg, data = 0, msg, result
+            code, msg, data = 0, msg, {}
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
@@ -512,9 +511,9 @@ class TicketScriptRetry(LoonBaseView):
             api_response(-1, 'need arg username', '')
         result, msg = ticket_base_service_ins.retry_ticket_script(ticket_id, username)
         if result:
-            code, msg, data = 0, 'Ticket script or hook retry start successful', ''
+            code, msg, data = 0, 'Ticket script or hook retry start successful', {}
         else:
-            code, msg, data = -1, msg, ''
+            code, msg, data = -1, msg, {}
         return api_response(code, msg, data)
 
 
@@ -541,7 +540,7 @@ class TicketComment(LoonBaseView):
         suggestion = request_data_dict.get('suggestion', '')
         result, msg = ticket_base_service_ins.add_comment(ticket_id, username, suggestion)
         if result:
-            code, msg, data = 0, 'add ticket comment successful', ''
+            code, msg, data = 0, 'add ticket comment successful', {}
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
@@ -565,7 +564,7 @@ class TicketHookCallBack(LoonBaseView):
 
         result, msg = ticket_base_service_ins.hook_call_back(ticket_id, app_name, request_data_dict)
         if result:
-            code, msg, data = 0, 'add ticket comment successful', ''
+            code, msg, data = 0, 'add ticket comment successful', {}
         else:
             code, msg, data = -1, msg, ''
         return api_response(code, msg, data)
@@ -604,8 +603,7 @@ class TicketClose(LoonBaseView):
         username = request.META.get('HTTP_USERNAME')
         suggestion = request_data_dict.get('suggestion', '')
 
-        # 强制关闭工单需要对应工作流的管理员或者超级管理员
-        flag, result = ticket_base_service_ins.ticket_admin_permission_check(ticket_id, username)
+        flag, result = ticket_base_service_ins.close_ticket_permission_check(ticket_id, username)
         if flag is False:
             return api_response(-1, result, {})
 
@@ -635,3 +633,26 @@ class TicketsNumStatistics(LoonBaseView):
             return api_response(0, '', result.get('result_list'))
         else:
             return api_response(-1, result, {})
+
+
+class TicketRetreat(LoonBaseView):
+    def post(self, request, *args, **kwargs):
+        """
+        撤回工单，允许创建人在指定状态撤回工单至初始状态，状态设置中开启允许撤回
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        ticket_id = kwargs.get('ticket_id')
+        username = request.META.get('HTTP_USERNAME')
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        suggestion = request_data_dict.get('suggestion', '')
+
+        flag, result = ticket_base_service_ins.retreat_ticket(ticket_id, username, suggestion)
+        if flag:
+            return api_response(0, '', {})
+        else:
+            return api_response(-1, result, {})
+

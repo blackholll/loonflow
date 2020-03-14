@@ -49,7 +49,7 @@
       },
       { "data": "approver_info", render: function(data, type, full) { if(data.length){return (data.map(function(value,index,array){return value.approver_alias +"(" + value.approver_name +")"}).join(','))} else {return ''}  }},
       { "data": "label" },
-      { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
+      { "data": "creator_info", render: function(data, type, full) {if(data.creator_alias){return data.creator_alias}else{return full.creator}}},
       { "data": "gmt_created" },
       {render: function(data, type, full) {
         var rosJson=JSON.stringify(full).replace(/"/g, '&quot;');

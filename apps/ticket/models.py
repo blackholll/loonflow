@@ -19,7 +19,7 @@ class TicketRecord(BaseModel):
     in_add_node = models.BooleanField('加签状态中', default=False, help_text='是否处于加签状态下')
     add_node_man = models.CharField('加签人', max_length=50, default='', blank=True, help_text='加签操作的人，工单当前处理人处理完成后会回到该处理人，当处于加签状态下才有效')
     script_run_last_result = models.BooleanField(u'脚本最后一次执行结果', default=True)
-    act_state_id = models.IntegerField('进行状态', help_text='当前工单的进行状态,详见service.constant_service中定义')
+    act_state_id = models.IntegerField('进行状态', default=1, help_text='当前工单的进行状态,详见service.constant_service中定义')
     multi_all_person = models.CharField('全部处理的结果', max_length=1000, default='{}', blank=True, help_text='需要当前状态处理人全部处理时实际的处理结果，json格式')
 
 
@@ -39,7 +39,7 @@ class TicketFlowLog(BaseModel):
     participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
     participant = models.CharField('处理人', max_length=50, default='', blank=True)
     state_id = models.IntegerField('当前状态id', default=0, blank=True)
-    intervene_type_id = models.IntegerField('干预类型', default=0, help_text='0.非人为干预的流转，1.转交操作 2.加签操作 3.加签处理完成')
+    intervene_type_id = models.IntegerField('干预类型', default=0, help_text='见service.constant_service中定义')
     ticket_data = models.CharField('工单数据', max_length=10000, default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
 
 

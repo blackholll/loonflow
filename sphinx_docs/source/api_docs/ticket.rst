@@ -62,14 +62,10 @@ get
      - varchar
      - 否
      - 每页个数，默认10
-   * - is_end
+   * - act_state_id
      - int
      - 否
-     - 是否已经结束的工单,0(未结束),1(已结束)或者不提供(不过滤是否已经结束)
-   * - is_rejected
-     - int
-     - 否
-     - 是否已被拒绝的工单，0(未被拒绝),1(被拒绝）或者不提供(不过滤是否已被拒绝)
+     - 工单的进行状态, 0草稿中(也就是初始状态)、1进行中 2被退回 3被撤回 4完成
    * - category
      - varchar
      - 否
@@ -208,7 +204,7 @@ get
         "creator": "lilei",
         "script_run_last_result": true,
         "gmt_modified": "2018-05-22 07:26:54",
-        "is_rejected": false,
+        "act_state_id": 1,
         "multi_all_person": "{}",
         "creator_info": {
           "email": "lilei@163.com",
@@ -301,7 +297,37 @@ get
         }],
         "parent_ticket_state_id": 0,
         "add_node_man": "zhangsan",
-        "participant": "1"
+        "participant": "1",
+        "state_info": {
+          "id": 10,
+          "creator": "admin",
+          "gmt_created": "2018-04-30 15:47:58",
+          "gmt_modified": "2018-05-13 11:42:59",
+          "is_deleted": false,
+          "name": "\u4eba\u4e8b\u90e8\u95e8-\u5904\u7406\u4e2d",
+          "workflow_id": 1,
+          "is_hidden": false,
+          "order_id": 4,
+          "type_id": 0,
+          "enable_retreat": false,
+          "remember_last_man_enable": false,
+          "participant_type_id": 1,
+          "participant": "admin",
+          "distribute_type_id": 1,
+          "state_field_str": {
+            "sn": 1,
+            "title": 1,
+            "leave_start": 1,
+            "leave_end": 1,
+            "leave_days": 1,
+            "leave_proxy": 1,
+            "leave_type": 1,
+            "creator": 1,
+            "gmt_created": 1,
+            "leave_reason": 1
+          },
+          "label": {}
+        }
       }
     }
   }
@@ -420,7 +446,7 @@ post
 ::
 
   {
-    "data": true,
+    "data": {},
     "code": 0,
     "msg": ""
   }
@@ -519,7 +545,7 @@ post
 ::
 
   {
-    "data": true,
+    "data": {},
     "code": 0,
     "msg": ""
   }
@@ -561,7 +587,7 @@ post
 ::
 
   {
-    "data": true,
+    "data": {},
     "code": 0,
     "msg": ""
   }
@@ -607,7 +633,7 @@ patch
 
   {
     "msg": "",
-    "data": "",
+    "data": {},
     "code": 0
   }
 
@@ -1444,7 +1470,7 @@ put
 
   {
     "msg": "",
-    "data": "",
+    "data": {},
     "code": 0
   }
 
@@ -1540,7 +1566,7 @@ patch
 
   {
     "msg": "",
-    "data": "",
+    "data": {},
     "code": 0
   }
 
@@ -1571,7 +1597,7 @@ post
 
   {
     "msg": "Ticket script or hook retry start successful",
-    "data": "",
+    "data": {},
     "code": 0
   }
 
@@ -1596,7 +1622,7 @@ post
      - 类型
      - 必填
      - 说明
-   * - suggestion	
+   * - suggestion
      - varchar
      - 是
      - 处理意见（与处理工单类型，用户在处理工单的时候点击了按钮操作 可以填写附加的一些意见如:麻烦尽快处理）
@@ -1608,7 +1634,7 @@ post
   {
     "code": 0,
     "msg": "",
-    "data": ""
+    "data": {}
   }
 
 
@@ -1660,7 +1686,7 @@ result为false,那么loonflow会标记该工单的script_run_last_result为False
   {
     "code": 0,
     "msg": "",
-    "data": ""
+    "data": {}
   }
 
 --------------------
@@ -1751,14 +1777,15 @@ post
      - 类型
      - 必填
      - 说明
-   * - suggestion	
+   * - suggestion
      - varchar
      - 否
      - 关闭原因
 
 - 使用场景
 
-超级管理员在查看工单详情时，可以在界面上显示一个强制关闭工单的按钮，点击后调用关闭工单按钮，实现强制关闭工单
+超级管理员在查看工单详情时，可以在界面上显示一个强制关闭工单的按钮，点击后调用关闭工单按钮，实现强制关闭工单。
+另外工单创建人在工单处于初始状态下(创建人撤回、退回到初始状态等情况工单状态会处于初始状态)也可以强制关闭工单。
 
 - 返回数据
 
@@ -1767,5 +1794,47 @@ post
   {
     "code": 0,
     "msg": "",
-    "data": ""
+    "data": {}
+  }
+
+
+
+--------------------
+撤回工单
+--------------------
+
+- url
+
+api/v1.0/tickets/{ticket_id}/retreat
+
+- method
+
+post
+
+- 请求参数
+
+.. list-table::
+   :header-rows: 1
+
+   * - 参数名
+     - 类型
+     - 必填
+     - 说明
+   * - suggestion	
+     - varchar
+     - 否
+     - 撤回原因
+
+- 使用场景
+
+在配置工作流状态时，可以指定某些状态下允许创建人撤回工单，那么当工单处于这些状态时，创建人可以撤回该工单(调用方前端在这个情况下显示一个撤回按钮)
+
+- 返回数据
+
+::
+
+  {
+    "code": 0,
+    "msg": "",
+    "data": {}
   }
