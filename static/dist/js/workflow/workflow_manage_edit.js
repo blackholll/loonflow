@@ -27,9 +27,11 @@
           data: param,  //传入组装的参数
           dataType: "json",
           success: function (result) {
+              $("#sourceStateId").empty();
               result.data.value.map(function (currentValue, index, arr) {
                   $("#sourceStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");
               })
+              $("#destinationStateId").empty();
               result.data.value.map(function (currentValue, index, arr) {
                   $("#destinationStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");
               })
