@@ -69,7 +69,7 @@ function submitDept() {
   var deptId = $("#deptId").val();
   var deptName = $("#deptName").val();
   var deptLabel = $("#deptLabel").val();
-  var parent_dept_id = $("#parent_dept_id").val();
+  var parent_dept_id = $("#parent_dept_id").val() - 0;
   if (! parent_dept_id) {
     parent_dept_id = 0
   }
@@ -157,7 +157,7 @@ function showEditDeptModal(data) {
   $('#deptLabel').val(data.label)
   $('#parent_dept_id').val(data.parent_dept_id).trigger("change")
   $('#deptLeader').val(data.leader).trigger("change")
-  $('#deptApprover').val(data.approvel).trigger("change")
+  $('#deptApprover').val(data.approver).trigger("change")
   $('#deptModal').modal('show');
 }
 
