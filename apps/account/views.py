@@ -551,8 +551,7 @@ class LoonUserRoleView(LoonBaseView):
 @method_decorator(login_required, name='dispatch')
 class LoonRoleUserView(LoonBaseView):
     post_schema = Schema({
-        'role_id': And(int, error='role_id is needed'),
-        'user_id': And(int, error='user_id is needed')
+        'user_id': And(int, error='user_id is needed and should be int')
     })
 
     @manage_permission_check('admin')

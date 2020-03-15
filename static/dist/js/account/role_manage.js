@@ -191,7 +191,7 @@ function showEditRoleModel(data){
 function submitRoleUser() {
   var roleUserId = $('#roleUserId').val()
   var addRoleUserRoleId = $('#addRoleUserRoleId').val()
-  var paramData = {'user_id': roleUserId};
+  var paramData = {'user_id': Number(roleUserId)};
   $.ajax({
       url: "/api/v1.0/accounts/roles/"+ addRoleUserRoleId + '/users',
       type: "POST",
