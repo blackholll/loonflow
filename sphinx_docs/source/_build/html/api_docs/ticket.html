@@ -128,6 +128,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#id17">工单hook回调</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id18">工单当前的参与人详情</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id19">强制关闭工单</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id20">撤回工单</a></li>
 </ul>
 </li>
 </ul>
@@ -286,19 +287,14 @@
 <td><p>否</p></td>
 <td><p>每页个数，默认10</p></td>
 </tr>
-<tr class="row-even"><td><p>is_end</p></td>
+<tr class="row-even"><td><p>act_state_id</p></td>
 <td><p>int</p></td>
 <td><p>否</p></td>
-<td><p>是否已经结束的工单,0(未结束),1(已结束)或者不提供(不过滤是否已经结束)</p></td>
+<td><p>工单的进行状态, 0草稿中(也就是初始状态)、1进行中 2被退回 3被撤回 4完成</p></td>
 </tr>
-<tr class="row-odd"><td><p>is_rejected</p></td>
-<td><p>int</p></td>
-<td><p>否</p></td>
-<td><p>是否已被拒绝的工单，0(未被拒绝),1(被拒绝）或者不提供(不过滤是否已被拒绝)</p></td>
-</tr>
-<tr class="row-even"><td><p>category</p></td>
+<tr class="row-odd"><td><p>category</p></td>
 <td><p>varchar</p></td>
-<td><p>否</p></td>
+<td><p>是</p></td>
 <td><p>类型(‘all’:所有工单, ‘owner’:我创建的工单, ‘duty’:我的待处理工单, ‘relation’:我的关联工单[包括我新建的、我处理过的、曾经需要我处理过的工单。注意这里只考虑历史状态，工单将来状态的处理人不考虑])</p></td>
 </tr>
 </tbody>
@@ -449,7 +445,7 @@
       <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei&quot;</span><span class="p">,</span>
       <span class="s2">&quot;script_run_last_result&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
       <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-22 07:26:54&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;is_rejected&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+      <span class="s2">&quot;act_state_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
       <span class="s2">&quot;multi_all_person&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
       <span class="s2">&quot;creator_info&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="s2">&quot;lilei@163.com&quot;</span><span class="p">,</span>
@@ -542,7 +538,37 @@
       <span class="p">}],</span>
       <span class="s2">&quot;parent_ticket_state_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
       <span class="s2">&quot;add_node_man&quot;</span><span class="p">:</span> <span class="s2">&quot;zhangsan&quot;</span><span class="p">,</span>
-      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span>
+      <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;state_info&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-04-30 15:47:58&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gmt_modified&quot;</span><span class="p">:</span> <span class="s2">&quot;2018-05-13 11:42:59&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_deleted&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\u4eba\u4e8b\u90e8\u95e8</span><span class="s2">-</span><span class="se">\u5904\u7406\u4e2d</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;is_hidden&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+        <span class="s2">&quot;order_id&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s2">&quot;type_id&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;enable_retreat&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+        <span class="s2">&quot;remember_last_man_enable&quot;</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+        <span class="s2">&quot;participant_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;participant&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;distribute_type_id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;state_field_str&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">&quot;sn&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;leave_start&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;leave_end&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;leave_days&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;leave_proxy&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;leave_type&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;creator&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;gmt_created&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+          <span class="s2">&quot;leave_reason&quot;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{}</span>
+      <span class="p">}</span>
     <span class="p">}</span>
   <span class="p">}</span>
 <span class="p">}</span>
@@ -655,7 +681,7 @@
 <li><p>返回数据</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
 <span class="p">}</span>
@@ -772,7 +798,7 @@
 <li><p>返回数据</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
 <span class="p">}</span>
@@ -822,7 +848,7 @@
 <li><p>返回数据</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
 <span class="p">}</span>
@@ -879,7 +905,7 @@
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
 <span class="p">}</span>
 </pre></div>
@@ -1735,7 +1761,7 @@
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
 <span class="p">}</span>
 </pre></div>
@@ -1851,7 +1877,7 @@
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
 <span class="p">}</span>
 </pre></div>
@@ -1881,7 +1907,7 @@
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;Ticket script or hook retry start successful&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span>
 <span class="p">}</span>
 </pre></div>
@@ -1928,7 +1954,7 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -1991,7 +2017,7 @@ result为false,那么loonflow会标记该工单的script_run_last_result为False
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -2099,14 +2125,65 @@ result为false,那么loonflow会标记该工单的script_run_last_result为False
 <ul class="simple">
 <li><p>使用场景</p></li>
 </ul>
-<p>超级管理员在查看工单详情时，可以在界面上显示一个强制关闭工单的按钮，点击后调用关闭工单按钮，实现强制关闭工单</p>
+<p>超级管理员在查看工单详情时，可以在界面上显示一个强制关闭工单的按钮，点击后调用关闭工单按钮，实现强制关闭工单。
+另外工单创建人在工单处于初始状态下(创建人撤回、退回到初始状态等情况工单状态会处于初始状态)也可以强制关闭工单。</p>
 <ul class="simple">
 <li><p>返回数据</p></li>
 </ul>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id20">
+<h2>撤回工单<a class="headerlink" href="#id20" title="永久链接至标题">¶</a></h2>
+<ul class="simple">
+<li><p>url</p></li>
+</ul>
+<p>api/v1.0/tickets/{ticket_id}/retreat</p>
+<ul class="simple">
+<li><p>method</p></li>
+</ul>
+<p>post</p>
+<ul class="simple">
+<li><p>请求参数</p></li>
+</ul>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>参数名</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>必填</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>suggestion</p></td>
+<td><p>varchar</p></td>
+<td><p>否</p></td>
+<td><p>撤回原因</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>使用场景</p></li>
+</ul>
+<p>在配置工作流状态时，可以指定某些状态下允许创建人撤回工单，那么当工单处于这些状态时，创建人可以撤回该工单(调用方前端在这个情况下显示一个撤回按钮)</p>
+<ul class="simple">
+<li><p>返回数据</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s2">&quot;msg&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{}</span>
 <span class="p">}</span>
 </pre></div>
 </div>

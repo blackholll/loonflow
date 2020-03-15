@@ -57,7 +57,8 @@ Welcome to loonflow's documentation!
    :maxdepth: 2
    :caption: 其他
 
-   other
+   others/donation
+   others/release_note
 
 
 

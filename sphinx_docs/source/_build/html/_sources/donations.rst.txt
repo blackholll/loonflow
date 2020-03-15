@@ -16,3 +16,6 @@
 
  .. figure:: images/donation_code.png
 
+-------
+发布记录
+-------

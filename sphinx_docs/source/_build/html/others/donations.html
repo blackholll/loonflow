@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>如何运行 &mdash; loonflow 1.0.0 文档</title>
+  <title>欢迎捐助 &mdash; loonflow 1.0.0 文档</title>
   
 
   
@@ -36,8 +36,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="索引" href="../genindex.html" />
     <link rel="search" title="搜索" href="../search.html" />
-    <link rel="next" title="版本升级" href="update.html" />
-    <link rel="prev" title="如何获取代码" href="get_source.html" /> 
+    <link rel="prev" title="常见问题" href="../q&amp;a.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,20 +81,16 @@
             
             
               <p class="caption"><span class="caption-text">关于loonflow</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="what.html">loonflow是什么</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preface.html">前言</a></li>
-<li class="toctree-l1"><a class="reference internal" href="os.html">操作系统支持</a></li>
-<li class="toctree-l1"><a class="reference internal" href="get_source.html">如何获取代码</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">如何运行</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id2">开发环境</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">生产环境</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="update.html">版本升级</a></li>
-<li class="toctree-l1"><a class="reference internal" href="related_terms.html">相关术语</a></li>
-<li class="toctree-l1"><a class="reference internal" href="infrastructure.html">基础架构</a></li>
-<li class="toctree-l1"><a class="reference internal" href="code_structure.html">代码结构</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../about/what.html">loonflow是什么</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/preface.html">前言</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/os.html">操作系统支持</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/get_source.html">如何获取代码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/start.html">如何运行</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/update.html">版本升级</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/related_terms.html">相关术语</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/infrastructure.html">基础架构</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about/code_structure.html">代码结构</a></li>
 </ul>
 <p class="caption"><span class="caption-text">管理后台</span></p>
 <ul>
@@ -123,9 +118,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../q&amp;a.html">常见问题</a></li>
 </ul>
 <p class="caption"><span class="caption-text">其他</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../others/donation.html">欢迎捐助</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../others/release_note.html">发布说明</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">欢迎捐助</a></li>
 </ul>
 
             
@@ -171,13 +165,13 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>如何运行</li>
+      <li>欢迎捐助</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/about/start.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/others/donations.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -191,46 +185,19 @@
            <div itemprop="articleBody">
             
   <div class="section" id="id1">
-<h1>如何运行<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
-<div class="section" id="id2">
-<h2>开发环境<a class="headerlink" href="#id2" title="永久链接至标题">¶</a></h2>
-<ul class="simple">
-<li><p>将settings/dev.py.simple在settings目录下复制一份并重命名为config.py</p></li>
-<li><p>创建数据库并修改settings/config.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)</p></li>
-<li><p>创建python虚拟环境: python3.6.x(python3.6最新稳定版)</p></li>
-<li><p>安装依赖包: pip install -r requirements/dev.txt</p></li>
-<li><p>启动redis(用于生成唯一的工单流水号+celery异步任务[执行脚本、通知脚本])</p></li>
-<li><p>初始化数据库</p></li>
-</ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">makemigrations</span>
-<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">migrate</span>
-</pre></div>
+<h1>欢迎捐助<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
+<p>您的支持是我最大的动力,欢迎支付宝扫码捐助,捐助满300元。即可享受VIP服务,权益包括:</p>
+<div class="line-block">
+<div class="line">1.加微信好友，微信回复更及时</div>
+<div class="line">2.支持微信语音问题解答</div>
+<div class="line">3.提出的合理通用新需求，优先支持</div>
+<div class="line">4.后续会推出视频讲解课程，免费获取课程</div>
 </div>
-<ul class="simple">
-<li><p>创建初始账户: python manage.py createsuperuser</p></li>
-<li><p>启动开发环境: python manage.py runserver 如果需要启动在其他端口:python manage.py runserver 8888</p></li>
-<li><p>启动celery任务: celery -A tasks worker -l info -Q loonflow (用于执行任务脚本、触发任务hook、通知hook。本地开发二次开发如果不需要这些功能时可以不启动)</p></li>
-</ul>
+<blockquote>
+<div><div class="figure align-default">
+<img alt="others/images/donation_code.png" src="others/images/donation_code.png" />
 </div>
-<div class="section" id="id3">
-<h2>生产环境<a class="headerlink" href="#id3" title="永久链接至标题">¶</a></h2>
-<ul class="simple">
-<li><p>生产环境建议使用nginx+uwsgi的方式部署(nginx及uwsgi配置文件可参考 <a class="reference external" href="https://github.com/blackholll/loonflow-helper/tree/master/deploy">https://github.com/blackholll/loonflow-helper/tree/master/deploy</a>)</p></li>
-<li><p>将settings/pro.py.simple在settings目录下复制一份并重命名为config.py</p></li>
-<li><p>创建数据库并修改settings/pro.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)</p></li>
-<li><p>创建python虚拟环境: python3.6.x(python3.6最新稳定版)</p></li>
-<li><p>安装依赖包: pip install -r requirements/pro.txt</p></li>
-<li><p>启动redis(用于生成唯一的工单流水号+celery异步任务[执行脚本、通知脚本])</p></li>
-<li><p>初始化数据库，导入初始化sql:</p></li>
-</ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mysql</span> <span class="o">-</span><span class="n">uroot</span> <span class="n">loonflow_1_0</span> <span class="o">&lt;</span> <span class="n">loonflow_1_0_init</span><span class="o">.</span><span class="n">sql</span>
-</pre></div>
-</div>
-<ul class="simple">
-<li><p>初始admin账号密码为admin/loonflow123 (用于登录管理后台，管理用户及配置工作流等)</p></li>
-<li><p>启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow –logfile=xxx.log –pidfile=xxx.pid # -c参数为启动的celery进程数， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整</p></li>
-</ul>
-</div>
+</div></blockquote>
 </div>
 
 
@@ -241,10 +208,8 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="update.html" class="btn btn-neutral float-right" title="版本升级" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="get_source.html" class="btn btn-neutral float-left" title="如何获取代码" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../q&amp;a.html" class="btn btn-neutral float-left" title="常见问题" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
