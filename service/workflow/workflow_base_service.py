@@ -16,7 +16,7 @@ class WorkflowBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_workflow_list(cls, name: str, page: int, per_page: int, workflow_id_list: list)->tuple:
+    def get_workflow_list(cls, name: str, page: int, per_page: int, workflow_id_list: list, username: str, from_admin:int =1)->tuple:
         """
         获取工作流列表
         get workflow list by params
@@ -24,11 +24,23 @@ class WorkflowBaseService(BaseService):
         :param page:
         :param per_page:
         :param workflow_id_list:workflow id list
+        :param username
+        :param from_admin 管理后台
         :return:
         """
         query_params = Q(is_deleted=False)
         if name:
             query_params &= Q(name__contains=name)
+
+        if from_admin:
+            # 获取有管理权限的工作流列表
+            flag, result = cls.get_workflow_manage_list(username)
+            if flag is False:
+                workflow_id_list = []
+
+            workflow_manage_list = result.get('workflow_list')
+            workflow_manage_id_list = [workflow_manage.get('id') for workflow_manage in workflow_manage_list]
+            workflow_id_list = list(set(workflow_manage_id_list) - (set(workflow_manage_id_list) - set(workflow_id_list)))
 
         query_params &= Q(id__in=workflow_id_list)
 
@@ -76,13 +88,13 @@ class WorkflowBaseService(BaseService):
         :return:
         """
         # 如果是admin,拥有所有工作流的权限
-        flag, result = account_base_service_ins.admin_permission_check()
+        flag, result = account_base_service_ins.admin_permission_check(username=username)
         if flag:
             workflow_queryset = Workflow.objects.filter(is_deleted=0).all()
         else:
             # 作为工作流创建人+工作流管理员的工作流
             workflow_admin_queryset = WorkflowAdmin.objects.filter(username=username, is_deleted=0).all()
-            workflow_admin_id_list = [workflow_admin.id for workflow_admin in workflow_admin_queryset]
+            workflow_admin_id_list = [workflow_admin.workflow_id for workflow_admin in workflow_admin_queryset]
 
             workflow_queryset = Workflow.objects.filter(
                 Q(creator=username, is_deleted=0) | Q(id__in=workflow_admin_id_list, is_deleted=0)).all()

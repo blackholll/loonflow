@@ -73,6 +73,7 @@
     param.per_page = data.length;//页面显示记录条数，在页面显示每页显示多少项的时候
     param.page = (data.start / data.length)+1;//当前页码
     param.search_value=data.search.value;
+    param.from_admin='1';
     console.log(param);
     $.ajax({
       type: "GET",

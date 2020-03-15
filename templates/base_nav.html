@@ -35,8 +35,10 @@
       </a>
       <ul class="treeview-menu">
         <li id="workflow_manage"><a href="/manage/workflow_manage">工作流配置</a></li>
+        {% if request.user.is_admin %}
         <li id="run_script_manage"><a href="/manage/run_script_manage">执行脚本</a></li>
         <li id="notice_manage"><a href="/manage/notice_manage">通知管理</a></li>
+        {% endif %}
       </ul>
     </li>
    {% endif %}
