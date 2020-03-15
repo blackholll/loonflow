@@ -284,7 +284,8 @@ class WorkflowStateService(BaseService):
     @auto_log
     def add_workflow_state(cls, workflow_id: int, name: str, is_hidden: int, order_id: int,
                            type_id: int, remember_last_man_enable: int, participant_type_id: int, participant: str,
-                           distribute_type_id: int, state_field_str: str, label: str, creator: str)->tuple:
+                           distribute_type_id: int, state_field_str: str, label: str, creator: str,
+                           enable_retreat: int)->tuple:
         """
         新增工作流状态
         add workflow state
@@ -300,13 +301,14 @@ class WorkflowStateService(BaseService):
         :param state_field_str:
         :param label:
         :param creator:
+        :param enable_retreat:
         :return:
         """
         workflow_state_obj = State(
             workflow_id=workflow_id, name=name, is_hidden=is_hidden, order_id=order_id,
             type_id=type_id, remember_last_man_enable=remember_last_man_enable, participant_type_id=participant_type_id,
             participant=participant, distribute_type_id=distribute_type_id, state_field_str=state_field_str,
-            label=label, creator=creator)
+            label=label, creator=creator, enable_retreat=enable_retreat)
         workflow_state_obj.save()
         return True, dict(workflow_state_id=workflow_state_obj.id)
 
@@ -314,7 +316,8 @@ class WorkflowStateService(BaseService):
     @auto_log
     def edit_workflow_state(cls, state_id: int, workflow_id: int, name: str, is_hidden: int,
                             order_id: int, type_id: int, remember_last_man_enable: int, participant_type_id: int,
-                            participant: str, distribute_type_id: int, state_field_str: str, label: str)->tuple:
+                            participant: str, distribute_type_id: int, state_field_str: str, label: str,
+                            enable_retreat: int)->tuple:
         """
         新增工作流状态
         edit workflow state
@@ -331,6 +334,7 @@ class WorkflowStateService(BaseService):
         :param distribute_type_id:
         :param state_field_str:
         :param label:
+        :param enable_retreat:
         :return:
         """
         state_obj = State.objects.filter(id=state_id, is_deleted=0)
@@ -339,7 +343,7 @@ class WorkflowStateService(BaseService):
                              is_hidden=is_hidden, order_id=order_id, type_id=type_id,
                              remember_last_man_enable=remember_last_man_enable, participant_type_id=participant_type_id,
                              participant=participant, distribute_type_id=distribute_type_id,
-                             state_field_str=state_field_str, label=label)
+                             state_field_str=state_field_str, label=label, enable_retreat=enable_retreat)
         return True, ''
 
     @classmethod

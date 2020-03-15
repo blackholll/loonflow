@@ -463,6 +463,7 @@ class WorkflowStateView(LoonBaseView):
         order_id = int(request_data_dict.get('order_id', 0))
         type_id = int(request_data_dict.get('type_id', 0))
         remember_last_man_enable = int(request_data_dict.get('remember_last_man_enable', 0))
+        enable_retreat = int(request_data_dict.get('enable_retreat', 0))
         participant_type_id = int(request_data_dict.get('participant_type_id', 0))
 
         participant = request_data_dict.get('participant', '')
@@ -471,10 +472,9 @@ class WorkflowStateView(LoonBaseView):
         label = request_data_dict.get('label', '')
         workflow_id = kwargs.get('workflow_id')
 
-        flag, result = workflow_state_service_ins.add_workflow_state(workflow_id, name, is_hidden, order_id,
-                                                               type_id, remember_last_man_enable, participant_type_id,
-                                                               participant, distribute_type_id, state_field_str, label,
-                                                               username)
+        flag, result = workflow_state_service_ins.add_workflow_state(
+            workflow_id, name, is_hidden, order_id, type_id, remember_last_man_enable, participant_type_id,
+            participant, distribute_type_id, state_field_str, label, username, enable_retreat)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
@@ -516,6 +516,7 @@ class WorkflowStateDetailView(LoonBaseView):
         order_id = int(request_data_dict.get('order_id', 0))
         type_id = int(request_data_dict.get('type_id', 0))
         remember_last_man_enable = int(request_data_dict.get('remember_last_man_enable', 0))
+        enable_retreat = int(request_data_dict.get('enable_retreat', 0))
         participant_type_id = int(request_data_dict.get('participant_type_id', 0))
 
         participant = request_data_dict.get('participant', '')
@@ -525,10 +526,9 @@ class WorkflowStateDetailView(LoonBaseView):
         workflow_id = kwargs.get('workflow_id')
         state_id = kwargs.get('state_id')
 
-        flag, result = workflow_state_service_ins.edit_workflow_state(state_id, workflow_id, name, is_hidden,
-                                                                order_id, type_id, remember_last_man_enable,
-                                                                participant_type_id, participant, distribute_type_id,
-                                                                state_field_str, label)
+        flag, result = workflow_state_service_ins.edit_workflow_state(
+            state_id, workflow_id, name, is_hidden, order_id, type_id, remember_last_man_enable, participant_type_id,
+            participant, distribute_type_id, state_field_str, label, enable_retreat)
         if flag is False:
             code, msg, data = -1, result, {}
         else:

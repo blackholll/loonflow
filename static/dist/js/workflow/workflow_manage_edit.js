@@ -9,6 +9,8 @@
     $("#subWorkflowId").val('').trigger('change');
     $("#workflow_state_form")[0].reset();
     $("#stateId").val("");
+    $("#stateParticipantTypeIdDiv").show();
+    $("#stateParticipantDiv").show();
   });
   $("#transitionModal").on("hidden.bs.modal", function() {
     $(this).removeData("bs.modal");
@@ -553,7 +555,13 @@ function getWorkflowId() {
       $("#isHidden").attr('checked', true);
     } else {
       $("#isHidden").attr('checked', false);
-    }
+    };
+    if (data.enable_retreat) {
+      $("#enableRetreat").attr('checked', true);
+    } else {
+      $("#enableRetreat").attr('checked', false);
+    };
+    
     if (data.remember_last_man_enable) {
       $("#RememberLastManEnable").attr('checked', true);
     } else {
@@ -600,6 +608,10 @@ function getWorkflowId() {
     if ($("#isHidden").prop('checked')){
       isHidden = 1;
     };
+    var enableRetreat = 0
+    if ($("#enableRetreat").prop('checked')){
+      enableRetreat = 1;
+    };
 
     if (!isJsonCheck(stateFieldStr)){
       swal({
@@ -626,6 +638,7 @@ function getWorkflowId() {
       order_id: Number(stateOrderId),
       type_id: Number(stateTypeId),
       remember_last_man_enable: Number(RememberLastManEnable),
+      enable_retreat: Number(enableRetreat),
       participant_type_id: Number(stateParticipantTypeId),
       participant: stateParticipant,
       distribute_type_id: Number(stateDistributeTypeId),
