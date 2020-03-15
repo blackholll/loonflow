@@ -486,7 +486,7 @@ class WorkflowStateDetailView(LoonBaseView):
         'name': And(str, lambda n: n != '', error='name is needed'),
         'order_id': And(int, error='order_id is needed'),
         'type_id': And(int, error='type_id is needed'),
-        'participant_type_id': And(int, lambda n: n != 0, error='participant_type_id is needed'),
+        'participant_type_id': int,
         'distribute_type_id': And(int, lambda n: n != 0, error='distribute_type_id is needed'),
         Optional('remember_last_man_enable'): int,
         Optional('state_field_str'): str,
