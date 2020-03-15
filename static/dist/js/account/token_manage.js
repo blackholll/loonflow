@@ -123,6 +123,14 @@
               showConfirmButton: false,
               timer:2000
             })
+            } else {
+              swal({
+                title: "编辑失败:" + result.msg,
+                text: "2s自动关闭",
+                icon: "error",
+                showConfirmButton: false,
+                timer:2000
+              })
             }
           }
         });
@@ -159,6 +167,14 @@
               showConfirmButton: false,
               timer:2000
             })
+            } else {
+              swal({
+                title: "新增失败:" + result.msg,
+                text: "2s自动关闭",
+                icon: "error",
+                showConfirmButton: false,
+                timer:2000
+              })
             }
           }
         });
