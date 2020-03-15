@@ -4,7 +4,7 @@ a workflow engine base on django
 
 欢迎访问我的博客了解我的设计思路 http://loonapp.com/blog/27/
 
-最新代码见develop分支，正式版本见release中,推荐使用最新的版本.可以直接通过此链接下载[release版本](https://github.com/blackholll/loonflow/releases), 或者使用以下命令
+最新代码见develop分支，正式版本见release中,推荐使用最新的版本.可以直接通过此链接下载[release版本](https://github.com/blackholll/loonflow/releases), qq群文件(每次发布后都会将压缩包上传到群文件，qq群:558788490),或者使用以下命令
 ```
 git clone git@github.com:blackholll/loonflow.git
 git checkout vx.x.x  #(具体的版本号，如v0.1.4）拉取代码
@@ -12,7 +12,7 @@ git checkout vx.x.x  #(具体的版本号，如v0.1.4）拉取代码
 
 
 ## 前言
-本人2011年开始接触工作流，2013年开始开发工作流第一版本，至今经历了多个版本。当前开源版本，致力于提供企业统一工作流引擎方案
+本人2011年开始接触工作流，2013年开始开发工作流第一版本，至今经历了多个版本。当前开源版本致力于提供企业统一工作流引擎方案
 
 欢迎加入qq群一起交流工作流相关技术: 558788490
 
@@ -26,7 +26,7 @@ LOONFLOW 分为两部分:
 ## 效果图/动画
 loonflow只提供后端调用api和工作流的配置后台，感谢youshutong2080(使用vue.js)
 [shutongFlow](https://github.com/youshutong2080/shutongFlow) 和jimmy201602(使用bootstrap,  [workflowdemo](https://github.com/jimmy201602/workflowdemo)
-分别帮忙写的一个调用方demo,**==当前调用方demo功能还比较简单,仅供参考,不建议直接用于生产==** ,欢迎大家在使用过程中提pr优化demo的功能.下面是效果图和动画
+分别帮忙写的一个调用方demo,**==当前调用方demo的功能还比较简单,实际使用需要根据自己的需求做适当改造==** ,欢迎大家在使用过程中提pr优化demo的功能.下面是一些效果图和动画
 
 #### vue版本demo
 ![create_ticket](/docs/images/create-ticket.png)

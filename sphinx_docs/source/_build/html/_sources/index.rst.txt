@@ -5,6 +5,7 @@
 
 Welcome to loonflow's documentation!
 ====================================
+r1.x之前版本见 https://github.com/blackholll/loonflow/wiki
 
 .. toctree::
    :maxdepth: 2
