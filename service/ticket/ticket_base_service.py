@@ -76,7 +76,10 @@ class TicketBaseService(BaseService):
         if not flag or not result.get('workflow_id_list'):
             return False, 'This app_name have not workflow permission'
         else:
-            query_params &= Q(workflow_id__in=result.get('workflow_id_list'))
+            app_workflow_id_list = result.get('workflow_id_list')
+            # query_params &= Q(workflow_id__in=result.get('workflow_id_list'))
+
+
         if kwargs.get('act_state_id') != '':
             query_params &= Q(act_state_id=int(kwargs.get('act_state_id')))
 
@@ -88,7 +91,7 @@ class TicketBaseService(BaseService):
                 return False, result
             workflow_list = result.get('workflow_list')
             workflow_admin_id_list = [workflow['id'] for workflow in workflow_list]
-            query_params &= Q(workflow_id__in=workflow_admin_id_list)
+            # query_params &= Q(workflow_id__in=workflow_admin_id_list)
 
             if kwargs.get('creator') != '':
                 # 管理员查询的情况下才可用
@@ -104,8 +107,11 @@ class TicketBaseService(BaseService):
             query_params &= Q(gmt_created__lte=create_end)
         if workflow_ids:
             workflow_id_str_list = workflow_ids.split(',')
-            workflow_id_list = [int(workflow_id_str) for workflow_id_str in workflow_id_str_list]
-            query_params &= Q(workflow_id__in=workflow_id_list)
+            query_workflow_id_list = [int(workflow_id_str) for workflow_id_str in workflow_id_str_list]
+        else:
+            query_workflow_id_list = []
+
+            # query_params &= Q(workflow_id__in=workflow_id_list)
         if state_ids:
             state_id_str_list = state_ids.split(',')
             state_id_list = [int(state_id_str) for state_id_str in state_id_str_list]
@@ -114,6 +120,20 @@ class TicketBaseService(BaseService):
             ticket_id_str_list = ticket_ids.split(',')
             ticket_id_list = [int(ticket_id_str) for ticket_id_str in ticket_id_str_list]
             query_params &= Q(id__in=ticket_id_list)
+
+        if kwargs.get('from_admin'):
+            permission_workflow_id_set = set(workflow_admin_id_list) - (set(workflow_admin_id_list) - set(app_workflow_id_list))
+            if query_workflow_id_list:
+                ending_workflow_id_list = list(permission_workflow_id_set - (permission_workflow_id_set - set(query_workflow_id_list)))
+            else:
+                ending_workflow_id_list = list(permission_workflow_id_set)
+        else:
+            if query_workflow_id_list:
+                ending_workflow_id_list = list(set(app_workflow_id_list) - (set(app_workflow_id_list) - set(query_workflow_id_list)))
+            else:
+                ending_workflow_id_list = app_workflow_id_list
+
+        query_params &= Q(workflow_id__in=ending_workflow_id_list)
 
         if reverse:
             order_by_str = '-gmt_created'
@@ -158,7 +178,7 @@ class TicketBaseService(BaseService):
             workflow_info_dict = dict(workflow_id=workflow_obj.id, workflow_name=workflow_obj.name)
 
             flag, creator_obj = account_base_service_ins.get_user_by_username(ticket_result_object.creator)
-            if not flag:
+            if flag:
                 dept_id = creator_obj.dept_id
                 # 获取部门信息
                 flag, dept_info = account_base_service_ins.get_dept_by_id(dept_id)

@@ -27,10 +27,10 @@ var table = $('#ticket_table').DataTable({
       param.sn=sn
     }
     if ($('#search_time_range').data('daterangepicker')) {
-      param.create_start = $('#search_time_range').data('daterangepicker').startDate.format('YYYY-MM-DD hh:mm:ss')
+      param.create_start = $('#search_time_range').data('daterangepicker').startDate.format('YYYY-MM-DD HH:mm:ss')
     }
     if ($('#search_time_range').data('daterangepicker')) {
-      param.create_end = $('#search_time_range').data('daterangepicker').endDate.format('YYYY-MM-DD hh:mm:ss');
+      param.create_end = $('#search_time_range').data('daterangepicker').endDate.format('YYYY-MM-DD HH:mm:ss');
     }
     if (creator) {
       param.creator=creator
@@ -96,14 +96,14 @@ $('#search_time_range').daterangepicker({
     }
 })
 $('#search_time_range').on('apply.daterangepicker', function(ev, picker) {
-      $(this).val(picker.startDate.format('YYYY-MM-DD hh:mm:ss') + ' - ' + picker.endDate.format('YYYY-MM-DD hh:mm:ss'));
+      $(this).val(picker.startDate.format('YYYY-MM-DD HH:mm:ss') + ' - ' + picker.endDate.format('YYYY-MM-DD HH:mm:ss'));
   });
 
 $('#search_time_range').on('cancel.daterangepicker', function(ev, picker) {
     newEndTime = moment().startOf('second');
     newStartTime = moment().startOf('second').add(-1, 'year');
 
-    $('#search_time_range').val(newStartTime.format('YYYY-MM-DD hh:mm:ss') + '-' + newEndTime.format('YYYY-MM-DD hh:mm:ss') );
+    $('#search_time_range').val(newStartTime.format('YYYY-MM-DD HH:mm:ss') + '-' + newEndTime.format('YYYY-MM-DD HH:mm:ss') );
 
     $('#search_time_range').data('daterangepicker').setStartDate(newStartTime);
     $('#search_time_range').data('daterangepicker').setEndDate(newEndTime);
