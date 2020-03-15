@@ -35,7 +35,7 @@
       data: function (params) {
         var query = {
           search_value: params.term,
-          per_page: 10000,
+          per_page: 10,
         }
         return query;
       },

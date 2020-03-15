@@ -27,7 +27,7 @@ class LoonUserView(LoonBaseView):
         'is_workflow_admin': Use(bool),
     })
 
-    @manage_permission_check('admin')
+    @manage_permission_check('workflow_admin')
     def get(self, request, *args, **kwargs):
         """
         获取用户列表
