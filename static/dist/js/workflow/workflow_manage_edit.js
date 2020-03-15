@@ -1,8 +1,8 @@
 
   $('#fieldType').select2({placeholderOption: "first", allowClear:true});
   // $('#subWorkflowId').select2({placeholderOption: "first", allowClear:true});
-  $('#sourceStateId').select2({placeholderOption: "first", allowClear:true});
-  $('#destinationStateId').select2({placeholderOption: "first", allowClear:true});
+  $('#sourceStateId').select2({allowClear:true});
+  $('#destinationStateId').select2({allowClear:true});
 
   $("#stateModal").on("hidden.bs.modal", function() {
     $(this).removeData("bs.modal");
@@ -78,6 +78,7 @@ function initStateItems(srcStateId, dstStateId) {
       }
       }
     });
+    initStateItems();
   });
   $('#custom_field_table').DataTable({
   ordering: false,
