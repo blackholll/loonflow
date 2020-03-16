@@ -1,4 +1,4 @@
-  $('#dept_table').DataTable({
+$('#dept_table').DataTable({
   ordering: false,
   "serverSide":true,
   "bFilter":true,
@@ -146,18 +146,42 @@ function submitDept() {
       }
     });
   }
+}
 
+function makeParentDeptOption(data) {
+  return "<option value=" + "'" + data.id + "'" + ">" + data.name + "</option>"
+}
 
-
+function makeUserOption(data) {
+  const user = data.username + '(id:' + data.id + ',alias:' + data.alias + ')'
+  return "<option value=" + "'" + data.id + "'" + ">" + user + "</option>"
 }
 
 function showEditDeptModal(data) {
   $('#deptId').val(data.id)
   $('#deptName').val(data.name)
   $('#deptLabel').val(data.label)
-  $('#parent_dept_id').val(data.parent_dept_id).trigger("change")
-  $('#deptLeader').val(data.leader).trigger("change")
-  $('#deptApprover').val(data.approver).trigger("change")
+  initSelect2Items(
+    "/api/v1.0/accounts/depts",
+    "#parent_dept_id",
+    makeParentDeptOption,
+    data.parent_dept_id
+  )
+  initSelect2Items(
+    "/api/v1.0/accounts/users",
+    "#deptLeader",
+    makeUserOption,
+    data.leader_info.leader_id
+  )
+  let approvers = data.approver_info.map(function(item) {
+    return item.approver_id;
+  })
+  initSelect2Items(
+    "/api/v1.0/accounts/users",
+    "#deptApprover",
+    makeUserOption,
+    approvers
+  )
   $('#deptModal').modal('show');
 }
 
@@ -209,123 +233,55 @@ function delDept(deptId) {
   )
 }
 
-
-$('#parent_dept_id').select2({
-      placeholderOption: "first",
-      allowClear:true,
-      language: {
-        searching: function() {
-            return "输入部门名称搜索...";
-        }
+function initSelect2Items(url, dom, makeOption, selectedId) {
+  let param = {};
+  param.per_page = 1000;
+  param.page = 1
+  $.ajax({
+    type: "GET",
+    url: url,
+    cache: false,  //禁用缓存
+    data: param,  //传入组装的参数
+    dataType: "json",
+    success: function (result) {
+      $(dom).empty();
+      result.data.value.map(function (currentValue, index, arr) {
+        console.log('currentValue')
+        console.log(currentValue)
+        $(dom).append(
+          makeOption(currentValue)
+        );
+      })
+      $(dom).val(selectedId).trigger("change");
     },
-    ajax: {
-      url: "/api/v1.0/accounts/depts",
-      delay: 300,
-      dataType: 'json',
-      data: function (params) {
-        var query = {
-          search_value: params.term,
-          per_page: 10000,
-        }
-        return query;
-      },
-      processResults: function (data) {
-      console.log('处理结果', data);
-      return {
-        results: data.data.value.map(function(item) {
-          console.log(item.name);
-          return {
-            id: item.id,
-            text: item.name + "(id:" + item.id + ")"
-          };
+  });
+}
 
-        })
-      };
-
-    },
-      },
-
-    cache: true
-    });
-
-$('#deptLeader').select2({
-      placeholderOption: "first",
-      allowClear:true,
-      language: {
-        searching: function() {
-            return "输入用户名称搜索(支持用户名、昵称模糊搜索)...";
-        }
-    },
-    ajax: {
-      url: "/api/v1.0/accounts/users",
-      delay: 300,
-      dataType: 'json',
-      data: function (params) {
-        var query = {
-          search_value: params.term,
-          per_page: 100,
-        }
-        return query;
-      },
-      processResults: function (data) {
-      return {
-        results: data.data.value.map(function(item) {
-          console.log(item.name);
-          return {
-            id: item.id,
-            text: item.username + "(id:" + item.id + "," + "alias:" + item.alias + ")"
-          };
-
-        })
-      };
-
-    },
-      },
-
-    cache: true
-    });
-
-$('#deptApprover').select2({
-      placeholderOption: "first",
-      allowClear:true,
-      language: {
-        searching: function() {
-            return "输入用户名称搜索(支持用户名、昵称模糊搜索)...";
-        }
-    },
-    ajax: {
-      url: "/api/v1.0/accounts/users",
-      delay: 300,
-      dataType: 'json',
-      data: function (params) {
-        var query = {
-          search_value: params.term,
-          per_page: 100,
-        }
-        return query;
-      },
-      processResults: function (data) {
-      return {
-        results: data.data.value.map(function(item) {
-          console.log(item.name);
-          return {
-            id: item.id,
-            text: item.username + "(id:" + item.id + "," + "alias:" + item.alias + ")"
-          };
-
-        })
-      };
-
-    },
-      },
-
-    cache: true
-    });
+$('#parent_dept_id').select2({allowClear: true});
+$('#deptLeader').select2({allowClear:true});
+$('#deptApprover').select2({allowClear:true});
 
 $("#deptModal").on("hidden.bs.modal", function() {
   document.getElementById("dept_form").reset();
   $("#parent_dept_id").val('').trigger('change')
   $("#deptLeader").val('').trigger('change')
   $("#deptApprover").val('').trigger('change')
+});
 
+$( document ).ready(function() {
+  initSelect2Items(
+    "/api/v1.0/accounts/depts",
+    "#parent_dept_id",
+    makeParentDeptOption,
+  )
+  initSelect2Items(
+    "/api/v1.0/accounts/users",
+    "#deptLeader",
+    makeUserOption,
+  )
+  initSelect2Items(
+    "/api/v1.0/accounts/users",
+    "#deptApprover",
+    makeUserOption,
+  )
 });

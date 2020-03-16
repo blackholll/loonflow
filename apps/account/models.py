@@ -40,13 +40,25 @@ class LoonDept(BaseModel):
         dept_dict_info['parent_dept_info'] = parent_dept_info
 
         if self.leader:
-            leader_obj = LoonUser.objects.filter(username=getattr(self, 'leader')).first()
+            leader_obj = LoonUser.objects.filter(username=self.leader).first()
             if leader_obj:
-                dept_dict_info['leader_info'] = dict(leader_username=self.leader, leader_alias=leader_obj.alias)
+                dept_dict_info['leader_info'] = {
+                    'leader_username': leader_obj.username,
+                    'leader_alias': leader_obj.alias,
+                    'leader_id': leader_obj.id,
+                }
             else:
-                dept_dict_info['leader_info'] = dict(leader_username=self.leader, leader_alias=self.leader)
+                dept_dict_info['leader_info'] = {
+                    'leader_username': self.leader,
+                    'leader_alias': self.leader,
+                    'leader_id': 0,
+                }
         else:
-            dept_dict_info['leader_info'] = dict(leader_username=self.leader, leader_alias=self.leader)
+            dept_dict_info['leader_info'] = {
+                'leader_username': '',
+                'leader_alias': '',
+                'leader_id': 0,
+            }
 
         if self.approver:
             approver_list = self.approver.split(',')
@@ -54,11 +66,18 @@ class LoonDept(BaseModel):
             for approver in approver_list:
                 approver_obj = LoonUser.objects.filter(username=approver).first()
                 if approver_obj:
-                    approver_info_list.append(dict(approver_name=approver, approver_alias=approver_obj.alias))
+                    approver_info_list.append({
+                        'approver_name': approver_obj.username,
+                        'approver_alias': approver_obj.alias,
+                        'approver_id': approver_obj.id,
+                    })
                 else:
-                    approver_info_list.append(dict(approver_name=approver, approver_alias='未知'))
+                    approver_info_list.append({
+                        'approver_name': approver,
+                        'approver_alias': approver,
+                        'approver_id': 0,
+                    })
             dept_dict_info['approver_info'] = approver_info_list
-
         else:
             dept_dict_info['approver_info'] = []
 
