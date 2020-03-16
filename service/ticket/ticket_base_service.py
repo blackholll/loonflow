@@ -1863,12 +1863,10 @@ class TicketBaseService(BaseService):
         :return:
         """
         if ticket_id:
-
             flag, ticket_obj = cls.get_ticket_by_id(ticket_id)
             if not flag:
                 return False, ticket_obj
             # 初始状态判断
-            state_id = ticket_obj.state_id
             flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(state_id)
             if state_obj.type_id == constant_service_ins.STATE_TYPE_START:
                 # 回到初始状态，目标处理人应该为工单的发起人
@@ -1891,7 +1889,6 @@ class TicketBaseService(BaseService):
             creator = ticket_req_dict.get('username')
             multi_all_person = "{}"
 
-        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(state_id)
         participant_type_id, participant = state_obj.participant_type_id, state_obj.participant
         destination_participant_type_id, destination_participant = participant_type_id, participant
 
