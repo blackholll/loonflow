@@ -110,7 +110,7 @@ LOCK TABLES `account_loonuser` WRITE;
 
 INSERT INTO `account_loonuser` (`id`, `password`, `last_login`, `username`, `alias`, `email`, `phone`, `dept_id`, `is_active`, `is_admin`, `creator`, `gmt_created`, `gmt_modified`, `is_deleted`, `is_workflow_admin`)
 VALUES
-	(1,'pbkdf2_sha256$100000$wZONVjuD1eMK$QM6m9gBR44Elj+Qx65kwzPleULawmgzCQm08xMOyZOQ=','2020-03-15 09:57:33.726154','admin','','admin@111.com','',0,1,1,'','2020-03-15 09:57:07.090009','2020-03-15 09:57:07.094560',0,0);
+	(1,'pbkdf2_sha256$100000$wZONVjuD1eMK$QM6m9gBR44Elj+Qx65kwzPleULawmgzCQm08xMOyZOQ=','2020-03-15 09:57:33.726154','admin','超级管理员','admin@111.com','',0,1,1,'','2020-03-15 09:57:07.090009','2020-03-15 09:57:07.094560',0,0);
 
 /*!40000 ALTER TABLE `account_loonuser` ENABLE KEYS */;
 UNLOCK TABLES;
