@@ -1,8 +1,8 @@
 
   $('#fieldType').select2({placeholderOption: "first", allowClear:true});
   // $('#subWorkflowId').select2({placeholderOption: "first", allowClear:true});
-  $('#sourceStateId').select2({placeholderOption: "first", allowClear:true});
-  $('#destinationStateId').select2({placeholderOption: "first", allowClear:true});
+  $('#sourceStateId').select2({allowClear:true});
+  $('#destinationStateId').select2({allowClear:true});
 
   $("#stateModal").on("hidden.bs.modal", function() {
     $(this).removeData("bs.modal");
@@ -18,30 +18,35 @@
     $("#transitionId").val("");
   });
 
-  $("#transitionModal").on("show.bs.modal", function() {
-      var param = {};
-      param.per_page = 1000;
-      param.page = 1
-      $.ajax({
-          type: "GET",
-          url: "/api/v1.0/workflows/" + getWorkflowId() + "/states",
-          cache: false,  //禁用缓存
-          data: param,  //传入组装的参数
-          dataType: "json",
-          success: function (result) {
-              $("#sourceStateId").empty();
-              result.data.value.map(function (currentValue, index, arr) {
-                  $("#sourceStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");
-              })
-              $("#destinationStateId").empty();
-              result.data.value.map(function (currentValue, index, arr) {
-                  $("#destinationStateId").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");
-              })
-          },
+function initStateItems(srcStateId, dstStateId) {
+  let param = {};
+  param.per_page = 1000;
+  param.page = 1
+  $.ajax({
+    type: "GET",
+    url: "/api/v1.0/workflows/" + getWorkflowId() + "/states",
+    cache: false,  //禁用缓存
+    data: param,  //传入组装的参数
+    dataType: "json",
+    success: function (result) {
+      $("#sourceStateId").empty();
+      result.data.value.map(function (currentValue, index, arr) {
+        $("#sourceStateId").append(
+          "<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>"
+        );
+      })
+      $("#sourceStateId").val(srcStateId).trigger("change");
 
-
-      });
-  })
+      $("#destinationStateId").empty();
+      result.data.value.map(function (currentValue, index, arr) {
+        $("#destinationStateId").append(
+          "<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>"
+        );
+      })
+      $("#destinationStateId").val(dstStateId).trigger("change");
+    },
+  });
+}
 
   $("#customFieldModal").on("hidden.bs.modal", function() {
     $(this).removeData("bs.modal");
@@ -75,6 +80,7 @@
       }
       }
     });
+    initStateItems();
   });
   $('#custom_field_table').DataTable({
   ordering: false,
@@ -748,8 +754,7 @@ function getWorkflowId() {
     $("#transitionName").val(data.name);
     $("#transitionTypeId").val(data.transition_type_id);
     $("#timer").val(data.timer);
-    $("#sourceStateId").val(data.source_state_id).trigger("change");
-    $("#destinationStateId").val(data.destination_state_id).trigger("change");
+    initStateItems(data.source_state_id, data.destination_state_id);
     $("#conditionExpression").val(data.condition_expression);
     $("#attributeTypeId").val(data.attribute_type_id);
     $("#alertText").val(data.alert_text);

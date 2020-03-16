@@ -361,7 +361,8 @@ class LoonDeptDetailView(LoonBaseView):
         parent_dept_id = request_data_dict.get('parent_dept_id')
         leader_id = request_data_dict.get('leader')
         approver_str_list = request_data_dict.get('approver')
-        approver_id_list = [int(approver_str) for approver_str in approver_str_list]
+        approvers = approver_str_list.split(',')
+        approver_id_list = [int(approver_str) for approver_str in approvers]
         label = request_data_dict.get('label')
 
         if leader_id:
