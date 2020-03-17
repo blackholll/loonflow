@@ -1,4 +1,4 @@
-
+document.write("<script language=javascript src='/static/dist/js/common/useSelect2.js'></script>")
 $("#UserModal").on("hidden.bs.modal", function() {
     document.getElementById("user_form").reset(); //此操作无法清空select2中的内容
     $("#userDeptId").val('').trigger('change')
@@ -61,12 +61,22 @@ function submitUser() {
     }
 }
 
+function makeDeptOption(data) {
+  return "<option value=" + "'" + data.id + "'" + ">" + data.name + "</option>"
+}
+
 function showEditUserForm(data){
   $("#userName").val(data.username);
   $("#userAlias").val(data.alias);
   $("#userEmail").val(data.email);
   $("#userPhone").val(data.phone);
-  $("#userDeptId").val(data.dept_info.dept_id).trigger("change");
+  initSelect2Items(
+    "/api/v1.0/accounts/depts",
+    "#userDeptId",
+    makeDeptOption,
+    data.dept_info.dept_id
+  );
+
   $("#userId").val(data.id);
 
   if (data.is_admin) {
@@ -81,7 +91,7 @@ function showEditUserForm(data){
   }
   $('#passwordGroup').hide(); // 密码不允许直接编辑
   $('#UserModal').modal('show');
-  }
+}
 
 function addUser() {
     if (! $("#user_form").valid()) {
@@ -308,43 +318,7 @@ function adminChange() {
 
 $("#user_form").validate();
 
-$('#userDeptId').select2({
-    placeholderOption: "first",
-    allowClear:true,
-    language: {
-      searching: function() {
-          return "输入部门名称搜索...";
-      }
-  },
-  ajax: {
-    url: "/api/v1.0/accounts/depts",
-    delay: 300,
-    dataType: 'json',
-    data: function (params) {
-      var query = {
-        search_value: params.term,
-        per_page: 10000,
-      }
-      return query;
-    },
-    processResults: function (data) {
-    console.log('处理结果', data);
-    return {
-      results: data.data.value.map(function(item) {
-        console.log(item.name);
-        return {
-          id: item.id,
-          text: item.name + "(id:" + item.id + ")"
-        };
-
-      })
-    };
-
-  },
-    },
-
-  cache: true
-  });
+$('#userDeptId').select2({allowClear: true});
 
 $("#userRoleModal").on("hidden.bs.modal", function() {
   $(this).removeData("bs.modal");
@@ -410,3 +384,11 @@ columns: [
     }}
 ]
 })
+
+$( document ).ready(function() {
+  initSelect2Items(
+    "/api/v1.0/accounts/depts",
+    "#userDeptId",
+    makeDeptOption
+  )
+});

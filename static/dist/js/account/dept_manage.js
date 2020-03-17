@@ -1,4 +1,4 @@
-document.write("<script language=javascript src='/js/common/useSelect2.js'></script>");
+document.write("<script language=javascript src='/static/dist/js/common/useSelect2.js'></script>")
 $('#dept_table').DataTable({
   ordering: false,
   "serverSide":true,
