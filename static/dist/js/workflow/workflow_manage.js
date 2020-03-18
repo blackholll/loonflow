@@ -1,62 +1,35 @@
-  $("#workflow_form").validate();
+document.write("<script language=javascript src='/static/dist/js/common/useSelect2.js'></script>");
+$("#workflow_form").validate();
 
-  $('#customNoticeSelect').select2({placeholderOption: "first", allowClear:true});
-  $( document ).ready(function() {
-    // 获取通知列表
-    $.ajax({
-        type: "GET",
-        url: "/api/v1.0/workflows/custom_notices",
-        cache: false,  //禁用缓存
-        data: {per_page: 10000},  //传入组装的参数
-        dataType: "json",
-        success: function (result) {
-          console.log(result);
-          if (result.code===0){
-            result.data.value.map(function(currentValue,index,arr){$("#customNoticeSelect").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
-            }
-          }
-
-
-          });
+$('#customNoticeSelect').select2({placeholderOption: "first", allowClear:true});
+$( document ).ready(function() {
+  // 获取通知列表
+  $.ajax({
+    type: "GET",
+    url: "/api/v1.0/workflows/custom_notices",
+    cache: false,  //禁用缓存
+    data: {per_page: 10000},  //传入组装的参数
+    dataType: "json",
+    success: function (result) {
+      console.log(result);
+      if (result.code===0){
+        result.data.value.map(function(currentValue,index,arr){$("#customNoticeSelect").append("<option value=" + "'" + currentValue.id + "'" + ">" + currentValue.name + "</option>");})
+      }
+    }
   });
+  initSelect2Items(
+    "/api/v1.0/accounts/users",
+    '#workflowAdmin',
+    makeUserOption,
+  );
+});
 
-  $('#workflowAdmin').select2({
-      placeholderOption: "first",
-      allowClear:true,
-      language: {
-        searching: function() {
-            return "输入用户名称搜索...";
-        }
-    },
-    ajax: {
-      url: "/api/v1.0/accounts/users",
-      delay: 300,
-      dataType: 'json',
-      data: function (params) {
-        var query = {
-          search_value: params.term,
-          per_page: 10,
-        }
-        return query;
-      },
-      processResults: function (data) {
-      console.log('处理结果', data);
-      return {
-        results: data.data.value.map(function(item) {
-          console.log(item.name);
-          return {
-            id: item.username,
-            text: item.username + "(id:" + item.id + "," + "alias:" + item.alias + ")"
-          };
+$('#workflowAdmin').select2({allowClear: true});
 
-        })
-      };
-
-    },
-      },
-
-    cache: true
-    });
+function makeUserOption(data) {
+  const user = data.username + '(id:' + data.id + ',alias:' + data.alias + ')'
+  return "<option value=" + "'" + data.username + "'" + ">" + user + "</option>"
+}
 
   $('#workflow_table').DataTable({
   ordering: false,
@@ -115,10 +88,15 @@
       var notice_ids_arr = data.notices.split(",");
       $("#customNoticeSelect").val(notice_ids_arr).trigger("change");
     }
-      if(data.workflow_admin){
-      var workflow_admin_arr = data.workflow_admin.split(",");
-      $("#workflowAdmin").val(workflow_admin_arr).trigger("change");
-    }
+
+    const workflow_admin_arr = data.workflow_admin.split(",");
+    initSelect2Items(
+        "/api/v1.0/accounts/users",
+        '#workflowAdmin',
+        makeUserOption,
+        workflow_admin_arr
+    );
+
     if (data.view_permission_check) {
       $('#viewPermissionCheck').attr('checked', true);
     } else {
