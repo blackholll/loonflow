@@ -12,3 +12,4 @@ media/notice_script/*.*
 tests/testloonflow.sql
 settings/config.py
 sphinx_docs/build/*.*
+sphinx_docs/source/_build/html/*.*
