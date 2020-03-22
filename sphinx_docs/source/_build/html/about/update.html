@@ -89,8 +89,9 @@
 <li class="toctree-l1"><a class="reference internal" href="get_source.html">如何获取代码</a></li>
 <li class="toctree-l1"><a class="reference internal" href="start.html">如何运行</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">版本升级</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#v0-1-x-v-2-x">v0.1.x-v.2.x</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#v0-2-x-v-3-x">v0.2.x-v.3.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#r0-1-x-r-2-x">r0.1.x-r.2.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#r0-2-x-r-3-x">r0.2.x-r.3.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#r0-3-x-r1-0-x">r0.3.x-r1.0.x</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="related_terms.html">相关术语</a></li>
@@ -101,11 +102,31 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../manage/login.html">登录管理后台</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../manage/sync_account.html">同步用户信息</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/workflow_config.html">工作流配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html">用户管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id2">角色管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id3">部门管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manage/user&amp;permission.html#id4">调用权限</a></li>
 </ul>
 <p class="caption"><span class="caption-text">API文档</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api_docs/authentication.html">接口调用鉴权</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_docs/call_logic.html">接口调用逻辑</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/workflow.html">工作流相关接口</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api_docs/ticket.html">工单相关接口</a></li>
+</ul>
+<p class="caption"><span class="caption-text">相关常量</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../constant.html">相关常量</a></li>
+</ul>
+<p class="caption"><span class="caption-text">常见问题</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../q&amp;a.html">常见问题</a></li>
+</ul>
+<p class="caption"><span class="caption-text">其他</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../others/donation.html">欢迎捐助</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../others/release_note.html">发布说明</a></li>
 </ul>
 
             
@@ -172,9 +193,9 @@
             
   <div class="section" id="id1">
 <h1>版本升级<a class="headerlink" href="#id1" title="永久链接至标题">¶</a></h1>
-<div class="section" id="v0-1-x-v-2-x">
-<h2>v0.1.x-v.2.x<a class="headerlink" href="#v0-1-x-v-2-x" title="永久链接至标题">¶</a></h2>
-<p>从v0.1.x-v.2.x升级。需要一些DDL操作
+<div class="section" id="r0-1-x-r-2-x">
+<h2>r0.1.x-r.2.x<a class="headerlink" href="#r0-1-x-r-2-x" title="永久链接至标题">¶</a></h2>
+<p>从r0.1.x-r.2.x升级。需要一些DDL操作
 - workflow.models.Transition新增字段timer,新增字段attribute_type_id,condition_expression
 - ticket.modles.TicketRecord新增script_run_last_result字段,新增is_end字段,新增is_rejected字段,新增multi_all_person字段
 - 删除ticket.modles.TicketStateLastMan
@@ -185,12 +206,16 @@
 - workflow.models新增表CustomNotice 用于支持自定义通知方式
 - workflow.models.CustomField新增label字段用于调用方自行扩展</p>
 </div>
-<div class="section" id="v0-2-x-v-3-x">
-<h2>v0.2.x-v.3.x<a class="headerlink" href="#v0-2-x-v-3-x" title="永久链接至标题">¶</a></h2>
+<div class="section" id="r0-2-x-r-3-x">
+<h2>r0.2.x-r.3.x<a class="headerlink" href="#r0-2-x-r-3-x" title="永久链接至标题">¶</a></h2>
 <ul class="simple">
 <li><p>因为v0.3版本中username参数改成从header中获取，所以接口调用时需要将username通过header方式传递</p></li>
 <li><p>为了脚本安全考虑,当状态的参与人类型为脚本时，参与人需要设置为脚本记录的id。 迁移时需要将这些状态的参与人从脚本名称改成脚本记录的id</p></li>
 </ul>
+</div>
+<div class="section" id="r0-3-x-r1-0-x">
+<h2>r0.3.x-r1.0.x<a class="headerlink" href="#r0-3-x-r1-0-x" title="永久链接至标题">¶</a></h2>
+<p>待完善（r1.0.0正式版发布时会提供）</p>
 </div>
 </div>
 

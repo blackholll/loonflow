@@ -142,7 +142,8 @@
 </ul>
 <p class="caption"><span class="caption-text">其他</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../other.html">其他</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../others/donation.html">欢迎捐助</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../others/release_note.html">发布说明</a></li>
 </ul>
 
             
@@ -250,12 +251,12 @@
 <tr class="row-even"><td><p>create_start</p></td>
 <td><p>varchar</p></td>
 <td><p>否</p></td>
-<td><p>创建时间起</p></td>
+<td><p>创建时间起,如果创建时间起 和创建时间止 都不提供，则只返回最近一年的数据</p></td>
 </tr>
 <tr class="row-odd"><td><p>create_end</p></td>
 <td><p>varchar</p></td>
 <td><p>否</p></td>
-<td><p>创建时间止</p></td>
+<td><p>创建时间止,如果创建时间起 和创建时间止 都不提供，则只返回最近一年的数据</p></td>
 </tr>
 <tr class="row-even"><td><p>workflow_ids</p></td>
 <td><p>varchar</p></td>

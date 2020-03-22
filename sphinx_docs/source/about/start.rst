@@ -39,7 +39,9 @@
   mysql -uroot -p  loonflow_1_0 < loonflow_init.sql # 生产环境不建议使用migrate. 用户名及数据库需要根据你的实际情况也即config.py中的配置做相应修改
 
 - 初始admin账号密码为admin/loonflow123 (用于登录管理后台，管理用户及配置工作流等)
-- 启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid # -c参数为启动的celery进程数， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整
+- 启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid # -c参数为启动的celery进程数，注意logfile和pidfile前面是两个-， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整
+- 如需优雅停止celery服务: celery multi stopwait -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid
+- 如需优雅重启celery服务: celery multi restart -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid
 - 启动uwsgi
 - 启动nginx
 

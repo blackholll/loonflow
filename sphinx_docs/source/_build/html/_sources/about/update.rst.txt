@@ -3,9 +3,9 @@
 ========
 
 ------------
-v0.1.x-v.2.x
+r0.1.x-r.2.x
 ------------
-从v0.1.x-v.2.x升级。需要一些DDL操作
+从r0.1.x-r.2.x升级。需要一些DDL操作
 - workflow.models.Transition新增字段timer,新增字段attribute_type_id,condition_expression
 - ticket.modles.TicketRecord新增script_run_last_result字段,新增is_end字段,新增is_rejected字段,新增multi_all_person字段
 - 删除ticket.modles.TicketStateLastMan
@@ -17,7 +17,13 @@ v0.1.x-v.2.x
 - workflow.models.CustomField新增label字段用于调用方自行扩展
 
 ------------
-v0.2.x-v.3.x
+r0.2.x-r.3.x
 ------------
 - 因为v0.3版本中username参数改成从header中获取，所以接口调用时需要将username通过header方式传递
 - 为了脚本安全考虑,当状态的参与人类型为脚本时，参与人需要设置为脚本记录的id。 迁移时需要将这些状态的参与人从脚本名称改成脚本记录的id
+
+
+--------------
+r0.3.x-r1.0.x
+--------------
+待完善（r1.0.0正式版发布时会提供）
