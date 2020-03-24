@@ -16,7 +16,6 @@ class Workflow(BaseModel):
     display_form_str = models.CharField('展现表单字段', max_length=10000, default='[]', blank=True, help_text='默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')
     title_template = models.CharField('标题模板', max_length=50, default='你有一个待办工单:{title}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}')
     content_template = models.CharField('内容模板', max_length=1000, default='标题:{title}, 创建时间:{gmt_created}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}')
-    admin = models.CharField('管理人员', max_length=1000, default='', blank=True, help_text='username逗号隔开，除超级管理员及该工作流创建人外，管理人员也可以直接编辑该工作流')
 
     class Meta:
         verbose_name = '工作流'

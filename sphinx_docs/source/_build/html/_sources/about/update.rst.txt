@@ -28,9 +28,8 @@ r0.3.x-r1.0.x
 --------------
 1.准备好通知的hook服务端(如果你当前有用到通知脚本，你需要改成hook方式,如果没用到通知功能，可忽略此步)
 
-```
 准备好通知的hook的服务端(可以在服务端提供短信、钉钉、企业微信、邮件等通知服务)，服务端给loonflow分配一个token用于生签名，服务器端以此token使用相同的算法生成签名用于校验loonflow。校验通过后根据hook请求的数据来发送通知消息。
-```
+
 2.在新的服务器或新的目录下下载loonflow v1.0.x版本
 3.将0.3.x版本的media目录下目录及文件全部复制到v1.0.x版本的media目录下
 
@@ -39,16 +38,18 @@ r0.3.x-r1.0.x
 4.停止调用方服务
 5.停止loonflow 0.3版本服务(包括web服务及task任务，task任务可优雅停止，命令:xxxx)
 
-```
-celery multi stopwait -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid
-```
+::
+
+  celery multi stopwait -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid
+
 
 
 6.执行升级sql
 
-```
-https://github.com/blackholll/loonflow-helper/tree/master/update/0.3.xto1.0.x
-```
+::
+
+  https://github.com/blackholll/loonflow-helper/tree/master/update/0.3.xto1.0.x/ddl.sql
+  https://github.com/blackholll/loonflow-helper/tree/master/update/0.3.xto1.0.x/dml.py   ## 将文件中的数据库配置修改为你的0.3.x版本使用的数据库
 
 
 7.将代码中settings/pro.py中复制并重命名为settings/config.py,将config.py中数据库就redis配置修改为当前使用的地址，临时修改config.py中的DEBUG参数=True，进入新的虚拟环境尝试使用python manage.py runserver 0.0.0.0:9999 启动loonflow 1.0.x，观察是否有报错，排查错误
