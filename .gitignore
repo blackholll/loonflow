@@ -13,4 +13,4 @@ tests/testloonflow.sql
 settings/config.py
 sphinx_docs/build/*.*
 sphinx_docs/source/_build/html/*.*
-sphinx_docs/source/_build
+sphinx_docs/source/_build/
