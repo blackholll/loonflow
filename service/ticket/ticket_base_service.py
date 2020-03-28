@@ -57,7 +57,7 @@ class TicketBaseService(BaseService):
         :param workflow_ids: 工作流id,str,逗号隔开
         :param state_ids: 状态id,str,逗号隔开
         :param ticket_ids: 工单id,str,逗号隔开
-        :param category: 查询类别(创建的，待办的，关联的:包括创建的、处理过的、曾经需要处理但是没有处理的)
+        :param category: 查询类别(创建的，待办的，关联的:包括创建的、处理过的、曾经需要处理但是没有处理的, 我处理过的)
         :param reverse: 按照创建时间倒序
         :param per_page:
         :param page:
@@ -65,7 +65,7 @@ class TicketBaseService(BaseService):
         act_state_id: int=0 进行状态, 0 草稿中、1.进行中 2.被退回 3.被撤回 4.完成
         :return:
         """
-        category_list = ['all', 'owner', 'duty', 'relation']
+        category_list = ['all', 'owner', 'duty', 'relation', 'worked']
         if category not in category_list:
             return False, 'category value is invalid, it should be in all, owner, duty, relation'
         query_params = Q(is_deleted=False)
@@ -78,7 +78,6 @@ class TicketBaseService(BaseService):
         else:
             app_workflow_id_list = result.get('workflow_id_list')
             # query_params &= Q(workflow_id__in=result.get('workflow_id_list'))
-
 
         if kwargs.get('act_state_id') != '':
             query_params &= Q(act_state_id=int(kwargs.get('act_state_id')))
@@ -153,7 +152,10 @@ class TicketBaseService(BaseService):
             relation_query_expression = Q(ticketuser__username=username)
             query_params &= relation_query_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
-
+        elif category == 'worked':
+            worked_query_expression = Q(ticketuser__username=username, worked=True)
+            query_params &= worked_query_expression
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
         else:
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
 
@@ -1159,6 +1161,11 @@ class TicketBaseService(BaseService):
             ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_BACK
 
         ticket_obj.save()
+
+        # 记录处理过的人
+        if not (by_timer or by_task or by_hook):
+            cls.update_ticket_worked(ticket_id, username)
+
         # 更新工单信息：基础字段及自定义字段， add_relation字段 需要考虑下个处理人是部门、角色等的情况
         flag, result = cls.get_ticket_dest_relation(destination_participant_type_id, destination_participant)
 
@@ -1293,6 +1300,23 @@ class TicketBaseService(BaseService):
         # 非在user_str中的 更新为in_process=False
         TicketUser.objects.filter(ticket_id=ticket_id).exclude(username__in=user_str_list).all().update(in_process=False)
 
+        return True, ''
+
+    @classmethod
+    @auto_log
+    def update_ticket_worked(cls, ticket_id: int, username: str)-> tuple:
+        """
+        更新工单处理过的人
+        :param ticket_id:
+        :param username:
+        :return:
+        """
+        worked_queryset = TicketUser.objects.filter(ticket_id=ticket_id, is_deleted=0, username=username).all()
+        if worked_queryset:
+            worked_queryset.update(worked=True)
+        else:
+            new_worked_record = TicketUser(ticket_id=ticket_id, username=username, in_process=False, worked=True)
+            new_worked_record.save()
         return True, ''
 
     @classmethod

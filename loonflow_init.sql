@@ -399,6 +399,7 @@ CREATE TABLE `ticket_ticketuser` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '已删除',
   `username` varchar(100) NOT NULL DEFAULT '' COMMENT '用户名',
   `in_process` tinyint(1) NOT NULL DEFAULT '0' COMMENT '处理中',
+  `worked` tinyint(1) NOT NULL DEFAULT '0' COMMENT '处理过的',
   `ticket_id` int(11) NOT NULL DEFAULT '0' COMMENT '工单id',
   PRIMARY KEY (`id`),
   KEY `idx_ticket_id` (`ticket_id`),
