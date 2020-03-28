@@ -11,6 +11,5 @@ media/notice_script/*.*
 !media/notice_script/demo_notice_script.py
 tests/testloonflow.sql
 settings/config.py
-sphinx_docs/build/*.*
-sphinx_docs/source/_build/html/*.*
-sphinx_docs/source/_build/**
+sphinx_docs/build/
+sphinx_docs/source/_build/
