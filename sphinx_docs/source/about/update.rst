@@ -6,6 +6,7 @@
 r0.1.x-r.2.x
 ------------
 从r0.1.x-r.2.x升级。需要一些DDL操作
+
 - workflow.models.Transition新增字段timer,新增字段attribute_type_id,condition_expression
 - ticket.modles.TicketRecord新增script_run_last_result字段,新增is_end字段,新增is_rejected字段,新增multi_all_person字段
 - 删除ticket.modles.TicketStateLastMan
