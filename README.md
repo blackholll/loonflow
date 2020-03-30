@@ -48,7 +48,7 @@ loonflow只提供后端调用api和工作流的配置后台，感谢youshutong20
 ![ticket_manage](/docs/images/ticket_manage_detail.png)
 
 ## 使用文档
-[使用文档](https://loonflow.readthedocs.io/zh_CN/latest/)
+[使用文档](https://loonflow.readthedocs.io)
 
 ## 鸣谢
 
