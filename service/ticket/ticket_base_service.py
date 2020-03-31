@@ -2102,9 +2102,10 @@ class TicketBaseService(BaseService):
                 all_ticket_data[key] = str(all_ticket_data[key])
 
         all_ticket_data_json = json.dumps(all_ticket_data)
+        all_field_dic = json.loads(all_ticket_data["all_field_value_json"])
         new_flow_log = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
                             participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
-                            participant=username, state_id=all_ticket_data.get('state_id'),
+                            participant=username, state_id=all_field_dic.get('state_id'),
                             intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_COMMENT,
                             ticket_data=all_ticket_data_json, creator=username)
 
