@@ -45,8 +45,6 @@ var table = $('#ticket_table').DataTable({
     if(search_sn) {
       param.sn=search_sn
     }
-
-    console.log(param);
     $.ajax({
       type: "GET",
       url: "/api/v1.0/tickets",
@@ -54,6 +52,15 @@ var table = $('#ticket_table').DataTable({
       data: param,  //传入组装的参数
       dataType: "json",
       success: function (result) {
+        if (result.code === -1){
+          swal({
+            title: "获取工单列表失败:" + result.msg,
+            text: "2s自动关闭",
+            icon: 'error',
+            showConfirmButton: false,
+            timer: 2000,
+          })
+        }
         var returnData = {};
         returnData.draw = data.draw;//这里直接自行返回了draw计数器,应该由后台返回
         returnData.recordsTotal = result.data.total;//返回数据全部记录
