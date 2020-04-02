@@ -2095,7 +2095,7 @@ class TicketBaseService(BaseService):
         if not (ticket_id and username):
             return False, 'ticket_id and username should not be null'
 
-        msg, all_ticket_data = cls.get_ticket_all_field_value(ticket_id)
+        flag, all_ticket_data = cls.get_ticket_all_field_value(ticket_id)
         # date等格式需要转换为str
         for key, value in all_ticket_data.items():
             if type(value) not in [int, str, bool, float]:
