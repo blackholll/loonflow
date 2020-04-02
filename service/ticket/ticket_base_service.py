@@ -62,7 +62,7 @@ class TicketBaseService(BaseService):
         :param per_page:
         :param page:
         :param app_name:
-        act_state_id: int=0 进行状态, 0 草稿中、1.进行中 2.被退回 3.被撤回 4.完成
+        act_state_id: int=0 进行状态, 0 草稿中、1.进行中 2.被退回 3.被撤回 4.已完成 5.已关闭
         :return:
         """
         category_list = ['all', 'owner', 'duty', 'relation', 'worked']
@@ -2095,17 +2095,16 @@ class TicketBaseService(BaseService):
         if not (ticket_id and username):
             return False, 'ticket_id and username should not be null'
 
-        flag, all_ticket_data = cls.get_ticket_all_field_value_json(ticket_id)
+        msg, all_ticket_data = cls.get_ticket_all_field_value(ticket_id)
         # date等格式需要转换为str
         for key, value in all_ticket_data.items():
             if type(value) not in [int, str, bool, float]:
                 all_ticket_data[key] = str(all_ticket_data[key])
 
         all_ticket_data_json = json.dumps(all_ticket_data)
-        all_field_dic = json.loads(all_ticket_data["all_field_value_json"])
         new_flow_log = dict(ticket_id=ticket_id, transition_id=0, suggestion=suggestion,
                             participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
-                            participant=username, state_id=all_field_dic.get('state_id'),
+                            participant=username, state_id=all_ticket_data.get('state_id'),
                             intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_COMMENT,
                             ticket_data=all_ticket_data_json, creator=username)
 
@@ -2240,6 +2239,7 @@ class TicketBaseService(BaseService):
         ticket_obj.state_id = new_state_id
         ticket_obj.participant_type_id = 0
         ticket_obj.participant = ''
+        ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_CLOSED
         ticket_obj.save()
 
         cls.add_ticket_flow_log(ticket_flow_log_dict)
