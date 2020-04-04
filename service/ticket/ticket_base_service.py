@@ -2245,6 +2245,8 @@ class TicketBaseService(BaseService):
         ticket_obj.participant = ''
         ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_CLOSED
         ticket_obj.save()
+        # 更新ticketuser中in_process状态
+        TicketUser.objects.filter(ticket_id=ticket_id, is_deleted=0).update(in_process=False)
 
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''
