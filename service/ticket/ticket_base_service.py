@@ -62,7 +62,7 @@ class TicketBaseService(BaseService):
         :param per_page:
         :param page:
         :param app_name:
-        act_state_id: int=0 进行状态, 0 草稿中、1.进行中 2.被退回 3.被撤回 4.完成
+        act_state_id: int=0 进行状态, 0 草稿中、1.进行中 2.被退回 3.被撤回 4.已完成 5.已关闭
         :return:
         """
         category_list = ['all', 'owner', 'duty', 'relation', 'worked']
@@ -146,14 +146,18 @@ class TicketBaseService(BaseService):
             # 为了加快查询速度，该结果从ticket_usr表中获取。 对于部门、角色、这种处理人类型的，工单流转后 修改了部门或角色对应的人员会存在这些人无法在待办列表中查询到工单
             duty_query_expression = Q(ticketuser__in_process=True, ticketuser__username=username)
             query_params &= duty_query_expression
+            act_state_expression = ~Q(act_state_id__in=[
+                constant_service_ins.TICKET_ACT_STATE_FINISH,
+                constant_service_ins.TICKET_ACT_STATE_CLOSED
+            ])
+            query_params &= act_state_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
-
         elif category == 'relation':
             relation_query_expression = Q(ticketuser__username=username)
             query_params &= relation_query_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
         elif category == 'worked':
-            worked_query_expression = Q(ticketuser__username=username, worked=True)
+            worked_query_expression = Q(ticketuser__username=username, ticketuser__worked=True)
             query_params &= worked_query_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
         else:
@@ -2095,7 +2099,7 @@ class TicketBaseService(BaseService):
         if not (ticket_id and username):
             return False, 'ticket_id and username should not be null'
 
-        flag, all_ticket_data = cls.get_ticket_all_field_value_json(ticket_id)
+        flag, all_ticket_data = cls.get_ticket_all_field_value(ticket_id)
         # date等格式需要转换为str
         for key, value in all_ticket_data.items():
             if type(value) not in [int, str, bool, float]:
@@ -2239,7 +2243,10 @@ class TicketBaseService(BaseService):
         ticket_obj.state_id = new_state_id
         ticket_obj.participant_type_id = 0
         ticket_obj.participant = ''
+        ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_CLOSED
         ticket_obj.save()
+        # 更新ticketuser中in_process状态
+        TicketUser.objects.filter(ticket_id=ticket_id, is_deleted=0).update(in_process=False)
 
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''

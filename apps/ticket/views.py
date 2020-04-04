@@ -47,7 +47,7 @@ class TicketListView(LoonBaseView):
         app_name = request.META.get('HTTP_APPNAME')
 
         # 未指定创建起止时间则取最近一年的记录
-        if not(create_start or create_start):
+        if not(create_start or create_end):
             import datetime
             now = datetime.datetime.now()
             now_str = str(now)[:19]

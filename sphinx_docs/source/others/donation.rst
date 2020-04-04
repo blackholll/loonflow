@@ -11,4 +11,5 @@
 | 4.后续会推出视频讲解课程，免费获取课程
 
 
- .. figure:: images/donation_code.png
+ .. figure:: ../images/donation_code.png
+

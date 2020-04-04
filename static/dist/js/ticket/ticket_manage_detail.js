@@ -114,6 +114,15 @@ $(document).ready(function() {
         $("#ticketDetailForm").html(detailHtml);
 
       }
+      else {
+        swal({
+          title: "获取工单详情失败:" + result.msg,
+          text: "2s自动关闭",
+          icon: "error",
+          showConfirmButton: false,
+          timer:2000
+        })
+      }
 
     }
   })
@@ -197,7 +206,6 @@ ajax: {
   console.log('处理结果', data);
   return {
     results: data.data.value.map(function(item) {
-      console.log(item.name);
       return {
         id: item.username,
         text: item.username + "(id:" + item.id + "," + "alias:" + item.alias + ")"

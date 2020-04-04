@@ -267,7 +267,7 @@ class AccountBaseService(BaseService):
         :param role_id:
         :return:
         """
-        return LoonRole.objects.filter(id=role_id, is_deleted=False).first(), ''
+        return True, LoonRole.objects.filter(id=role_id, is_deleted=False).first()
 
     @classmethod
     @auto_log
