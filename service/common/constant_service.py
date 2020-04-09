@@ -84,6 +84,7 @@ class ConstantService(BaseService):
                         self.FIELD_TYPE_RADIO: 'radio_value',
                         self.FIELD_TYPE_CHECKBOX: 'checkbox_value',
                         self.FIELD_TYPE_SELECT: 'select_value',
+                        self.FIELD_TYPE_MULTI_SELECT: 'select_value',
                         self.FIELD_TYPE_TEXT: 'text_value',
                         self.FIELD_TYPE_USERNAME: 'username_value',
                         self.FIELD_TYPE_MULTI_USERNAME: 'multi_username_value',
