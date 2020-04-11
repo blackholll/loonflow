@@ -509,7 +509,11 @@ class LoonLoginView(LoonBaseView):
         request_data_dict = json.loads(json_str)
         username = request_data_dict.get('username', '')
         password = request_data_dict.get('password', '')
-        user = authenticate(username=username, password=password)
+        try:
+            user = authenticate(username=username, password=password)
+        except Exception as e:
+            return api_response(-1, e.__str__(), {})
+
         if user is not None:
             login(request, user)
             return api_response(0, '', {})
