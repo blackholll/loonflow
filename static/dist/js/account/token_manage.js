@@ -1,16 +1,13 @@
   $(function () { $("[data-toggle='tooltip']").tooltip(); });
   $('#workflowSelect').select2({placeholderOption: "first", allowClear:true});
+
   $("#appTokenModal").on("hidden.bs.modal", function() {
-    document.getElementById("token_form").reset(); //此操作无法清空select2中的内容
-    // 以下操作都无法生效，只有trigger可以。 好坑好坑
-    // $("#workflowSelect").empty(); // empty会清空所有option
-    // $("#workflowSelect").select2("val", "");
-    // $("#workflowSelect").select2("data", null);
-    // $("#workflowSelect").select2("val", "");
-    // $('#workflowSelect').val('');
-    // $('#workflowSelect').val([]);
+    $(this).removeData("bs.modal");
+    $("#token_form")[0].reset();
     $("#workflowSelect").val('').trigger('change')
-});
+
+  });
+
   $('#app_token_table').DataTable({
     ordering: false,
     "serverSide":true,
@@ -82,7 +79,7 @@
     if (! $("#token_form").valid()) {
       return
     }
-    var appTokenId = document.getElementById("appTokenId").value;
+    var appTokenId = $('#appTokenId').val();
     if (!appTokenId){
       addAppToken()
     }
@@ -92,9 +89,10 @@
     }
   }
   function editAppToken(){
-    var appName = document.getElementById("inputAppName").value;
-    var snPrefix = document.getElementById("ticketSnPrefix").value;
-    var appTokenId = document.getElementById("appTokenId").value;
+    var appName = $('#inputAppName').val();
+    var snPrefix = $('#ticketSnPrefix').val();
+    var appTokenId = $('#appTokenId').val();
+
     var workflowSelect = document.getElementById("workflowSelect");
     var workflowArray = [];
     for(i=0;i<workflowSelect.length;i++){
@@ -137,8 +135,8 @@
   }
 
   function addAppToken(){
-    var appName = document.getElementById("inputAppName").value;
-    var snPrefix = document.getElementById("ticketSnPrefix").value;
+    var appName = $('#inputAppName').val();
+    var snPrefix = $('#snPrefix').val();
     var workflowSelect = document.getElementById("workflowSelect");
     var workflowArray = [];
     for(i=0;i<workflowSelect.length;i++){
@@ -180,8 +178,9 @@
         });
   }
   function showEditForm(data){
-    $("#inputAppName").attr("value",data.app_name);
-    $("#ticketSnPrefix").attr("value",data.ticket_sn_prefix);
+    $("#inputAppName").val(data.app_name);
+    $("#ticketSnPrefix").val(data.ticket_sn_prefix);
+
     $("#appTokenId").attr("value",data.id);
     // $("#workflowSelect").attr("value",data.workflow_ids);
     var workflow_ids_arr = data.workflow_ids.split(",");
@@ -190,8 +189,6 @@
   }
 
   function delAppToken(appTokenId){
-    console.log('del token');
-    console.log(appTokenId);
     swal({
       title: "是否真的要删除此记录?",
       text: "删除此记录后，通过该记录中的应用名将无权限调用loonflow的接口",
