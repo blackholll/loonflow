@@ -80,17 +80,26 @@ class WorkflowTransitionService(BaseService):
             source_state_info = {}
             destination_state_info = {}
             from service.workflow.workflow_state_service import workflow_state_service_ins
-            flag, source_state_obj = workflow_state_service_ins.get_workflow_state_by_id(
+            flag1, source_state_obj = workflow_state_service_ins.get_workflow_state_by_id(
                 workflow_transitions_object.source_state_id)
-            flag, destination_state_obj = workflow_state_service_ins.get_workflow_state_by_id(
+            flag2, destination_state_obj = workflow_state_service_ins.get_workflow_state_by_id(
                 workflow_transitions_object.destination_state_id)
-            if source_state_obj:
+            if flag1 and source_state_obj:
                 source_state_info['name'] = source_state_obj.name
                 source_state_info['id'] = source_state_obj.id
+            else:
+                source_state_info['name'] = '未知'
+                source_state_info['id'] = workflow_transitions_object.source_state_id
 
-            if destination_state_obj:
+            if flag2 and destination_state_obj:
                 destination_state_info['name'] = destination_state_obj.name
                 destination_state_info['id'] = destination_state_obj.id
+            else:
+                if workflow_transitions_object.condition_expression != '[]':
+                    destination_state_info['name'] = '见条件表达式'
+                else:
+                    destination_state_info['name'] = '请指定目标状态或设置条件表达式'
+                destination_state_info['id'] = workflow_transitions_object.destination_state_id
 
             result_dict = workflow_transitions_object.get_dict()
             result_dict['source_state_info'] = source_state_info

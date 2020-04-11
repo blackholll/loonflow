@@ -20,14 +20,14 @@ $( document ).ready(function() {
   initSelect2Items(
     "/api/v1.0/accounts/users",
     '#workflowAdmin',
-    makeUserOption,
+    makeUserOption
   );
 });
 
 $('#workflowAdmin').select2({allowClear: true});
 
 function makeUserOption(data) {
-  const user = data.username + '(id:' + data.id + ',alias:' + data.alias + ')'
+  var user = data.username + '(id:' + data.id + ',alias:' + data.alias + ')'
   return "<option value=" + "'" + data.username + "'" + ">" + user + "</option>"
 }
 
@@ -89,7 +89,7 @@ function makeUserOption(data) {
       $("#customNoticeSelect").val(notice_ids_arr).trigger("change");
     }
 
-    const workflow_admin_arr = data.workflow_admin.split(",");
+    var workflow_admin_arr = data.workflow_admin.split(",");
     initSelect2Items(
         "/api/v1.0/accounts/users",
         '#workflowAdmin',
