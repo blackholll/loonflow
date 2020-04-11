@@ -78,9 +78,12 @@ class WorkflowView(LoonBaseView):
         limit_expression = request_data_dict.get('limit_expression', '')
         display_form_str = request_data_dict.get('display_form_str', '')
         workflow_admin = request_data_dict.get('workflow_admin', '')
+        title_template = request_data_dict.get('title_template', '')
+        content_template = request_data_dict.get('content_template', '')
         creator = request.META.get('HTTP_USERNAME', '')
-        flag, result = workflow_base_service_ins.add_workflow(name, description, notices, view_permission_check, limit_expression,
-                                                       display_form_str, creator, workflow_admin)
+        flag, result = workflow_base_service_ins.add_workflow(
+            name, description, notices, view_permission_check, limit_expression, display_form_str, creator,
+            workflow_admin, title_template, content_template)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
@@ -194,10 +197,12 @@ class WorkflowDetailView(LoonBaseView):
         limit_expression = request_data_dict.get('limit_expression', '')
         display_form_str = request_data_dict.get('display_form_str', '')
         workflow_admin = request_data_dict.get('workflow_admin', '')
+        title_template = request_data_dict.get('title_template', '')
+        content_template = request_data_dict.get('content_template', '')
 
         flag, result = workflow_base_service_ins.edit_workflow(
             workflow_id, name, description, notices, view_permission_check, limit_expression, display_form_str,
-            workflow_admin)
+            workflow_admin, title_template, content_template)
         if flag is False:
             code, msg, data = -1, result, {}
         else:

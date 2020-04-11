@@ -196,7 +196,8 @@ class WorkflowBaseService(BaseService):
     @classmethod
     @auto_log
     def add_workflow(cls, name: str, description: str, notices: str, view_permission_check: int, limit_expression: str,
-                     display_form_str: str, creator: str, workflow_admin: str)->tuple:
+                     display_form_str: str, creator: str, workflow_admin: str, title_template: str,
+                     content_template: str)->tuple:
         """
         新增工作流
         add workflow
@@ -208,11 +209,14 @@ class WorkflowBaseService(BaseService):
         :param display_form_str:
         :param creator:
         :param workflow_admin:
+        :param title_template:
+        :param content_template:
         :return:
         """
         workflow_obj = Workflow(name=name, description=description, notices=notices,
                                 view_permission_check=view_permission_check, limit_expression=limit_expression,
-                                display_form_str=display_form_str, creator=creator)
+                                display_form_str=display_form_str, creator=creator, title_template=title_template,
+                                content_template=content_template)
         workflow_obj.save()
         workflow_admin_insert_list = []
         if workflow_admin:
@@ -225,7 +229,8 @@ class WorkflowBaseService(BaseService):
     @classmethod
     @auto_log
     def edit_workflow(cls, workflow_id: int, name: str, description: str, notices: str, view_permission_check: int,
-                      limit_expression: str, display_form_str: str, workflow_admin: str)->tuple:
+                      limit_expression: str, display_form_str: str, workflow_admin: str, title_template: str,
+                      content_template: str)->tuple:
         """
         更新工作流
         update workfow
@@ -237,13 +242,16 @@ class WorkflowBaseService(BaseService):
         :param limit_expression:
         :param display_form_str:
         :param workflow_admin:
+        :param title_template:
+        :param content_template:
         :return:
         """
         workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0)
         if workflow_obj:
             workflow_obj.update(name=name, description=description, notices=notices,
                                 view_permission_check=view_permission_check,
-                                limit_expression=limit_expression, display_form_str=display_form_str)
+                                limit_expression=limit_expression, display_form_str=display_form_str,
+                                title_template=title_template, content_template=content_template)
         # 更新工作流管理员
         if workflow_admin:
             workflow_admin_list = workflow_admin.split(',')

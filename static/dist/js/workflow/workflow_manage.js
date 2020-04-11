@@ -115,6 +115,8 @@ function makeUserOption(data) {
     var workflowId = $('#workflowId').val();
     var workflowName = $("#workflowName").val();
     var workflowDesc = $("#workflowDesc").val();
+    var titleTemplate = $("#titleTemplate").val();
+    var contentTemplate = $("#contentTemplate").val();
     // let noticeScriptSelect = $("#customNoticeSelect");
     var noticeScriptSelect = document.getElementById("customNoticeSelect");
     var noticeScriptSelectArray = [];
@@ -168,6 +170,8 @@ function makeUserOption(data) {
       limit_expression: limitExpression,
       display_form_str: displayFormStr,
       workflow_admin: workflowAdminStr,
+      title_template: titleTemplate,
+      content_template: contentTemplate,
     }
     if (!workflowId){
       $.ajax({
