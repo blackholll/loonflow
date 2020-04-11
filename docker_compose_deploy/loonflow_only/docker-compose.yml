@@ -1,0 +1,38 @@
+version: '3'
+services:
+  loonflow-redis:
+    hostname: loonflow-redis
+    image: redis:latest
+    restart: always
+    ports:
+      - 6379:6379
+    command:
+      redis-server --requirepass loonflow123
+  
+  loonflow-web:
+    hostname: loonflow-web
+    build: 
+      context: ./loonflow-web
+      dockerfile: Dockerfile
+    depends_on:
+      - loonflow-redis
+    ports:
+      - 80:80
+    command:
+      - /bin/sh
+      - -c
+      - |
+        uwsgi /opt/loonflow/uwsgi.ini 
+        nginx -c /etc/nginx/nginx.conf -g "daemon off;"
+
+  loonflow-task:
+    hostname: loonflow-task
+    build: 
+      context: ./loonflow-task
+      dockerfile: Dockerfile
+    command:
+      - /bin/sh
+      - -c
+      - |
+        cd /opt/loonflow
+        celery -A tasks worker -l info -c 8 -Q loonflow

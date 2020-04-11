@@ -13,3 +13,5 @@ tests/testloonflow.sql
 settings/config.py
 sphinx_docs/build/
 sphinx_docs/source/_build/
+docker_compose_deploy/loonflow_only/dbdata/*
+docker_compose_deploy/loonflow_shutongflow/dbdata/*
