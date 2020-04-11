@@ -154,7 +154,7 @@ function makeParentDeptOption(data) {
 }
 
 function makeUserOption(data) {
-  const user = data.username + '(id:' + data.id + ',alias:' + data.alias + ')'
+  var user = data.username + '(id:' + data.id + ',alias:' + data.alias + ')';
   return "<option value=" + "'" + data.id + "'" + ">" + user + "</option>"
 }
 
@@ -174,7 +174,7 @@ function showEditDeptModal(data) {
     makeUserOption,
     data.leader_info.leader_id
   )
-  let approvers = data.approver_info.map(function(item) {
+  var approvers = data.approver_info.map(function(item) {
     return item.approver_id;
   })
   initSelect2Items(
@@ -249,16 +249,16 @@ $( document ).ready(function() {
   initSelect2Items(
     "/api/v1.0/accounts/depts",
     "#parent_dept_id",
-    makeParentDeptOption,
+    makeParentDeptOption
   )
   initSelect2Items(
     "/api/v1.0/accounts/users",
     "#deptLeader",
-    makeUserOption,
+    makeUserOption
   )
   initSelect2Items(
     "/api/v1.0/accounts/users",
     "#deptApprover",
-    makeUserOption,
+    makeUserOption
   )
 });

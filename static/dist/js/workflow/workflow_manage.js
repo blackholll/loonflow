@@ -184,7 +184,7 @@ function makeUserOption(data) {
         if (result.code===0) {
           $("#workflowModal").modal("hide");
           swal({
-            title: "新增成功!",
+            title: "新增成功, 别忘了去'用户权限'-'调用权限'中给应用授权哦!",
             text: "2s自动关闭",
             showConfirmButton: false,
             timer: 2000,
