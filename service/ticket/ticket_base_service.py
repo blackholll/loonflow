@@ -1933,7 +1933,12 @@ class TicketBaseService(BaseService):
                     destination_participant = ticket_req_dict.get(participant)
                 else:
                     # 处理工单时未提供字段的值,则从工单当前字段值中获取
-                    destination_participant, msg = cls.get_ticket_field_value(ticket_id, participant)
+                    flag, result = cls.get_ticket_field_value(ticket_id, participant)
+                    if flag:
+                        destination_participant = result.get('value')
+                    else:
+                        destination_participant = ''
+
             destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
             if len(destination_participant.split(',')) > 1:
                 destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
