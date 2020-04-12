@@ -1544,6 +1544,10 @@ class TicketBaseService(BaseService):
             ticket_obj.participant = destination_participant_info.get('destination_participant', '')
             ticket_obj.save()
 
+            if destination_participant_info.get('destination_participant_type_id', 0) in (
+                    constant_service_ins.PARTICIPANT_TYPE_PERSONAL, constant_service_ins.PARTICIPANT_TYPE_MULTI):
+                cls.update_ticket_relation(ticket_id, destination_participant_info.get('destination_participant', ''))
+
             # 新增流转记录
             # 获取工单所有字段的值
             flag, result = cls.get_ticket_all_field_value_json(ticket_id)
