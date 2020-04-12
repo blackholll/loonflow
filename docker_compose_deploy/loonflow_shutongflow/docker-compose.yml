@@ -1,0 +1,96 @@
+version: '3'
+services:
+  loonflow-db:
+    hostname: loonflow-db
+    image: mysql:5.7
+    volumes:
+      - ./dbdata:/var/lib/mysql
+    command: [
+      --character-set-server=utf8mb4,
+      --collation-server=utf8mb4_unicode_ci,
+      ]
+    environment:
+      MYSQL_ROOT_PASSWORD: mySql12#4,.De
+      MYSQL_DATABASE: loonflow
+      MYSQL_USER: loonflow
+      MYSQL_PASSWORD: loonflow123,.Ly
+
+  shutongflow-db:
+    hostname: shutongflow-db
+    image: mysql:5.7
+    volumes:
+      - ./dbdata1:/var/lib/mysql
+    command: [
+      --character-set-server=utf8mb4,
+      --collation-server=utf8mb4_unicode_ci,
+      ]
+    environment:
+      MYSQL_ROOT_PASSWORD: mdEySl2#4,.Ee
+      MYSQL_DATABASE: shutongflow
+      MYSQL_USER: shutongflow
+      MYSQL_PASSWORD: shutongflow123,.Ly
+
+
+  loonflow-redis:
+    hostname: loonflow-redis
+    image: redis:latest
+    restart: always
+    ports:
+      - 6379:6379
+    command:
+      redis-server --requirepass loonflow123
+
+  loonflow-web:
+    hostname: loonflow-web
+    build:
+      context: ./loonflow-web
+      dockerfile: Dockerfile
+    links:
+      - "mysqldb:loonflow-db"
+    depends_on:
+      - loonflow-db
+      - loonflow-redis
+    ports:
+      - 80:80
+    command:
+      - /bin/sh
+      - -c
+      - |
+        uwsgi /opt/loonflow/uwsgi.ini
+        nginx -c /etc/nginx/nginx.conf -g "daemon off;"
+
+  loonflow-task:
+    hostname: loonflow-task
+    build:
+      context: ./loonflow-task
+      dockerfile: Dockerfile
+    links:
+      - "mysqldb:loonflow-db"
+    depends_on:
+      - mysqldb
+    command:
+      - /bin/sh
+      - -c
+      - |
+        cd /opt/loonflow
+        celery -A tasks worker -l info -c 2 -Q loonflow
+
+  shutongflow:
+    hostname: shutongflow
+    build:
+      context: ./loonflow
+      dockerfile: Dockerfile
+    links:
+      - "mysqldb:shutongflow-db"
+    depends_on:
+      - sgutongflow-db
+    ports:
+      - 6061:6061
+    command:
+      - /bin/sh
+      - -c
+      - |
+        cd /opt/shutongFlow
+        npm run dev
+        cd /opt/shutongFlow/apps
+        python3 manage.py runserver 0.0.0.0:6062
