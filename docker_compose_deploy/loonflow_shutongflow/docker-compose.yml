@@ -6,9 +6,10 @@ services:
     volumes:
       - ./dbdata:/var/lib/mysql
     command: [
-      --character-set-server=utf8mb4,
-      --collation-server=utf8mb4_unicode_ci,
-      ]
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_general_ci',
+      '--default-time-zone=+8:00'
+    ]
     environment:
       MYSQL_ROOT_PASSWORD: mySql12#4,.De
       MYSQL_DATABASE: loonflow
@@ -21,9 +22,10 @@ services:
     volumes:
       - ./dbdata1:/var/lib/mysql
     command: [
-      --character-set-server=utf8mb4,
-      --collation-server=utf8mb4_unicode_ci,
-      ]
+      '--character-set-server=utf8mb4',
+      '--collation-server=utf8mb4_general_ci',
+      '--default-time-zone=+8:00'
+    ]
     environment:
       MYSQL_ROOT_PASSWORD: mdEySl2#4,.Ee
       MYSQL_DATABASE: shutongflow
@@ -45,8 +47,6 @@ services:
     build:
       context: ./loonflow-web
       dockerfile: Dockerfile
-    links:
-      - "mysqldb:loonflow-db"
     depends_on:
       - loonflow-db
       - loonflow-redis
@@ -64,10 +64,8 @@ services:
     build:
       context: ./loonflow-task
       dockerfile: Dockerfile
-    links:
-      - "mysqldb:loonflow-db"
     depends_on:
-      - mysqldb
+      - loonflow-db
     command:
       - /bin/sh
       - -c
@@ -78,19 +76,19 @@ services:
   shutongflow:
     hostname: shutongflow
     build:
-      context: ./loonflow
+      context: ./shutongflow
       dockerfile: Dockerfile
-    links:
-      - "mysqldb:shutongflow-db"
     depends_on:
-      - sgutongflow-db
+      - shutongflow-db
     ports:
       - 6061:6061
     command:
       - /bin/sh
       - -c
       - |
-        cd /opt/shutongFlow
-        npm run dev
         cd /opt/shutongFlow/apps
-        python3 manage.py runserver 0.0.0.0:6062
+        python3 manage.py makemigrations
+        python3 manage.py migrate
+        nohup python3 manage.py runserver 0.0.0.0:6062 &
+        cd /opt/shutongFlow/fronted
+        cnpm run dev
