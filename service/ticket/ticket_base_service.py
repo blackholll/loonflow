@@ -74,7 +74,7 @@ class TicketBaseService(BaseService):
         flag, result = account_base_service_ins.app_workflow_permission_list(app_name)
 
         if not flag or not result.get('workflow_id_list'):
-            return False, 'This app_name have not workflow permission'
+            return True, dict(ticket_result_restful_list=[], paginator_info=dict(per_page=per_page, page=page, total=0))
         else:
             app_workflow_id_list = result.get('workflow_id_list')
             # query_params &= Q(workflow_id__in=result.get('workflow_id_list'))
