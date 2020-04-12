@@ -360,9 +360,12 @@ class LoonDeptDetailView(LoonBaseView):
         name = request_data_dict.get('name')
         parent_dept_id = request_data_dict.get('parent_dept_id')
         leader_id = request_data_dict.get('leader')
-        approver_str_list = request_data_dict.get('approver')
-        approvers = approver_str_list.split(',')
-        approver_id_list = [int(approver_str) for approver_str in approvers]
+        approver = request_data_dict.get('approver')
+        if approver:
+            approver_list = approver.split(',')
+            approver_id_list = [int(approver_str) for approver_str in approver_list]
+        else:
+            approver_id_list = []
         label = request_data_dict.get('label')
 
         if leader_id:
@@ -375,11 +378,14 @@ class LoonDeptDetailView(LoonBaseView):
         else:
             leader = None
 
-        flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
-        if flag is False:
-            return api_response(-1, result, {})
-        approver_username_list = result.get('username_list')
-        approver_username_str = ','.join(approver_username_list)
+        if approver_id_list:
+            flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
+            if flag is False:
+                return api_response(-1, result, {})
+            approver_username_list = result.get('username_list')
+            approver_username_str = ','.join(approver_username_list)
+        else:
+            approver_username_str = ''
 
         flag, result = account_base_service_ins.update_dept(dept_id,name, parent_dept_id, leader,
                                                              approver_username_str, label)
