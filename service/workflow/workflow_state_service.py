@@ -101,7 +101,7 @@ class WorkflowStateService(BaseService):
                 return False, '工单状态不存在或已被删除'
             state_info_dict = dict(
                 id=workflow_state.id, name=workflow_state.name, workflow_id=workflow_state.workflow_id,
-                sub_workflow_id=workflow_state.sub_workflow_id, distribute_type_id=workflow_state.distribute_type_id,
+                distribute_type_id=workflow_state.distribute_type_id,
                 is_hidden=workflow_state.is_hidden, order_id=workflow_state.order_id, type_id=workflow_state.type_id,
                 participant_type_id=workflow_state.participant_type_id, participant=workflow_state.participant,
                 state_field=json.loads(workflow_state.state_field_str), label=json.loads(workflow_state.label),
