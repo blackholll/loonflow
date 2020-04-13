@@ -20,24 +20,33 @@ mysql> grant all privileges on loonflow.* to loonflow@'%' identified by '123456'
 ```
 
 #### 启动方式
-确保已经安装了python3后。 cd 到 docker_compose_deploy目录后,执行以下命令
+确保已经安装了python3后。 cd 到 docker_compose_deploy/loonflow_only目录后,执行以下命令
 
 ```
+# 修改run.py中数据库相关配置为你准备好的数据库信息
+    db_host = ''  # loonflow使用的数据库的ip
+    db_port = ''  # loonflow使用的数据库的端口
+    db_name = ''  # loonflow使用的数据库的名称
+    db_user = ''  # loonflow使用的数据库的用户
+    db_password = ''  # loonflow使用的数据库的用户密码
+    
+    ddl_db_user = ''  # 可以执行ddl(拥有修改表结构权限)的用户
+    ddl_db_password = ''  # 可以执行ddl(拥有修改表结构权限)的用户的密码
+
 # 安装并启动服务
-python3 run.py install
+python3 run.py install # 此命令后修改dockerfile中的数据库配置，然后启动
 
 # 启动服务
-python3 run.py start
+python3 run.py start  # 此命令直接启动服务，请保证之前install过（也就是dockerfile中数据库配置已被修改）
 
 # 停止服务， 这种方式对于celery task任务非优雅停止，可以使用flower(celery的监控系统)，将任务消费停止，并且等待所有认为都结束后再执行
 python3 run.py stop
 ```
 
 # loonflow_shutongflow
-无需事先准备数据库，启动时将同时启动mysql的容器，包括loonflow(包括nginx、redis)和shutongflow(包括nginx、redis),
-并且带有示例工作流配置，可以用于体验功能。 因为shutongflow是调用方demo,功能尚不完善，不建议直接作为生产环境使用
 
-#### 启动方式
-
+暂未支持
 
 # loonflow_workflowdemo
+
+暂未支持
