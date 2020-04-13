@@ -1905,6 +1905,11 @@ class TicketBaseService(BaseService):
                 return True, dict(destination_participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                                   destination_participant=ticket_obj.creator,
                                   multi_all_person="{}")
+            elif state_obj.type_id == constant_service_ins.STATE_TYPE_END:
+                # 回到结束状态，目标处理人应该为空
+                return True, dict(destination_participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
+                                  destination_participant='',
+                                  multi_all_person="{}")
             parent_ticket_id = ticket_obj.parent_ticket_id
             creator = ticket_obj.creator
             multi_all_person = json.loads(ticket_obj.multi_all_person)
@@ -1916,7 +1921,11 @@ class TicketBaseService(BaseService):
                 return True, dict(destination_participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                                   destination_participant=ticket_req_dict.get('username'),
                                   multi_all_person="{}")
-
+            elif state_obj.type_id == constant_service_ins.STATE_TYPE_END:
+                # 回到结束状态，目标处理人应该为空
+                return True, dict(destination_participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
+                                  destination_participant='',
+                                  multi_all_person="{}")
             parent_ticket_id = ticket_req_dict.get('parent_ticket_id')
             creator = ticket_req_dict.get('username')
             multi_all_person = "{}"
