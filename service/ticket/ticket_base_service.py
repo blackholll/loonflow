@@ -2385,7 +2385,9 @@ class TicketBaseService(BaseService):
         if ticket_result.creator != username:
             return False, "just ticket's creator can retreat ticket in specific state that enable retreat"
         workflow_id = ticket_result.workflow_id
-        flag, result = workflow_state_service_ins.get_workflow_state_by_id(ticket_result.id)
+        flag, result = workflow_state_service_ins.get_workflow_state_by_id(ticket_result.state_id)
+        if flag is False:
+            return False, result
         if result.enable_retreat is False:
             return False, 'now state can not be retreat'
         flag, result = workflow_state_service_ins.get_workflow_start_state(workflow_id)
