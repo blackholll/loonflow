@@ -6,10 +6,7 @@
 - 至少需要2G内存，推荐4G
 
 ## 1.安装前准备
-###1.0 在如下文件完成必要配置，重点是ip
-```
-loonflow/docker_compose_deploy/loonflow_shutongflow/config.json
-```
+
 ### 1.1 firewalld已关闭
 ```
 systemctl stop firewalld.service
@@ -30,10 +27,12 @@ systemctl status firewalld
 
 ## 2.开始安装
 ```
-cd /opt
-git clone -b v1.0.2 https://gitee.com/shihowcom/loonflow_ro loonflow
-cd loonflow
-python ./docker_compose_deploy/loonflow_shutongflow/setup_all.py
+cd /opt && yum install -y git && git clone -b v1.0.2 https://gitee.com/shihowcom/loonflow_ro loonflow
+
+# 在如下文件完成必要配置，重点是ip
+loonflow/docker_compose_deploy/loonflow_shutongflow/config.json
+
+cd loonflow && python ./docker_compose_deploy/loonflow_shutongflow/setup_all.py
 ```
 
 ## 3.安装完成后
