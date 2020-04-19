@@ -1,0 +1,9 @@
+{
+  "ip": "117.33.233.74",
+  "is_need_setup_mysql": true,
+  "mysql": {
+    "root_password": "mySql12#4,.De",
+    "host": "127.0.0.1",
+    "port": "3306"
+  }
+}
