@@ -15,6 +15,15 @@ def main():
     replace_in_file(
         cfg_file, "'PASSWORD': '123456'", "'PASSWORD': '{}'".format(password)
     )
+    host = config_info['mysql']['host']
+    replace_in_file(
+        cfg_file, "'HOST': '127.0.0.1'", "'HOST': '{}'".format(host)
+    )
+    port = config_info['mysql']['port']
+    replace_in_file(
+        cfg_file, "'PORT': 3306", "'PORT': {}".format(port)
+    )
+
     # 使前端项目在dev模式下可被外部访问
     f = '/opt/shutongFlow/fronted/config/index.js'
     replace_in_file(f, "host: 'localhost'", "host: '0.0.0.0'")

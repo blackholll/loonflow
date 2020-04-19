@@ -20,6 +20,15 @@ def main():
     replace_in_file(
         cfg_file, "'PASSWORD': '123456'", "'PASSWORD': '{}'".format(password)
     )
+    host = config_info['mysql']['host']
+    replace_in_file(
+        cfg_file, "'HOST': '127.0.0.1'", "'HOST': '{}'".format(host)
+    )
+    port = config_info['mysql']['port']
+    replace_in_file(
+        cfg_file, "'PORT': '3306'", "'PORT': '{}'".format(port)
+    )
+
     replace_in_file(
         '/opt/loonflow/settings/common.py',
         "HOMEPATH = os.environ['HOME']",
