@@ -1,87 +1,53 @@
 version: '3'
 services:
-  loonflow-db:
-    hostname: loonflow-db
-    image: mysql:5.7
-    volumes:
-      - ./dbdata:/var/lib/mysql
-    command: [
-      '--character-set-server=utf8mb4',
-      '--collation-server=utf8mb4_general_ci',
-      '--default-time-zone=+8:00'
-    ]
-    environment:
-      MYSQL_ROOT_PASSWORD: mySql12#4,.De
-      MYSQL_DATABASE: loonflow
-      MYSQL_USER: loonflow
-      MYSQL_PASSWORD: loonflow123,.Ly
-
-  shutongflow-db:
-    hostname: shutongflow-db
-    image: mysql:5.7
-    volumes:
-      - ./dbdata1:/var/lib/mysql
-    command: [
-      '--character-set-server=utf8mb4',
-      '--collation-server=utf8mb4_general_ci',
-      '--default-time-zone=+8:00'
-    ]
-    environment:
-      MYSQL_ROOT_PASSWORD: mdEySl2#4,.Ee
-      MYSQL_DATABASE: shutongflow
-      MYSQL_USER: shutongflow
-      MYSQL_PASSWORD: shutongflow123,.Ly
-
-
-  loonflow-redis:
-    hostname: loonflow-redis
-    image: redis:latest
-    restart: always
-    ports:
-      - 6379:6379
-    command:
-      redis-server --requirepass loonflow123
 
   loonflow-web:
     hostname: loonflow-web
     build:
       context: ./loonflow-web
       dockerfile: Dockerfile
-    depends_on:
-      - loonflow-db
-      - loonflow-redis
     ports:
-      - 80:80
+      - "6060:6060"
     command:
       - /bin/sh
       - -c
       - |
-        uwsgi /opt/loonflow/uwsgi.ini
-        nginx -c /etc/nginx/nginx.conf -g "daemon off;"
+        cd /opt/loonflow
+        python3 manage.py makemigrations
+        python3 manage.py runserver 0.0.0.0:6060
+    network_mode: "host"
+    depends_on:
+      - redis
+
+  redis:
+    hostname: redis
+    image: redis:alpine
+    expose:
+      - "6379"
+    network_mode: "host"
 
   loonflow-task:
     hostname: loonflow-task
     build:
       context: ./loonflow-task
       dockerfile: Dockerfile
-    depends_on:
-      - loonflow-db
+    network_mode: "host"
     command:
       - /bin/sh
       - -c
       - |
         cd /opt/loonflow
-        celery -A tasks worker -l info -c 2 -Q loonflow
+        celery -A tasks worker -l info -c 8 -Q loonflow
 
   shutongflow:
     hostname: shutongflow
     build:
       context: ./shutongflow
       dockerfile: Dockerfile
-    depends_on:
-      - shutongflow-db
     ports:
       - 6061:6061
+      - 6062:6062
+    network_mode: "host"
     command:
       - /bin/sh
       - -c
