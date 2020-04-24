@@ -2393,9 +2393,10 @@ class TicketBaseService(BaseService):
             return False, result
         if result.enable_retreat is False:
             return False, 'now state can not be retreat'
-        flag, result = workflow_state_service_ins.get_workflow_start_state(workflow_id)
+        flag, start_state_obj = workflow_state_service_ins.get_workflow_start_state(workflow_id)
         if flag is False:
             return False, result
+        ticket_result.state_id = start_state_obj.id
         ticket_result.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_result.participant = ticket_result.creator
         ticket_result.save()
