@@ -105,3 +105,82 @@
   # 停止服务， 这种方式对于celery task任务非优雅停止，可以使用flower(celery的监控系统)，将任务消费停止，并且等待所有认为都结束后再执行
   python3 run.py stop
 
+
+------------------------------
+演示环境docker compose方式运行
+------------------------------
+提供者: 逆寒刀(children1987@qq.com)
+
+
+安装前必读
+>>>>>>>>>
+- 本方式会同时安装loonflow及shutongflow(looflow的调用方demo, https://github.com/youshutong2080/shutongFlow), shutongflow功能不够完善，所以仅供大家开发调用方程序时参考
+- 强烈建议基于一台新装的CentOS 7安装。因为其它场景可能会触发一些未被测到的问题
+- 这只是一个为了方便快速展示代码的demo，考虑到安全、性能等因素，请勿直接用于生产
+- 至少需要2G内存，推荐4G
+
+安装前准备
+>>>>>>>>>
+- 关闭firewalld
+
+::
+
+  # 关闭防火墙
+  systemctl stop firewalld.service
+  # 检查防火墙状态
+  systemctl status firewalld
+
+- 关闭selinux
+
+  建议永久关闭，而非临时关闭,详见  https://blog.csdn.net/zhoushengtao12/article/details/95346903
+  
+- 保证以下端口未被使用
+
+  ::
+
+    3306 (mysql)
+    6060 (loonflow)
+    6061 (shutongFlow_frontend)
+    6062 (shutongFlow_backend)
+    6379 (redis)
+
+
+开始安装
+>>>>>>>>>
+
+::
+
+  cd /opt && yum install -y git && git clone -b v1.0.3 https://gitee.com/shihowcom/loonflow_ro loonflow
+  # 在如下文件完成必要配置，重点是ip
+  vi loonflow/docker_compose_deploy/loonflow_shutongflow/config.json
+  cd loonflow && python ./docker_compose_deploy/loonflow_shutongflow/setup_all.py
+
+  # 各参数含义如下
+  {
+  "ip": "117.33.233.74",  # 你的服务器的地址
+  "is_need_setup_mysql": true,  # 是否希望程序同时安装mysql,  如果需要则设置为true。 建议事先准备好mysql(此处设置为false)
+  "mysql": {
+    "root_password": "mySql12#4,.De",  # 如果事先准备好了mysql,此处设置你准备的mysql的密码，否则保持不变
+    "host": "127.0.0.1",  # 如果事先准备好了mysql,此处设置你准备的mysql的地址，否则保持不变
+    "port": "3306"   # 如果事先准备好了mysql,此处设置你准备的mysql的端口，否则保持不变
+  }
+}
+
+访问
+>>>>>>
+docker容器们启动成功后，就可以通过以下方式访问了：
+
+- loonflow管理后台
+
+::
+
+  访问地址: http://ip:6060/   ip为你的centos7服务器的ip地址
+  账号/密码: admin/loonflow123
+
+- shutongflow
+
+::
+
+  访问地址: http://ip:6061/  ip为你的centos7服务器的ip地址
+  账号/密码: admin/yxuqtr
+
