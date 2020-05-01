@@ -27,7 +27,7 @@ systemctl status firewalld
 
 ## 2.开始安装
 ```
-cd /opt && yum install -y git && git clone -b v1.0.2 https://gitee.com/shihowcom/loonflow_ro loonflow
+cd /opt && yum install -y git && git clone -b v1.0.3 https://gitee.com/shihowcom/loonflow_ro loonflow
 
 # 在如下文件完成必要配置，重点是ip
 vi loonflow/docker_compose_deploy/loonflow_shutongflow/config.json

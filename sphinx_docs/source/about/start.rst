@@ -158,11 +158,8 @@
   # 各参数含义如下
   {
   "ip": "117.33.233.74",  # 你的服务器的地址
-  "is_need_setup_mysql": true,  # 是否希望程序同时安装mysql,  如果需要则设置为true。 建议事先准备好mysql(此处设置为false)
   "mysql": {
     "root_password": "mySql12#4,.De",  # 如果事先准备好了mysql,此处设置你准备的mysql的密码，否则保持不变
-    "host": "127.0.0.1",  # 如果事先准备好了mysql,此处设置你准备的mysql的地址，否则保持不变
-    "port": "3306"   # 如果事先准备好了mysql,此处设置你准备的mysql的端口，否则保持不变
   }
 }
 

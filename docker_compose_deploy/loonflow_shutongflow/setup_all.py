@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import time
 
 from utils import cmd, get_config_info
 
@@ -20,7 +21,36 @@ def change_mysql_psw(new_psw):
     print("ERROR: 修改 mysql5.7 root密码失败！未找到初始密码。")
 
 
-def setup_mysql57():
+def sql_to_docker_mysql(root_pwd, db_name, sql_file):
+    """
+    把sql文件写入docker中的mysql
+    root_pwd: the pwd of mysql root
+    db_name: the name of database
+    sql_file: the file full name of sql file.
+    """
+    print('创建 {} 数据库'.format(db_name))
+    cmd("docker exec -itd mysql mysqladmin -uroot -p'{}' create {}".format(
+        root_pwd, db_name))
+
+    print('copy {} 文件进入容器'.format(sql_file))
+    cmd('docker cp {} mysql:/'.format(sql_file))
+
+    print('创建 {}.sh'.format(db_name))
+    cmd(
+        '''echo "mysql -p'{0}' -uroot {1} < /{1}.sql" > ./{1}.sh'''.format(
+            root_pwd, db_name
+        )
+    )
+    print('copy {}.sh 文件进入容器'.format(db_name))
+    cmd('docker cp ./{}.sh mysql:/'.format(db_name))
+
+    print("导入 {}.sql".format(db_name))
+    cmd_str = "docker exec -itd /bin/bash /{}.sh".format(db_name)
+    cmd(cmd_str)
+    print("{} demo data write db ok".format(db_name))
+
+
+def setup_mysql57(root_psw):
     """
     在宿主机安装 mysql5.7
 
@@ -28,51 +58,34 @@ def setup_mysql57():
     测试时发现了很多问题。最终放弃了以docker方式安装 mysql5.7
     """
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, base_dir)
-
-    print("在宿主机 mysql5.7 安装开始")
-    cmd("yum install -y wget")
-    cmd("wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm")
-    cmd("yum -y install mysql57-community-release-el7-10.noarch.rpm")
-    cmd("yum -y install mysql-community-server")
-    print("在宿主机 mysql5.7 安装完成")
-
-    cmd("systemctl start mysqld.service")
     config_info = get_config_info()
-    root_password = config_info['mysql']['root_password']
-    change_mysql_psw(root_password)
-    print("在宿主机 mysql5.7 配置完成")
+    root_pwd = config_info['mysql']['root_password']
 
-    cmd("mysqladmin -uroot -p'{}' create loonflow".format(root_password))
-    init_sql = '/opt/loonflow/docker_compose_deploy/loonflow_shutongflow/loonflow-web/loonflow_demo_init.sql'
-    cmd_str = "mysql -p'{}' -uroot loonflow < {}".format(
-        root_password, init_sql)
-    cmd(cmd_str)
-    print("loonflow demo data write db ok")
+    print("docker安装 mysql5.7 开始")
+    cmd(
+        ("docker run --name mysql -d --net=host -e MYSQL_ROOT_PASSWORD={} "
+         "-v /var/loonflow/db:/var/lib/mysql mysql:5.7.21").format(root_pwd)
+    )
+    print("docker安装 mysql5.7 完成")
 
-    cmd("mysqladmin -uroot -p'{}' create shutongflow".format(root_password))
-    init_sql = '/opt/loonflow/docker_compose_deploy/loonflow_shutongflow/shutongflow/shutongflow_demo_init.sql'
-    cmd_str = "mysql -p'{}' -uroot shutongflow < {}".format(
-        root_password, init_sql)
-    cmd(cmd_str)
-    print("shutongflow demo data write db ok")
+    print("睡眠10秒，确保mysql启动完成")
+    time.sleep(10)
+
+    db_name = 'loonflow'
+    sql_file = '/opt/loonflow/docker_compose_deploy/loonflow_shutongflow/loonflow-web/loonflow_demo_init.sql'
+    sql_to_docker_mysql(root_pwd, db_name, sql_file)
+
+    db_name = 'shutongflow'
+    sql_file = '/opt/loonflow/docker_compose_deploy/loonflow_shutongflow/shutongflow/shutongflow_demo_init.sql'
+    sql_to_docker_mysql(root_pwd, db_name, sql_file)
 
 
 def main():
     if os.geteuid() != 0:
         raise Exception("请以root权限运行")
 
-    config_info = get_config_info()
-    is_need_setup_mysql = config_info['is_need_setup_mysql']
-    if is_need_setup_mysql:
-        print('宿主机安装mysql5.7')
-        print('这一步不是必须的，您也可使用自己已有的数据库')
-        print('执行到这里说明您已将is_need_setup_mysql配置为true（默认值true）')
-        try:
-            setup_mysql57()
-        except Exception:
-            print("Warning: 在宿主机 mysql5.7 安装失败，但可能是因为你已经安装过了")
+    print('安装 docker版 mysql5.7')
+    setup_mysql57()
 
     cmd("python docker_compose_deploy/loonflow_shutongflow/setup_docker.py")
     cmd("service docker restart")
