@@ -42,15 +42,18 @@ def sql_to_docker_mysql(root_pwd, db_name, sql_file):
         )
     )
     print('copy {}.sh 文件进入容器'.format(db_name))
-    cmd('docker cp ./{}.sh mysql:/'.format(db_name))
+    cmd_str = 'docker cp ./{}.sh mysql:/'.format(db_name)
+    cmd('echo "{}"'.format(cmd_str))
+    cmd(cmd_str)
 
     print("导入 {}.sql".format(db_name))
-    cmd_str = "docker exec -itd /bin/bash /{}.sh".format(db_name)
+    cmd_str = "docker exec -itd mysql /bin/bash /{}.sh".format(db_name)
+    cmd('echo "{}"'.format(cmd_str))
     cmd(cmd_str)
     print("{} demo data write db ok".format(db_name))
 
 
-def setup_mysql57(root_psw):
+def setup_mysql57():
     """
     在宿主机安装 mysql5.7
 
