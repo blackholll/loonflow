@@ -485,7 +485,7 @@ class TicketBaseService(BaseService):
         for key, value in update_dict.items():
             if key in custom_field_key_list:
                 # 判断是否存在，如果存在则更新，如果不存在则新增
-                ticket_custom_field_queryset = TicketCustomField.objects.filter(ticket_id=ticket_id, field_key=key)
+                ticket_custom_field_queryset = TicketCustomField.objects.filter(ticket_id=ticket_id, field_key=key, is_deleted=0)
                 field_type_id = format_custom_field_dict[key]['field_type_id']
 
                 if update_dict.get(key) is None:
