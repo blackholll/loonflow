@@ -928,7 +928,7 @@ class TicketBaseService(BaseService):
                 # return None, '非当前处理人，无权处理'
             current_participant_count = len(participant.split(','))
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-            flag, dept_user_list = account_base_service_ins.get_dept_username_list(dept_id=int(participant))
+            flag, dept_user_list = account_base_service_ins.get_dept_username_list(participant)
             if flag is False:
                 return flag, dept_user_list
             if username not in dept_user_list:
@@ -1338,7 +1338,7 @@ class TicketBaseService(BaseService):
                                                constant_service_ins.PARTICIPANT_TYPE_MULTI):
             add_relation = destination_participant
         elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-            flag, username_list = account_base_service_ins.get_dept_username_list(int(destination_participant))
+            flag, username_list = account_base_service_ins.get_dept_username_list(destination_participant)
             if flag is False:
                 return False, username_list
             add_relation = ','.join(username_list)
@@ -1990,16 +1990,10 @@ class TicketBaseService(BaseService):
                 destination_participant_list = destination_participant.split(',')
             elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
                 # 支持多部门
-                destination_department_id_list = destination_participant.split(',')
-                destination_participant_list = []
-                for destination_department_id in destination_department_id_list:
-                    flag, destination_participant_list0 = account_base_service_ins.get_dept_username_list(
-                        int(destination_department_id))
-                    if flag is False:
-                        return False, destination_participant_list0
-                    destination_participant_list.append(destination_participant_list0)
-                destination_participant_list = list(set(destination_participant_list))
-
+                flag, destination_participant_list = account_base_service_ins.get_dept_username_list(
+                    destination_participant)
+                if flag is False:
+                    return False, destination_participant_list
             elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
                 flag, destination_participant_list = account_base_service_ins.get_role_username_list(
                     int(destination_participant))

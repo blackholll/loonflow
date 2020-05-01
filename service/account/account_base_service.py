@@ -213,18 +213,29 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_dept_username_list(cls, dept_id: int)->tuple:
+    def get_dept_username_list(cls, dept_id: object)->tuple:
         """
         get department's all username list
-        :param dept_id:
+        :param dept_id: int or str
         :return:
         """
-        flag, sub_dept_id_list = cls.get_dept_sub_dept_id_list(dept_id)
-        if flag is False:
-            return False, sub_dept_id_list
+        if type(dept_id) == str:
+            dept_id_str_list = dept_id.split(',')  # 用于支持多部门
+            dept_id_list = [int(dept_id_str) for dept_id_str in dept_id_str_list]
+        else:
+            dept_id_list = [dept_id]
+
+        sub_dept_id_list_total = []
+
+        for dept_id in dept_id_list:
+            flag, sub_dept_id_list = cls.get_dept_sub_dept_id_list(dept_id)
+            if flag is False:
+                return False, sub_dept_id_list
+            sub_dept_id_list_total = sub_dept_id_list_total + sub_dept_id_list
+
         user_name_list = []
         if sub_dept_id_list:
-            user_queryset = LoonUser.objects.filter(dept_id__in=sub_dept_id_list).all()
+            user_queryset = LoonUser.objects.filter(dept_id__in=sub_dept_id_list_total).all()
             for user in user_queryset:
                 user_name_list.append(user.username)
         return True, user_name_list
