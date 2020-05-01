@@ -33,7 +33,7 @@ def sql_to_docker_mysql(root_pwd, db_name, sql_file):
         root_pwd, db_name))
 
     print('copy {} 文件进入容器'.format(sql_file))
-    cmd('docker cp {} mysql:/'.format(sql_file))
+    cmd('docker cp {} mysql:/{}.sql'.format(sql_file, db_name))
 
     print('创建 {}.sh'.format(db_name))
     cmd(
@@ -78,6 +78,9 @@ def setup_mysql57():
     sql_file = '/opt/loonflow/docker_compose_deploy/loonflow_shutongflow/loonflow-web/loonflow_demo_init.sql'
     sql_to_docker_mysql(root_pwd, db_name, sql_file)
 
+    print("睡眠10秒，确保sql导入完成")
+    time.sleep(10)
+
     db_name = 'shutongflow'
     sql_file = '/opt/loonflow/docker_compose_deploy/loonflow_shutongflow/shutongflow/shutongflow_demo_init.sql'
     sql_to_docker_mysql(root_pwd, db_name, sql_file)
@@ -87,11 +90,13 @@ def main():
     if os.geteuid() != 0:
         raise Exception("请以root权限运行")
 
+    print('安装 docker')
+    cmd_str = 'mkdir tmp_for_setup_docker && yum install -y git && git clone https://gitee.com/shihowcom/setup_docker.git tmp_for_setup_docker/setup_docker && python ./tmp_for_setup_docker/setup_docker/setup_docker.py'
+    cmd(cmd_str)
+
     print('安装 docker版 mysql5.7')
     setup_mysql57()
 
-    cmd("python docker_compose_deploy/loonflow_shutongflow/setup_docker.py")
-    cmd("service docker restart")
     cmd("python docker_compose_deploy/loonflow_shutongflow/setup_compose.py")
     cmd("cd docker_compose_deploy/loonflow_shutongflow && docker-compose up")
 
