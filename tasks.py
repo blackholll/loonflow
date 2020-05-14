@@ -295,7 +295,7 @@ def flow_hook_task(ticket_id):
         else:
             # 不等待hook目标回调，直接流转
             flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(state_id)
-            transition_id = transition_queryset[0]  # hook状态只支持一个流转
+            transition_id = transition_queryset[0].id  # hook状态只支持一个流转
 
             new_request_dict = {}
             new_request_dict.update({'transition_id': transition_id, 'suggestion': msg, 'username': 'loonrobot'})
@@ -305,7 +305,7 @@ def flow_hook_task(ticket_id):
                 return False, msg
 
     else:
-        ticket_base_service_ins.update_ticket_field_value({'script_run_last_result': False})
+        ticket_base_service_ins.update_ticket_field_value(ticket_id,{'script_run_last_result': False})
 
         flag, result = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
 
