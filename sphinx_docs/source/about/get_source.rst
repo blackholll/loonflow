@@ -9,6 +9,9 @@
   git clone git@github.com:blackholll/loonflow.git
   git checkout vx.x.x  #(具体的版本号，如v0.3.15）拉取代码
 
+  # howflow-open: vue.js版本前端+django后端的调用方，基于钉钉生态，移动端审批
+  https://gitee.com/shihow/howflow-open
+
   # shutongflow: vue.js版本前端+django后端的调用方demo
   https://github.com/youshutong2080/shutongFlow
 
