@@ -1118,11 +1118,14 @@ class TicketBaseService(BaseService):
                         return False, participant_info
                     destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
                     destination_participant = participant_info.get('destination_participant', '')
+                    multi_all_person = '{}'
                 else:
                     # 处理人没有没有全部处理完成或者处理动作不一致
                     destination_participant_type_id = ticket_obj.participant_type_id
                     flag, result = common_service_ins.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
                     destination_participant = ','.join(result.get('result_list'))
+                    destination_state_id = ticket_obj.state_id  # 保持原状态
+                    multi_all_person = json.dumps(multi_all_person_dict)
 
         else:
             # 当前处理人类型非全部处理
