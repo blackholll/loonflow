@@ -584,9 +584,10 @@ class TicketBaseService(BaseService):
         :return:
         """
         # in some mysql version's default config, string while be structure if the length is greater than defined
-        if len(kwargs.get('suggestion', '')) > 1000:
-            kwargs['suggestion'] = '{}...(be truncated because More than 1000)'\
-                .format(kwargs.get('suggestion', '')[:960])
+        if kwargs.get('suggestion','') is not None:
+            if len(kwargs.get('suggestion', '')) > 1000:
+                kwargs['suggestion'] = '{}...(be truncated because More than 1000)'\
+                    .format(kwargs.get('suggestion', '')[:960])
         if not kwargs.get('creator'):
             kwargs['creator'] = kwargs.get('participant', '')
         new_ticket_flow_log = TicketFlowLog(**kwargs)
