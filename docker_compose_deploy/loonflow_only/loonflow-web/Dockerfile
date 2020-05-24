@@ -17,7 +17,7 @@ WORKDIR /opt/loonflow/requirements
 RUN pip3 install -r pro.txt -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com
 # 复制config.py文件
 WORKDIR /opt/loonflow/settings
-RUN cp pro.py.simple config.py
+RUN cp pro.py.sample config.py
 # 修改redis配置
 RUN sed -i "s/REDIS_HOST = '127.0.0.1'/REDIS_HOST = 'loonflow-redis'/g" /opt/loonflow/settings/config.py
 RUN sed -i "s/REDIS_PASSWORD = ''/REDIS_PASSWORD = 'loonflow123'/g" /opt/loonflow/settings/config.py

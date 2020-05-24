@@ -5,7 +5,7 @@
 -------------
 开发环境
 -------------
-- 将settings/dev.py.simple在settings目录下复制一份并重命名为config.py
+- 将settings/dev.py.sample在settings目录下复制一份并重命名为config.py
 - 创建数据库并修改settings/config.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)
 - 创建python虚拟环境: python3.6.x(python3.6最新稳定版)
 - 安装依赖包: pip install -r requirements/dev.txt
@@ -27,7 +27,7 @@
 生产环境
 -------------
 - 生产环境建议使用nginx+uwsgi的方式部署(nginx及uwsgi配置文件可参考 https://github.com/blackholll/loonflow-helper/tree/master/deploy)
-- 将settings/pro.py.simple在settings目录下复制一份并重命名为config.py
+- 将settings/pro.py.sample在settings目录下复制一份并重命名为config.py
 - 创建数据库并修改settings/pro.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)
 - 创建python虚拟环境: python3.6.x(python3.6最新稳定版)
 - 安装依赖包: pip install -r requirements/pro.txt
