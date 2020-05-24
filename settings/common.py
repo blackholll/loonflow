@@ -14,7 +14,7 @@ import os
 import platform
 
 
-VERSION = 'v1.0.5'
+VERSION = 'v1.0.6'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
