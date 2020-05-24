@@ -17,7 +17,7 @@ ipython-genutils==0.2.0
 jedi==0.15.2
 kombu==4.6.7
 more-itertools==8.1.0
-mysqlclient==1.3.12
+mysqlclient==1.4.6
 parso==0.5.2
 pexpect==4.7.0
 pickleshare==0.7.5
