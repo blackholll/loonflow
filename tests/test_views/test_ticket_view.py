@@ -1,11 +1,14 @@
 import json
-from tests.base import LoonflowTest
+import mock
+from django.test import TestCase
 from django.test.client import Client
 from tests.base import LoonflowApiCall
 from service.common.constant_service import constant_service_ins
 
 
-class TestTicketView(LoonflowTest):
+class TestTicketView(TestCase):
+    fixtures = ['accounts.json', 'workflows.json', 'tickets.json']
+
     def test_get_ticket_list_without_arg_and_header(self):
         """
         获取工单列表,不传参数及header
@@ -58,16 +61,23 @@ class TestTicketView(LoonflowTest):
         result = self.get_ticket_list_by_params(dict(category='relation', username='lilei'))
         self.assertEqual(result.get('code'), 0)
 
-    def test_new_ticket(self):
+    @mock.patch('tasks.flow_hook_task.apply_async')
+    @mock.patch('tasks.send_ticket_notice.apply_async')
+    @mock.patch('service.ticket.ticket_base_service.TicketBaseService.gen_ticket_sn')
+    def test_new_ticket(self, gen_ticket_sn, notice_apply_async, hook_apply_async):
         """
         新建工单
         :return:
         """
+        gen_ticket_sn.return_value = (True, dict(ticket_sn='ops_202005240001'))
+        notice_apply_async.return_value = True
+        hook_apply_async.return_value = True
         params = dict(title='测试工单0001', leave_start='2018-10-14 09:00:00', leave_end='2018-10-15 09:00:00',
-                      leave_days=2, leave_proxy='lisi', leave_type='2', leave_reason='请假原因', workflow_id=1,
+                      leave_proxy='lisi', leave_type='2', leave_reason='请假原因', workflow_id=1,
                       username='guiji', transition_id=1)
         url = '/api/v1.0/tickets'
         result = LoonflowApiCall().api_call('post', url, params)
+        print(result)
         self.assertEqual(result.get('code'), 0)
 
     def test_get_ticket_detail(self):
@@ -75,11 +85,8 @@ class TestTicketView(LoonflowTest):
         获取工单详情
         :return:
         """
-        from apps.ticket.models import TicketRecord
-        last_ticket_id = TicketRecord.objects.filter(is_deleted=0).order_by('-id').first().id
-        url = '/api/v1.0/tickets/{}'.format(last_ticket_id)
-        result = LoonflowApiCall().api_call('get', url, dict(username='lilei'))
-        print(result)
+        url = '/api/v1.0/tickets/{}'.format(39)
+        result = LoonflowApiCall().api_call('get', url, dict(username='admin'))
         self.assertEqual(result.get('code'), 0)
 
     def test_get_ticket_transition(self):
@@ -121,7 +128,7 @@ class TestTicketView(LoonflowTest):
         last_ticket_obj = TicketRecord.objects.filter(is_deleted=0).order_by('-id').first()
         last_ticket_id = last_ticket_obj.id
         url = '/api/v1.0/tickets/{}/flowsteps'.format(last_ticket_id)
-        result = LoonflowApiCall().api_call('get', url, dict(username='lilie'))
+        result = LoonflowApiCall().api_call('get', url, dict(username='admin'))
         self.assertEqual(result.get('code'), 0)
 
     def test_alter_ticket_state(self):
@@ -129,12 +136,10 @@ class TestTicketView(LoonflowTest):
         修改工单状态
         :return:
         """
-        from apps.ticket.models import TicketRecord
-        last_ticket_obj = TicketRecord.objects.filter(is_deleted=0).order_by('-id').first()
-        last_ticket_id = last_ticket_obj.id
-        last_ticket_state_id = last_ticket_obj.state_id
-        url = '/api/v1.0/tickets/{}/state'.format(last_ticket_id)
-        result = LoonflowApiCall().api_call('put', url, dict(username='lilie', state_id=last_ticket_state_id))
+        ticket_id = 39
+        new_state_id = 4
+        url = '/api/v1.0/tickets/{}/state'.format(ticket_id)
+        result = LoonflowApiCall().api_call('put', url, dict(state_id=new_state_id))
         self.assertEqual(result.get('code'), 0)
 
     def test_alter_ticket_field_value(self):
@@ -143,11 +148,11 @@ class TestTicketView(LoonflowTest):
         :return:
         """
         from apps.ticket.models import TicketRecord
-        last_ticket_obj = TicketRecord.objects.filter(is_deleted=0).order_by('-id').first()
-        last_ticket_id = last_ticket_obj.id
-        last_ticket_title = last_ticket_obj.title
-        url = '/api/v1.0/tickets/{}/fields'.format(last_ticket_id)
-        result = LoonflowApiCall().api_call('patch', url, dict(username='lilie', title=last_ticket_title))
+        ticket_id = 39
+        ticket_obj = TicketRecord.objects.get(id=ticket_id)
+        ticket_title = ticket_obj.title
+        url = '/api/v1.0/tickets/{}/fields'.format(ticket_id)
+        result = LoonflowApiCall().api_call('patch', url, dict(username='lilie', title='_test'.format(ticket_title)))
         self.assertEqual(result.get('code'), 0)
 
     def test_add_ticket_comment(self):
@@ -156,10 +161,11 @@ class TestTicketView(LoonflowTest):
         :return:
         """
         from apps.ticket.models import TicketRecord
-        last_ticket_obj = TicketRecord.objects.filter(is_deleted=0).order_by('-id').first()
+        ticket_id = 39
+        last_ticket_obj = TicketRecord.objects.get(id=ticket_id)
         last_ticket_id = last_ticket_obj.id
         url = '/api/v1.0/tickets/{}/comments'.format(last_ticket_id)
-        result = LoonflowApiCall().api_call('post', url, dict(username='lilie', suggestion='test for commnet'))
+        result = LoonflowApiCall().api_call('post', url, dict(suggestion='test for commnet'))
         self.assertEqual(result.get('code'), 0)
 
     def get_ticket_list_by_params(self, params):

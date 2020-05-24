@@ -74,44 +74,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-
-    #     ("css", os.path.join(STATIC_ROOT,'css')),
-
-
     ("bower_components", os.path.join(STATIC_ROOT, 'bower_components')),
     ("dist", os.path.join(STATIC_ROOT, 'dist')),
     ("plugins", os.path.join(STATIC_ROOT, 'plugins')),
-
-
-
-    # ("js", os.path.join(STATIC_ROOT, 'js')),
-    # ("image", os.path.join(STATIC_ROOT, 'image')),
-    # ("css", os.path.join(STATIC_ROOT, 'css')),
-    # ("dist", os.path.join(STATIC_ROOT, 'dist')),
-    # ("plugins", os.path.join(STATIC_ROOT, 'plugins')),
-    # ("fonts", os.path.join(STATIC_ROOT, 'fonts')),
-    # ("font-awesome", os.path.join(STATIC_ROOT, 'font-awesome')),
-    # ("img", os.path.join(STATIC_ROOT, 'img')),
-    # ("bootstrap", os.path.join(STATIC_ROOT, 'bootstrap')),
-    # ("apps/ueditor", os.path.join(STATIC_ROOT, 'ueditor')),
-    # ("echarts", os.path.join(STATIC_ROOT, 'echarts')),
-    # ("ueditor", os.path.join(STATIC_ROOT, 'ueditor')),
-    # ("ventor", os.path.join(STATIC_ROOT, 'ventor')),
 )
 
 WSGI_APPLICATION = 'loonflow.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
-
-
-# Password validation
-# https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -129,25 +98,18 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.0/topics/i18n/
-
 LANGUAGE_CODE = 'zh-hans'
 
 TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-# USE_L10N = True
 USE_L10N = False
 
 USE_TZ = False
 
 DATETIME_FORMAT = 'Y-m-d H:i:s'
 TIME_FORMAT = 'H:i:s'
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 
 LOGIN_URL = '/account/login/'

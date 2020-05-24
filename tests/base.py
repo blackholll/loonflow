@@ -1,28 +1,16 @@
-from django.test import TestCase
-
-
-class LoonflowTest(TestCase):
-    def setUp(self):
-        # print('start test')
-        pass
-
-    def tearDown(self):
-        # print('end test')
-        pass
-
 
 class LoonflowApiCall(object):
     """
     loonflow api调用
     """
-    def __init__(self):
+    def __init__(self, username='admin'):
         from service.common.common_service import common_service_ins
         flag, msg = common_service_ins.gen_signature('ops')
         if not flag:
-            return dict(code=-1, msg=msg)
+            pass
         self.signature = msg.get('signature', '')
         self.timestamp = msg.get('timestamp', '')
-        self.headers = {'HTTP_SIGNATURE': self.signature, 'HTTP_TIMESTAMP': self.timestamp, 'HTTP_APPNAME': 'ops', 'HTTP_USERNAME':'lilei'}
+        self.headers = {'HTTP_SIGNATURE': self.signature, 'HTTP_TIMESTAMP': self.timestamp, 'HTTP_APPNAME': 'ops', 'HTTP_USERNAME':username}
 
     def api_call(self, method, url, params={}):
         import json

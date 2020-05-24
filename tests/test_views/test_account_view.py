@@ -1,9 +1,11 @@
 import json
-from tests.base import LoonflowTest
+from django.test import TestCase
 from django.test.client import Client
 
 
-class TestAccountView(LoonflowTest):
+class TestAccountView(TestCase):
+    fixtures = ['accounts.json']
+
     def test_get_user_list_without_login(self):
         """
         获取用户列表，不登录

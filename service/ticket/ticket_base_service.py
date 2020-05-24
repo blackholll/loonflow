@@ -270,7 +270,7 @@ class TicketBaseService(BaseService):
         # 生成流水号
         flag, result = cls.gen_ticket_sn(app_name)
         if not flag:
-            return False, msg
+            return False, result
         ticket_sn = result.get('ticket_sn')
 
         # 新增工单基础表数据

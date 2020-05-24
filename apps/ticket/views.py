@@ -95,7 +95,7 @@ class TicketListView(LoonBaseView):
             code, data = 0, {'ticket_id': result.get('new_ticket_id')}
         else:
             code, data = -1, {}
-        return api_response(code, msg, data)
+        return api_response(code, result, data)
 
 
 class TicketView(LoonBaseView):

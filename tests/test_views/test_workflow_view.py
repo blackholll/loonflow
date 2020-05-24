@@ -1,10 +1,11 @@
 import json
-from tests.base import LoonflowTest
+from django.test import TestCase
 from tests.base import LoonflowApiCall
-from service.common.constant_service import constant_service_ins
 
 
-class TestWorkflowView(LoonflowTest):
+class TestWorkflowView(TestCase):
+    fixtures = ['accounts.json', 'workflows.json']
+
     def test_get_workflow_list_without_arg(self):
         """
         获取工作流列表
@@ -20,10 +21,8 @@ class TestWorkflowView(LoonflowTest):
         获取工作流初始状态
         :return:
         """
-        from apps.workflow.models import Workflow
-        last_workflow_id = Workflow.objects.filter(is_deleted=0).order_by('-id').first().id
-        last_workflow_id=1
-        url = '/api/v1.0/workflows/{}/init_state'.format(last_workflow_id)
+        workflow_id = 1
+        url = '/api/v1.0/workflows/{}/init_state'.format(workflow_id)
         response_content_dict = LoonflowApiCall().api_call('get', url)
         self.assertEqual(response_content_dict.get('code'), 0)
 
@@ -32,9 +31,8 @@ class TestWorkflowView(LoonflowTest):
         获取工作流状态列表
         :return:
         """
-        from apps.workflow.models import Workflow
-        last_workflow_id = Workflow.objects.filter(is_deleted=0).order_by('-id').first().id
-        url = '/api/v1.0/workflows/{}/states'.format(last_workflow_id)
+        workflow_id = 1
+        url = '/api/v1.0/workflows/{}/states'.format(workflow_id)
         response_content_dict = LoonflowApiCall().api_call('get', url)
         self.assertEqual(response_content_dict.get('code'), 0)
 
@@ -43,8 +41,7 @@ class TestWorkflowView(LoonflowTest):
         获取状态详情
         :return:
         """
-        from apps.workflow.models import State
-        last_state_id = State.objects.filter(is_deleted=0).order_by('-id').first().id
-        url = '/api/v1.0/workflows/states/{}'.format(last_state_id)
+        state_id = 3
+        url = '/api/v1.0/workflows/states/{}'.format(state_id)
         response_content_dict = LoonflowApiCall().api_call('get', url)
         self.assertEqual(response_content_dict.get('code'), 0)

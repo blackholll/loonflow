@@ -1,2 +1,3 @@
 #requrements/test.txt
 -r common.txt
+mock==4.0.2
