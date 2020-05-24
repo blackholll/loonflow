@@ -24,16 +24,22 @@ LOONFLOW 分为两部分:
 - 提供http api供各个系统(如果oa、cmdb、运维系统、客服系统)的后端调用以完成各自系统定制化的工单需求
 
 ## 效果图/动画
-loonflow只提供后端调用api和工作流的配置后台，感谢youshutong2080(使用vue.js)
-[shutongFlow](https://github.com/youshutong2080/shutongFlow) 和jimmy201602(使用bootstrap,  [workflowdemo](https://github.com/jimmy201602/workflowdemo)
-分别帮忙写的一个调用方demo,**==当前调用方demo的功能还比较简单,实际使用需要根据自己的需求做适当改造==** ,欢迎大家在使用过程中提pr优化demo的功能.下面是一些效果图和动画
+loonflow只提供后端调用api和工作流的配置后台，感谢以下调用方demo项目:
+技术栈 | 项目地址 | 作者联系方式 | 说明
+---|---|---|---
+vue.js + django | https://github.com/youshutong2080/shutongFlow | qq群中,qq号: 343306138 |支持PC端浏览器中使用, 功能比较简单,实际使用需要根据自己的需求做适当改造,欢迎提交pr
+bootstrap + django | https://github.com/jimmy201602/workflowdemo | qq群中,qq号: 313484953|支持PC端浏览器中使用, 功能比较简单,实际使用需要根据自己的需求做适当改造,欢迎提交pr
+vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043 | 支持在钉钉中使用，迭代中，欢迎提交pr
 
-#### vue版本demo
+
+下面是一些效果图和动画
+
+#### vue版本(shutongflow)demo
 ![create_ticket](/docs/images/create-ticket.png)
 ![todo_list](/docs/images/todo-list.png)
 ![detail_ticket](/docs/images/detail-ticket.png)
 
-### bootstrap版本demo
+### bootstrap版本(workflowdemo)demo
 ![bootstrap_demo](/docs/images/jimmy201602_demo.gif)
 另外boostrap版本还提供了docker镜像，供新人快速部署(仅供查看效果图，不要直接用于生产环境):https://hub.docker.com/r/webterminal/workflowdemo/
 

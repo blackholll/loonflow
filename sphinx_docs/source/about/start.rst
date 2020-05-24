@@ -151,20 +151,20 @@
 ::
 
   cd /opt && yum install -y git && git clone -b v1.0.3 https://gitee.com/shihowcom/loonflow_ro loonflow
+
   # 在如下文件完成必要配置，重点是ip
   vi loonflow/docker_compose_deploy/loonflow_shutongflow/config.json
-  cd loonflow && python ./docker_compose_deploy/loonflow_shutongflow/setup_all.py
-
   # 各参数含义如下
   {
-  "ip": "117.33.233.74",  # 你的服务器的地址
-  "is_need_setup_mysql": true,  # 是否希望程序同时安装mysql,  如果需要则设置为true。 建议事先准备好mysql(此处设置为false)
-  "mysql": {
-    "root_password": "mySql12#4,.De",  # 如果事先准备好了mysql,此处设置你准备的mysql的密码，否则保持不变
-    "host": "127.0.0.1",  # 如果事先准备好了mysql,此处设置你准备的mysql的地址，否则保持不变
-    "port": "3306"   # 如果事先准备好了mysql,此处设置你准备的mysql的端口，否则保持不变
+    "ip": "117.33.233.74",  # 你的centos7服务器的地址
+    "mysql": {
+      "root_password": "mySql12#4,.De",  # mysql的root密码
+    }
   }
-}
+
+  # 启动安装
+  cd loonflow && python ./docker_compose_deploy/loonflow_shutongflow/setup_all.py
+
 
 访问
 >>>>>>
