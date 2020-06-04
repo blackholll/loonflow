@@ -23,11 +23,6 @@ class TicketRecord(BaseModel):
     multi_all_person = models.CharField('全部处理的结果', max_length=1000, default='{}', blank=True, help_text='需要当前状态处理人全部处理时实际的处理结果，json格式')
 
 
-    class Meta:
-        verbose_name = '工单记录'
-        verbose_name_plural = '工单记录'
-
-
 class TicketFlowLog(BaseModel):
     """
     工单流转日志
@@ -41,11 +36,6 @@ class TicketFlowLog(BaseModel):
     state_id = models.IntegerField('当前状态id', default=0, blank=True)
     intervene_type_id = models.IntegerField('干预类型', default=0, help_text='见service.constant_service中定义')
     ticket_data = models.CharField('工单数据', max_length=10000, default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
-
-
-    class Meta:
-        verbose_name = '工单流转日志'
-        verbose_name_plural = '工单流转日志'
 
 
 class TicketCustomField(BaseModel):
@@ -73,11 +63,6 @@ class TicketCustomField(BaseModel):
     text_value = models.TextField('文本值', default='', blank=True)
     username_value = models.CharField('用户名', max_length=50, default='', blank=True)
     multi_username_value = models.CharField('多选用户名', max_length=1000, default='', blank=True)
-
-
-    class Meta:
-        verbose_name = '工单自定义字段'
-        verbose_name_plural = '工单自定义字段'
 
 
 class TicketUser(BaseModel):

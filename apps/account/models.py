@@ -18,10 +18,6 @@ class LoonDept(BaseModel):
     gmt_modified = models.DateTimeField('更新时间', auto_now=True)
     is_deleted = models.BooleanField('已删除', default=False)
 
-    class Meta:
-        verbose_name = '部门'
-        verbose_name_plural = '部门'
-
     def get_dict(self):
         dept_dict_info = super().get_dict()
         creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()
@@ -97,10 +93,6 @@ class LoonRole(BaseModel):
     gmt_modified = models.DateTimeField('更新时间', auto_now=True)
     is_deleted = models.BooleanField('已删除', default=False)
 
-    class Meta:
-        verbose_name = '角色'
-        verbose_name_plural = '角色'
-
     def get_dict(self):
         role_dict_info = super().get_dict()
         creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()
@@ -137,7 +129,6 @@ class LoonUser(AbstractBaseUser):
     alias = models.CharField('姓名', max_length=50, default='')
     email = models.EmailField('邮箱', max_length=255)
     phone = models.CharField('电话', max_length=13, default='')
-    dept_id = models.IntegerField('部门id', default=0)
     is_active = models.BooleanField('已激活', default=True)
     is_admin = models.BooleanField('超级管理员', default=False)
     is_workflow_admin = models.BooleanField('工作流管理员', default=False)  # 只可以操作自己有权限的工作流、工单
@@ -216,9 +207,12 @@ class LoonUser(AbstractBaseUser):
         return json.dumps(dict_result)
 
 
-    class Meta:
-        verbose_name = '用户'
-        verbose_name_plural = '用户'
+class LoonUserDept(BaseModel):
+    """
+    用户部门
+    """
+    user_id = models.IntegerField('用户id')
+    dept_id = models.IntegerField('部门id')
 
 
 class LoonUserRole(BaseModel):
@@ -227,10 +221,6 @@ class LoonUserRole(BaseModel):
     """
     user_id = models.IntegerField('用户id')
     role_id = models.IntegerField('角色id')
-
-    class Meta:
-        verbose_name = '用户角色'
-        verbose_name_plural = '用户角色'
 
 
 class AppToken(BaseModel):
@@ -242,10 +232,6 @@ class AppToken(BaseModel):
     workflow_ids = models.CharField('工作流权限id', default='', blank=True, max_length=2000, help_text='有权限的工作流ids,逗号隔开,如1,2,3')
     ticket_sn_prefix = models.CharField('工单流水号前缀', default='loonflow', max_length=20, help_text='工单流水号前缀，如设置为loonflow,则创建的工单的流水号为loonflow_201805130013')
     
-    class Meta:
-        verbose_name = '调用token'
-        verbose_name_plural = '调用token'
-
     def get_dict(self):
         role_dict_info = super().get_dict()
         creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()

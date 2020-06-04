@@ -17,10 +17,6 @@ class Workflow(BaseModel):
     title_template = models.CharField('标题模板', max_length=50, default='你有一个待办工单:{title}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}')
     content_template = models.CharField('内容模板', max_length=1000, default='标题:{title}, 创建时间:{gmt_created}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}')
 
-    class Meta:
-        verbose_name = '工作流'
-        verbose_name_plural = '工作流'
-
 
 class WorkflowAdmin(BaseModel):
     """
@@ -49,10 +45,6 @@ class State(BaseModel):
     state_field_str = models.TextField('表单字段', default='{}', help_text='json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"created_at":1,"title":2, "sn":1}, 内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')  # json格式存储,包括读写属性1：只读，2：必填，3：可选，4：不显示, 字典的字典
     label = models.CharField('状态标签', max_length=1000, default='{}', help_text='json格式，由调用方根据实际定制需求自行确定,如状态下需要显示哪些前端组件:{"components":[{"AppList":1, "ProjectList":7}]}')
 
-    class Meta:
-        verbose_name = '工作流状态'
-        verbose_name_plural = '工作流状态'
-
 
 class Transition(BaseModel):
     """
@@ -70,10 +62,6 @@ class Transition(BaseModel):
     alert_enable = models.BooleanField('点击弹窗提示', default=False)
     alert_text = models.CharField('弹窗内容', max_length=100, default='', blank=True)
 
-    class Meta:
-        verbose_name = '工作流流转'
-        verbose_name_plural = '工作流流转'
-
 
 class CustomField(BaseModel):
     """自定义字段, 设定某个工作流有哪些自定义字段"""
@@ -90,10 +78,6 @@ class CustomField(BaseModel):
     field_choice = models.CharField('radio、checkbox、select的选项', max_length=1000, default='{}', blank=True,
                                     help_text='radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{"1":"中国", "2":"美国"},注意数字也需要引号')
     label = models.CharField('标签', max_length=100, blank=True, default='{}', help_text='自定义标签，json格式，调用方可根据标签自行处理特殊场景逻辑，loonflow只保存文本内容')
-   
-    class Meta:
-        verbose_name = '工作流自定义字段'
-        verbose_name_plural = '工作流自定义字段'
 
 
 def upload_workflow_script(instance, filename):
@@ -119,11 +103,6 @@ class WorkflowScript(BaseModel):
     saved_name = models.FileField('存储的文件名', upload_to=upload_workflow_script, help_text='请上传python脚本,media/workflow_script/demo_script.py为示例脚本，请参考编写')
     description = models.CharField('描述', max_length=100, null=True, blank=True)
     is_active = models.BooleanField('可用', default=True, help_text='此处可用时，才允许实际执行')
-
-  
-    class Meta:
-        verbose_name = '工作流脚本'
-        verbose_name_plural = '工作流脚本'
 
 
 def upload_notice_script(instance, filename):

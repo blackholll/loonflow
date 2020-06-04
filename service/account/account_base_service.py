@@ -782,7 +782,6 @@ class AccountBaseService(BaseService):
         else:
             return False, 'user is not admin or workflow admin'
 
-
     @classmethod
     @auto_log
     def reset_password(cls, username: str='', user_id: int=0)-> tuple:
