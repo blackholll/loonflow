@@ -27,7 +27,6 @@ class ConstantService(BaseService):
         self.PARTICIPANT_TYPE_ROBOT = 6  # 机器人，脚本
         self.PARTICIPANT_TYPE_FIELD = 7  # 工单字段(用户名类型的)
         self.PARTICIPANT_TYPE_PARENT_FIELD = 8  # 父工单字段(用户名类型的)
-        self.PARTICIPANT_TYPE_MULTI_ALL = 9  # 多人全部处理(处理人为多个，且每个人都需要处理)，当状态处理人配置为全部处理，且处理人数大于1时，实际的处理人类型则为此
         self.PARTICIPANT_TYPE_HOOK = 10  # hook方式，当工单状态叨叨处理人类型配置为kook的状态时，loonflow将触发一个hook请求，被请求方可以执行有些自动化操作然后回调loonflow,
 
         self.TRANSITION_TYPE_COMMON = 1  # 常规流转

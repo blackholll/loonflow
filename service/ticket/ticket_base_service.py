@@ -921,8 +921,7 @@ class TicketBaseService(BaseService):
                 return True, dict(permission=False, need_accept=False, in_add_node=False,
                                   msg='not current participant, no permission')
                 # return None, '非当前处理人，无权处理'
-        elif participant_type_id in [constant_service_ins.PARTICIPANT_TYPE_MULTI,
-                                     constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL]:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             if username not in participant.split(','):
                 return True, dict(permission=False, need_accept=False, in_add_node=False,
                                   msg='not crrent participant, no permission')
@@ -1126,13 +1125,14 @@ class TicketBaseService(BaseService):
                     flag, result = common_service_ins.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
                     destination_participant = ','.join(result.get('result_list'))
                     destination_state_id = ticket_obj.state_id  # 保持原状态
+                    flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
                     multi_all_person = json.dumps(multi_all_person_dict)
 
         else:
             # 当前处理人类型非全部处理
-            flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
-            if not destination_state:
-                return False, msg
+            # flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
+            # if not destination_state:
+            #     return False, msg
             # 获取目标状态的信息
             flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_id,
                                                                            ticket_req_dict=request_data_dict)
@@ -1140,14 +1140,9 @@ class TicketBaseService(BaseService):
                 return False, participant_info
             destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
             destination_participant = participant_info.get('destination_participant', '')
-            multi_all_person_dict = {}
-            if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL:
-                for key in destination_participant.split(','):
-                    multi_all_person_dict[key] = {}
-            multi_all_person = json.dumps(multi_all_person_dict)
-            # 如果开启了了记忆最后处理人，那么处理人为之前的处理人
-            if destination_state.remember_last_man_enable and \
-                    ticket_obj.participant_type_id != constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL:
+            multi_all_person = participant_info.get('multi_all_person', '')
+            # 如果开启了了记忆最后处理人,且当前状态非全部处理中，那么处理人为之前的处理人
+            if destination_state.remember_last_man_enable and multi_all_person == '{}':
                 # 获取此状态的最后处理人
                 flag, result = cls.get_ticket_state_last_man(ticket_id, destination_state.id)
                 if not flag and result.get('last_man'):
@@ -2202,8 +2197,7 @@ class TicketBaseService(BaseService):
 
         if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
             participant_username_list = [ticket_obj.participant]
-        elif ticket_obj.participant_type_id in (
-                constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL):
+        elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             participant_username_list = ticket_obj.participant.split(',')
         elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
             flag, participant_username_list = account_base_service_ins.get_role_username_list(ticket_obj.participant)
