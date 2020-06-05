@@ -71,7 +71,7 @@ class ConstantService(BaseService):
 
         self.TICKET_BASE_FIELD_LIST = ['id', 'sn', 'title', 'state_id', 'parent_ticket_id', 'parent_ticket_state_id',
                                        'participant_type_id', 'participant', 'workflow_id', 'ticket_type_id',
-                                       'creator', 'is_deleted', 'gmt_created', 'gmt_modified']
+                                       'creator', 'is_deleted', 'gmt_created', 'gmt_modified', 'script_run_last_result']
 
         self.FIELD_VALUE_ENUM = {
                         self.FIELD_TYPE_STR: 'char_value',
