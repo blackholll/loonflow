@@ -277,7 +277,7 @@
                                     <label for="stateParticipant" class="col-sm-3 control-label">参与人</label> 
                                     <div class="col-sm-9">
                                       <input type="text" class="form-control" id="stateParticipant" placeholder="请根据参与人类型填写相应的参与人">
-                                      <p class="help-block">个人(username)\多人(多个username以,隔开\部门(部门id，多个部门以逗号隔开)\角色(角色id)\变量(creator:工单的创建人,creator_tl:工单创建人的TL)\脚本记录的id等，需要在此状态创建子工单时需要设置此处处理人为loonrobot。 当处理人类型为hook方式时,处理人需要按照如下规则配置
+                                      <p class="help-block">个人(username)\多人(多个username以,隔开\部门(部门id，多个部门以逗号隔开)\角色(角色id)\变量(creator:工单的创建人,creator_tl:工单创建人的TL,多个变量逗号隔开)\脚本记录的id\工单字段(逗号隔开多个)\父工单字段(逗号隔开多个)等，需要在此状态创建子工单时需要设置此处处理人为loonrobot。 当处理人类型为hook方式时,处理人需要按照如下规则配置
                                       {"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true, "extra_info":"xxxx"}。详见文档</p>
 
                                     </div>

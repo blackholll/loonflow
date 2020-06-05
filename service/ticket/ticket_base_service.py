@@ -1936,49 +1936,68 @@ class TicketBaseService(BaseService):
         if participant_type_id == constant_service_ins.PARTICIPANT_TYPE_FIELD:
             if not ticket_id:
                 # ticket_id 不存在，则为新建工单，从请求的数据中获取
-                destination_participant = ticket_req_dict.get(participant, '')
+                participant_list = participant.split(',')
+                destination_participant_list = []
+                for participant0 in participant_list:
+                    destination_participant_list.append(ticket_req_dict.get(participant0, ''))
+
+                destination_participant = ','.join(destination_participant_list)
             else:
                 # 工单存在，先判断是否有修改此字段的权限，如果有且字段值有提供，则取提交的值
                 flag, field_info = cls.get_state_field_info(ticket_obj.state_id)
                 update_field_list = field_info.get('update_field_list')
-                if participant in update_field_list and ticket_req_dict.get(participant):
-                    # 请求数据中包含需要的字段则从请求数据中获取
-                    destination_participant = ticket_req_dict.get(participant)
-                else:
-                    # 处理工单时未提供字段的值,则从工单当前字段值中获取
-                    flag, result = cls.get_ticket_field_value(ticket_id, participant)
-                    if flag:
-                        destination_participant = result.get('value')
+
+                flag, ticket_value_info = cls.get_ticket_all_field_value(ticket_id)
+
+                participant_list = participant.split(',')
+                destination_participant_list = []
+                for participant0 in participant_list:
+
+                    if participant in update_field_list and ticket_req_dict.get(participant):
+                        # 请求数据中包含需要的字段则从请求数据中获取
+                        destination_participant_list.append(ticket_req_dict.get(participant))
                     else:
-                        destination_participant = ''
+                        # 处理工单时未提供字段的值,则从工单当前字段值中获取
+                        destination_participant_list.append(ticket_value_info.get(participant0))
+                destination_participant = ','.join(destination_participant_list)
 
             destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-            if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PARENT_FIELD:
-            destination_participant, msg = cls.get_ticket_field_value(parent_ticket_id, participant)
+
+            flag, ticket_value_info = cls.get_ticket_all_field_value(parent_ticket_id)
+
+            participant_list = participant.split(',')
+            destination_participant_list = []
+            for participant0 in participant_list:
+                destination_participant_list.append(ticket_value_info.get(participant0))
+            destination_participant = ','.join(destination_participant_list)
             destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-            if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_VARIABLE:
-            if participant == 'creator':
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-                destination_participant = creator
-            elif participant == 'creator_tl':
-                # 获取用户的tl或审批人(优先审批人)
-                flag, approver = account_base_service_ins.get_user_dept_approver(creator)
-                if flag is False:
-                    return False, approver
-
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-                if len(approver.split(',')) > 1:
-                    destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
-                destination_participant = approver
+            participant_list = participant.split(',')
+            destination_participant_list = []
+            for participant0 in participant_list:
+                if participant0 == 'creator':
+                    destination_participant_list.append(creator)
+                elif participant0 == 'creator_tl':
+                    flag, approver = account_base_service_ins.get_user_dept_approver(creator)
+                    if flag is False:
+                        return False, approver
+                    destination_participant_list.append(approver)
+            destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+            destination_participant = ','.join(destination_participant_list)
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             destination_participant = '***'  # 敏感数据，不保存工单基础表中
+
+        # 参与人去重复+类型修正
+        if participant_type_id != constant_service_ins.PARTICIPANT_TYPE_HOOK:
+            destination_participant_list_new = destination_participant.split(',')
+            destination_participant_list_new = list(set(destination_participant_list_new))
+            if len(destination_participant_list_new) > 1:
+                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
+            destination_participant = ','.join(destination_participant_list_new)
 
         if destination_participant_type_id in (
                 constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_DEPT,
