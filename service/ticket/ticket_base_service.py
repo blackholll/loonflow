@@ -1953,9 +1953,9 @@ class TicketBaseService(BaseService):
                 destination_participant_list = []
                 for participant0 in participant_list:
 
-                    if participant in update_field_list and ticket_req_dict.get(participant):
+                    if participant0 in update_field_list and ticket_req_dict.get(participant0):
                         # 请求数据中包含需要的字段则从请求数据中获取
-                        destination_participant_list.append(ticket_req_dict.get(participant))
+                        destination_participant_list.append(ticket_req_dict.get(participant0))
                     else:
                         # 处理工单时未提供字段的值,则从工单当前字段值中获取
                         destination_participant_list.append(ticket_value_info.get(participant0))
