@@ -42,7 +42,7 @@ function showRoleUsers(role_id, name){
       { "data": "alias" },
     {
       render: function (data, type, full) {
-        var delRoleButton = '<a onclick="delRoleUser(' + full.id + ')' + '">删除</a>'
+        var delRoleButton = '<a onclick="delRoleUser(' + role_id + ',' + full.id + ')' + '">删除</a>'
         return ('<div>' + delRoleButton + '</div>')
       }
     }
@@ -131,6 +131,53 @@ function submitRole() {
     });
   }
 }
+
+function delRoleUser(roleId, userId) {
+    swal({
+        title: "是否真的要删除该用户?",
+        text: "是否真的要删除该用户！！！",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+    })
+        .then(function (willDelete) {
+            if (willDelete) {
+                // 删除操作
+                $.ajax({
+                    type: "DELETE",
+                    url: "/api/v1.0/accounts/roles/" + roleId + "/users/" + userId,
+                    cache: false,  //禁用缓存
+                    dataType: "json",
+                    contentType: "application/json; charset=utf-8",
+                    success: function (result) {
+                        if (result.code === 0) {
+                            // 刷新数据
+                            $('#role_user_table').dataTable()._fnAjaxUpdate();
+                            if (result.code === 0) {
+                                swal({
+                                    title: "删除成功!",
+                                    text: "2s自动关闭",
+                                    icon: "success",
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                })
+                            } else {
+                                swal({
+                                    title: "删除失败:" + result.msg,
+                                    text: "2s自动关闭",
+                                    icon: "error",
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                })
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        )
+}
+
 
 function delRole(roleId) {
   swal({
