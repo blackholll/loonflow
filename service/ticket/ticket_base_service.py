@@ -1024,7 +1024,7 @@ class TicketBaseService(BaseService):
             transition_dict_list = [dict(transition_id=0, transition_name='接单', field_require_check=False,
                                          is_accept=True, in_add_node=False, alert_enable=False, alert_text='',
                                          attribute_type_id=constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER)]
-            return transition_dict_list, ''
+            return True, dict(transition_dict_list=transition_dict_list)
 
         flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(ticket_obj.state_id)
         transition_dict_list = []
