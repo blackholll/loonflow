@@ -14,7 +14,7 @@ class TicketRecord(BaseModel):
     parent_ticket_id = models.IntegerField('父工单id', default=0, help_text='与ticket.TicketRecord关联')
     parent_ticket_state_id = models.IntegerField('对应父工单状态id', default=0, help_text='与workflow.State关联,子工单是关联到父工单的某个状态下的')
     participant_type_id = models.IntegerField('当前处理人类型', default=0, help_text='0.无处理人,1.个人,2.多人,3.部门,4.角色')
-    participant = models.CharField('当前处理人', max_length=100, default='', blank=True, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\脚本文件名等')
+    participant = models.CharField('当前处理人', max_length=1000, default='', blank=True, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\脚本文件名等')
     relation = models.CharField('工单关联人', max_length=1000, default='', blank=True, help_text='工单流转过程中将保存所有相关的人(包括创建人、曾经的待处理人)，用于查询')
     in_add_node = models.BooleanField('加签状态中', default=False, help_text='是否处于加签状态下')
     add_node_man = models.CharField('加签人', max_length=50, default='', blank=True, help_text='加签操作的人，工单当前处理人处理完成后会回到该处理人，当处于加签状态下才有效')
@@ -34,7 +34,7 @@ class TicketFlowLog(BaseModel):
     """
     ticket_id = models.IntegerField('工单id')
     transition_id = models.IntegerField('流转id', help_text='与worklow.Transition关联， 为0时表示认为干预的操作')
-    suggestion = models.CharField('处理意见', max_length=1000, default='', blank=True)
+    suggestion = models.CharField('处理意见', max_length=10000, default='', blank=True)
 
     participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
     participant = models.CharField('处理人', max_length=50, default='', blank=True)
