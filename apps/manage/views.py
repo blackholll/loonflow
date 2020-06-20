@@ -89,7 +89,15 @@ def ticket_manage_detail_view(request, ticket_id):
     :param request:
     :return:
     """
-    return render(request, 'ticket/ticket_manage_detail.html', {'active_nav': 'ticket_manage'})
+    # 获取workflow_id
+    from apps.ticket.models import TicketRecord
+    ticket_queryset = TicketRecord.objects.filter(id=ticket_id,is_deleted=0).all()
+    if ticket_queryset:
+        workflow_id = ticket_queryset[0].workflow_id
+    else:
+        workflow_id = 0
+
+    return render(request, 'ticket/ticket_manage_detail.html', {'active_nav': 'ticket_manage', 'workflow_id': workflow_id})
 
 
 @login_required
