@@ -1725,6 +1725,9 @@ class TicketBaseService(BaseService):
         ticket_obj.in_add_node = False
         ticket_obj.add_node_man = ''
         ticket_obj.save()
+        # 更新关系人表
+        cls.update_ticket_relation(ticket_id, ticket_obj.participant)
+
         # add flow log
         flag, result = cls.get_ticket_all_field_value_json(ticket_id)
         if flag is False:
