@@ -7,7 +7,7 @@ WORKDIR /opt
 # RUN git clone https://github.com/blackholll/loonflow.git
 RUN git clone https://gitee.com/shihowcom/loonflow_ro
 WORKDIR /opt/loonflow_ro
-RUN git checkout r1.0.8
+RUN git checkout r1.0.9
 WORKDIR /opt
 RUN mv loonflow_ro loonflow
 WORKDIR /opt/loonflow/requirements

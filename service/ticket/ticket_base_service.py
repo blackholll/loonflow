@@ -1112,7 +1112,7 @@ class TicketBaseService(BaseService):
                 has_all_same_value, msg = common_service_ins.check_dict_has_all_same_value(multi_all_person_dict)
                 if has_all_same_value:
                     # 所有人处理的transition都一致,则工单进入下个状态
-                    flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id,
+                    flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_id,
                                                                                    ticket_req_dict=request_data_dict)
                     if not flag:
                         return False, participant_info

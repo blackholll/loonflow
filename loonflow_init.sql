@@ -468,7 +468,7 @@ CREATE TABLE `workflow_state` (
   `order_id` int(11) NOT NULL DEFAULT '0' COMMENT '顺序id',
   `type_id` int(11) NOT NULL DEFAULT '0' COMMENT '类型id',
   `participant_type_id` int(11) NOT NULL DEFAULT '0' COMMENT '参与人类型id',
-  `participant` varchar(100) NOT NULL DEFAULT '' COMMENT '参与人',
+  `participant` varchar(1000) NOT NULL DEFAULT '' COMMENT '参与人',
   `distribute_type_id` int(11) NOT NULL DEFAULT '0' COMMENT '分配类型id',
   `state_field_str` varchar(1000) NOT NULL DEFAULT '{}' COMMENT '状态表单字段',
   `label` varchar(1000) NOT NULL DEFAULT '{}' COMMENT '状态表单字段',
