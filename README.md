@@ -38,23 +38,23 @@ vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043
 下面是一些效果图和动画
 
 #### vue版本(shutongflow)demo
-![create_ticket](/docs/images/create-ticket.png)
-![todo_list](/docs/images/todo-list.png)
-![detail_ticket](/docs/images/detail-ticket.png)
+![create_ticket](/static/images/create-ticket.png)
+![todo_list](/static/images/todo-list.png)
+![detail_ticket](/static/images/detail-ticket.png)
 
 ### bootstrap版本(workflowdemo)demo
-![bootstrap_demo](/docs/images/jimmy201602_demo.gif)
+![bootstrap_demo](/static/images/jimmy201602_demo.gif)
 另外boostrap版本还提供了docker镜像，供新人快速部署(仅供查看效果图，不要直接用于生产环境):https://hub.docker.com/r/webterminal/workflowdemo/
 
 ### 管理后台
-![user_manage](/docs/images/user_manage.png)
-![workflow_list](/docs/images/workflow_list.png)
-![workflow_edit](/docs/images/workflow_edit.png)
-![customfield](/docs/images/workflow_config_detail.png)
-![flowchart](/docs/images/flowchart.png)
+![user_manage](/static/images/user_manage.png)
+![workflow_list](/static/images/workflow_list.png)
+![workflow_edit](/static/images/workflow_edit.png)
+![customfield](/static/images/workflow_config_detail.png)
+![flowchart](/static/images/flowchart.png)
 
-![ticket_manage](/docs/images/ticket_manage.png)
-![ticket_manage](/docs/images/ticket_manage_detail.png)
+![ticket_manage](/static/images/ticket_manage.png)
+![ticket_manage](/static/images/ticket_manage_detail.png)
 
 ## 使用文档
 [使用文档](https://loonflow.readthedocs.io)
@@ -68,4 +68,4 @@ vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043
 # 欢迎捐助
 您的支持是我最大的动力,欢迎支付宝扫码捐助
 
-![donation_code](/docs/images/donation_code.png)
+![donation_code](/static/images/donation_code.png)
