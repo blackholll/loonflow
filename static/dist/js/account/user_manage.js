@@ -1,7 +1,13 @@
 document.write("<script language=javascript src='/static/dist/js/common/useSelect2.js'></script>")
 $("#UserModal").on("hidden.bs.modal", function() {
     document.getElementById("user_form").reset(); //此操作无法清空select2中的内容
-    $("#userDeptId").val('').trigger('change')
+    $("#userDeptId").val('').trigger('change');
+    $('#passwordGroup').show();
+    $("#commonUser").attr("checked", true);
+    $("#workflowAdmin").attr("checked", false);
+    $("#superAdmin").attr("checked", false);
+    $("#isActive").attr("checked", true);
+
   });
 
 function showUserRole(user_id, username){
@@ -66,29 +72,46 @@ function makeDeptOption(data) {
 }
 
 function showEditUserForm(data){
+  console.log(data);
   $("#userName").val(data.username);
   $("#userAlias").val(data.alias);
   $("#userEmail").val(data.email);
   $("#userPhone").val(data.phone);
+  var user_dept_info_list = data.user_dept_info_list;
+  var user_dept_id_list = []
+  user_dept_info_list.map(function (user_dept_info) {
+    user_dept_id_list.push(String(user_dept_info.id));
+
+  })
   initSelect2Items(
     "/api/v1.0/accounts/depts",
     "#userDeptId",
     makeDeptOption,
-    data.dept_info.dept_id
+    user_dept_id_list
   );
+  if(data.type_id===0){
+    $("#commonUser").attr("checked", true);
+    $("#workflowAdmin").attr("checked", false);
+    $("#superAdmin").attr("checked", false);
 
+  } else if(data.type_id===1){
+    $("#commonUser").attr("checked", false);
+    $("#workflowAdmin").attr("checked", true);
+    $("#superAdmin").attr("checked", false);
+  } else if(data.type_id===2){
+    $("#commonUser").attr("checked", false);
+    $("#workflowAdmin").attr("checked", false);
+    $("#superAdmin").attr("checked", true);
+  }
+  if(data.is_active === true) {
+    $("#isActive").attr("checked", true);
+  } else {
+    $("#isActive").attr("checked", false);
+  }
+
+
+  $("#userType").val(data.type_id);
   $("#userId").val(data.id);
-
-  if (data.is_admin) {
-    $('#isAdmin').attr('checked', true);
-  } else {
-    $('#isAdmin').attr('checked', false);
-  }
-  if (data.is_workflow_admin) {
-    $('#isWorkflowAdmin').attr('checked', true);
-  } else {
-    $('#isWorkflowAdmin').attr('checked', false);
-  }
   $('#passwordGroup').hide(); // 密码不允许直接编辑
   $('#UserModal').modal('show');
 }
@@ -102,29 +125,24 @@ function addUser() {
     var userPhone = $("#userPhone").val();
     var userEmail = $("#userEmail").val();
     var userPassword = $("#userPassword").val();
-    var userDeptId = Number($("#userDeptId").val());
+    var userDeptId = $("#userDeptId").val().join(',');
+    var userTypeId = Number($("input[name='typeId']:checked").val());
+
+
     var isActive = 0
     if ($("#isActive").prop('checked')){
       isActive = 1;
     };
-    var isAdmin = 0
-    if ($("#isAdmin").prop('checked')){
-      isAdmin = 1;
-    };
-    var isWorkflowAdmin = 0
-    if ($("#isWorkflowAdmin").prop('checked')){
-      isWorkflowAdmin = 1;
-    }
+
     paramData = {
       username : userName,
       alias : userAlias,
       phone: userPhone,
       email: userEmail,
       password: userPassword,
-      dept_id: userDeptId,
+      dept_ids: userDeptId,
       is_active: isActive,
-      is_admin: isAdmin,
-      is_workflow_admin: isWorkflowAdmin
+      type_id: userTypeId,
     }
     $.ajax({
       url: "/api/v1.0/accounts/users",
@@ -164,30 +182,25 @@ function editUser() {
     var userAlias = $("#userAlias").val();
     var userPhone = $("#userPhone").val();
     var userEmail = $("#userEmail").val();
-    var userDeptId = Number($("#userDeptId").val());
+    var userDeptId = $("#userDeptId").val().join(',');
     var userId = $('#userId').val();
 
     var isActive = 0
     if ($("#isActive").prop('checked')){
       isActive = 1;
     };
-    var isAdmin = 0
-    if ($("#isAdmin").prop('checked')){
-      isAdmin = 1;
-    };
-    var isWorkflowAdmin = 0
-    if ($("#isWorkflowAdmin").prop('checked')){
-      isWorkflowAdmin = 1;
-    }
+
+    var userDeptId = $("#userDeptId").val().join(',');
+    var userTypeId = Number($("input[name='typeId']:checked").val());
+
     paramData = {
       username : userName,
       alias : userAlias,
       phone: userPhone,
       email: userEmail,
-      dept_id: userDeptId,
+      dept_ids: userDeptId,
       is_active: isActive,
-      is_admin: isAdmin,
-      is_workflow_admin: isWorkflowAdmin
+      type_id: userTypeId
     }
     $.ajax({
       url: "/api/v1.0/accounts/users/" + userId,
@@ -370,10 +383,21 @@ columns: [
     { "data": "alias" },
     { "data": "email" },
     { "data": "phone" },
-    { "data": "dept_info", render:function (data, type, full) {return data.dept_name} },
+    { "data": "user_dept_info_list", render:function (data, type, full) {
+      var dept_name_info_list= [];
+      $.map(data, function(user_dept){
+        dept_name_info_list.push(user_dept.name);
+
+      });
+      if (dept_name_info_list.length !== 0){
+        return dept_name_info_list.join(',');
+      } else {
+        return '';
+      }
+
+       }},
     { "data": "is_active", render:function (data, type, full) {if(data){return "正常"} else{return "未激活"}}},
-    { "data": "is_admin", render:function (data, type, full) {if(data){return "是"} else{return "否"}}},
-    { "data": "is_workflow_admin", render:function (data, type, full) {if(data){return "是"} else{return "否"}}},
+    { "data": "type_id", render:function (data, type, full) {if(data==0){return "普通用户"} else if(data==1){return "工作流管理员"} else if(data==2){return "超级管理员"}}},
     { "data": "creator_info", render:function (data, type, full) {if(data.creator_alias){return data.creator_alias}else{return data.creator_username}}},
     // { "data": "creator_info", render:function (data, type, full) {return data.creator_username}},
     // { "data": "creator_info"},

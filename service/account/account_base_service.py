@@ -3,8 +3,9 @@ import json
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
-from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole
+from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole, LoonUserDept
 from service.base_service import BaseService
+from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
 
 
@@ -371,16 +372,28 @@ class AccountBaseService(BaseService):
             user_result_paginator = paginator.page(paginator.num_pages)
         user_result_object_list = user_result_paginator.object_list
         user_result_object_format_list = []
+        user_id_list = [user_result_object.id for user_result_object in user_result_object_list]
+        # 获取用户所在部门信息
+        user_dept_list = LoonUserDept.objects.filter(user_id__in=user_id_list, is_deleted=0)
+
         for user_result_object in user_result_object_list:
-            user_result_object_format_list.append(user_result_object.get_dict())
+            user_result_format_dict = user_result_object.get_dict()
+            # todo 获取部门信息
+            user_dept_info_list = []
+            for user_dept in user_dept_list:
+                if user_result_object.id == user_dept.user_id:
+                    user_dept_info_list.append(
+                        dict(name=user_dept.dept.name, id=user_dept.dept.id))
+            user_result_format_dict['user_dept_info_list'] = user_dept_info_list
+            user_result_object_format_list.append(user_result_format_dict)
 
         return True, dict(user_result_object_format_list=user_result_object_format_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
     @auto_log
-    def add_user(cls, username: str, alias: str, email: str, phone: str, dept_id: int, is_active: int, is_admin: int,
-                 is_workflow_admin: int, creator: str, password: str='')->tuple:
+    def add_user(cls, username: str, alias: str, email: str, phone: str, dept_ids: str, is_active: int,
+                 type_id: int, creator: str, password: str='')->tuple:
         """
         新增用户， 因为非管理员或者工作流管理员无需登录管理后台，密码字段留空
         add user, not support set password, you need reset password
@@ -388,25 +401,30 @@ class AccountBaseService(BaseService):
         :param alias:
         :param email:
         :param phone:
-        :param dept_id:
+        :param dept_ids: 逗号隔开多个部门
         :param is_active:
-        :param is_admin:
-        :param is_workflow_admin:
+        :param dept_ids:
         :param creator:
         :param password:
         :return:
         """
         password_str = make_password(password, None, 'pbkdf2_sha256')
-        user_obj = LoonUser(username=username, alias=alias, email=email, phone=phone, dept_id=dept_id,
-                            is_active=is_active, is_admin=is_admin, is_workflow_admin=is_workflow_admin,
+        user_obj = LoonUser(username=username, alias=alias, email=email, phone=phone,
+                            is_active=is_active, type_id=type_id,
                             creator=creator, password=password_str)
         user_obj.save()
+
+        queryset_list = []
+        for dept_id in dept_ids.split(','):
+            queryset_list.append(LoonUserDept(user_id=user_obj.id, dept_id=dept_id))
+        LoonUserDept.objects.bulk_create(queryset_list)
+
         return True, dict(user_id=user_obj.id)
 
     @classmethod
     @auto_log
-    def edit_user(cls, user_id: int, username: str, alias: str, email: str, phone: str, dept_id: int, is_active: int,
-                  is_admin: int, is_workflow_admin: int)-> tuple:
+    def edit_user(cls, user_id: int, username: str, alias: str, email: str, phone: str, dept_ids: str, is_active: int,
+                  type_id: int)-> tuple:
         """
         edit user
         :param user_id:
@@ -414,15 +432,29 @@ class AccountBaseService(BaseService):
         :param alias:
         :param email:
         :param phone:
-        :param dept_id:
+        :param dept_ids:
         :param is_active:
-        :param is_admin:
-        :param is_workflow_admin:
+        :param type_id:
         :return:
         """
         user_obj = LoonUser.objects.filter(id=user_id, is_deleted=0)
-        user_obj.update(username=username, alias=alias, email=email, phone=phone, dept_id=dept_id, is_active=is_active,
-                        is_admin=is_admin, is_workflow_admin=is_workflow_admin)
+        user_obj.update(username=username, alias=alias, email=email, phone=phone, is_active=is_active,
+                        type_id=type_id)
+        # todo 更新部门信息
+        dept_id_str_list = dept_ids.split(',')
+        dept_id_int_list = [int(dept_id_str) for dept_id_str in dept_id_str_list]
+        user_id = user_obj.first().id
+        user_dept_queryset = LoonUserDept.objects.filter(user_id=user_id, dept_id__in=dept_id_int_list, is_deleted=0).all()
+        user_dept_id_exist = [user_dept.dept_id for user_dept in user_dept_queryset]
+
+        need_add_list = [dept_id_int for dept_id_int in dept_id_int_list if dept_id_int not in user_dept_id_exist]
+        need_delete_list = [user_dept_id for user_dept_id in user_dept_id_exist if user_dept_id not in dept_id_int_list]
+        add_queryset = []
+        for need_add in need_add_list:
+            add_queryset.append(LoonUserDept(user_id=user_id, dept_id=need_add))
+        LoonUserDept.objects.bulk_create(add_queryset)
+        LoonUserDept.objects.filter(user_id=user_id, dept_id__in=need_delete_list).update(is_deleted=1)
+
         return True, {}
 
     @classmethod
@@ -731,7 +763,7 @@ class AccountBaseService(BaseService):
             return False, 'username or user_id is needed'
         if flag is False:
             return False, result
-        if result.is_admin:
+        if result.type_id == constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN:
             return True, 'user is admin'
         else:
             return False, 'user is not admin'
@@ -753,9 +785,9 @@ class AccountBaseService(BaseService):
             return False, 'username or user_id is needed'
         if flag is False:
             return False, result
-        if result.is_workflow_admin:
+        if result.type_id == constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN:
             return True, 'user is workflow admin'
-        if result.is_admin:
+        if result.type_id == constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN:
             return True, 'user is admin'
         else:
             return False, 'user is not admin or workflow admin'

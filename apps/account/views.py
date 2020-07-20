@@ -21,10 +21,10 @@ class LoonUserView(LoonBaseView):
         'email': And(str, lambda n: n != '', error='alias is needed'),
         Optional('password'): str,
         'phone': str,
-        'dept_id': And(int, lambda n: n > 0),
+        'dept_ids': str,
+        'type_id': int,
         'is_active': Use(bool),
-        'is_admin': Use(bool),
-        'is_workflow_admin': Use(bool),
+
     })
 
     @manage_permission_check('workflow_admin')
@@ -49,7 +49,7 @@ class LoonUserView(LoonBaseView):
                         total=result.get('paginator_info').get('total'))
             code, msg,  = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, '', result
         return api_response(code, msg, data)
 
     @manage_permission_check('admin')
@@ -70,13 +70,11 @@ class LoonUserView(LoonBaseView):
         email = request_data_dict.get('email')
         password = request_data_dict.get('password')
         phone = request_data_dict.get('phone')
-        dept_id = int(request_data_dict.get('dept_id'))
+        dept_ids = request_data_dict.get('dept_ids')
         is_active = request_data_dict.get('is_active')
-        is_admin = request_data_dict.get('is_admin')
-        is_workflow_admin = request_data_dict.get('is_workflow_admin')
+        type_id = request_data_dict.get('type_id')
         creator = request.user.username
-        flag, result = account_base_service_ins.add_user(username, alias, email, phone, dept_id, is_active, is_admin,
-                                                     is_workflow_admin, creator, password)
+        flag, result = account_base_service_ins.add_user(username, alias, email, phone, dept_ids, is_active, type_id, creator, password)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
@@ -92,10 +90,9 @@ class LoonUserDetailView(LoonBaseView):
         'email': And(str, lambda n: n != ''),
         Optional('password'): str,
         'phone': str,
-        'dept_id': And(int, lambda n: n > 0),
+        'dept_ids': str,
         'is_active': Use(bool),
-        'is_admin': Use(bool),
-        'is_workflow_admin': Use(bool),
+        'type_id': int
     })
 
     @manage_permission_check('admin')
@@ -114,12 +111,12 @@ class LoonUserDetailView(LoonBaseView):
         alias = request_data_dict.get('alias')
         email = request_data_dict.get('email')
         phone = request_data_dict.get('phone')
-        dept_id = request_data_dict.get('dept_id')
+        dept_ids = request_data_dict.get('dept_ids')
+        type_id = request_data_dict.get('type_id')
+
         is_active = request_data_dict.get('is_active')
-        is_admin = request_data_dict.get('is_admin')
-        is_workflow_admin = request_data_dict.get('is_workflow_admin')
-        flag, result = account_base_service_ins.edit_user(user_id, username, alias, email, phone, dept_id, is_active,
-                                                      is_admin, is_workflow_admin)
+        flag, result = account_base_service_ins.edit_user(user_id, username, alias, email, phone, dept_ids, is_active,
+                                                          type_id)
         if flag is not False:
             code, msg, data = 0, '', {}
         else:

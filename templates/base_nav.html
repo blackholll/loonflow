@@ -8,7 +8,7 @@
     <!-- Optionally, you can add icons to the links -->
     <li id="overview"><a href="/manage"><i class="fa fa-dashboard"></i> <span>总览</span></a></li>
     <li id="doc"><a href="/manage/doc"><i class="fa fa-book"></i> <span>使用文档</span></a></li>
-    {% if request.user.is_admin %}
+    {% if request.user.type_id == 2 %}
     <li id="userTree" class="treeview">
       <a href="#"><i class="fa fa-user"></i> <span>用户及权限</span>
         <span class="pull-right-container">
@@ -23,10 +23,10 @@
       </ul>
     </li>
     {% endif %}
-    {% if request.user.is_admin or request.user.is_workflow_admin %}
+    {% if request.user.type_id == 1 or request.user.type_id == 2 %}
     <li id="ticket_manage"><a href="/manage/ticket_manage"><i class="fa fa-list-alt"></i> <span>工单管理</span></a></li>
     {% endif %}
-    {% if request.user.is_admin or request.user.is_workflow_admin %}
+    {% if request.user.type_id == 1 or request.user.type_id == 2 %}
     <li id="workflowTree" class="treeview">
       <a href="#"><i class="fa fa-user"></i> <span>工作流管理</span>
         <span class="pull-right-container">
@@ -35,7 +35,7 @@
       </a>
       <ul class="treeview-menu">
         <li id="workflow_manage"><a href="/manage/workflow_manage">工作流配置</a></li>
-        {% if request.user.is_admin %}
+        {% if request.user.type_id == 2 %}
         <li id="run_script_manage"><a href="/manage/run_script_manage">执行脚本</a></li>
         <li id="notice_manage"><a href="/manage/notice_manage">通知管理</a></li>
         {% endif %}

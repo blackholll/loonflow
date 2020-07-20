@@ -37,8 +37,7 @@
                 <th>电话</th>
                 <th>部门</th>
                 <th>状态</th>
-                <th>超级管理员</th>
-                <th>工作流管理员</th>
+                <th>用户类型</th>
                 <th>创建人</th>
                 <th>创建时间</th>
                 <th>操作</th>
@@ -98,9 +97,9 @@
                       </div>
                   </div>
                   <div class="form-group" id="passwordGroup">
-                      <label for="userPassword" class="col-sm-3 control-label">密码</label>
+                      <label for="userPassword" class="col-sm-3 control-label">密码<span style="color:red">*</span></label>
                       <div class="col-sm-9">
-                        <input type="text" class="form-control" id="userPassword" placeholder="仅超级管理员及工作流管理员才需要登录管理后台" disabled>
+                        <input type="password" class="form-control" id="userPassword" >
                       </div>
                   </div>
                   <div class="form-group">
@@ -118,7 +117,7 @@
                   <div class="form-group">
                       <label for="userDeptId" class="col-sm-3 control-label">部门<span style="color:red">*</span></label>
                       <div class="col-sm-9">
-                        <select class="form-control select2" id="userDeptId" data-placeholder="请输入部门名称查询"
+                        <select class="form-control select2" id="userDeptId" multiple data-placeholder="请输入部门名称查询"
                                 style="width: 100%;" required>
                         </select>
                       </div>
@@ -132,23 +131,16 @@
                         <input type="checkbox" id='isActive' checked>
                   </div>
                   </div>
+
                   <div class="form-group">
-                  <div class="checkbox">
-                    <label for="viewPermissionCheck" class="col-sm-3 control-label">超级管理员</label>
-                      <div class="col-sm-9">
-                        <input type="checkbox" id='isAdmin' onchange="adminChange();">
-                        <p class="help-block">开启后拥有loonflow管理后台所有功能的权限, 包括工作流管理员的所有权限</p>
-                      </div>
+                    <div class="radio">
+                      <label for="typeId" class="col-sm-3 control-label" >用户类型</label>
+                    </div>
+                    <div class="col-sm-2"><input type="radio" value="0" id="commonUser" name="typeId" class="minimal-red" checked>普通用户</div>
+                    <div class="col-sm-2"><input type="radio" value="1" id="workflowAdmin" name="typeId" class="minimal-red" >工作流管理员</div>
+                    <div class="col-sm-2"><input type="radio" value="2" id="superAdmin" name="typeId" class="minimal-red" >超级管理员</div>
                   </div>
-                  </div>
-                  <div class="form-group">
-                  <div class="checkbox">
-                      <label for="viewPermissionCheck" class="col-sm-3 control-label">工作流管理员</label>
-                        <div class="col-sm-9">
-                          <input type="checkbox" id='isWorkflowAdmin' onchange="adminChange();">
-                          <p class="help-block">开启后允许登录loonflow管理后台拥有工作流配置及对应有权限工作流的相关管理功能</p>
-                        </div>
-                  </div>
+
                   </div>
                   <div class="callout callout-info">
                     建议通过定时任务程序实现企业账户信息往loonflow的同步(直接操作loonflow的数据库,非管理员用户无需登录loonflow,密码随便设置)。

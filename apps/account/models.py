@@ -116,7 +116,7 @@ class LoonUserManager(BaseUserManager):
 
     def create_superuser(self, email, username, password):
         user = self.create_user(email=self.normalize_email(email), username=username, password=password)
-        user.is_admin = True
+        user.type_id = 2
         user.save(using=self._db)
         return user
 
@@ -130,8 +130,7 @@ class LoonUser(AbstractBaseUser):
     email = models.EmailField('邮箱', max_length=255)
     phone = models.CharField('电话', max_length=13, default='')
     is_active = models.BooleanField('已激活', default=True)
-    is_admin = models.BooleanField('超级管理员', default=False)
-    is_workflow_admin = models.BooleanField('工作流管理员', default=False)  # 只可以操作自己有权限的工作流、工单
+    type_id = models.IntegerField('用户类型', default=0)  # 见service.common.constant_service中定义
 
     creator = models.CharField('创建人', max_length=50)
     gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
@@ -211,8 +210,8 @@ class LoonUserDept(BaseModel):
     """
     用户部门
     """
-    user_id = models.IntegerField('用户id')
-    dept_id = models.IntegerField('部门id')
+    user = models.ForeignKey(LoonUser, to_field='id', db_constraint=False, on_delete=False)
+    dept = models.ForeignKey(LoonDept, to_field='id', db_constraint=False, on_delete=False)
 
 
 class LoonUserRole(BaseModel):
