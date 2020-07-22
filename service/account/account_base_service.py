@@ -166,24 +166,65 @@ class AccountBaseService(BaseService):
                 dept_id_list.append(dept_obj.id)
                 if dept_obj.parent_dept_id:
                     iter_dept(dept_obj.parent_dept_id)
-
-        iter_dept(user_obj.dept_id)
+        user_dept_queryset = LoonUserDept.objects.filter(user_id=user_obj.id, is_deleted=0).all()
+        user_dept_id_list = [user_dept.dept_id for user_dept in user_dept_queryset]
+        for user_dept_id in user_dept_id_list:
+            iter_dept(user_obj.dept_id)
+        dept_id_list = list(set(dept_id_list))
         return True, dept_id_list
 
     @classmethod
     @auto_log
-    def get_user_dept_approver(cls, username: str)->tuple:
+    def get_user_dept_approver(cls, username: str, dept_id: int=0)->tuple:
         """
         get user's department approver， Preferential access to the approver, without taking tl（team leader）
         :param username:
+        :param dept_id: 用于用户可能属于多个部门的情况
         :return:
         """
         user_obj = LoonUser.objects.filter(username=username, is_deleted=0).first()
-        loon_dept_obj = LoonDept.objects.filter(id=user_obj.dept_id).first()
-        if loon_dept_obj.approver:
-            return True, loon_dept_obj.approver
+        if dept_id:
+            if LoonUserDept.objects.filter(user_id=user_obj.id, dept_id=dept_id, is_deleted=0).first():
+                loon_dept_obj = LoonDept.objects.filter(id=dept_id).first()
+                if loon_dept_obj.approver:
+                    return True, loon_dept_obj.approver
+                else:
+                    return True, loon_dept_obj.leader
+            else:
+                return False, 'dept_id is invalid'
         else:
-            return True, loon_dept_obj.leader
+            # no dept id specified, get all user dept's approver
+            user_dept_queryset = LoonUserDept.objects.filter(user_id=user_obj.id, is_deleted=0)
+            approver_list = []
+            for user_dept in user_dept_queryset:
+                if user_dept.dept.approver:
+                    approver_list.append(user_dept.dept.approver.split(','))
+                else:
+                    approver_list.append(user_dept.dept.leader)
+            return True, ','.join(list(set(approver_list)))
+
+    @classmethod
+    @auto_log
+    def get_user_dept_info(cls, username: str='', user_id: int=0)->tuple:
+        """
+        get user dept info
+        :param username:
+        :param user_id:
+        :return:
+        """
+        if username:
+            user_obj = LoonUser.objects.filter(username=username, is_deleted=0).first()
+            user_id = user_obj.id
+        user_dept_queryset = LoonUserDept.objects.filter(user_id=user_id, is_deleted=0).all()
+        user_dept_info = {}
+        user_dept_id_list = []
+        user_dept_name_list = []
+        for user_dept in user_dept_queryset:
+            user_dept_id_list.append(user_dept.id)
+            user_dept_name_list.append(user_dept.name)
+        user_dept_info['id'] = ','.join(user_dept_id_list)
+        user_dept_info['name'] = ','.join(user_dept_name_list)
+        return True, user_dept_info
 
     @classmethod
     @auto_log
@@ -809,7 +850,7 @@ class AccountBaseService(BaseService):
             return False, 'username or user_id is needed'
         if flag is False:
             return False, result
-        if result.is_workflow_admin or result.is_admin:
+        if result.type_id in (constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN, constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN):
             return True, 'user is admin or workflow admin'
         else:
             return False, 'user is not admin or workflow admin'
@@ -832,7 +873,7 @@ class AccountBaseService(BaseService):
 
         if flag:
             user_obj = result
-            if user_obj.is_admin or user_obj.is_workflow_admin:
+            if user_obj.type_id in (constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN, constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN):
                 password_str = make_password('123456', None, 'pbkdf2_sha256')
                 user_obj.password = password_str
                 user_obj.save()

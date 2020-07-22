@@ -164,12 +164,11 @@ class LoonUser(AbstractBaseUser):
 
     @property
     def dept_name(self):
-        dept_id = self.dept_id
-        dept_object = LoonDept.objects.filter(id=dept_id)
-        if dept_object:
-            return dept_object[0].name
-        else:
-            return '部门id不存在'
+        user_dept_queryset = LoonUserDept.objects.filter(user_id=self.id, is_deleted=0).all()
+        user_dept_name_list = []
+        for user_dept in user_dept_queryset:
+            user_dept_name_list.append(user_dept.dept.name)
+        return ','.join(user_dept_name_list)
 
     def get_dict(self):
         fields = []

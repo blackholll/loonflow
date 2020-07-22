@@ -77,7 +77,6 @@ class TestTicketView(TestCase):
                       username='guiji', transition_id=1)
         url = '/api/v1.0/tickets'
         result = LoonflowApiCall().api_call('post', url, params)
-        print(result)
         self.assertEqual(result.get('code'), 0)
 
     def test_get_ticket_detail(self):

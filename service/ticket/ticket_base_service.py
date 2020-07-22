@@ -185,13 +185,8 @@ class TicketBaseService(BaseService):
 
             flag, creator_obj = account_base_service_ins.get_user_by_username(ticket_result_object.creator)
             if flag:
-                dept_id = creator_obj.dept_id
-                # 获取部门信息
-                flag, dept_info = account_base_service_ins.get_dept_by_id(dept_id)
-                if flag is False or (not dept_info):
-                    dept_dict_info = dict(id=dept_id, name='')
-                else:
-                    dept_dict_info = dept_info.get_dict()
+                flag, dept_dict_info = account_base_service_ins.get_user_dept_info(user_id=creator_obj.id)
+
                 creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
                                     is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone,
                                     dept_info=dept_dict_info)
@@ -644,14 +639,8 @@ class TicketBaseService(BaseService):
         new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
         flag, creator_obj = account_base_service_ins.get_user_by_username(ticket_obj.creator)
         if flag:
-            dept_id = creator_obj.dept_id
-            # get creator's department info
-            flag, dept_info = account_base_service_ins.get_dept_by_id(dept_id)
-            if flag is False or (not dept_info):
-                dept_dict_info = dict(id=dept_id, name='')
-            else:
-                dept_dict_info = dept_info.get_dict()
 
+            flag, dept_dict_info = account_base_service_ins.get_user_dept_info(user_id=creator_obj.id)
             creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
                                 is_active=creator_obj.is_active, email=creator_obj.email,
                                 phone=creator_obj.phone, dept_info=dept_dict_info)
@@ -988,7 +977,7 @@ class TicketBaseService(BaseService):
             if flag is False:
                 return False, 'user is not existed or has been deleted'
             else:
-                if user_obj.is_admin:
+                if user_obj.type_id == constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN:
                     return True, 'admin has all ticket view permission'
             if username in ticket_obj.relation.split(','):
                 return True, 'user is relation about this ticket, has view permission'
@@ -2308,7 +2297,7 @@ class TicketBaseService(BaseService):
         flag, result = account_base_service_ins.get_user_by_username(username)
         if flag is False:
             return False, result
-        if result.is_admin:
+        if result.type_id == constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN:
             return True, "admin user has all ticket's intervention manage permission"
 
         flag, result = cls.get_ticket_by_id(ticket_id)

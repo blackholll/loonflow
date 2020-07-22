@@ -42,8 +42,8 @@ class TestLoonAccountModel(TestCase):
         测试获取用户部门名称
         :return:
         """
-        test_user1 = LoonUser.objects.get(username='guiji')
-        self.assertEqual(test_user1.dept_name, '运维部')
+        test_user1 = LoonUser.objects.get(username='admin')
+        self.assertEqual(test_user1.dept_name, '总部,技术部')
 
     def test_loon_user_get_json(self):
         """
