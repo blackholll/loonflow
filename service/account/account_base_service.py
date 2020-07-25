@@ -272,6 +272,18 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
+    def get_dept_by_ids(cls, dept_ids: str)->tuple:
+        """
+        get department's queryset by dept_ids
+        :param dept_ids:
+        :return:
+        """
+        if dept_ids:
+            dept_id_list = dept_ids.split(',')
+        return True, LoonDept.objects.filter(id__in=dept_id_list, is_deleted=False).all()
+
+    @classmethod
+    @auto_log
     def get_role_by_id(cls, role_id: int)->tuple:
         """
         get role's info by role_id

@@ -1991,40 +1991,37 @@ class TicketBaseService(BaseService):
             destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
             destination_participant = ','.join(destination_participant_list)
 
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
+            # 支持多部门
+            flag, destination_participant_list = account_base_service_ins.get_dept_username_list(
+                destination_participant)
+            destination_participant = ','.join(destination_participant_list)
+            destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+            if flag is False:
+                return False, destination_participant_list
+        elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
+            flag, destination_participant_list = account_base_service_ins.get_role_username_list(
+                int(destination_participant))
+            destination_participant = ','.join(destination_participant_list)
+            destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+            if flag is False:
+                return False, destination_participant_list
+
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             destination_participant = '***'  # 敏感数据，不保存工单基础表中
 
         # 参与人去重复+类型修正
-        if participant_type_id != constant_service_ins.PARTICIPANT_TYPE_HOOK:
+        if destination_participant_type_id in (constant_service_ins.PARTICIPANT_TYPE_PERSONAL, constant_service_ins.PARTICIPANT_TYPE_MULTI):
             destination_participant_list_new = destination_participant.split(',')
             destination_participant_list_new = list(set(destination_participant_list_new))
             if len(destination_participant_list_new) > 1:
                 destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
             destination_participant = ','.join(destination_participant_list_new)
 
-        if destination_participant_type_id in (
-                constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_DEPT,
-                constant_service_ins.PARTICIPANT_TYPE_ROLE) and state_obj.distribute_type_id in (
-                constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM, constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL):
-            # 处理人为角色，部门，或者角色都可能是为多个人，需要根据状态的分配方式计算实际的处理人
-            if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
-                destination_participant_list = destination_participant.split(',')
-            elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-                # 支持多部门
-                flag, destination_participant_list = account_base_service_ins.get_dept_username_list(
-                    destination_participant)
-                if flag is False:
-                    return False, destination_participant_list
-            elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
-                flag, destination_participant_list = account_base_service_ins.get_role_username_list(
-                    int(destination_participant))
-                if flag is False:
-                    return False, destination_participant_list
+        if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM:
-                # 如果是随机处理,则随机设置处理人
                 destination_participant = random.sample(destination_participant_list, 1)[0]
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-            if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL:
+            elif state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL:
                 multi_all_person_dict = {}
                 for destination_participant_0 in destination_participant_list:
                     multi_all_person_dict[destination_participant_0] = {}

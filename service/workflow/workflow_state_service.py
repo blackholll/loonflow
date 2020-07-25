@@ -243,30 +243,44 @@ class WorkflowStateService(BaseService):
             participant_alias = ','.join(participant_alias_list)
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
-            flag, dept_obj = account_base_service_ins.get_dept_by_id(int(participant))
+            # 支持多部门
+            flag, dept_queryset = account_base_service_ins.get_dept_by_ids(participant)
+            dept_info_dict = {}
+            for dept0 in dept_queryset:
+                dept_info_dict[str(dept0.id)] = dept0.name
+            participant_split_id_str_list = participant.split(',')
 
-            if flag is False:
-                return False, dept_obj
-            if dept_obj:
-                participant_name = dept_obj.name
-                participant_alias = participant_name
-            else:
-                participant_name = 'dept_id:{}'.format(participant)
-                participant_alias = ''
+            participant_dept_info_list = []
+            for participant_split_id_str in participant_split_id_str_list:
+                if dept_info_dict.get(participant_split_id_str):
+                    participant_dept_info_list.append(dept_info_dict.get(participant_split_id_str))
+                else:
+                    participant_dept_info_list.append('未知')
+
+            participant_alias = ','.join(participant_dept_info_list)
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
             participant_type_name = '角色'
             flag, role_obj = account_base_service_ins.get_role_by_id(int(participant))
             if flag is False or (not role_obj):
-                return False, 'role is not existedor has been deleted'
-            participant_name = role_obj.name
-            participant_alias = participant_name
+                participant_alias = '未知'
+            else:
+                participant_alias = role_obj.name
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_VARIABLE:
             participant_type_name = '变量'
-            if participant_name == 'creator':
-                participant_alias = '工单创建人'
-            elif participant_name == 'creator_tl':
-                participant_alias = '工单创建人的tl'
+            # 支持多变量的展示
+            participant_name_list = participant_name.split(',')
+            participant_name_alias_list = []
+            for participant_name0 in participant_name_list:
+                if participant_name0 == 'creator':
+                    participant_name_alias_list.append('工单创建人')
+                elif participant_name0 == 'creator_tl':
+                    participant_name_alias_list.append('工单创建人tl')
+                else:
+                    participant_name_alias_list.append('未知')
+            participant_alias = ','.join(participant_name_alias_list)
+
+
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
             if participant:
                 flag, result = workflow_run_script_service_ins.get_run_script_by_id(int(participant))
