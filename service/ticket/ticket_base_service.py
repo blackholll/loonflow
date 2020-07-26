@@ -910,8 +910,7 @@ class TicketBaseService(BaseService):
                 return True, dict(permission=False, need_accept=False, in_add_node=False,
                                   msg='not current participant, no permission')
                 # return None, '非当前处理人，无权处理'
-        elif participant_type_id in [constant_service_ins.PARTICIPANT_TYPE_MULTI,
-                                     constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL]:
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             if username not in participant.split(','):
                 return True, dict(permission=False, need_accept=False, in_add_node=False,
                                   msg='not crrent participant, no permission')
@@ -1014,7 +1013,7 @@ class TicketBaseService(BaseService):
             transition_dict_list = [dict(transition_id=0, transition_name='接单', field_require_check=False,
                                          is_accept=True, in_add_node=False, alert_enable=False, alert_text='',
                                          attribute_type_id=constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER)]
-            return transition_dict_list, ''
+            return True, dict(transition_dict_list=transition_dict_list)
 
         flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(ticket_obj.state_id)
         transition_dict_list = []
@@ -1102,7 +1101,7 @@ class TicketBaseService(BaseService):
                 has_all_same_value, msg = common_service_ins.check_dict_has_all_same_value(multi_all_person_dict)
                 if has_all_same_value:
                     # 所有人处理的transition都一致,则工单进入下个状态
-                    flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id,
+                    flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_id,
                                                                                    ticket_req_dict=request_data_dict)
                     if not flag:
                         return False, participant_info
@@ -1115,13 +1114,14 @@ class TicketBaseService(BaseService):
                     flag, result = common_service_ins.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
                     destination_participant = ','.join(result.get('result_list'))
                     destination_state_id = ticket_obj.state_id  # 保持原状态
+                    flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
                     multi_all_person = json.dumps(multi_all_person_dict)
 
         else:
             # 当前处理人类型非全部处理
-            flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
-            if not destination_state:
-                return False, msg
+            # flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
+            # if not destination_state:
+            #     return False, msg
             # 获取目标状态的信息
             flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_id,
                                                                            ticket_req_dict=request_data_dict)
@@ -1129,14 +1129,9 @@ class TicketBaseService(BaseService):
                 return False, participant_info
             destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
             destination_participant = participant_info.get('destination_participant', '')
-            multi_all_person_dict = {}
-            if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL:
-                for key in destination_participant.split(','):
-                    multi_all_person_dict[key] = {}
-            multi_all_person = json.dumps(multi_all_person_dict)
-            # 如果开启了了记忆最后处理人，那么处理人为之前的处理人
-            if destination_state.remember_last_man_enable and \
-                    ticket_obj.participant_type_id != constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL:
+            multi_all_person = participant_info.get('multi_all_person', '')
+            # 如果开启了了记忆最后处理人,且当前状态非全部处理中，那么处理人为之前的处理人
+            if destination_state.remember_last_man_enable and multi_all_person == '{}':
                 # 获取此状态的最后处理人
                 flag, result = cls.get_ticket_state_last_man(ticket_id, destination_state.id)
                 if not flag and result.get('last_man'):
@@ -1719,6 +1714,9 @@ class TicketBaseService(BaseService):
         ticket_obj.in_add_node = False
         ticket_obj.add_node_man = ''
         ticket_obj.save()
+        # 更新关系人表
+        cls.update_ticket_relation(ticket_id, ticket_obj.participant)
+
         # add flow log
         flag, result = cls.get_ticket_all_field_value_json(ticket_id)
         if flag is False:
@@ -1930,73 +1928,89 @@ class TicketBaseService(BaseService):
         if participant_type_id == constant_service_ins.PARTICIPANT_TYPE_FIELD:
             if not ticket_id:
                 # ticket_id 不存在，则为新建工单，从请求的数据中获取
-                destination_participant = ticket_req_dict.get(participant, '')
+                participant_list = participant.split(',')
+                destination_participant_list = []
+                for participant0 in participant_list:
+                    destination_participant_list.append(ticket_req_dict.get(participant0, ''))
+
+                destination_participant = ','.join(destination_participant_list)
             else:
                 # 工单存在，先判断是否有修改此字段的权限，如果有且字段值有提供，则取提交的值
                 flag, field_info = cls.get_state_field_info(ticket_obj.state_id)
                 update_field_list = field_info.get('update_field_list')
-                if participant in update_field_list and ticket_req_dict.get(participant):
-                    # 请求数据中包含需要的字段则从请求数据中获取
-                    destination_participant = ticket_req_dict.get(participant)
-                else:
-                    # 处理工单时未提供字段的值,则从工单当前字段值中获取
-                    flag, result = cls.get_ticket_field_value(ticket_id, participant)
-                    if flag:
-                        destination_participant = result.get('value')
+
+                flag, ticket_value_info = cls.get_ticket_all_field_value(ticket_id)
+
+                participant_list = participant.split(',')
+                destination_participant_list = []
+                for participant0 in participant_list:
+
+                    if participant0 in update_field_list and ticket_req_dict.get(participant0):
+                        # 请求数据中包含需要的字段则从请求数据中获取
+                        destination_participant_list.append(ticket_req_dict.get(participant0))
                     else:
-                        destination_participant = ''
+                        # 处理工单时未提供字段的值,则从工单当前字段值中获取
+                        destination_participant_list.append(ticket_value_info.get(participant0))
+                destination_participant = ','.join(destination_participant_list)
 
             destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-            if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PARENT_FIELD:
-            destination_participant, msg = cls.get_ticket_field_value(parent_ticket_id, participant)
+
+            flag, ticket_value_info = cls.get_ticket_all_field_value(parent_ticket_id)
+
+            participant_list = participant.split(',')
+            destination_participant_list = []
+            for participant0 in participant_list:
+                destination_participant_list.append(ticket_value_info.get(participant0))
+            destination_participant = ','.join(destination_participant_list)
             destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-            if len(destination_participant.split(',')) > 1:
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_VARIABLE:
-            if participant == 'creator':
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-                destination_participant = creator
-            elif participant == 'creator_tl':
-                # 获取用户的tl或审批人(优先审批人)
-                flag, approver = account_base_service_ins.get_user_dept_approver(creator)
-                if flag is False:
-                    return False, approver
+            participant_list = participant.split(',')
+            destination_participant_list = []
+            for participant0 in participant_list:
+                if participant0 == 'creator':
+                    destination_participant_list.append(creator)
+                elif participant0 == 'creator_tl':
+                    flag, approver = account_base_service_ins.get_user_dept_approver(creator)
+                    if flag is False:
+                        return False, approver
+                    destination_participant_list.append(approver)
+            destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+            destination_participant = ','.join(destination_participant_list)
 
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-                if len(approver.split(',')) > 1:
-                    destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
-                destination_participant = approver
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
+            # 支持多部门
+            flag, destination_participant_list = account_base_service_ins.get_dept_username_list(
+                destination_participant)
+            destination_participant = ','.join(destination_participant_list)
+            destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+            if flag is False:
+                return False, destination_participant_list
+        elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
+            flag, destination_participant_list = account_base_service_ins.get_role_username_list(
+                int(destination_participant))
+            destination_participant = ','.join(destination_participant_list)
+            destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+            if flag is False:
+                return False, destination_participant_list
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             destination_participant = '***'  # 敏感数据，不保存工单基础表中
 
-        if destination_participant_type_id in (
-                constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_DEPT,
-                constant_service_ins.PARTICIPANT_TYPE_ROLE) and state_obj.distribute_type_id in (
-                constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM, constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL):
-            # 处理人为角色，部门，或者角色都可能是为多个人，需要根据状态的分配方式计算实际的处理人
-            if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
-                destination_participant_list = destination_participant.split(',')
-            elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-                # 支持多部门
-                flag, destination_participant_list = account_base_service_ins.get_dept_username_list(
-                    destination_participant)
-                if flag is False:
-                    return False, destination_participant_list
-            elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
-                flag, destination_participant_list = account_base_service_ins.get_role_username_list(
-                    int(destination_participant))
-                if flag is False:
-                    return False, destination_participant_list
+        # 参与人去重复+类型修正
+        if destination_participant_type_id in (constant_service_ins.PARTICIPANT_TYPE_PERSONAL, constant_service_ins.PARTICIPANT_TYPE_MULTI):
+            destination_participant_list_new = destination_participant.split(',')
+            destination_participant_list_new = list(set(destination_participant_list_new))
+            if len(destination_participant_list_new) > 1:
+                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
+            destination_participant = ','.join(destination_participant_list_new)
+
+        if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM:
-                # 如果是随机处理,则随机设置处理人
                 destination_participant = random.sample(destination_participant_list, 1)[0]
-                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-            if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL:
+            elif state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL:
                 multi_all_person_dict = {}
                 for destination_participant_0 in destination_participant_list:
                     multi_all_person_dict[destination_participant_0] = {}
@@ -2191,8 +2205,7 @@ class TicketBaseService(BaseService):
 
         if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
             participant_username_list = [ticket_obj.participant]
-        elif ticket_obj.participant_type_id in (
-                constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL):
+        elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             participant_username_list = ticket_obj.participant.split(',')
         elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
             flag, participant_username_list = account_base_service_ins.get_role_username_list(ticket_obj.participant)

@@ -198,8 +198,7 @@ def send_ticket_notice(ticket_id):
     from apps.account.models import LoonUser
     if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
         participant_username_list = [ticket_obj.participant]
-    elif ticket_obj.participant_type_id in (
-        constant_service_ins.PARTICIPANT_TYPE_MULTI, constant_service_ins.PARTICIPANT_TYPE_MULTI_ALL):
+    elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
         participant_username_list = ticket_obj.participant.split(',')
     elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
         flag, participant_username_list = account_base_service_ins.get_role_username_list(ticket_obj.participant)

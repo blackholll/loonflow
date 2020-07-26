@@ -793,7 +793,7 @@ function getWorkflowId() {
       fieldRequireCheck = 1;
     };
     var alertEnable = 0
-    if ($("#RememberLastManEnable").prop('alertEnable')){
+    if ($("#alertEnable").prop('checked')){
       alertEnable = 1;
     };
 

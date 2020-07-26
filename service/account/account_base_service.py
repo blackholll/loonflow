@@ -314,6 +314,18 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
+    def get_dept_by_ids(cls, dept_ids: str)->tuple:
+        """
+        get department's queryset by dept_ids
+        :param dept_ids:
+        :return:
+        """
+        if dept_ids:
+            dept_id_list = dept_ids.split(',')
+        return True, LoonDept.objects.filter(id__in=dept_id_list, is_deleted=False).all()
+
+    @classmethod
+    @auto_log
     def get_role_by_id(cls, role_id: int)->tuple:
         """
         get role's info by role_id
@@ -578,13 +590,13 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def delete_role_user(cls, role_user_id: int)->tuple:
+    def delete_role_user(cls, user_id: int)->tuple:
         """
         删除角色用户
-        :param role_user_id:
+        :param user_id:
         :return:
         """
-        role_user_obj = LoonUserRole.objects.filter(id=role_user_id, is_deleted=0)
+        role_user_obj = LoonUserRole.objects.filter(user_id=user_id, is_deleted=0)
         if not role_user_obj:
             return False, 'record is not existed or has been deleted'
         role_user_obj.update(is_deleted=1)

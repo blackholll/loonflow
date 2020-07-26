@@ -605,6 +605,26 @@ class LoonRoleUserView(LoonBaseView):
         return api_response(0, '', {})
 
 
+@method_decorator(login_required, name='dispatch')
+class LoonRoleUserDetailView(LoonBaseView):
+    @manage_permission_check('admin')
+    def delete(self, request, *args, **kwargs):
+        """
+         delete role's user
+         删除角色用户
+         :param request:
+         :param args:
+         :param kwargs:
+         :return:
+         """
+        user_id = kwargs.get('user_id', 0)
+        flag, result = account_base_service_ins.delete_role_user(user_id)
+
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', {})
+
+
 class LoonUserResetPasswordView(LoonBaseView):
 
     @manage_permission_check('admin')
