@@ -588,6 +588,8 @@ class TicketBaseService(BaseService):
         if len(suggestion) > 1000:
             kwargs['suggestion'] = '{}...(be truncated because More than 1000)'\
                 .format(kwargs.get('suggestion', '')[:960])
+        kwargs['suggestion'] = suggestion
+
         if not kwargs.get('creator'):
             kwargs['creator'] = kwargs.get('participant', '')
         new_ticket_flow_log = TicketFlowLog(**kwargs)

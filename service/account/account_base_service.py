@@ -248,7 +248,7 @@ class AccountBaseService(BaseService):
         :param role_id:
         :return:
         """
-        user_role_queryset = LoonUserRole.objects.filter(role_id=role_id).all()
+        user_role_queryset = LoonUserRole.objects.filter(role_id=role_id, is_deleted=0).all()
         user_id_list = []
         for user_role in user_role_queryset:
             user_id_list.append(user_role.user_id)
