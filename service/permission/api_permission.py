@@ -1,4 +1,7 @@
 import json
+import jwt
+from django.conf import settings
+
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
@@ -13,16 +16,34 @@ class ApiPermissionCheck(MiddlewareMixin):
         if request.path.startswith('/api/v1.0/accounts/login'):
             # 登录接口特殊处理
             return
+        if request.path == '/api/v1.0/login':
+            # jwt 登录
+            return
         if request.path.startswith('/api/'):
-            # api开头的为接口调用，需要额外验证权限,如果用户已经登录loonflow管理后台，允许直接调用
+            # for common check
             if request.user.is_authenticated:
                 request.META.update(dict(HTTP_APPNAME='loonflow'))
                 request.META.update(dict(HTTP_USERNAME=request.user.username))
                 return
+            # for jwt check
+            jwt_info = request.META.get('jwt')
+            flag, msg = self.jwt_permission_check(jwt_info)
+            if flag is False:
+                return HttpResponse(json.dumps(dict(code=-1, msg=msg, data={})))
+            else:
+                username = msg['data']['username']
+                flag, user_obj = account_base_service_ins.get_user_by_username(username)
+                if flag is False:
+                    return HttpResponse(json.dumps(dict(code=-1, msg=user_obj, data={})))
+                request.META.update(dict(HTTP_APPNAME='loonflow'))
+                request.META.update(dict(HTTP_USERNAME=username))
+                return
+            # for app call token check
             flag, msg = self.token_permission_check(request)
             if not flag:
-                return HttpResponse(json.dumps(dict(code=-1, msg='permission check fail：{}'.format(msg), data=[])))
+                return HttpResponse(json.dumps(dict(code=-1, msg='permission check fail：{}'.format(msg), data={})))
 
+    @staticmethod
     def token_permission_check(self, request):
         """
         token permission check
@@ -45,3 +66,23 @@ class ApiPermissionCheck(MiddlewareMixin):
                           'authorization for appname:{} in loonflow'.format(app_name, app_name)
 
         return common_service_ins.signature_check(timestamp, signature, result.token)
+
+    @staticmethod
+    def jwt_permission_check(self, request):
+        """
+        jwt check
+        :param request:
+        :return:
+        """
+        jwt_info = request.COOKIES.get('jwt')
+        jwt_salt = settings.JWT_SALT
+
+        try:
+            return True, jwt.decode(jwt_info, jwt_salt, algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            return False, 'Token expired'
+
+        except jwt.InvalidTokenError:
+            return False, 'Invalid token'
+        except Exception as e:
+            return False, e.__str__()

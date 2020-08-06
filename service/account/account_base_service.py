@@ -1,5 +1,8 @@
+import datetime
 import json
-
+import time
+import jwt
+from django.conf import settings
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
@@ -894,6 +897,27 @@ class AccountBaseService(BaseService):
                 return False, 'just admin or workflow admin can be reset password'
         else:
             return False, result
+
+    @classmethod
+    @auto_log
+    def get_user_jwt(cls, username: str)->tuple:
+        """
+        get user's jwt
+        :param username:
+        :return:
+        """
+        flag, user_obj = cls.get_user_by_username(username)
+        if flag is False:
+            return False, user_obj
+        user_info = user_obj.get_dict()
+        timestamp = int(time.time())
+        jwt_salt = settings.JWT_SALT
+        jwt_info = jwt.encode(
+                              {
+                                  'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=50),
+                                  'iat': datetime.datetime.utcnow(),
+                                  'data': user_info},  jwt_salt, algorithm='HS256')
+        return True, jwt_info
 
 
 account_base_service_ins = AccountBaseService()

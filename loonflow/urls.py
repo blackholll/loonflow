@@ -17,15 +17,13 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path, include
-
-from apps.ticket.views import TicketListView
-from apps.homepage_view import HomepageView
-
+from apps.account.views import LoonJwtLoginView
 
 
 urlpatterns = [
     path('', include('apps.manage.urls')),
     path('manage', include('apps.manage.urls')),
+    path('api/v1.0/login', LoonJwtLoginView.as_view()),
     path('api/v1.0/accounts', include('apps.account.urls')),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
     path('api/v1.0/workflows', include('apps.workflow.urls')),

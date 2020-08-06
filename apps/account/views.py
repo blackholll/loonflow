@@ -1,5 +1,6 @@
 import json
 
+import jwt
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -535,6 +536,29 @@ class LoonLogoutView(LoonBaseView):
         """
         logout(request)
         return redirect('/manage')
+
+
+class LoonJwtLoginView(LoonBaseView):
+    def post(self, request, *args, **kwargs):
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'invalid args', {})
+        request_data_dict = json.loads(json_str)
+        username = request_data_dict.get('username', '')
+        password = request_data_dict.get('password', '')
+        try:
+            user = authenticate(username=username, password=password)
+        except Exception as e:
+            return api_response(-1, e.__str__(), {})
+        if user is not None:
+            # todo: get jwt
+            flag, jwt_info = account_base_service_ins.get_user_jwt(username)
+            if flag is False:
+                return api_response(-1, '', {})
+            else:
+                return api_response(0, '', {'jwt': jwt_info.decode('utf-8')})
+        else:
+            return api_response(-1, 'username or password is invalid', {})
 
 
 @method_decorator(login_required, name='dispatch')

@@ -129,3 +129,5 @@ if platform.system() == 'Windows':
     HOMEPATH = os.environ['HOMEPATH']
 else:
     HOMEPATH = os.environ['HOME']
+
+JWT_SALT = 'aUApFqfQjyYVAPo8'
