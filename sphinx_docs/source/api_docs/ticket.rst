@@ -138,7 +138,7 @@ post
    * - transition_id
      - int
      - 是
-     - 新建工单时候的流转id（通过workflow/{id}/init_state接口可以获取新建工单时允许的transition）
+     - 新建工单时候的流转id（通过workflows/{id}/init_state接口可以获取新建工单时允许的transition）
    * - parent_ticket_id
      - int
      - 否
