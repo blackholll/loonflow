@@ -1,3 +1,4 @@
 #requrements/test.txt
 -r common.txt
 mock==4.0.2
+coverage==5.2.1

@@ -29,4 +29,6 @@ jobs:
           python manage_test.py migrate
       - name: Run Unit Tests
         run: |
-          python manage_test.py test
+          coverage run  manage_test.py test
+          coverage report
+

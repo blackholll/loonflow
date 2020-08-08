@@ -1,0 +1,13 @@
+[run]
+branch = True
+include =
+    apps/*
+    services/*
+omit =
+    apps/manage/*
+
+[report]
+skip_covered = True
+
+[html]
+directory = coverage_html_report
