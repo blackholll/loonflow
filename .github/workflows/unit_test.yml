@@ -23,8 +23,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements/test.txt
+      - name: Create Database
+        run: |
+          python manage_test.py makemigrations
+          python manage_test.py migrate
       - name: Run Unit Tests
         run: |
           python manage_test.py test
-
-
