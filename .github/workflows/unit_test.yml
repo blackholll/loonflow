@@ -1,0 +1,30 @@
+name: Unit test CI
+
+on:
+  push:
+    branchs: [ v1.1.0 ]
+  pull_request:
+    branchs: [ v1.1.0 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [ 3.6 ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/text.txt
+      - name: Run Unit Tests
+        run: |
+          python manage_test.py test
+
+

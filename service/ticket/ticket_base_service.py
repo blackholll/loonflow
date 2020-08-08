@@ -2001,11 +2001,11 @@ class TicketBaseService(BaseService):
 
         # 参与人去重复+类型修正
         if destination_participant_type_id in (constant_service_ins.PARTICIPANT_TYPE_PERSONAL, constant_service_ins.PARTICIPANT_TYPE_MULTI):
-            destination_participant_list_new = destination_participant.split(',')
-            destination_participant_list_new = list(set(destination_participant_list_new))
-            if len(destination_participant_list_new) > 1:
+            destination_participant_list = destination_participant.split(',')
+            destination_participant_list = list(set(destination_participant_list))
+            if len(destination_participant_list) > 1:
                 destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
-            destination_participant = ','.join(destination_participant_list_new)
+            destination_participant = ','.join(destination_participant_list)
 
         if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM:

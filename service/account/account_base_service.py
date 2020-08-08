@@ -223,8 +223,8 @@ class AccountBaseService(BaseService):
         user_dept_id_list = []
         user_dept_name_list = []
         for user_dept in user_dept_queryset:
-            user_dept_id_list.append(user_dept.id)
-            user_dept_name_list.append(user_dept.name)
+            user_dept_id_list.append(user_dept.dept_id)
+            user_dept_name_list.append(user_dept.dept.name)
         user_dept_info['id'] = ','.join(user_dept_id_list)
         user_dept_info['name'] = ','.join(user_dept_name_list)
         return True, user_dept_info

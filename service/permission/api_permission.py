@@ -25,25 +25,24 @@ class ApiPermissionCheck(MiddlewareMixin):
                 request.META.update(dict(HTTP_APPNAME='loonflow'))
                 request.META.update(dict(HTTP_USERNAME=request.user.username))
                 return
-            # for jwt check
-            jwt_info = request.META.get('jwt')
-            flag, msg = self.jwt_permission_check(jwt_info)
-            if flag is False:
-                return HttpResponse(json.dumps(dict(code=-1, msg=msg, data={})))
-            else:
-                username = msg['data']['username']
-                flag, user_obj = account_base_service_ins.get_user_by_username(username)
+            if request.COOKIES.get('jwt'):
+                # for jwt check
+                flag, msg = self.jwt_permission_check(request)
                 if flag is False:
-                    return HttpResponse(json.dumps(dict(code=-1, msg=user_obj, data={})))
-                request.META.update(dict(HTTP_APPNAME='loonflow'))
-                request.META.update(dict(HTTP_USERNAME=username))
+                    return HttpResponse(json.dumps(dict(code=-1, msg=msg, data={})))
+                else:
+                    username = msg['data']['username']
+                    flag, user_obj = account_base_service_ins.get_user_by_username(username)
+                    if flag is False:
+                        return HttpResponse(json.dumps(dict(code=-1, msg=user_obj, data={})))
+                    request.META.update(dict(HTTP_APPNAME='loonflow'))
+                    request.META.update(dict(HTTP_USERNAME=username))
                 return
             # for app call token check
             flag, msg = self.token_permission_check(request)
             if not flag:
                 return HttpResponse(json.dumps(dict(code=-1, msg='permission check fail：{}'.format(msg), data={})))
 
-    @staticmethod
     def token_permission_check(self, request):
         """
         token permission check
@@ -67,7 +66,6 @@ class ApiPermissionCheck(MiddlewareMixin):
 
         return common_service_ins.signature_check(timestamp, signature, result.token)
 
-    @staticmethod
     def jwt_permission_check(self, request):
         """
         jwt check
