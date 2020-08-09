@@ -1011,7 +1011,7 @@ class TicketBaseService(BaseService):
             return False, result
 
         if not result.get('permission'):
-            return True, dict(result=[], msg=result.get('msg'))
+            return True, dict(transition_dict_list=[], msg=result.get('msg'))
 
         ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
 
