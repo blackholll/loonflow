@@ -2411,6 +2411,7 @@ class TicketBaseService(BaseService):
         ticket_result.state_id = result.id
         ticket_result.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_result.participant = ticket_result.creator
+        ticket_result.act_state_id = constant_service_ins.TICKET_ACT_STATE_RETREAT
         ticket_result.save()
         # 新增操作记录
         flag, result = cls.get_ticket_all_field_value_json(ticket_result.id)
