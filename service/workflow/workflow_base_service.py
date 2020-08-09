@@ -64,7 +64,11 @@ class WorkflowBaseService(BaseService):
                      view_permission_check=workflow_result_object.view_permission_check,
                      limit_expression=workflow_result_object.limit_expression,
                      display_form_str=workflow_result_object.display_form_str,
-                     creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19]))
+                     creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19],
+                     title_template=workflow_result_object.title_template,
+                     content_template=workflow_result_object.content_template
+                     )
+            )
         # 获取工作流管理员信息
         workflow_admin_queryset = WorkflowAdmin.objects.filter(
             workflow_id__in=workflow_result_id_list, is_deleted=0).all()
