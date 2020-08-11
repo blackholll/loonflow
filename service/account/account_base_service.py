@@ -914,8 +914,8 @@ class AccountBaseService(BaseService):
         jwt_salt = settings.JWT_SALT
         jwt_info = jwt.encode(
                               {
-                                  'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=50),
-                                  'iat': datetime.datetime.utcnow(),
+                                  'exp': datetime.datetime.now() + datetime.timedelta(hours=24),
+                                  'iat': datetime.datetime.now(),
                                   'data': user_info},  jwt_salt, algorithm='HS256')
         return True, jwt_info
 

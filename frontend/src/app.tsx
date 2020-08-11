@@ -24,6 +24,12 @@ export async function getInitialState(): Promise<{
       }
       const jwt_info = jsonwebtoken.decode(jwt);
       const user_info = jwt_info.data;
+      const exp = jwt_info.exp;
+      const nowTime = Date.parse(new Date())/1000;
+      if (nowTime>exp) {
+        history.push('/user/login');
+      }
+
       const currentUser = {id: user_info.id,
         username: user_info.username,
         phone: user_info.phone,
