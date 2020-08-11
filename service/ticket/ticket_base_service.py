@@ -2189,14 +2189,14 @@ class TicketBaseService(BaseService):
 
         state_id = ticket_obj.state_id
         flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(state_id)
-        transition_id = transition_queryset[0]  # hook状态只支持一个流转
+        transition_id = transition_queryset[0].id  # hook状态只支持一个流转
 
         new_request_dict = field_value
 
         new_request_dict.update({'transition_id': transition_id, 'suggestion': msg, 'username': 'loonrobot'})
 
         # 执行流转
-        flag, msg = cls.handle_ticket(ticket_id, new_request_dict, by_timer=False, by_task=False)
+        flag, msg = cls.handle_ticket(ticket_id, new_request_dict, by_timer=False, by_task=False, by_hook=True)
         if not flag:
             return False, msg
         return True, ''
