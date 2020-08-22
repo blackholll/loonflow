@@ -225,7 +225,7 @@ class AccountBaseService(BaseService):
         for user_dept in user_dept_queryset:
             user_dept_id_list.append(user_dept.dept_id)
             user_dept_name_list.append(user_dept.dept.name)
-        user_dept_info['id'] = ','.join(user_dept_id_list)
+        user_dept_info['id'] = ','.join(str(user_dept_id_list))
         user_dept_info['name'] = ','.join(user_dept_name_list)
         return True, user_dept_info
 
@@ -406,12 +406,13 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_user_list(cls, search_value: str, page: int=1, per_page: int=10)->tuple:
+    def get_user_list(cls, search_value: str, page: int=1, per_page: int=10, simple=False)->tuple:
         """
         get user restful info list by query params: search_value, page, per_page
         :param search_value: support user's username, and user's alias. fuzzy query
         :param page:
         :param per_page:
+        :param simple: 是否只返回简单信息
         :return:
         """
         query_params = Q(is_deleted=False)
@@ -441,6 +442,16 @@ class AccountBaseService(BaseService):
                     user_dept_info_list.append(
                         dict(name=user_dept.dept.name, id=user_dept.dept.id))
             user_result_format_dict['user_dept_info_list'] = user_dept_info_list
+            if simple:
+                # 去除敏感信息
+                user_result_format_dict.pop('last_login')
+                user_result_format_dict.pop('email')
+                user_result_format_dict.pop('creator_info')
+                user_result_format_dict.pop('phone')
+                user_result_format_dict.pop('type_id')
+                user_result_format_dict.pop('gmt_created')
+                user_result_format_dict.pop('gmt_modified')
+                user_result_format_dict.pop('is_deleted')
             user_result_object_format_list.append(user_result_format_dict)
 
         return True, dict(user_result_object_format_list=user_result_object_format_list,

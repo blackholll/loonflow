@@ -665,3 +665,29 @@ class LoonUserResetPasswordView(LoonBaseView):
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, result, {})
+
+
+class LoonSimpleUserView(LoonBaseView):
+
+    def get(self, request, *args, **kwargs):
+        """
+        获取用户简要信息列表
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10))
+        page = int(request_data.get('page', 1))
+        flag, result = account_base_service_ins.get_user_list(search_value, page, per_page, simple=True)
+        if flag is not False:
+            data = dict(value=result.get('user_result_object_format_list'),
+                        per_page=result.get('paginator_info').get('per_page'),
+                        page=result.get('paginator_info').get('page'),
+                        total=result.get('paginator_info').get('total'))
+            code, msg, = 0, ''
+        else:
+            code, data, msg = -1, '', result
+        return api_response(code, msg, data)

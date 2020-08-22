@@ -8,6 +8,12 @@ declare namespace API {
     email: string;
   }
 
+  export interface CommonResponse {
+    code: number;
+    data: any;
+    msg: string;
+  }
+
   export interface LoginStateType {
     code?: number;
     data?: any;
@@ -40,7 +46,13 @@ declare namespace API {
     msg: string;
   }
 
-  export interface WorkflowListData {
+  export interface WorkflowInitStateData {
+    code: number;
+    data: any;
+    msg: string;
+  }
+
+  export interface queryUserSimpleData {
     code: number;
     data: any;
     msg: string;

@@ -71,7 +71,8 @@ class CustomField(BaseModel):
     field_name = models.CharField('字段名称', max_length=50)
     order_id = models.IntegerField('排序', default=0, help_text='工单基础字段在表单中排序为:流水号0,标题20,状态id40,状态名41,创建人80,创建时间100,更新时间120.前端展示工单信息的表单可以根据这个id顺序排列')
     default_value = models.CharField('默认值', null=True, blank=True, max_length=100, help_text='前端展示时，可以将此内容作为表单中的该字段的默认值')
-    description = models.CharField('描述', max_length=100, blank=True, default='', help_text='字段的描述信息，对于非文本域字段可以将此内容作为placeholder')
+    description = models.CharField('描述', max_length=100, blank=True, default='', help_text='字段的描述信息，可用于显示在字段的下方对该字段的详细描述')
+    placeholder = models.CharField('占位符', max_length=100, blank=True, default='', help_text='用户工单详情表单中作为字段的占位符显示')
     field_template = models.TextField('文本域模板', default='', blank=True, help_text='文本域类型字段前端显示时可以将此内容作为字段的placeholder')
     boolean_field_display = models.CharField('布尔类型显示名', max_length=100, default='{}', blank=True,
                                              help_text='当为布尔类型时候，可以支持自定义显示形式。{"1":"是","0":"否"}或{"1":"需要","0":"不需要"}，注意数字也需要引号')

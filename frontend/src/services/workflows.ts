@@ -18,8 +18,8 @@ export async function getWorkflowList(params: WorkflowParamsType) {
 }
 
 export async function getWorkflowInitState(params: WorkflowInitStateParamsType) {
-  return request<API.WorkflowListData>(`/api/v1.0/workflows/${params.workflowId}/init_state`), {
+  return request<API.WorkflowInitStateData>(`/api/v1.0/workflows/${params.workflowId}/init_state`, {
     method: 'get',
-  }
+  })
 }
 

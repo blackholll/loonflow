@@ -3,7 +3,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import {Card, Select, Button, message, Modal} from 'antd';
 import DutyTicket from './ticket/DutyTicket';
 import {getWorkflowList} from "@/services/workflows";
-import NewTicket from "@/pages/ticket/NewTicket";
+import TicketDetail from "@/pages/ticket/TicketDetail";
 
 const { Option } = Select;
 
@@ -15,6 +15,7 @@ class Workbench extends Component<any, any> {
     this.state = {
       workflowResult: [],
       selectWorkflowId: 0,
+      selectWorkflowName: '',
       newTicketVisible:false};
 
   }
@@ -33,8 +34,8 @@ class Workbench extends Component<any, any> {
 
   }
 
-  workflowSelectOnchange = (value: Number) => {
-    this.setState({selectWorkflowId: value})
+  workflowSelectOnchange = (value: any) => {
+    this.setState({selectWorkflowId: value.value, selectWorkflowName:value.label})
   }
 
   showNewTicketModal = () => {
@@ -56,6 +57,7 @@ class Workbench extends Component<any, any> {
         <Card>
           <Select
             showSearch
+            labelInValue
             style={{ width: 200 }}
             placeholder="选择工单类型"
             optionFilterProp="children"
@@ -76,13 +78,16 @@ class Workbench extends Component<any, any> {
         </Card>
 
         <Modal
-          title="新建工单"
+          title={`新建工单:${this.state.selectWorkflowName}`}
           visible={this.state.newTicketVisible}
           onOk={this.handleNewTicketOk}
           onCancel={this.handleNewTicketCancle}
           width={1024}
+          footer={null}
+          destroyOnClose
         >
-          <NewTicket workflowId={this.state.selectWorkflowId}/>
+        <TicketDetail workflowId={this.state.selectWorkflowId} ticketId={0}/>
+
         </Modal>
 
       </PageContainer>

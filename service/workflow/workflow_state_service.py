@@ -168,15 +168,21 @@ class WorkflowStateService(BaseService):
             return False, transition_queryset
         transition_info_list = []
         for transition in transition_queryset:
-            transition_info_list.append(dict(transition_id=transition.id, transition_name=transition.name))
+            transition_info_dict = dict(
+                transition_id=transition.id, transition_name=transition.name,
+                attribute_type_id=transition.attribute_type_id, field_require_check=transition.field_require_check,
+                alert_enable=transition.alert_enable, alert_text=transition.alert_text
+            )
+
+            transition_info_list.append(transition_info_dict)
 
         # 工单基础字段及属性
         field_list = []
         field_list.append(dict(
             field_key='title', field_name=u'标题', field_value=None, order_id=20,
             field_type_id=constant_service_ins.FIELD_TYPE_STR, field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
-            description='工单的标题', field_choice={}, boolean_field_display={}, default_value=None, field_template='',
-            label={}))
+            description='', field_choice={}, boolean_field_display={}, default_value=None, field_template='',
+            placeholder='', label={}))
         flag, custom_field_dict = workflow_custom_field_service_ins.get_workflow_custom_field(workflow_id)
         for key, value in custom_field_dict.items():
             field_list.append(dict(field_key=key, field_name=custom_field_dict[key]['field_name'],
@@ -185,6 +191,7 @@ class WorkflowStateService(BaseService):
                                    field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
                                    default_value=custom_field_dict[key]['default_value'],
                                    description=custom_field_dict[key]['description'],
+                                   placeholder=custom_field_dict[key]['placeholder'],
                                    field_template=custom_field_dict[key]['field_template'],
                                    boolean_field_display=json.loads(custom_field_dict[key]['boolean_field_display'])
                                    if custom_field_dict[key]['boolean_field_display'] else {},  # 之前model允许为空了，为了兼容先这么写,

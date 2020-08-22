@@ -32,7 +32,7 @@ class WorkflowCustomFieldService(BaseService):
                 field_name=custom_field.field_name,order_id=custom_field.order_id,
                 default_value=custom_field.default_value, description=custom_field.description,
                 field_template=custom_field.field_template, boolean_field_display=custom_field.boolean_field_display,
-                field_choice=custom_field.field_choice, label=label)
+                field_choice=custom_field.field_choice, placeholder=custom_field.placeholder, label=label)
         return True, format_custom_field_dict
 
     @classmethod

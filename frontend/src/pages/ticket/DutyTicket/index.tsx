@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import styles from "./index.less";
-import { Table, message } from "antd";
+import { Table, message, Modal } from "antd";
 import { getTicketList } from '@/services/ticket';
+import TicketDetail from "@/pages/ticket/TicketDetail";
 
 
 class DutyTicket extends Component<any, any> {
   constructor(props) {
     super(props);
-    this.state = {ticketResult: [], workflowResult: []};
+    this.state = {ticketResult: [], workflowResult: [], dutyListLoading: false};
   }
 
 
@@ -16,14 +17,37 @@ class DutyTicket extends Component<any, any> {
   };
 
   fetchTicketData = async () => {
+    this.setState({dutyListLoading: true})
     const result = await getTicketList({category: 'duty'});
     if (result.code === 0) {
-      this.setState({ticketResult: result.data.value});
+      this.setState({ticketResult: result.data.value, dutyListLoading: false});
     } else {
       message.error(result.msg);
+      this.setState({dutyListLoading: false});
     }
   };
 
+
+  showTicketDetail = (ticketId) => {
+    this.setState({
+      openTicketId: ticketId,
+      visible: true,
+    });
+  };
+
+  handleOk = e => {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  };
+
+  handleCancel = e => {
+    console.log(e);
+    this.setState({
+      visible: false,
+    });
+  };
 
    render() {
 
@@ -69,7 +93,7 @@ class DutyTicket extends Component<any, any> {
         key: "action",
         render: (text: string, record: any) => (
           <span>
-        <a style={{ marginRight: 16 }}>详情</a>
+        <a style={{ marginRight: 16 }} onClick={()=> this.showTicketDetail(record.id)}>详情</a>
         <a>新页面打开</a>
       </span>
         )
@@ -79,8 +103,20 @@ class DutyTicket extends Component<any, any> {
     return (
       <div className={styles.container}>
         <div id="components-table-demo-basic">
-          <Table columns={columns} dataSource={this.state.ticketResult} />
+          <Table loading={this.state.dutyListLoading} columns={columns} dataSource={this.state.ticketResult} rowKey={record=>record.id}/>
         </div>
+        <Modal
+          title={`工单详情: #${this.state.openTicketId}`}
+          width={1024}
+          visible={this.state.visible}
+          onOk={this.handleOk}
+          onCancel={this.handleCancel}
+          destroyOnClose
+          footer={null}
+
+        >
+          <TicketDetail ticketId={this.state.openTicketId} />
+        </Modal>
       </div>
     )
   }

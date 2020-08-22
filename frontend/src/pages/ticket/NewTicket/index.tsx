@@ -1,99 +1,91 @@
-import { Form, Input, Button, Checkbox, Col, Row } from 'antd';
-import Workbench from "@/pages/Workbench";
+import {Form, Input, Button, Checkbox, Col, Row, message} from 'antd';
+import React, {Component} from 'react';
+import {getWorkflowInitState} from "@/services/workflows";
 
-const layout = {
-  labelCol: { span: 8},
-  wrapperCol: { span: 16},
-};
 
-const tailLayout = {
-  wrapperCol: { offset:8, span: 16},
-};
+class NewTicket extends Component<any, any> {
+  constructor(props) {
+    super();
+    this.state = {
+      workflowResult: [],
 
-const Demo = () => {
-  const onFinish = values => {
+    };
+  }
+
+  componentDidMount() {
+    this.fetchWorkflowInitData();
+  }
+
+
+  onFinish = values => {
     console.log('success:', values);
 
   };
 
-  const onFinishFailed = errorInfo => {
+  onFinishFailed = errorInfo => {
     console.log('Failed:', errorInfo);
   };
 
-  return (
-    <Form
-      {...layout}
-      name="basic"
-      initialValues = {{ remember: true}}
-      onFinish={onFinish}
-      onFinishFailed={{onFinishFailed}}
+
+
+  fetchWorkflowInitData = async () => {
+    const result = await getWorkflowInitState({workflowId: this.props.workflowId})
+    if (result.code === 0) {
+      this.setState({workflowResult: result.data.value});
+    } else {
+      message.error(result.msg);
+    }
+
+  }
+
+
+  render(){
+    const layout = {
+      labelCol: { span: 8},
+      wrapperCol: { span: 16},
+    };
+
+    const tailLayout = {
+      wrapperCol: { offset:8, span: 16},
+    };
+
+
+
+    return (
+      <Form
+        {...layout}
+        name="basic"
+        initialValues = {{ remember: true}}
+        onFinish={this.onFinish}
+        onFinishFailed={this.onFinishFailed}
       >
-      <Row gutter={24}>
-      <Col span={12}>
-        <Form.Item
-          label="Username"
-          name="username"
-          rules={[{ required: true, message:'please input you username'}]}
-          >
-          <Input />
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item
+              label="Username"
+              name="username"
+              rules={[{ required: true, message:'please input you username'}]}
+            >
+              <Input />
 
-        </Form.Item>
-      </Col>
-      <Col span={12}>
-        <Form.Item
-          label="Username1"
-          name="username1"
-          rules={[{ required: true, message:'please input you username'}]}
-        >
-          <Input />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Username1"
+              name="username1"
+              rules={[{ required: true, message:'please input you username'}]}
+            >
+              <Input />
 
-        </Form.Item>
-      </Col>
-      </Row>
-    </Form>
-  )
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+
+    )
+  }
+
 }
-export default Demo;
 
-
-
-// import React, { Component } from "react";
-// import { Input, Form, Input, Radio, Checkbox, Select,  } from "antd";
-// import { getWorkflowInitState } from "@/services/workflows";
-//
-// const FormItem = Form.Item;
-// const { TextArea } = Input;
-// const RadioGroup = Radio.Group;
-// const Option = Select.Option;
-//
-//
-// class NewTicketForm extends Component<any, any> {
-//   constructor(props) {
-//     super(props);
-//     this.state = {};
-//   }
-//
-//   componentDidMount() {
-//     this.fetchWorkflowInitState();
-//   }
-//
-//   fetchWorkflowInitState = async () => {
-//     console.log(`worklfoid: ${this.props.workflowId}`)
-//     const result = await getWorkflowInitState({ workflowId: this.props.workflowId});
-//     if (result.code === 0){
-//       this.setState({initState: result.data.value});
-//
-//
-//     }
-//
-//   }
-//   render() {
-//     return (
-//       'ticket detail'
-//     )
-//   }
-//
-// }
-//
-// const NewTicket = Form.create()(NewTicketForm)
-// export default NewTicket
+export default NewTicket;
