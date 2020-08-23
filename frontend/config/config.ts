@@ -43,41 +43,81 @@ export default defineConfig({
       ],
     },
     {
-      path: '/Workbench',
+      path: '/workbench',
       name: '工作台',
-      icon: 'smile',
+      icon: 'ScheduleOutlined',
       component: './Workbench',
     },
     {
-      path: '/welcome',
-      name: 'welcome',
-      icon: 'smile',
-      component: './Welcome',
-    },
-    {
-      path: '/admin',
-      name: 'admin',
-      icon: 'crown',
-      access: 'canAdmin',
-      component: './Admin',
-      routes: [
+      "path": "/tickets",
+      "name": "工单管理",
+      "icon": "SolutionOutlined",
+      "children": [
         {
-          path: '/admin/sub-page',
-          name: 'sub-page',
-          icon: 'smile',
-          component: './Welcome',
+          "path": "/tickets/duty",
+          "name": "我的待办"
         },
-      ],
+        {
+          "path": "/tickets/owner",
+          "name": "我的申请"
+        },
+        {
+          "path": "/tickets/relation",
+          "name": "与我相关"
+        },
+        {
+          "path": "/tickets/view",
+          "name": "工单查看"
+        },
+        {
+          "path": "/tickets/intervene",
+          "name": "工单干预"
+        },
+        {
+          "path": "/tickets/all",
+          "name": "所有工单"
+        }
+      ]
     },
     {
-      name: 'list.table-list',
-      icon: 'table',
-      path: '/list',
-      component: './ListTableList',
+      path: '/workflows',
+      name: '工作流管理',
+      icon: 'DeploymentUnitOutlined',
+      component: './Workbench',
+    },
+    {
+      "path": "/users",
+      "name": "用户及权限",
+      // "icon": "dashboard",
+      "icon": "ApartmentOutlined",
+      "children": [
+        {
+          "path": "/users/user",
+          "name": "用户管理"
+        },
+        {
+          "path": "/users/rule",
+          "name": "角色管理"
+        },
+        {
+          "path": "/users/dept",
+          "name": "部门管理"
+        },
+        {
+          "path": "/users/app",
+          "name": "调用权限"
+        }
+      ]
+    },
+    {
+      path: '/manage',
+      name: '系统配置',
+      icon: 'ToolOutlined',
+      component: './Workbench',
     },
     {
       path: '/',
-      redirect: '/welcome',
+      redirect: '/workbench',
     },
     {
       component: './404',
