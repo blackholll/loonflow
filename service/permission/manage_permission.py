@@ -12,7 +12,7 @@ def manage_permission_check(permission=None):
     def decorator(func):
         @wraps(func)
         def _deco(view_class, request, *args, **kwargs):
-            username = request.user.username
+            username = request.META.get('HTTP_USERNAME')
             if permission == 'admin':
                 flag, result = account_base_service_ins.admin_permission_check(username)
                 if flag is False:

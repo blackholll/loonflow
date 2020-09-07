@@ -94,5 +94,8 @@ class ConstantService(BaseService):
                         self.FIELD_TYPE_ATTACHMENT: 'char_value'
                     }
 
+        self.NOTICE_TYPE_HOOK = 1  # hook
+        self.NOTICE_TYPE_WECHAT_WORK = 2  # 企业微信消息
+        self.NOTICE_TYPE_DINGTALK = 3  # 钉钉消息
 
 constant_service_ins = ConstantService()

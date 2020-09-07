@@ -127,6 +127,12 @@ class CustomNotice(BaseModel):
     """
     name = models.CharField('名称', max_length=50)
     description = models.CharField('描述', max_length=100, null=True, blank=True)
+    type_id = models.IntegerField('类型', default=1, help_text='hook,企业微信消息,钉钉消息')
+
+    corpid = models.CharField('企微corpid', max_length=100, null=True, blank=True)
+    corpsecret = models.CharField('企微corpsecret', max_length=100, null=True, blank=True)
+    appkey = models.CharField('钉钉appkey', max_length=100, null=True, blank=True)
+    appsecret = models.CharField('钉钉appsecret', max_length=100, null=True, blank=True)
 
     hook_url = models.CharField('hook url', max_length=100, null=True, blank=True)
     hook_token = models.CharField('hook token', max_length=100, null=True, blank=True)

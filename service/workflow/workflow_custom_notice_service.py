@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import CustomNotice
 from service.base_service import BaseService
+from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
 
 
@@ -44,24 +45,33 @@ class WorkflowCustomNoticeService(BaseService):
 
     @classmethod
     @auto_log
-    def add_custom_notice(cls, name: str, description: str, hook_url: str, hook_token: str, creator: str)->tuple:
+    def add_custom_notice(cls, name: str, description: str, type_id: int, corpid: str, corpsecret: str, appkey: str,
+                          appsecret: str, hook_url: str, hook_token: str, creator: str)->tuple:
         """
         新增自定义通知记录
         :param name:
         :param description:
+        :param type_id:
+        :param corpid:
+        :param corpsecret:
+        :param appkey:
+        :param appsecret:
         :param hook_url:
         :param hook_token:
         :param creator:
         :return:
         """
-        notice_obj = CustomNotice(name=name, description=description, hook_url=hook_url, hook_token=hook_token,
-                                  creator=creator)
+        notice_obj = CustomNotice(name=name, description=description, type_id=type_id, corpid=corpid,
+                                  corpsecret=corpsecret, appkey=appkey, appsecret=appsecret, hook_url=hook_url,
+                                  hook_token=hook_token, creator=creator)
         notice_obj.save()
         return True, dict(notice_id=notice_obj.id)
 
     @classmethod
     @auto_log
-    def update_custom_notice(cls, custom_notice_id: int, name: str, description: str, hook_url: str, hook_token: str)->tuple:
+    def update_custom_notice(cls, custom_notice_id: int, name: str, description: str, type_id: int,
+                             corpid: str, corpsecret: str, appkey: str, appsecret: str, hook_url: str,
+                             hook_token: str)->tuple:
         """
         更新自定义通知
         :param custom_notice_id:
@@ -73,9 +83,11 @@ class WorkflowCustomNoticeService(BaseService):
         """
         custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id, is_deleted=0)
         if custom_notice_obj:
-            custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token)
+            custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token,
+                                     type_id=type_id, corpid=corpid, corpsecret=corpsecret, appkey=appkey,
+                                     appsecret=appsecret)
         else:
-            custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token)
+            return False, 'the record is not existed or has been deleted'
         return True, ''
 
     @classmethod
@@ -92,6 +104,22 @@ class WorkflowCustomNoticeService(BaseService):
             return True, ''
         else:
             return False, 'the record is not exist or has been deleted'
+
+    @classmethod
+    @auto_log
+    def get_notice_detail(cls, custom_notice_id: int)->tuple:
+        """
+        获取通知详情
+        :param custom_notice_id:
+        :return:
+        """
+        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id, is_deleted=0).first()
+        if custom_notice_obj:
+            custom_notice_info = custom_notice_obj.get_dict()
+            return True, custom_notice_info
+        else:
+            return False, 'record is not exist or has been deleted'
+
 
 
 workflow_custom_notice_service_ins = WorkflowCustomNoticeService()

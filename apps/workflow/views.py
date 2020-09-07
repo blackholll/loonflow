@@ -675,9 +675,14 @@ class WorkflowRunScriptDetailView(LoonBaseView):
 class WorkflowCustomNoticeView(LoonBaseView):
     post_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is needed'),
-        'hook_url': And(str, lambda n: n != '', error='hook_url is needed'),
-        'hook_token': And(str, lambda n: n != '', error='hook_token is needed'),
+        'type_id': And(int, error='type_id is needed'),
         Optional('description'): str,
+        Optional('hook_url'): str,
+        Optional('hook_token'): str,
+        Optional('corpid'): str,
+        Optional('corpsecret'): str,
+        Optional('appkey'): str,
+        Optional('appsecret'): str,
     })
 
     @manage_permission_check('admin')
@@ -725,19 +730,25 @@ class WorkflowCustomNoticeView(LoonBaseView):
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
 
+        creator = request.META.get('HTTP_USERNAME')
         name = request_data_dict.get('name', '')
         description = request_data_dict.get('description', '')
+        type_id = request_data_dict.get('type_id', 1)
         hook_url = request_data_dict.get('hook_url', '')
         hook_token = request_data_dict.get('hook_token', '')
-        creator = request.user.username
+        corpid = request_data_dict.get('corpid', '')
+        corpsecret = request_data_dict.get('corpsecret', '')
+        appkey = request_data_dict.get('appkey', '')
+        appsecret = request_data_dict.get('appsecret', '')
 
         flag, result = account_base_service_ins.admin_permission_check(creator)
         if flag is False:
             return api_response(-1, result, {})
 
-        result, msg = workflow_custom_notice_service_ins.add_custom_notice(name, description, hook_url, hook_token, creator)
+        result, msg = workflow_custom_notice_service_ins.add_custom_notice(
+            name, description, type_id, corpid, corpsecret, appkey, appsecret, hook_url, hook_token, creator)
         if result is not False:
-            data = {}
+            data = msg
             code, msg,  = 0, ''
         else:
             code, data = -1, {}
@@ -747,9 +758,14 @@ class WorkflowCustomNoticeView(LoonBaseView):
 class WorkflowCustomNoticeDetailView(LoonBaseView):
     patch_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is needed'),
-        'hook_url': And(str, lambda n: n != '', error='hook_url is needed'),
-        'hook_token': And(str, lambda n: n != '', error='hook_token is needed'),
+        'type_id': And(int, error='type_id is needed'),
         Optional('description'): str,
+        Optional('hook_url'): str,
+        Optional('hook_token'): str,
+        Optional('corpid'): str,
+        Optional('corpsecret'): str,
+        Optional('appkey'): str,
+        Optional('appsecret'): str,
     })
 
     @manage_permission_check('admin')
@@ -770,16 +786,23 @@ class WorkflowCustomNoticeDetailView(LoonBaseView):
 
         name = request_data_dict.get('name', '')
         description = request_data_dict.get('description', '')
+        type_id = request_data_dict.get('type_id', 1)
         hook_url = request_data_dict.get('hook_url', '')
         hook_token = request_data_dict.get('hook_token', '')
-        creator = request.user.username
+        corpid = request_data_dict.get('corpid', '')
+        corpsecret = request_data_dict.get('corpsecret', '')
+        appkey = request_data_dict.get('appkey', '')
+        appsecret = request_data_dict.get('appsecret', '')
 
-        flag, result = account_base_service_ins.admin_permission_check(creator)
+        username = request.META.get('HTTP_USERNAME')
+
+
+        flag, result = account_base_service_ins.admin_permission_check(username)
         if flag is False:
             return api_response(-1, result, {})
 
-        result, msg = workflow_custom_notice_service_ins.update_custom_notice(notice_id, name, description, hook_url,
-                                                                       hook_token)
+        result, msg = workflow_custom_notice_service_ins.update_custom_notice(
+            notice_id, name, description, type_id, corpid, corpsecret, appkey, appsecret, hook_url, hook_token)
         if result is not False:
             data = {}
             code, msg, = 0, ''
@@ -800,6 +823,23 @@ class WorkflowCustomNoticeDetailView(LoonBaseView):
         result, msg = workflow_custom_notice_service_ins.del_custom_notice(notice_id)
         if result is not False:
             code, msg, data = 0, '', {}
+        else:
+            code, data = -1, {}
+        return api_response(code, msg, data)
+
+    @manage_permission_check('admin')
+    def get(self, request, *args, **kwargs):
+        """
+        获取自定义通知详情
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        notice_id = kwargs.get('notice_id')
+        result, msg = workflow_custom_notice_service_ins.get_notice_detail(notice_id)
+        if result is not False:
+            code, msg, data = 0, '', dict(value=msg)
         else:
             code, data = -1, {}
         return api_response(code, msg, data)

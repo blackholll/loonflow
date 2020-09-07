@@ -113,7 +113,7 @@ export default defineConfig({
       path: '/manage',
       name: '系统配置',
       icon: 'ToolOutlined',
-      component: './Workbench',
+      component: './Manage',
     },
     {
       path: '/',
