@@ -76,6 +76,12 @@
       radioClass: 'iradio_square-blue',
       increaseArea: '20%' /* optional */
     });
+    let input = document.getElementById("password");
+    input.addEventListener("keydown", function(event) {
+      if (event.code === "Enter") {
+        login();
+      }
+    });
   });
   function login(){
     var nextUrl = "{{next_url}}";
