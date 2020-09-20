@@ -4,6 +4,11 @@ export interface QueryUserSimpleType {
   search_value?: string;
 }
 
+export interface GetUserListType {
+  search_value?: string;
+  page?: number;
+  per_page?: number
+}
 
 export async function query() {
   return request<API.CurrentUser[]>('/api/users');
@@ -22,5 +27,11 @@ export async function queryUserSimple(params: QueryUserSimpleType) {
     method: 'get',
     params: params,
   })
+}
 
+export async function getUserList(params: GetUserListType) {
+  return request<API.CommonResponse>('/api/v1.0/accounts/users', {
+    method: 'get',
+    params: params
+  })
 }

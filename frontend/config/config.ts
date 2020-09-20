@@ -2,6 +2,7 @@
 import { defineConfig } from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
+import UserList from "@/pages/user/User";
 
 const { REACT_APP_ENV } = process.env;
 
@@ -104,7 +105,9 @@ export default defineConfig({
       routes: [
         {
           "path": "/users/user",
-          "name": "用户管理"
+          "name": "用户管理",
+          "component": '../../src/pages/user/User/UserList',
+
         },
         {
           "path": "/users/rule",
