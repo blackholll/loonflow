@@ -52,7 +52,7 @@
     "js-cookie": "^2.2.1",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.11",
-    "moment": "^2.25.3",
+    "moment": "^2.27.0",
     "omit.js": "^2.0.2",
     "path-to-regexp": "2.4.0",
     "qs": "^6.9.0",

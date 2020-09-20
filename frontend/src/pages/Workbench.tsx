@@ -4,6 +4,7 @@ import {Card, Select, Button, message, Modal} from 'antd';
 import DutyTicket from './ticket/DutyTicket';
 import {getWorkflowList} from "@/services/workflows";
 import TicketDetail from "@/pages/ticket/TicketDetail";
+import TicketList from "@/pages/ticket/TicketList";
 
 const { Option } = Select;
 
@@ -74,7 +75,7 @@ class Workbench extends Component<any, any> {
 
         </Card>
         <Card title="我的待办">
-          <DutyTicket />
+          <TicketList category={'duty'}/>
         </Card>
 
         <Modal

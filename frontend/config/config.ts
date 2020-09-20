@@ -52,30 +52,41 @@ export default defineConfig({
       "path": "/tickets",
       "name": "工单管理",
       "icon": "SolutionOutlined",
-      "children": [
+      routes: [
         {
           "path": "/tickets/duty",
-          "name": "我的待办"
+          "name": "我的待办",
+          "component": '../../src/pages/ticket/DutyTicket',
         },
         {
           "path": "/tickets/owner",
-          "name": "我的申请"
+          "name": "我的申请",
+          "component": '../../src/pages/ticket/OwnerTicket',
+
         },
         {
           "path": "/tickets/relation",
-          "name": "与我相关"
+          "name": "与我相关",
+          "component": '../../src/pages/ticket/RelatedTicket',
+
         },
         {
           "path": "/tickets/view",
-          "name": "工单查看"
+          "name": "工单查看",
+          "component": '../../src/pages/ticket/ViewTicket',
+
         },
         {
           "path": "/tickets/intervene",
-          "name": "工单干预"
+          "name": "工单干预",
+          "component": '../../src/pages/ticket/InterfereTicket',
+
         },
         {
           "path": "/tickets/all",
-          "name": "所有工单"
+          "name": "所有工单",
+          "component": '../../src/pages/ticket/AllTicket',
+
         }
       ]
     },
@@ -90,7 +101,7 @@ export default defineConfig({
       "name": "用户及权限",
       // "icon": "dashboard",
       "icon": "ApartmentOutlined",
-      "children": [
+      routes: [
         {
           "path": "/users/user",
           "name": "用户管理"
@@ -107,7 +118,7 @@ export default defineConfig({
           "path": "/users/app",
           "name": "调用权限"
         }
-      ]
+      ],
     },
     {
       path: '/manage',

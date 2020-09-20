@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import TicketList from "@/pages/ticket/TicketList";
 import {Card} from "antd";
 
-class DutyTicket extends Component<any, any> {
+class OwnerTicket extends Component<any, any> {
   constructor(props) {
     super(props);
   }
@@ -13,10 +13,10 @@ class DutyTicket extends Component<any, any> {
 
     return (
       <Card>
-        <TicketList category={'duty'}/>
+        <TicketList category={'owner'}/>
       </Card>
     )
   }
 }
 
-export default DutyTicket;
+export default OwnerTicket;
