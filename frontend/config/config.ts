@@ -3,6 +3,9 @@ import { defineConfig } from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
 import UserList from "@/pages/user/User";
+import RoleList from "@/pages/user/Role/RoleList";
+import DeptList from "@/pages/user/Dept/DeptList";
+import TokenList from "@/pages/user/Token/TokenList";
 
 const { REACT_APP_ENV } = process.env;
 
@@ -110,16 +113,21 @@ export default defineConfig({
 
         },
         {
-          "path": "/users/rule",
-          "name": "角色管理"
+          "path": "/users/role",
+          "name": "角色管理",
+          "component": '../../src/pages/user/Role/RoleList',
+
         },
         {
           "path": "/users/dept",
-          "name": "部门管理"
+          "name": "部门管理",
+          "component": '../../src/pages/user/Dept/DeptList',
+
         },
         {
           "path": "/users/app",
-          "name": "调用权限"
+          "name": "调用权限",
+          "component": '../../src/pages/user/Token/TokenList',
         }
       ],
     },

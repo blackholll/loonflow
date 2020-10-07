@@ -1,6 +1,7 @@
 import json
 import jwt
 from django.conf import settings
+from django.contrib.auth import login
 
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
@@ -37,6 +38,9 @@ class ApiPermissionCheck(MiddlewareMixin):
                         return HttpResponse(json.dumps(dict(code=-1, msg=user_obj, data={})))
                     request.META.update(dict(HTTP_APPNAME='loonflow'))
                     request.META.update(dict(HTTP_USERNAME=username))
+                    user_obj.backend = 'django.contrib.auth.backends.ModelBackend'
+                    login(request, user_obj)
+
                 return
             # for app call token check
             flag, msg = self.token_permission_check(request)

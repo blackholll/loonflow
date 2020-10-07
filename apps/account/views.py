@@ -289,28 +289,11 @@ class LoonDeptView(LoonBaseView):
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
         parent_dept_id = request_data_dict.get('parent_dept_id')
-        leader_id = request_data_dict.get('leader')
-        approver_str_list = request_data_dict.get('approver')
+        leader = request_data_dict.get('leader')
+        approver = request_data_dict.get('approver')
         label = request_data_dict.get('label')
         creator = request.user.username
-        approver_id_list = [int(approver_str) for approver_str in approver_str_list]
-        if approver_id_list:
-            flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
-            if flag is False:
-                return api_response(-1, result, {})
-            approver_username_list = result.get('username_list')
-            approver_username_str = ','.join(approver_username_list)
-        else:
-            approver_username_str = ''
-
-        if leader_id:
-            flag, result = account_base_service_ins.get_user_by_user_id(int(leader_id))
-            if flag is False:
-                return api_response(-1, result, {})
-            leader = result.username
-        else:
-            leader = ''
-        flag, result = account_base_service_ins.add_dept(name, parent_dept_id, leader, approver_username_str, label, creator)
+        flag, result = account_base_service_ins.add_dept(name, parent_dept_id, leader, approver, label, creator)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, result, {})
@@ -357,36 +340,12 @@ class LoonDeptDetailView(LoonBaseView):
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
         parent_dept_id = request_data_dict.get('parent_dept_id')
-        leader_id = request_data_dict.get('leader')
+        leader = request_data_dict.get('leader')
         approver = request_data_dict.get('approver')
-        if approver:
-            approver_list = approver.split(',')
-            approver_id_list = [int(approver_str) for approver_str in approver_list]
-        else:
-            approver_id_list = []
         label = request_data_dict.get('label')
 
-        if leader_id:
-            ok, result = account_base_service_ins.get_user_by_user_id(
-                int(leader_id)
-            )
-            if not ok:
-                return api_response(-1, result, {})
-            leader = result.username
-        else:
-            leader = None
-
-        if approver_id_list:
-            flag, result = account_base_service_ins.get_user_name_list_by_id_list(approver_id_list)
-            if flag is False:
-                return api_response(-1, result, {})
-            approver_username_list = result.get('username_list')
-            approver_username_str = ','.join(approver_username_list)
-        else:
-            approver_username_str = ''
-
         flag, result = account_base_service_ins.update_dept(dept_id,name, parent_dept_id, leader,
-                                                             approver_username_str, label)
+                                                            approver, label)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, '', {})

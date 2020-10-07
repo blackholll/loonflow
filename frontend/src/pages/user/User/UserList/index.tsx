@@ -94,6 +94,7 @@ class UserList extends Component<any, any> {
     }
     if (result.code === 0) {
       message.success('保存成功');
+      this.fetchUserData({});
     } else {
       message.error(`保存失败: ${result.msg}`);
     }
@@ -351,6 +352,7 @@ class UserList extends Component<any, any> {
                 <Radio value={2}>超级管理员</Radio>
               </Radio.Group>
             </Form.Item>
+
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
                 确定

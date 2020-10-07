@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Table, message } from "antd";
+import {Table, message, Row, Col, Form, Input, Button} from "antd";
 import {getUserRole} from "@/services/user";
 
 
@@ -17,6 +17,7 @@ class UserRoleList extends Component<any, any> {
           pagination.current = current;
           this.setState({pagination}, ()=>{
             // get data
+            this.fetchUserRole({page:current});
           })
         }
       }
@@ -54,13 +55,15 @@ class UserRoleList extends Component<any, any> {
     ]
 
     return (
-      <Table
-        loading={this.state.userRoleLoadin}
-        columns={columns}
-        dataSource={this.state.userRoleResult}
-        rowKey={record=>record.id}
-        pagination={this.state.pagination}
-      />
+      <div>
+        <Table
+          loading={this.state.userRoleLoading}
+          columns={columns}
+          dataSource={this.state.userRoleResult}
+          rowKey={record=>record.id}
+          pagination={this.state.pagination}
+        />
+      </div>
     )
   }
 
