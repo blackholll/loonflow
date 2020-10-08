@@ -31,7 +31,7 @@ class WorkflowView(LoonBaseView):
         :return:
         """
         request_data = request.GET
-        name = request_data.get('name', '')
+        search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
         from_admin = int(request_data.get('from_admin', 0))  # 获取有管理权限的工作流列表
@@ -48,7 +48,7 @@ class WorkflowView(LoonBaseView):
             return api_response(code, msg, data)
         permission_workflow_id_list = result.get('workflow_id_list')
 
-        flag, result = workflow_base_service_ins.get_workflow_list(name, page, per_page, permission_workflow_id_list, username, from_admin)
+        flag, result = workflow_base_service_ins.get_workflow_list(search_value, page, per_page, permission_workflow_id_list, username, from_admin)
         if flag is not False:
             paginator_info = result.get('paginator_info')
             data = dict(value=result.get('workflow_result_restful_list'), per_page=paginator_info.get('per_page'),
