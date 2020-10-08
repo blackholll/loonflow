@@ -2413,6 +2413,9 @@ class TicketBaseService(BaseService):
         ticket_result.participant = ticket_result.creator
         ticket_result.act_state_id = constant_service_ins.TICKET_ACT_STATE_RETREAT
         ticket_result.save()
+
+        cls.update_ticket_relation(ticket_id, ticket_result.creator)
+
         # 新增操作记录
         flag, result = cls.get_ticket_all_field_value_json(ticket_result.id)
         if flag is False:
