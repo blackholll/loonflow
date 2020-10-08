@@ -98,7 +98,12 @@ export default defineConfig({
       path: '/workflows',
       name: '工作流管理',
       icon: 'DeploymentUnitOutlined',
-      component: './Workbench',
+      component: '../../src/pages/workflow/WorkflowList',
+    },
+    {
+      path: '/workflows/detail',
+      component: '../../src/pages/workflow/WorkflowDetail',
+
     },
     {
       "path": "/users",
