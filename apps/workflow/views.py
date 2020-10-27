@@ -74,12 +74,19 @@ class WorkflowView(LoonBaseView):
         name = request_data_dict.get('name', '')
         description = request_data_dict.get('description', '')
         notices = request_data_dict.get('notices', '')
-        view_permission_check = request_data_dict.get('view_permission_check', 1)
-        limit_expression = request_data_dict.get('limit_expression', '')
+        view_permission_check = request_data_dict.get('view_permission_check', 0)
+        limit_expression = request_data_dict.get('limit_expression', '{}')
         display_form_str = request_data_dict.get('display_form_str', '')
-        workflow_admin = request_data_dict.get('workflow_admin', '')
         title_template = request_data_dict.get('title_template', '')
         content_template = request_data_dict.get('content_template', '')
+
+        admins = request_data_dict.get('admins', '')
+        interveners = request_data_dict.get('intervener', '')
+        view_persons = request_data_dict.get('view_persons', '')
+        view_depts = request_data_dict.get('view_depts', '')
+        api_permission_apps = request_data_dict.get('api_permission_apps', '')
+
+
         creator = request.META.get('HTTP_USERNAME', '')
         flag, result = workflow_base_service_ins.add_workflow(
             name, description, notices, view_permission_check, limit_expression, display_form_str, creator,
@@ -153,22 +160,19 @@ class WorkflowDetailView(LoonBaseView):
         :return:
         """
         workflow_id = kwargs.get('workflow_id')
+
         app_name = request.META.get('HTTP_APPNAME')
         # 判断是否有工作流的权限
         app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        flag, workflow_result = workflow_base_service_ins.get_by_id(workflow_id)
+        flag, workflow_result = workflow_base_service_ins.get_full_info_by_id(workflow_id)
         if flag is False:
             code, msg, data = -1, workflow_result, {}
         else:
-            data = dict(name=workflow_result.name, description=workflow_result.description,
-                        notices=workflow_result.notices, view_permission_check=workflow_result.view_permission_check,
-                        limit_expression=workflow_result.limit_expression,
-                        display_form_str=workflow_result.display_form_str, creator=workflow_result.creator,
-                        gmt_created=str(workflow_result.gmt_created)[:19])
+            workflow_result['gmt_created'] = str(workflow_result['gmt_created'])[:19]
             code = 0
-        return api_response(code, msg, data)
+        return api_response(code, msg, workflow_result)
 
     @manage_permission_check('workflow_admin')
     def patch(self, request, *args, **kwargs):
@@ -669,6 +673,29 @@ class WorkflowRunScriptDetailView(LoonBaseView):
             code, msg, data = 0, '', {}
         else:
             code, data = -1, {}
+        return api_response(code, msg, data)
+
+class SimpleWorkflowCustomNoticeView(LoonBaseView):
+    @manage_permission_check('workflow_admin')
+    def get(self, request, *args, **kwargs):
+        """
+        获取通知列表(简单信息)
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        result, msg = workflow_custom_notice_service_ins.get_notice_list(search_value, page, per_page, simple=True)
+
+        if result is not False:
+            data = dict(value=result, per_page=msg['per_page'], page=msg['page'], total=msg['total'])
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
         return api_response(code, msg, data)
 
 

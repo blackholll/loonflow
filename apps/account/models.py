@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 from apps.loon_base_model import BaseModel
+from apps.workflow.models import Workflow
 
 
 class LoonDept(BaseModel):
@@ -227,7 +228,6 @@ class AppToken(BaseModel):
     """
     app_name = models.CharField('应用名称', max_length=50)
     token = models.CharField('签名令牌', max_length=50, help_text='后端自动生成')
-    workflow_ids = models.CharField('工作流权限id', default='', blank=True, max_length=2000, help_text='有权限的工作流ids,逗号隔开,如1,2,3')
     ticket_sn_prefix = models.CharField('工单流水号前缀', default='loonflow', max_length=20, help_text='工单流水号前缀，如设置为loonflow,则创建的工单的流水号为loonflow_201805130013')
     
     def get_dict(self):
@@ -239,3 +239,4 @@ class AppToken(BaseModel):
         else:
             role_dict_info['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, 'creator'))
         return role_dict_info
+

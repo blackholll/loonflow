@@ -651,12 +651,13 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_dept_list(cls, search_value: str, page: int=1, per_page: int=10)->tuple:
+    def get_dept_list(cls, search_value: str, page: int=1, per_page: int=10, simple=False)->tuple:
         """
         get dept restful list by search params
         :param search_value: department name or department description Support fuzzy queries
         :param page:
         :param per_page:
+        :param simple: 只返回部分数据
         :return:
         """
         query_params = Q(is_deleted=False)
@@ -674,7 +675,13 @@ class AccountBaseService(BaseService):
         dept_result_object_list = dept_result_paginator.object_list
         dept_result_object_format_list = []
         for dept_result_object in dept_result_object_list:
-            dept_result_object_format_list.append(dept_result_object.get_dict())
+            result_dict = dept_result_object.get_dict()
+            if simple:
+                simple_result_dict = dict()
+                simple_result_dict['id'] = result_dict['id']
+                simple_result_dict['name'] = result_dict['name']
+                simple_result_dict['parent_dept_info'] = result_dict['parent_dept_info']
+            dept_result_object_format_list.append(result_dict)
         return True, dict(dept_result_object_format_list=dept_result_object_format_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
@@ -733,12 +740,13 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_token_list(cls, search_value: str, page: int=1, per_page: int=10)->tuple:
+    def get_token_list(cls, search_value: str, page: int=1, per_page: int=10, simple=False)->tuple:
         """
         get app permission token list
         :param search_value: support app name fuzzy queries
         :param page:
         :param per_page:
+        :param simple: 返回简易数据，排除敏感信息
         :return:
         """
         query_params = Q(is_deleted=False)
@@ -756,6 +764,9 @@ class AccountBaseService(BaseService):
         token_result_object_list = token_result_paginator.object_list
         token_result_object_format_list = []
         for token_result_object in token_result_object_list:
+            token_result_data = token_result_object.get_dict()
+            if simple:
+                token_result_data.pop('token')
             token_result_object_format_list.append(token_result_object.get_dict())
         return True, dict(token_result_object_format_list=token_result_object_format_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))

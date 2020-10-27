@@ -351,6 +351,30 @@ class LoonDeptDetailView(LoonBaseView):
         return api_response(0, '', {})
 
 
+class LoonSimpleDeptView(LoonBaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        部门列表，简单信息
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10))
+        page = int(request_data.get('page', 1))
+        flag, result = account_base_service_ins.get_dept_list(search_value, page, per_page, simple=True)
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('dept_result_object_format_list'), per_page=paginator_info.get('per_page'),
+                        page=paginator_info.get('page'), total=paginator_info.get('total'))
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
+
 @method_decorator(login_required, name='dispatch')
 class LoonAppTokenView(LoonBaseView):
     post_schema = Schema({
@@ -406,6 +430,34 @@ class LoonAppTokenView(LoonBaseView):
             code, data = 0, {'id': result.get('app_token_id')}
 
         return api_response(code, result, data)
+
+
+@method_decorator(login_required, name='dispatch')
+class LoonSimpleAppTokenView(LoonBaseView):
+    @manage_permission_check('workflow_admin')
+    def get(self, request, *args, **kwargs):
+        """
+        call api permission
+        调用权限列表（返回简单数据）
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10))
+        page = int(request_data.get('page', 1))
+        flag, result = account_base_service_ins.get_token_list(search_value, page, per_page, simple=True)
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('token_result_object_format_list'), per_page=paginator_info.get('per_page'),
+                        page=paginator_info.get('page'), total=paginator_info.get('total'))
+            code, msg, = 0, ''
+        else:
+            code, data = -1, ''
+        return api_response(code, msg, data)
+
 
 
 @method_decorator(login_required, name='dispatch')

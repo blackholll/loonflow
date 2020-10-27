@@ -1,7 +1,8 @@
 import { request } from 'umi';
 
 export interface NoticeListRequestParamsType {
-  per_page: number
+  per_page?: number,
+  page?: number
 }
 
 export interface addNoticeListRequestParamsType {
@@ -40,6 +41,13 @@ export interface updateNoticeDetailRequestParamsType {
 
 export async function getNoticeListRequest(params: NoticeListRequestParamsType) {
   return request<API.TicketListData>('/api/v1.0/workflows/custom_notices', {
+    method: 'get',
+    params: params
+  });
+}
+
+export async function getSimpleNoticeListRequest(params: NoticeListRequestParamsType) {
+  return request<API.TicketListData>('/api/v1.0/workflows/simple_custom_notices', {
     method: 'get',
     params: params
   });

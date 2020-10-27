@@ -1,7 +1,7 @@
 import json
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.workflow.models import Workflow, WorkflowAdmin
+from apps.workflow.models import Workflow, WorkflowAdmin, WorkflowUserPermission
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
@@ -192,6 +192,44 @@ class WorkflowBaseService(BaseService):
         if not workflow_obj:
             return False, 'workflow is not existed or has been deleted'
         return True, workflow_obj
+
+    @classmethod
+    @auto_log
+    def get_full_info_by_id(cls, workflow_id: int)->tuple:
+        """
+        获取工作流详细详情，包括关联数据。管理员， 干预人，查看权限人，查看权限部门，授权应用
+        :param workflow_id:
+        :return:
+        """
+        workflow_obj = Workflow.objects.filter(is_deleted=0, id=workflow_id).first()
+
+        # 权限人
+        permission_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
+        adminer_list = []
+        intervener_list = []
+        viewer_username_list = []
+        viewer_dept_id_list = []
+        app_for_api_id_list = []
+        for permission_obj in permission_queryset:
+            if permission_obj.permission == 'admin':
+                adminer_list.append(permission_obj.user)
+            elif permission_obj.permission == 'interverene':
+                intervener_list.append(permission_obj.user)
+            elif permission_obj.permission == 'view':
+                if permission_obj.user_type == 'user':
+                    viewer_username_list.append(permission_obj.user)
+                if permission_obj.user_type == 'department':
+                    viewer_dept_id_list.append(int(permission_obj.user))
+            elif permission_obj.permission == 'api':
+                app_for_api_id_list.append(int(permission_obj.user))
+
+        workflow_info_dict = workflow_obj.get_dict()
+        workflow_info_dict['adminer_list'] = adminer_list
+        workflow_info_dict['intervener_list'] = intervener_list
+        workflow_info_dict['viewer_username_list'] = viewer_username_list
+        workflow_info_dict['viewer_dept_id_list'] = viewer_dept_id_list
+        workflow_info_dict['app_for_api_id_list'] = app_for_api_id_list
+        return True, workflow_info_dict
 
     @classmethod
     @auto_log

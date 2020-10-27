@@ -91,6 +91,13 @@ export async function getDeptList(params: GetDeptListType) {
   })
 }
 
+export async function getSimpleDeptList(params: GetUserListType) {
+  return request<API.CommonResponse> ('/api/v1.0/accounts/simple_depts',{
+    method: 'get',
+    params: params
+  })
+}
+
 export async function addUser(params: AddUserType) {
   return request<API.CommonResponse> ('/api/v1.0/accounts/users', {
     method: 'post',
@@ -189,6 +196,12 @@ export async function getTokenListRequest(params: CommonSearchType) {
     params: params
   })
 }
+export async function getSimpleTokenListRequest(params: CommonSearchType) {
+  return request<API.CommonResponse> ('/api/v1.0/accounts/simple_app_token', {
+    method: 'get',
+    params: params
+  })
+}
 
 export async function addTokenRequest(params: TokenType) {
   return request<API.CommonResponse> ('/api/v1.0/accounts/app_token', {
@@ -198,7 +211,7 @@ export async function addTokenRequest(params: TokenType) {
 }
 
 export async function updateTokenRequest(tokenId: number, params: tokenType){
-  return request<API.CommonResponse> ('/api/v1.0/accounts/app_token', {
+  return request<API.CommonResponse> ('/api/v1.0/accounts/app_token/${tokenId}', {
     method: 'patch',
     data: params
   })

@@ -136,3 +136,13 @@ class CustomNotice(BaseModel):
 
     hook_url = models.CharField('hook url', max_length=100, null=True, blank=True)
     hook_token = models.CharField('hook token', max_length=100, null=True, blank=True)
+
+
+class WorkflowUserPermission(BaseModel):
+    """
+    用户，部门，应用对工作流的操作权限。 view: 查看对应工单详情(不管该工作流是否开启查看权限校验)，intervene:view+强制修改工单状态的权限。 admin:intervene + 可以修改工作流
+    """
+    workflow_id = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=False)
+    permission = models.CharField('权限', max_length=100, null=True, blank=True)  # view, intervene， admin, api
+    user_type = models.CharField('用户类型', max_length=100, null=True, blank=True)  # user, department, app
+    user = models.CharField('用户', max_length=100, null=True, blank=True)  # username, department_id, app_id

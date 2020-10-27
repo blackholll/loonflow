@@ -46,7 +46,7 @@ class WorkflowList extends Component<any, any> {
     this.setState({
       workflowListLoading: true
     });
-    const result = await getWorkflowList(params);
+    const result = await getWorkflowList( params);
     if (result.code ===0 ){
       this.setState({
         workflowListLoading: false,
