@@ -134,7 +134,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
   }
 
   delCustomField = async(fieldId) => {
-    const result = await delCustomField(this.props.workflowId, fieldId);
+    const result = await  delCustomField(this.props.workflowId, fieldId);
     if (result.code === 0) {
       message.success('删除字段成功');
       this.fetchCustomFieldListData({per_page:10, page:1})
@@ -218,7 +218,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
       {
         title: "操作",
         key: "action",
-        render:(text:string, record:andy) => (
+        render:(text:string, record:any) => (
           <span>
             <a style={{marginRight: 16}} onClick={() => this.showCustomFieldModal(record)}>编辑</a>
             <a style={{marginRight: 16, color: "red"}}>
@@ -242,7 +242,6 @@ class WorkflowCustomFieldList extends Component<any, any> {
     };
 
     const formInitialValues = this.getFieldInitialValues();
-    console.log(formInitialValues);
 
     return (
       <div>
@@ -277,7 +276,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
         <Table loading={this.state.deptListLoading} columns={columns} dataSource={this.state.customFieldList}
                rowKey={record => record.id} pagination={this.state.pagination}/>
         <Modal
-          title="部门"
+          title="自定义字段"
           visible={this.state.customFieldModalVisible}
           onOk={this.handleCustomFieldOk}
           onCancel={this.handleCustomFieldCancel}

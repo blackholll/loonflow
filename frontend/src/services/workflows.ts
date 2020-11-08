@@ -29,6 +29,25 @@ export interface  CustomFiledEditType {
   field_choice?: string
 }
 
+export interface WorkflowStateParamsType {
+  search_value?: string;
+  page?: number;
+  per_page?: number;
+}
+export interface workflowStateEditType {
+  name: string,
+  order_id: number,
+  type_id: number,
+  is_hidden: number,
+  enable_retreat: number,
+  participant_type_id: number,
+  distribute_type_id: number,
+  remember_last_man_enable: number,
+  state_field_str: string,
+  label?: string,
+
+}
+
 export async function getWorkflowList(params: WorkflowParamsType) {
   return request<API.WorkflowListData>('/api/v1.0/workflows', {
     method: 'get',
@@ -71,6 +90,33 @@ export async function updateCustomField(workflowId: Number, customFieldId: Numbe
 
 export async function delCustomField(workflowId: Number, customFieldId: Number) {
   return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/custom_fields/${customFieldId}`,{
+    method: 'delete',
+  })
+}
+
+export async function getWorkflowState(workflowId: Number, params:WorkflowStateParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/states`, {
+    method: 'get',
+    params: params
+  })
+}
+
+export async function updateWorkflowState(workflowId: Number, stateId: Number, params:workflowStateEditType) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/states/${stateId}`, {
+    method: 'patch',
+    data: params
+  })
+}
+
+export async function addWorkflowState(workflowId: Number, params:workflowStateEditType) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/states`, {
+    method: 'post',
+    data: params
+  })
+}
+
+export async function delWorkflowState(workflowId: Number, stateId: Number) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/states/${stateId}`,{
     method: 'delete',
   })
 }

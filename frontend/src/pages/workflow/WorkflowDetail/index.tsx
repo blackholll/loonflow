@@ -5,6 +5,7 @@ import {getSimpleNoticeListRequest} from "@/services/manage";
 import {getSimpleDeptList, getSimpleTokenListRequest, queryUserSimple} from "@/services/user";
 import {getWorkflowDetail} from "@/services/workflows";
 import WorkflowCustomFieldList from "@/pages/workflow/WorkflowCustomFieldList";
+import WorkflowState from "@/pages/workflow/WorkflowState";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -376,7 +377,7 @@ class WorkflowDetail extends Component<any, any> {
             <WorkflowCustomFieldList workflowId={this.state.workflowId}/>
           </TabPane>
           <TabPane tab="状态" key="stateTab">
-            Content of Tab Pane 2
+            <WorkflowState workflowId={this.state.workflowId}/>
           </TabPane>
           <TabPane tab="流转" key="transitionTab">
             Content of Tab Pane 3
