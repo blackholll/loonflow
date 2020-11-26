@@ -239,9 +239,8 @@ class WorkflowDetailView(LoonBaseView):
 class WorkflowTransitionView(LoonBaseView):
     post_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is needed'),
-        'transition_type_id': And(int, error='transition_type_id is needed'),
-        'source_state_id': And(int, lambda n: n != 0, error='source_state_id is needed'),
-        'attribute_type_id': And(int, lambda n: n != 0, error='attribute_type_id is needed'),
+        'source_state_id': And(int, lambda n: n != 0, error='source_state_id is needed and should be an integer'),
+        'attribute_type_id': And(int, lambda n: n != 0, error='attribute_type_id is needed and should be an integer'),
 
         Optional('alert_enable'): int,
         Optional('field_require_check'): int,
@@ -249,6 +248,7 @@ class WorkflowTransitionView(LoonBaseView):
         Optional('destination_state_id'): int,
         Optional('timer'): int,
         Optional('condition_expression'): str,
+        Optional('transition_type_id'): int,
 
     })
 
@@ -911,7 +911,7 @@ class WorkflowCustomFieldView(LoonBaseView):
             data = dict(value=result.get('workflow_custom_field_result_restful_list'),
                         per_page=paginator_info.get('per_page'), page=paginator_info.get('page'),
                         total=paginator_info.get('total'))
-            code, msg, = 0, ''
+            code, msg = 0, ''
         else:
             code, data, msg = -1, {}, ''
         return api_response(code, msg, data)
@@ -1030,4 +1030,23 @@ class WorkflowCustomFieldDetailView(LoonBaseView):
             code, msg, = 0, ''
         else:
             code, data = -1, ''
+        return api_response(code, msg, data)
+
+
+class WorkflowSimpleDescriptionView(LoonBaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        简单描述，可用于生成流程图
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+
+        flag, workflow_simple_description = workflow_base_service_ins.get_simple_description(workflow_id)
+        if flag is False:
+            code, data, msg = -1, {}, workflow_simple_description
+        else:
+            code, data, msg = 0, workflow_simple_description, ''
         return api_response(code, msg, data)

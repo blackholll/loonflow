@@ -6,6 +6,8 @@ import {getSimpleDeptList, getSimpleTokenListRequest, queryUserSimple} from "@/s
 import {getWorkflowDetail} from "@/services/workflows";
 import WorkflowCustomFieldList from "@/pages/workflow/WorkflowCustomFieldList";
 import WorkflowState from "@/pages/workflow/WorkflowState";
+import WorkflowTransiton from "@/pages/workflow/WorkflowTransition";
+import WorkflowGraph from "@/pages/workflow/workflowGraph";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -380,10 +382,10 @@ class WorkflowDetail extends Component<any, any> {
             <WorkflowState workflowId={this.state.workflowId}/>
           </TabPane>
           <TabPane tab="流转" key="transitionTab">
-            Content of Tab Pane 3
+            <WorkflowTransiton workflowId={this.state.workflowId}/>
           </TabPane>
           <TabPane tab="流程图" key="flowChatTab">
-            Content of Tab Pane 3
+            <WorkflowGraph workflowId={this.state.workflowId}/>
           </TabPane>
           <TabPane tab="统计" key="statisticsTab">
             Content of Tab Pane 3

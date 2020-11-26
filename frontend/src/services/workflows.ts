@@ -1,5 +1,10 @@
 import { request } from 'umi';
 
+export interface CommonSearchParamsType {
+  name?: string;
+  page?: number;
+  per_page?: number;
+}
 export interface WorkflowParamsType {
   name?: string;
   page?: number;
@@ -45,6 +50,10 @@ export interface workflowStateEditType {
   remember_last_man_enable: number,
   state_field_str: string,
   label?: string,
+}
+
+export interface  workflowTransitionEditType {
+  name: string,
 
 }
 
@@ -115,6 +124,13 @@ export async function addWorkflowState(workflowId: Number, params:workflowStateE
   })
 }
 
+export async function addWorkflowTransition(workflowId: Number, params:workflowTransitionEditType) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/transitions`, {
+    method: 'post',
+    data: params
+  })
+}
+
 export async function delWorkflowState(workflowId: Number, stateId: Number) {
   return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/states/${stateId}`,{
     method: 'delete',
@@ -122,3 +138,27 @@ export async function delWorkflowState(workflowId: Number, stateId: Number) {
 }
 
 
+export async function  getWorkflowTransition(workflowId: Number, params:CommonSearchParamsType) {
+  return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}/transitions`, {
+    method: 'get',
+    params: params
+  })
+}
+export async function  updateWorkflowTransition(workflowId: Number, transitionId:Number, params:workflowTransitionEditType) {
+  return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}/transitions/${transitionId}`, {
+    method: 'patch',
+    params: params
+  })
+}
+
+export async function delWorkflowTransition(workflowId:Number, transitionId:Number){
+  return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}/transitions/${transitionId}`,{
+    method: 'delete'
+  })
+}
+
+export async function getWorkflowSimpleDescription(workflowId: Number){
+  return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}/simple_description`, {
+    method: 'get'
+  })
+}

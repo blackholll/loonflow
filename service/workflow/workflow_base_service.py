@@ -5,6 +5,8 @@ from apps.workflow.models import Workflow, WorkflowAdmin, WorkflowUserPermission
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
+from service.workflow.workflow_state_service import workflow_state_service_ins
+from service.workflow.workflow_transition_service import workflow_transition_service_ins
 
 
 class WorkflowBaseService(BaseService):
@@ -329,6 +331,42 @@ class WorkflowBaseService(BaseService):
         if workflow_obj:
             workflow_obj.update(is_deleted=True)
         return True, ''
+
+    @classmethod
+    @auto_log
+    def get_simple_description(cls, workflow_id: int)->tuple:
+        """
+        获取简单描述
+        :param workflow_id:
+        :return:
+        """
+        flag, workflow_detail = cls.get_by_id(workflow_id)
+        if flag is False:
+            return flag, workflow_detail
+
+        flag, state_list = workflow_state_service_ins.get_workflow_states(workflow_id)
+        if flag is False:
+            return flag, state_list
+
+        flag, transition_list = workflow_transition_service_ins.get_transition_by_args(dict(workflow_id=workflow_id))
+        if flag is False:
+            return flag, transition_list
+
+        workflow_basic_info = dict(id=workflow_detail.id, name=workflow_detail.name)
+        workflow_state_info = []
+        for state in state_list:
+            workflow_state_info.append(dict(id=state.id, name=state.name))
+        workflow_transition_info = []
+        for transition in transition_list:
+            workflow_transition_info.append(
+                dict(id=transition.id, name=transition.name, source_state_id=transition.source_state_id,
+                     destination_state_id=transition.destination_state_id,
+                     condition_expression=transition.condition_expression,
+                     attribute_type_id=transition.attribute_type_id, timer=transition.timer
+                     ))
+        result = dict(workflow_basic_info=workflow_basic_info, workflow_state_info=workflow_state_info,
+                      workflow_transition_info=workflow_transition_info)
+        return True, result
 
 
 workflow_base_service_ins = WorkflowBaseService()
