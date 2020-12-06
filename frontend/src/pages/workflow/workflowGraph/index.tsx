@@ -1,8 +1,9 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, useLayoutEffect} from 'react'
 import ReactDOM from 'react-dom';
 import G6 from '@antv/g6';
 import {getWorkflowSimpleDescription} from "@/services/workflows";
 import {message} from "antd";
+
 
 const data = {
   nodes: [
@@ -200,8 +201,11 @@ const WorkflowGraph = (props) => {
   let graph = null;
 
   const [workflowData, setData] = useState({});
+  console.log('source workfow');
+  console.log(workflowData);
 
   const fetchGraphData = async() => {
+    console.log('new');
     const result = await getWorkflowSimpleDescription(props.workflowId);
     if (result.code ===0) {
       let nodes = [];
@@ -236,7 +240,12 @@ const WorkflowGraph = (props) => {
     };
   };
 
-  useEffect( async() => {
+  useEffect( () => {
+    fetchGraphData();
+
+  }, [])
+
+  useEffect( () => {
     console.log('执行useeffect');
     if (!graph) {
       // 实例化 Graph
@@ -324,20 +333,19 @@ const WorkflowGraph = (props) => {
                 return cfg;
 
               },
-              offset: 30
+              // offset: 30
             }
           ]
         },
         fitView: true
       });
-      // graph.data(workflowData);
-      graph.data(data);
+      graph.data(workflowData);
+      // graph.data(data);
       graph.render();
     }
   }, [workflowData]);
 
   return <div ref={ref}></div>;
-  // return <div >{workflowData}</div>;
 };
 
 export default WorkflowGraph;
