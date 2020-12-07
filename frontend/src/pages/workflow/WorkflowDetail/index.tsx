@@ -388,7 +388,7 @@ class WorkflowDetail extends Component<any, any> {
             <WorkflowGraph workflowId={this.state.workflowId}/>
           </TabPane>
           <TabPane tab="统计" key="statisticsTab">
-            Content of Tab Pane 3
+            敬请期待...
           </TabPane>
         </Tabs>
       </Card>
