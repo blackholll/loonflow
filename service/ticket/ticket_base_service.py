@@ -2445,7 +2445,8 @@ class TicketBaseService(BaseService):
             flag, ticket_result = cls.get_ticket_by_id(ticket_id)
             if flag is False:
                 return False, ticket_result
-            flag, start_state_result = workflow_state_service_ins.get_workflow_start_state(ticket_id)
+            workflow_id = ticket_result.workflow_id
+            flag, start_state_result = workflow_state_service_ins.get_workflow_start_state(workflow_id)
             if flag is False:
                 return False,  start_state_result
             if ticket_result.creator == username and ticket_result.state_id == start_state_result.id:
