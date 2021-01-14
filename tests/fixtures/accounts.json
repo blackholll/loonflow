@@ -325,7 +325,6 @@
        "is_deleted": false,
        "app_name": "ops",
        "token": "8cd585da-3cc6-11e8-9946-784f437daad6",
-       "workflow_ids": "1,2",
        "ticket_sn_prefix": "ops"
      }
    },
@@ -339,7 +338,6 @@
        "is_deleted": false,
        "app_name": "cmdb",
        "token": "9ccea2b0-3ae9-11e9-b8f3-acde48001122",
-       "workflow_ids": "1",
        "ticket_sn_prefix": "cmdb"
      }
    },
@@ -353,7 +351,6 @@
        "is_deleted": false,
        "app_name": "oa",
        "token": "b5ee6528-3ae9-11e9-a2a9-acde48001122",
-       "workflow_ids": "1,2",
        "ticket_sn_prefix": "oa"
      }
    },
@@ -367,7 +364,6 @@
        "is_deleted": false,
        "app_name": "yunwei",
        "token": "7066b430-3d56-11e9-bb46-acde48001122",
-       "workflow_ids": "1",
        "ticket_sn_prefix": "yunwei"
      }
    },
@@ -381,7 +377,6 @@
        "is_deleted": false,
        "app_name": "dbcenter",
        "token": "ce6abe50-3d58-11e9-b81a-acde48001122",
-       "workflow_ids": "1",
        "ticket_sn_prefix": "dbcenter"
      }
    },
@@ -395,7 +390,6 @@
        "is_deleted": false,
        "app_name": "cms",
        "token": "39d17666-3d59-11e9-a7b1-acde48001122",
-       "workflow_ids": "2",
        "ticket_sn_prefix": "cms"
      }
    }

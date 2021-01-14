@@ -368,5 +368,9 @@ class WorkflowBaseService(BaseService):
                       workflow_transition_info=workflow_transition_info)
         return True, result
 
+    @classmethod
+    @auto_log
+    def get_permission_list_by_args(cls, app_namelist, role):
+        pass
 
 workflow_base_service_ins = WorkflowBaseService()

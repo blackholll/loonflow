@@ -1133,5 +1133,34 @@
       "hook_url": "",
       "hook_token": ""
     }
+  },
+  {
+    "model": "workflow.workflowuserpermission",
+    "pk": 1,
+    "fields": {
+      "creator": "admin",
+      "gmt_created": "2019-03-03T10:08:24.294",
+      "gmt_modified": "2019-04-07T22:25:10.723",
+      "is_deleted": false,
+      "workflow_id": 1,
+      "permission": "api",
+      "user_type": "app",
+      "user": "ops"
+    }
+  },
+  {
+    "model": "workflow.workflowuserpermission",
+    "pk": 2,
+    "fields": {
+      "creator": "admin",
+      "gmt_created": "2019-03-03T10:08:24.294",
+      "gmt_modified": "2019-04-07T22:25:10.723",
+      "is_deleted": false,
+      "workflow_id": 2,
+      "permission": "api",
+      "user_type": "app",
+      "user": "ops"
+    }
   }
+
 ]

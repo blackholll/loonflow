@@ -23,7 +23,7 @@ class TokenList extends Component<any, any> {
           pagination.page = current;
           pagination.current = current;
           this.setState({pagination}, () => {
-            this.fetchUserData({
+            this.fetchTokenList({
               page: pagination.page,
               per_page: pagination.pageSize
             })
@@ -43,7 +43,12 @@ class TokenList extends Component<any, any> {
     this.setState({tokenResultLoading: true});
     const result = await getTokenListRequest(params);
     if (result.code === 0) {
-      this.setState({tokenResultLoading: false, tokenResult: result.data.value})
+      const pagination = { ...this.state.pagination };
+      pagination.page = result.data.page;
+      pagination.pageSize = result.data.per_page;
+      pagination.total = result.data.total;
+
+      this.setState({tokenResultLoading: false, tokenResult: result.data.value, pagination})
     }
   }
 
@@ -206,7 +211,7 @@ class TokenList extends Component<any, any> {
                rowKey={record => record.id} pagination={this.state.pagination}/>
 
         <Modal
-          title="部门"
+          title="调用权限"
           visible={this.state.tokenModalVisible}
           onOk={this.handleTokenOk}
           onCancel={this.handleTokenCancel}

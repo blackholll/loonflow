@@ -38,7 +38,8 @@ class WorkflowView(LoonBaseView):
         username = request.META.get('HTTP_USERNAME')
         app_name = request.META.get('HTTP_APPNAME')
 
-        flag, result = account_base_service_ins.app_workflow_permission_list(app_name)
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+        flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission('api', 'app', app_name)
 
         if not flag:
             return api_response(-1, result, {})

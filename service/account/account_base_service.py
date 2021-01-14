@@ -359,7 +359,9 @@ class AccountBaseService(BaseService):
         app_token_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
         if not app_token_obj:
             return False, 'appname is unauthorized'
-        workflow_ids = app_token_obj.workflow_ids
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+
+
         if workflow_ids:
             workflow_id_list = workflow_ids.split(',')
             workflow_id_list = [int(workflow_id) for workflow_id in workflow_id_list]
@@ -378,7 +380,9 @@ class AccountBaseService(BaseService):
         """
         if app_name == 'loonflow':
             return True, ''
-        flag, result = cls.app_workflow_permission_list(app_name)
+
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+        flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission('api', 'app', app_name)
 
         if flag and result.get('workflow_id_list') and workflow_id in result.get('workflow_id_list'):
             return True, ''
@@ -399,7 +403,10 @@ class AccountBaseService(BaseService):
         if not flag:
             return False, ticket_obj
         workflow_id = ticket_obj.workflow_id
-        permission_check, msg = cls.app_workflow_permission_check(app_name, workflow_id)
+
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+        permission_check, msg = workflow_permission_service_ins.workflow_id_permission_check(workflow_id, 'api', 'app', app_name)
+
         if not permission_check:
             return False, msg
         return True, ''
@@ -763,6 +770,11 @@ class AccountBaseService(BaseService):
             token_result_paginator = paginator.page(paginator.num_pages)
         token_result_object_list = token_result_paginator.object_list
         token_result_object_format_list = []
+        app_list = [ token_result_object.app_name for token_result_object in token_result_object_list]
+        # todo: get token permission workflow list
+        from service.workflow.workflow_base_service import workflow_base_service_ins
+        workflow_base_service_ins.get
+
         for token_result_object in token_result_object_list:
             token_result_data = token_result_object.get_dict()
             if simple:
@@ -784,9 +796,16 @@ class AccountBaseService(BaseService):
         """
         import uuid
         token = uuid.uuid1()
-        app_token_obj = AppToken(app_name=app_name, ticket_sn_prefix=ticket_sn_prefix, workflow_ids=workflow_ids,
+        app_token_obj = AppToken(app_name=app_name, ticket_sn_prefix=ticket_sn_prefix,
                                  token=token, creator=username)
         app_token_obj.save()
+
+        from apps.workflow.models import WorkflowUserPermission
+        permission_sql_list = []
+        for workflow_id in workflow_ids.split(','):
+            permission_sql_list.append(WorkflowUserPermission(workflow_id=int(workflow_id), permission='api', user_type='app', user=app_name))
+        WorkflowUserPermission.objects.bulk_create(permission_sql_list)
+
         return True, dict(app_token_id=app_token_obj.id)
 
     @classmethod

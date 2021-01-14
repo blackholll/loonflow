@@ -492,6 +492,11 @@ class TicketField(LoonBaseView):
 
         app_name = request.META.get('HTTP_APPNAME')
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
+
+
+
+
+
         if not app_permission_check:
             return api_response(-1, msg, '')
 

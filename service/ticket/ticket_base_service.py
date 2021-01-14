@@ -71,7 +71,9 @@ class TicketBaseService(BaseService):
         query_params = Q(is_deleted=False)
 
         # 获取调用方app_name 有权限的workflow_id_list
-        flag, result = account_base_service_ins.app_workflow_permission_list(app_name)
+
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+        flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission('api', 'app', app_name)
 
         if not flag or not result.get('workflow_id_list'):
             return True, dict(ticket_result_restful_list=[], paginator_info=dict(per_page=per_page, page=page, total=0))
