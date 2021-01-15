@@ -1144,7 +1144,7 @@ class TicketBaseService(BaseService):
             destination_participant = participant_info.get('destination_participant', '')
             multi_all_person = participant_info.get('multi_all_person', '')
             # 如果开启了了记忆最后处理人,且当前状态非全部处理中，那么处理人为之前的处理人
-            if destination_state.remember_last_man_enable and ticket_obj.multi_all_person == '{}':
+            if destination_state.remember_last_man_enable and multi_all_person == '{}':
                 # 获取此状态的最后处理人
                 flag, result = cls.get_ticket_state_last_man(ticket_id, destination_state.id)
                 if flag and result.get('last_man'):
