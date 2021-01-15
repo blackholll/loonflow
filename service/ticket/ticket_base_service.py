@@ -2176,7 +2176,7 @@ class TicketBaseService(BaseService):
 
         if not result:
             # hook执行失败了，记录失败状态.以便允许下次再执行
-            cls.update_ticket_field_value({'script_run_last_result': False})
+            cls.update_ticket_field_value(ticket_id,{'script_run_last_result': False})
             # 记录错误信息
             flag, result_data = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
             all_ticket_data_json = result_data.get('all_field_value_json')
@@ -2185,7 +2185,7 @@ class TicketBaseService(BaseService):
                 dict(ticket_id=ticket_id, transition_id=0, suggestion=msg,
                      intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_HOOK,
                      participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
-                     participant='hook', state_id=result.state_id, ticket_data=all_ticket_data_json,
+                     participant='hook', state_id=ticket_obj.state_id, ticket_data=all_ticket_data_json,
                      creator='hook'))
             return True, ''
 
