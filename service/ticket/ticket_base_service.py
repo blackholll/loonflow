@@ -65,7 +65,7 @@ class TicketBaseService(BaseService):
         act_state_id: int=0 进行状态, 0 草稿中、1.进行中 2.被退回 3.被撤回 4.已完成 5.已关闭
         :return:
         """
-        category_list = ['all', 'owner', 'duty', 'relation', 'worked']
+        category_list = ['all', 'owner', 'duty', 'relation', 'worked', 'view', 'intervene']
         if category not in category_list:
             return False, 'category value is invalid, it should be in all, owner, duty, relation'
         query_params = Q(is_deleted=False)

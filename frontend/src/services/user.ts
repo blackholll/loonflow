@@ -211,7 +211,7 @@ export async function addTokenRequest(params: TokenType) {
 }
 
 export async function updateTokenRequest(tokenId: number, params: tokenType){
-  return request<API.CommonResponse> ('/api/v1.0/accounts/app_token/${tokenId}', {
+  return request<API.CommonResponse> (`/api/v1.0/accounts/app_token/${tokenId}`, {
     method: 'patch',
     data: params
   })

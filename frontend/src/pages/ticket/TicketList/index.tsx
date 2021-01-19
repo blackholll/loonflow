@@ -221,7 +221,7 @@ class TicketList extends Component<any, any> {
 
         </Form>
         <div id="components-table-demo-basic">
-          <Table loading={this.state.dutyListLoading} columns={columns} dataSource={this.state.ticketResult} rowKey={record=>record.id}/>
+          <Table loading={this.state.ticketListLoading} columns={columns} dataSource={this.state.ticketResult} rowKey={record=>record.id}/>
         </div>
         <Modal
           title={`工单详情: #${this.state.openTicketId}`}

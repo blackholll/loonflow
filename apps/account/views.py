@@ -404,7 +404,7 @@ class LoonAppTokenView(LoonBaseView):
                         page=paginator_info.get('page'), total=paginator_info.get('total'))
             code, msg, = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, '', result
         return api_response(code, msg, data)
 
     @manage_permission_check('admin')
@@ -424,6 +424,7 @@ class LoonAppTokenView(LoonBaseView):
         workflow_ids = request_data_dict.get('workflow_ids', '')
         username = request.user.username
         flag, result = account_base_service_ins.add_token_record(app_name, ticket_sn_prefix, workflow_ids, username)
+
         if flag is False:
             code, data = -1, {}
         else:
@@ -455,7 +456,7 @@ class LoonSimpleAppTokenView(LoonBaseView):
                         page=paginator_info.get('page'), total=paginator_info.get('total'))
             code, msg, = 0, ''
         else:
-            code, data = -1, ''
+            code, data, msg = -1, '', result
         return api_response(code, msg, data)
 
 

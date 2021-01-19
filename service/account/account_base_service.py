@@ -770,16 +770,25 @@ class AccountBaseService(BaseService):
             token_result_paginator = paginator.page(paginator.num_pages)
         token_result_object_list = token_result_paginator.object_list
         token_result_object_format_list = []
-        app_list = [ token_result_object.app_name for token_result_object in token_result_object_list]
-        # todo: get token permission workflow list
-        from service.workflow.workflow_base_service import workflow_base_service_ins
-        workflow_base_service_ins.get
 
         for token_result_object in token_result_object_list:
             token_result_data = token_result_object.get_dict()
             if simple:
                 token_result_data.pop('token')
-            token_result_object_format_list.append(token_result_object.get_dict())
+            else:
+                app_list = [token_result_object.app_name for token_result_object in token_result_object_list]
+                # todo: get token permission workflow list
+                from service.workflow.workflow_permission_service import workflow_permission_service_ins
+                flag, result = workflow_permission_service_ins.get_record_list_by_app_list(app_list)
+                permission_list = result.get('permission_query_set')
+                token_dict = token_result_object.get_dict()
+            token_workflow_list = []
+            for permission in permission_list:
+                if permission.user == token_dict.get('app_name'):
+                    token_workflow_list.append(str(permission.workflow_id))
+            token_dict['workflow_ids'] = ','.join(token_workflow_list)
+
+            token_result_object_format_list.append(token_dict)
         return True, dict(token_result_object_format_list=token_result_object_format_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
@@ -824,8 +833,10 @@ class AccountBaseService(BaseService):
             return False, 'record is not exist or has been deleted'
         app_token_obj.app_name = app_name
         app_token_obj.ticket_sn_prefix = ticket_sn_prefix
-        app_token_obj.workflow_ids = workflow_ids
         app_token_obj.save()
+
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+        workflow_permission_service_ins.update_app_permission(app_name, workflow_ids)
         return True, ''
 
     @classmethod
@@ -841,6 +852,9 @@ class AccountBaseService(BaseService):
             return False, 'record is not exist or has been deleted'
         app_token_obj.is_deleted = True
         app_token_obj.save()
+
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+        workflow_permission_service_ins.del_app_permission(app_token_obj.app_name)
         return True, ''
 
     @classmethod

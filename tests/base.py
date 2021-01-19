@@ -21,6 +21,7 @@ class LoonflowApiCall(object):
         if method == 'get':
             response_content = c.get(url, data=params, **self.headers).content
         elif method == 'post':
+            # response_content = c.post(url, params, content_type='application/json', **self.headers).content
             response_content = c.post(url, data=json.dumps(params), content_type='application/json', **self.headers).content
         elif method == 'patch':
             response_content = c.patch(url, data=json.dumps(params), content_type='application/json', **self.headers).content
@@ -28,6 +29,12 @@ class LoonflowApiCall(object):
             response_content = c.delete(url, data=json.dumps(params), content_type='application/json', **self.headers).content
         elif method == 'put':
             response_content = c.put(url, data=json.dumps(params), content_type='application/json', **self.headers).content
+        if url == '/api/v1.0/accounts/app_token':
+            print('#'*30)
+            print(method)
+            print(params)
+            print(response_content)
+            print('#' * 30)
         response_content_dict = json.loads(str(response_content, encoding='utf-8'))
 
         return response_content_dict

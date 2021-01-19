@@ -119,6 +119,42 @@ class CommonService(BaseService):
                 return False, 'not all dict value is same'
         return True, ''
 
+    @classmethod
+    @auto_log
+    def list_intersection(cls, list1, list2):
+        """
+        intersection between two list
+        :param list1:
+        :param list2:
+        :return:
+        """
+        new_list = [val for val in list1 if val in list2]
+        return True, dict(new_list=new_list)
+
+    @classmethod
+    @auto_log
+    def list_union(cls, list1, list2):
+        """
+        union between two list
+        :param list1:
+        :param list2:
+        :return:
+        """
+        new_list = (list(set(list1).union(set(list2))))
+        return True, dict(new_list=new_list)
+
+    @classmethod
+    @auto_log
+    def list_difference(cls, list1, list2):
+        """
+        difference between two list
+        :param list1:
+        :param list2:
+        :return:
+        """
+        new_list = (list(set(list1).difference(set(list2))))
+        return True, dict(new_list=new_list)
+
 
 common_service_ins = CommonService()
 
