@@ -87,13 +87,15 @@ class UserList extends Component<any, any> {
     delete values['dept'];
     console.log(this.state.userDetail);
     console.log(this.state.userDetail.id)
+    let result = {}
     if (this.state.userDetail && this.state.userDetail.id){
-      let result = await updateUser(this.state.userDetail.id, values);
+      result = await updateUser(this.state.userDetail.id, values);
     } else {
-      let result = await addUser(values);
+      result = await addUser(values);
     }
     if (result.code === 0) {
       message.success('保存成功');
+      this.setState({userModalVisible: false});
       this.fetchUserData({});
     } else {
       message.error(`保存失败: ${result.msg}`);
@@ -281,7 +283,7 @@ class UserList extends Component<any, any> {
                 name={"search_value"}
                 label={"查询"}
               >
-                <Input placeholder="支持姓名模糊查询" />
+                <Input placeholder="支持用户名及姓名模糊查询" />
               </Form.Item>
             </Col>
             <Col>

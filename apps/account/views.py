@@ -679,6 +679,31 @@ class LoonUserResetPasswordView(LoonBaseView):
         return api_response(0, result, {})
 
 
+class LoonUserChangePasswordView(LoonBaseView):
+    def post(self, request, *args, **kwargs):
+        """
+        修改密码
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        username = request.user.username
+
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        new_password = request_data_dict.get('new_password', '')
+        source_password = request_data_dict.get('source_password', '')
+        new_password_again = request_data_dict.get('new_password_again', '')
+
+        if new_password != new_password_again:
+            return api_response(-1, '两次密码不一致，请重新输入', {})
+        flag, result = account_base_service_ins.change_password(username, source_password, new_password)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, result, {})
+
+
 class LoonSimpleUserView(LoonBaseView):
 
     def get(self, request, *args, **kwargs):

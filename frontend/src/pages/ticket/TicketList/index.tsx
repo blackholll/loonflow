@@ -76,7 +76,7 @@ class TicketList extends Component<any, any> {
 
   render() {
 
-    const userOptions = this.state.userResult.map(d => <Option key={d.value}>{d.text}</Option>);
+    const userOptions = this.state.userResult.map(d => <Select.Option key={d.value}>{d.text}</Select.Option>);
 
     const columns = [
       {
@@ -150,11 +150,11 @@ class TicketList extends Component<any, any> {
               placeholder="选择工单类型"
               optionFilterProp="children"
               filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }
             >
               {this.state.workflowResult.map(d => (
-                <Option key={d.id}>{d.name}</Option>
+                <Select.Option key={d.id}>{d.name}</Select.Option>
               ))}
             </Select>
           </Form.Item>
@@ -176,7 +176,7 @@ class TicketList extends Component<any, any> {
             <Input placeholder="请输入工单流水号" />
           </Form.Item>
         </Col>,
-        <Col span={6} key={"sn"}>
+        <Col span={6} key={"create_time"}>
           <Form.Item
             name={"create_time"}
             label={"创建时间"}

@@ -11,6 +11,7 @@ export interface WorkflowParamsType {
   per_page?: number;
 }
 
+
 export interface CustomFiledParamsType {
   search_value?: string;
   page?: number;
@@ -52,6 +53,23 @@ export interface workflowStateEditType {
   label?: string,
 }
 
+
+export interface  WorkflowDetailType {
+  name: string,
+  description: string,
+  notices: string,
+  limit_expression: string,
+  display_form_str: string,
+  intervener: string,
+  api_permission_apps: string,
+  content_template: string,
+  title_template: string,
+  view_depts: string,
+  view_permission_check: boolean,
+  view_persons: string,
+  workflow_admin: string
+}
+
 export interface  workflowTransitionEditType {
   name: string,
 
@@ -69,6 +87,14 @@ export async function getWorkflowDetail(workflowId: Number) {
     method: 'get'
   })
 }
+
+export async function updateWorkflowDetail(workflowId: Number, params: WorkflowDetailType) {
+  return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}`, {
+    method: 'patch',
+    data: params
+  })
+}
+
 
 export async function getWorkflowInitState(params: WorkflowInitStateParamsType) {
   return request<API.WorkflowInitStateData>(`/api/v1.0/workflows/${params.workflowId}/init_state`, {

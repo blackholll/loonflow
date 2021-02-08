@@ -9,6 +9,7 @@ import HeaderDropdown from '../HeaderDropdown';
 import Cookies from 'js-cookie';
 
 import styles from './index.less';
+import {KeyOutlined} from "@ant-design/icons/lib";
 
 export interface GlobalHeaderRightProps {
   menu?: boolean;
@@ -18,7 +19,7 @@ export interface GlobalHeaderRightProps {
  * 退出登录，并且将当前的 url 保存
  */
 const loginOut = async () => {
-  await outLogin();
+  Cookies.remove('jwt');
   const { redirect } = getPageQuery();
   // Note: There may be security issues, please note
   if (window.location.pathname !== '/user/login' && !redirect) {
@@ -90,6 +91,10 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu }) => {
         </Menu.Item>
       )}
       {menu && <Menu.Divider />}
+      <Menu.Item key="changepwd">
+        <KeyOutlined />
+        修改密码
+      </Menu.Item>
 
       <Menu.Item key="logout">
         <LogoutOutlined />

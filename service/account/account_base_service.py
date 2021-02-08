@@ -3,6 +3,7 @@ import json
 import time
 import jwt
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
@@ -772,23 +773,23 @@ class AccountBaseService(BaseService):
         token_result_object_format_list = []
 
         for token_result_object in token_result_object_list:
+            app_list = [token_result_object.app_name for token_result_object in token_result_object_list]
+            # todo: get token permission workflow list
+            from service.workflow.workflow_permission_service import workflow_permission_service_ins
+            flag, result = workflow_permission_service_ins.get_record_list_by_app_list(app_list)
+            permission_list = result.get('permission_query_set')
+
             token_result_data = token_result_object.get_dict()
+            token_workflow_list = []
             if simple:
                 token_result_data.pop('token')
             else:
-                app_list = [token_result_object.app_name for token_result_object in token_result_object_list]
-                # todo: get token permission workflow list
-                from service.workflow.workflow_permission_service import workflow_permission_service_ins
-                flag, result = workflow_permission_service_ins.get_record_list_by_app_list(app_list)
-                permission_list = result.get('permission_query_set')
-                token_dict = token_result_object.get_dict()
-            token_workflow_list = []
-            for permission in permission_list:
-                if permission.user == token_dict.get('app_name'):
-                    token_workflow_list.append(str(permission.workflow_id))
-            token_dict['workflow_ids'] = ','.join(token_workflow_list)
+                for permission in permission_list:
+                    if permission.user == token_result_data.get('app_name'):
+                        token_workflow_list.append(str(permission.workflow_id))
+            token_result_data['workflow_ids'] = ','.join(token_workflow_list)
 
-            token_result_object_format_list.append(token_dict)
+            token_result_object_format_list.append(token_result_data)
         return True, dict(token_result_object_format_list=token_result_object_format_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
@@ -973,6 +974,29 @@ class AccountBaseService(BaseService):
                                   'iat': datetime.datetime.now(),
                                   'data': user_info},  jwt_salt, algorithm='HS256')
         return True, jwt_info
+
+    @classmethod
+    @auto_log
+    def change_password(cls, username: str, source_password: str, new_password: str)->tuple:
+        """
+        修改密码
+        :param username:
+        :param source_password:
+        :param new_password:
+        :return:
+        """
+        flag, user_obj = cls.get_user_by_username(username)
+        if flag is False:
+            return False, user_obj
+
+        user = authenticate(username=username, password=source_password)
+        if user is None:
+            return False, '原密码输入错误，不允许修改密码'
+        new_password_format = make_password(new_password, None, 'pbkdf2_sha256')
+
+        user_obj.password = new_password_format
+        user_obj.save()
+        return True, '密码修改成功'
 
 
 account_base_service_ins = AccountBaseService()

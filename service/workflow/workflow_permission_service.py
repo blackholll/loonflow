@@ -50,6 +50,8 @@ class WorkflowPermissionService(BaseService):
         :param user:
         :return:
         """
+        if user_type == 'app' and user == 'loonflow':
+            return True, ''
         workflow_query_set = WorkflowUserPermission.objects.filter(
             is_deleted=0, workflow_id=workflow_id, permission=permission, user_type=user_type, user=user).first()
         if workflow_query_set:
@@ -79,16 +81,14 @@ class WorkflowPermissionService(BaseService):
             is_deleted=0, permission='api', user_type='app', user=app_name).all()
         exist_workflow_id_list = [permission_query.workflow_id for permission_query in permission_query_set]
 
-        flag, result = common_service_ins.list_difference(workflow_id_list, exist_workflow_id_list)
-        need_add_workflow_list = result.get('new_list')
+        flag, need_add_workflow_list = common_service_ins.list_difference(workflow_id_list, exist_workflow_id_list)
 
         if flag is False:
-            return False, result
+            return False, need_add_workflow_list
 
-        flag, result = common_service_ins.list_difference(exist_workflow_id_list, workflow_id_list)
-        need_del_workflow_list = result.get('new_list')
+        flag, need_del_workflow_list = common_service_ins.list_difference(exist_workflow_id_list, workflow_id_list)
         if flag is False:
-            return False, result
+            return False, need_del_workflow_list
 
         add_permission_query_list = []
         for workflow_id in need_add_workflow_list:

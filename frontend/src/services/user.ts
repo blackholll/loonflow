@@ -58,6 +58,13 @@ export interface TokenType {
   ticket_sn_prefix?: string
 }
 
+export interface passwordType {
+  source_password: string,
+  new_password: string,
+  new_password_again: string
+
+}
+
 export async function query() {
   return request<API.CurrentUser[]>('/api/users');
 }
@@ -220,5 +227,13 @@ export async function updateTokenRequest(tokenId: number, params: tokenType){
 export async function delTokenRequest(tokenId: number) {
   return request<API.CommonResponse> (`/api/v1.0/accounts/app_token/${tokenId}`, {
     method: 'delete',
+  })
+}
+
+
+export async function changeUserPassword(params: passwordType) {
+  return request<API.CommonResponse> (`/api/v1.0/accounts/users/change_password`, {
+    method: 'post',
+    data: params
   })
 }

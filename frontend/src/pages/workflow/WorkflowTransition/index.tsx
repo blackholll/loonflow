@@ -80,24 +80,30 @@ class WorkflowTransiton extends Component<any, any> {
   }
 
   showWorkflowTransitionModal = (workflowTransitionDetail)=> {
-    this.setState({workflowTransitionDetail:workflowTransitionDetail, workflowTransitionModalVisible:true})
+    console.log('nnnnn')
+    console.log(workflowTransitionDetail)
+    console.log('nnnnn')
+
+
+    this.setState({transitionDetail:workflowTransitionDetail, transitionModalVisible:true})
   }
 
   handleTransitionCancel = () => {
-    this.setState({workflowTransitionDetail:{}, workflowTransitionModalVisible:false})
+    this.setState({transitionDetail:{}, transitionModalVisible:false})
   }
   handleTransitionOk = () => {
-    this.setState({workflowTransitionDetail:{}, workflowTransitionModalVisible:false})
+    this.setState({transitionDetail:{}, transitionModalVisible:false})
   }
 
   getFieldInitialValues = () => {
     const result = this.state.transitionDetail;
 
     if (result !== {}) {
-      result.condition_expression = "[]"
       result.alert_enable = false
       result.field_require_check = true
-      result.attribute_type_id = 1
+      result.source_state_id = String(result.source_state_id)
+      result.destination_state_id = String(result.destination_state_id)
+      result.attribute_type_id = String(result.attribute_type_id)
     }
 
     return result
@@ -303,7 +309,7 @@ class WorkflowTransiton extends Component<any, any> {
                rowKey={record => record.id} pagination={this.state.pagination}/>
         <Modal
           title="流转"
-          visible={this.state.workflowTransitionModalVisible}
+          visible={this.state.transitionModalVisible}
           onOk={this.handleTransitionOk}
           onCancel={this.handleTransitionOk}
           width={800}

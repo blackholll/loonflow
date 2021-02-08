@@ -3,10 +3,11 @@ from apps.account.views import LoonUserView, LoonUserDetailView, LoonRoleView, L
     LoonAppTokenDetailView, \
     LoonLoginView, LoonLogoutView, LoonUserRoleView, LoonRoleUserView, LoonUserResetPasswordView, LoonRoleDetailView, \
     LoonDeptDetailView, \
-    LoonRoleUserDetailView, LoonSimpleUserView, LoonSimpleAppTokenView, LoonSimpleDeptView
+    LoonRoleUserDetailView, LoonSimpleUserView, LoonSimpleAppTokenView, LoonSimpleDeptView, LoonUserChangePasswordView
 
 urlpatterns = [
     path('/users', LoonUserView.as_view()),
+    path('/users/change_password', LoonUserChangePasswordView.as_view()),
     path('/simple_users', LoonSimpleUserView.as_view()),
     path('/users/<int:user_id>', LoonUserDetailView.as_view()),
     path('/users/<int:user_id>/roles', LoonUserRoleView.as_view()),

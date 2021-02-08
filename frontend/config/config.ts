@@ -83,7 +83,7 @@ export default defineConfig({
         {
           "path": "/tickets/intervene",
           "name": "工单干预",
-          "component": '../../src/pages/ticket/InterfereTicket',
+          "component": '../../src/pages/ticket/InterveneTicket',
 
         },
         {
@@ -141,6 +141,12 @@ export default defineConfig({
       name: '系统配置',
       icon: 'ToolOutlined',
       component: './Manage',
+    },
+    {
+      path: 'account/changepwd',
+      layout: false,
+      icon: 'ToolOutlined',
+      component: './account/ChangePwd',
     },
     {
       path: '/',

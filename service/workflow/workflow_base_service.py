@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import Workflow, WorkflowAdmin, WorkflowUserPermission
 from service.base_service import BaseService
+from service.common.common_service import common_service_ins
 from service.common.log_service import auto_log
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
 from service.workflow.workflow_state_service import workflow_state_service_ins
@@ -215,22 +216,22 @@ class WorkflowBaseService(BaseService):
         for permission_obj in permission_queryset:
             if permission_obj.permission == 'admin':
                 adminer_list.append(permission_obj.user)
-            elif permission_obj.permission == 'interverene':
+            elif permission_obj.permission == 'intervene':
                 intervener_list.append(permission_obj.user)
             elif permission_obj.permission == 'view':
                 if permission_obj.user_type == 'user':
                     viewer_username_list.append(permission_obj.user)
                 if permission_obj.user_type == 'department':
-                    viewer_dept_id_list.append(int(permission_obj.user))
+                    viewer_dept_id_list.append(permission_obj.user)
             elif permission_obj.permission == 'api':
-                app_for_api_id_list.append(int(permission_obj.user))
+                app_for_api_id_list.append(permission_obj.user)
 
         workflow_info_dict = workflow_obj.get_dict()
-        workflow_info_dict['adminer_list'] = adminer_list
-        workflow_info_dict['intervener_list'] = intervener_list
-        workflow_info_dict['viewer_username_list'] = viewer_username_list
-        workflow_info_dict['viewer_dept_id_list'] = viewer_dept_id_list
-        workflow_info_dict['app_for_api_id_list'] = app_for_api_id_list
+        workflow_info_dict['workflow_admin'] = adminer_list
+        workflow_info_dict['intervener'] = intervener_list
+        workflow_info_dict['view_persons'] = viewer_username_list
+        workflow_info_dict['view_depts'] = viewer_dept_id_list
+        workflow_info_dict['api_permission_apps'] = app_for_api_id_list
         return True, workflow_info_dict
 
     @classmethod
@@ -270,7 +271,7 @@ class WorkflowBaseService(BaseService):
     @auto_log
     def edit_workflow(cls, workflow_id: int, name: str, description: str, notices: str, view_permission_check: int,
                       limit_expression: str, display_form_str: str, workflow_admin: str, title_template: str,
-                      content_template: str)->tuple:
+                      content_template: str, intervener: str, view_depts: str, view_persons: str, api_permission_apps:str)->tuple:
         """
         更新工作流
         update workfow
@@ -292,29 +293,79 @@ class WorkflowBaseService(BaseService):
                                 view_permission_check=view_permission_check,
                                 limit_expression=limit_expression, display_form_str=display_form_str,
                                 title_template=title_template, content_template=content_template)
-        # 更新工作流管理员
-        if workflow_admin:
-            workflow_admin_list = workflow_admin.split(',')
-            # 查询已经存在的记录
-            workflow_admin_existed_queryset = WorkflowAdmin.objects.filter(
-                workflow_id=workflow_id, username__in=workflow_admin_list, is_deleted=0).all()
-            workflow_admin_existed_list = [workflow_admin_existed.username for workflow_admin_existed
-                                           in workflow_admin_existed_queryset]
-            # 删除移除掉的
-            WorkflowAdmin.objects.filter(workflow_id=workflow_id, is_deleted=0)\
-                .exclude(username__in=workflow_admin_list).update(is_deleted=1)
+        # 更新管理员信息
+        workflow_permission_existed_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id).all()
 
-            # 新增新添加的
-            workflow_admin_need_add_list = list(set(workflow_admin_list) - set(workflow_admin_existed_list))
-            workflow_admin_need_add_insert_list = []
-            for workflow_admin_need_add in workflow_admin_need_add_list:
-                workflow_admin_need_add_insert_list.append(WorkflowAdmin(
-                    workflow_id=workflow_id, username=workflow_admin_need_add))
-            WorkflowAdmin.objects.bulk_create(workflow_admin_need_add_insert_list)
+        existed_intervener,  existed_workflow_admin, existed_view_depts, existed_view_persons, \
+        existed_app_permission_apps = [], [], [], [], []
+        for workflow_permission_existed in workflow_permission_existed_queryset:
+            if workflow_permission_existed.permission == 'intervene':
+                existed_intervener.append(workflow_permission_existed.user)
+            if workflow_permission_existed.permission == 'admin':
+                existed_workflow_admin.append(workflow_permission_existed.user)
+            if workflow_permission_existed.permission == 'view' and workflow_permission_existed.user_type == 'department':
+                existed_view_depts.append(workflow_permission_existed.user)
+            if workflow_permission_existed.permission == 'view' and workflow_permission_existed.user_type == 'user':
+                existed_view_persons.append(workflow_permission_existed.user)
+            if workflow_permission_existed.permission == 'api' and workflow_permission_existed.user_type == 'app':
+                existed_app_permission_apps.append(workflow_permission_existed.user)
 
-        else:
-            # 删除所有记录
-            WorkflowAdmin.objects.filter(workflow_id=workflow_id, is_deleted=0).update(is_deleted=1)
+        # need del
+
+        intervener_list = intervener.split(',') if intervener else []
+        workflow_admin_list = workflow_admin.split(',') if workflow_admin else []
+        view_depts_list = view_depts.split(',') if view_depts else []
+        view_persons_list = view_persons.split(',') if view_persons else []
+        api_list = api_permission_apps.split(',') if api_permission_apps else []
+
+
+        flag, need_del_intervener_list = common_service_ins.list_subtraction(existed_intervener, intervener_list)
+
+        flag, need_del_admin_list = common_service_ins.list_subtraction(existed_workflow_admin, workflow_admin_list)
+
+        flag, need_del_view_depts_list = common_service_ins.list_subtraction(existed_view_depts, view_depts_list)
+
+        flag, need_del_view_persons_list = common_service_ins.list_subtraction(existed_view_persons, view_persons_list)
+
+        flag, need_del_app_list = common_service_ins.list_subtraction(existed_app_permission_apps, api_list)
+
+        WorkflowUserPermission.objects.filter(
+            Q(workflow_id=workflow_id, permission='intervene', user_type='user', user__in=need_del_intervener_list) |
+            Q(workflow_id=workflow_id, permission='admin', user_type='user', user__in=need_del_admin_list) |
+            Q(workflow_id=workflow_id, permission='view', user_type='user', user__in=need_del_view_persons_list) |
+            Q(workflow_id=workflow_id, permission='view', user_type='department', user__in=need_del_view_depts_list) |
+            Q(workflow_id=workflow_id, permission='api', user_type='app', user__in=need_del_app_list)
+        ).update(is_deleted=1)
+
+        # need add
+        flag, need_add_intervener_list = common_service_ins.list_subtraction(intervener_list, existed_intervener)
+        flag, need_add_admin_list = common_service_ins.list_subtraction(workflow_admin_list, existed_workflow_admin)
+        flag, need_add_view_depts_list = common_service_ins.list_subtraction(view_depts_list, existed_view_depts)
+        flag, need_add_view_persons_list = common_service_ins.list_subtraction(view_persons_list, existed_view_persons)
+        flag, need_add_app_list = common_service_ins.list_subtraction(api_list, existed_app_permission_apps)
+
+        need_add_permission_queryset = []
+        for need_add_intervener in need_add_intervener_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='intervene', user_type='user', user=need_add_intervener))
+
+        for need_add_admin in need_add_admin_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='admin', user_type='user', user=need_add_admin))
+
+        for need_add_view_depts in need_add_view_depts_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='view', user_type='department', user=need_add_view_depts))
+
+        for need_add_view_persons in need_add_view_persons_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='view', user_type='user', user=need_add_view_persons))
+
+        for need_add_app in need_add_app_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='api', user_type='app', user=need_add_app))
+
+        WorkflowUserPermission.objects.bulk_create(need_add_permission_queryset)
 
         return True, ''
 

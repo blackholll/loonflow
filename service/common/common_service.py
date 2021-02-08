@@ -129,7 +129,7 @@ class CommonService(BaseService):
         :return:
         """
         new_list = [val for val in list1 if val in list2]
-        return True, dict(new_list=new_list)
+        return True, new_list
 
     @classmethod
     @auto_log
@@ -140,8 +140,8 @@ class CommonService(BaseService):
         :param list2:
         :return:
         """
-        new_list = (list(set(list1).union(set(list2))))
-        return True, dict(new_list=new_list)
+        new_list = list(set(list1).union(set(list2)))
+        return True, new_list
 
     @classmethod
     @auto_log
@@ -152,8 +152,20 @@ class CommonService(BaseService):
         :param list2:
         :return:
         """
-        new_list = (list(set(list1).difference(set(list2))))
-        return True, dict(new_list=new_list)
+        new_list = list(set(list1).difference(set(list2)))
+        return True, new_list
+
+    @classmethod
+    @auto_log
+    def list_subtraction(cls, list1, list2):
+        """
+        subtraction between two list
+        :param list1:
+        :param list2:
+        :return:
+        """
+        new_list = list(set(list1) - set(list2))
+        return True, new_list
 
 
 common_service_ins = CommonService()

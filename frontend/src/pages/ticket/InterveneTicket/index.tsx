@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import TicketList from "@/pages/ticket/TicketList";
 import {Card} from "antd";
 
-class InterfereTicket extends Component<any, any> {
+class InterveneTicket extends Component<any, any> {
   constructor(props) {
     super(props);
   }
@@ -13,10 +13,10 @@ class InterfereTicket extends Component<any, any> {
 
     return (
       <Card>
-        <TicketList category={'interfere'}/>
+        <TicketList category={'intervene'}/>
       </Card>
     )
   }
 }
 
-export default InterfereTicket;
+export default InterveneTicket;
