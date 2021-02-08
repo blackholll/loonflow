@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from 'umi';
 import {Table, Form, Modal, Popconfirm, Card, Row, Col, Input, Button} from "antd";
 import {getWorkflowList} from "@/services/workflows";
 
@@ -98,8 +99,8 @@ class WorkflowList extends Component<any, any> {
         key: "action",
         render: (text: string, record: any) => (
           <span>
-            <a style={{marginRight: 16}} onClick={()=> window.location.href = `/workflows/detail?workflow_id=${record.id}`
-            }>详情</a>
+            <Link to={ `/workflows/detail?workflow_id=${record.id}`}>详情</Link>
+            |
             <a style={{marginRight: 16, color: "red"}}>
               <Popconfirm
                 title="确认删除么"
