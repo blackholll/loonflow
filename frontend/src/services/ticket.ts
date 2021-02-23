@@ -11,6 +11,13 @@ export interface WorkflowParamsType {
 }
 
 export interface  newTicketRequestParamsType {
+  workflow_id: number;
+  transition_id: number;
+  suggestion?: string;
+  [propName: string]: any;
+}
+
+export interface  handleTicketRequestParamsType {
   transition_id: number;
   suggestion?: string;
   [propName: string]: any;
@@ -39,6 +46,13 @@ export async function getWorkflowList(params: WorkflowParamsType) {
 export async function newTicketRequest(params: newTicketRequestParamsType) {
   return request<API.CommonResponse> ('/api/v1.0/tickets', {
     method: 'post',
+    data: params
+  })
+}
+
+export async function handleTicketRequest(ticketId: number, params: handleTicketRequestParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}`, {
+    method: 'patch',
     data: params
   })
 }

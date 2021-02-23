@@ -1,8 +1,14 @@
-import {Form, Input, message, Col, Row, InputNumber, Radio, DatePicker, Checkbox, Select, Button} from 'antd';
+import {Form, Input, message, Col, Row, InputNumber, Radio, DatePicker, Checkbox, Select, Button, Upload} from 'antd';
 import React, { Component, Fragment } from 'react';
 import {getWorkflowInitState} from "@/services/workflows";
 import {queryUserSimple} from "@/services/user";
-import {getDetailDetailRequest, newTicketRequest, getTicketTransitionRequest} from "@/services/ticket";
+import {
+  getDetailDetailRequest,
+  newTicketRequest,
+  getTicketTransitionRequest,
+  handleTicketRequest
+} from "@/services/ticket";
+import {UploadOutlined} from "@ant-design/icons/lib";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -18,17 +24,22 @@ export interface TicketDetailProps {
 export interface TicketDetailState {
   // workflowInitResult: [],
   ticketDetailInfoData: [],
-  ticketTransitionList: []
+  ticketTransitionList: [],
+  fieldTypeDict: {},
+  fileList: {},
+  userSelectDict: {}
+
 }
 
 class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   constructor(props: Readonly<TicketDetailProps>) {
     super(props);
     this.state = {
-      // workflowInitResultFieldList: [],
-      // workflowInitResultTransitionList: [],
       ticketTransitionList: [],
-      ticketDetailInfoData: []
+      ticketDetailInfoData: [],
+      fileList: {},
+      fieldTypeDict: {},
+      userSelectDict: {}
     }
   }
 
@@ -47,6 +58,16 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   // shouldComponentUpdate(nextProps: Readonly<TicketDetailProps>, nextState: Readonly<TicketDetailState>, nextContext: any): boolean {
   //   this.fetchWorkflowInitState();
   // }
+
+  userSimpleSearch = async(field_key, search_value) => {
+    // 获取用户列表
+    const result = await queryUserSimple({search_value:search_value});
+    if (result.code ===0 ) {
+      let userSelectDict = {}
+      userSelectDict[field_key] = result.data.value
+      this.setState({userSelectDict})
+    }
+  }
 
   fetchTicketTransitionInfo = async() => {
     //get
@@ -72,15 +93,40 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
   }
 
+  fileChange = (field_key:string, info: any) => {
 
+    console.log(info)
+    console.log(field_key)
+    let fileList = [...info.fileList];
+    if (info.file.status === 'done') {
+      fileList = fileList.map(file=>{
+        if (file.response.code === 0){
+          file.url = file.response.data.file_path
+          file.name = file.response.data.file_name
+        }
+        return file;
+      })
+    }
+    // this.setState({ fileList });
+    let newList = this.state.fileList;
+    newList[field_key] = fileList
+    this.setState({ fileList: newList });
+
+  }
 
 
   fetchWorkflowInitState = async () => {
     const result = await getWorkflowInitState({workflowId: this.props.workflowId})
     if (result.code === 0) {
+      let fieldTypeDict = {};
+      result.data.field_list.map(field =>{
+          fieldTypeDict[field.field_key] = field.field_type_id
+      }
+      )
       this.setState({
         ticketDetailInfoData: result.data.field_list,
-        ticketTransitionList: result.data.transition
+        ticketTransitionList: result.data.transition,
+        fieldTypeDict: fieldTypeDict
       });
     } else {
       message.error(result.msg);
@@ -105,11 +151,11 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
       if (item.field_type_id === 5) {
         // 字符串
-        child = <Input {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <Input {...formItemChildOptions}/>
 
       } else if (item.field_type_id === 10){
         // 整形
-        child = <InputNumber precision={0} {...formItemChildOptions} defaultValue={item.field_value} />
+        child = <InputNumber precision={0} {...formItemChildOptions}/>
       } else if (item.field_type_id === 15){
         // 浮点型
         child = <InputNumber {...formItemChildOptions} />
@@ -125,10 +171,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         </Radio.Group>
       } else if (item.field_type_id == 25){
         // 日期类型
-        child = <DatePicker {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <DatePicker {...formItemChildOptions} />
       } else if (item.field_type_id == 30){
         // 日期时间类型
-        child = <DatePicker {...formItemChildOptions} showTime defaultValue={item.field_value}/>
+        child = <DatePicker {...formItemChildOptions} showTime />
       } else if (item.field_type_id == 35){
         // 单选
         const radioOption = []
@@ -178,11 +224,49 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
       } else if (item.field_type_id === 55){
         // 文本
-        child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions}/>
+      } else if (item.field_type_id === 58){
+        // 富文本，先以文本域代替，后续再支持
+        child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions}/>
       }
-      // 用户、多选用户、附件暂时不支持
+      else if (item.field_type_id === 80){
+        // 附件
+        child = <Upload action="api/v1.0/tickets/upload_file" listType="text" onChange={(info)=>this.fileChange(item.field_key, info)} fileList={this.state.fileList[item.field_key]}>
+          <Button icon={<UploadOutlined />}>Click to upload</Button>
+        </Upload>
+      }
+
+      else if (item.field_type_id === 60){
+        // 用户
+        child = <Select
+          showSearch onSearch = {(search_value)=>this.userSimpleSearch(item.field_key, search_value)} filterOption={(input, option) =>
+          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        } {...formItemChildOptions}>
+          {this.state.userSelectDict[item.field_key] && this.state.userSelectDict[item.field_key].map(d => (
+            <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
+          ))}
+
+        </Select>
+      }
+
+
+      else if (item.field_type_id === 70){
+        // 多选用户
+        child = <Select
+          showSearch onSearch = {(search_value)=>this.userSimpleSearch(item.field_key, search_value)} filterOption={(input, option) =>
+          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        } {...formItemChildOptions}
+         >
+          {this.state.userSelectDict[item.field_key] && this.state.userSelectDict[item.field_key].map(d => (
+            <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
+          ))}
+
+        </Select>
+      }
+
+
       else {
-        child = <Input {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <Input {...formItemChildOptions} />
       }
     }
 
@@ -193,6 +277,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         <Form.Item
           name={item.field_key}
           label={item.field_name}
+          // initialValue:
           {...formItemOptions}
         >
           {child}
@@ -203,39 +288,67 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
   formRef = React.createRef<FormInstance>();
 
-  handleNewTicket = async (transitionId: number) => {
+  handleTicket = async (transitionId: number) => {
     const values = this.formRef.current.getFieldsValue()
-    this.state.ticketDetailInfoData.map(fieldObj => {
-      // todo: 支持70（多选用户）后需要吧70也加上
-      if ([40,50].indexOf(fieldObj.field_type_id)!== -1){
-        if (values[fieldObj.field_key]){
-          values[fieldObj.field_key] = values[fieldObj.field_key].join(',')
-        }
+    for (let key in values){
+      if ( [40,50].indexOf(this.state.fieldTypeDict[key]) !== -1){
+        // 多选框，多选下拉
+        values[key] = values[key].join(',')
       }
-      if (fieldObj.field_type_id === 25) {
-        values[fieldObj.field_key] = values[fieldObj.field_key].format('YYYY-MM-DD')
-      }
-        if (fieldObj.field_type_id === 30) {
-          values[fieldObj.field_key] = values[fieldObj.field_key].format('YYYY-MM-DD HH:mm:ss')
-        }
-    }
-    )
 
+      if (this.state.fieldTypeDict[key] === 80 ) {
+        // 文件   fieldList.url
+        let urlList = [];
+        values[key].fileList.map(attachment => {
+          urlList.push(attachment.url)
+
+        })
+        values[key] = urlList.join(',')
+      }
+      if (this.state.fieldTypeDict[key] === 20 ) {
+        // 日期
+        values[key] = Number(values[key])
+      }
+
+      if (this.state.fieldTypeDict[key] === 25 ) {
+        // 日期
+        values[key] = values[key].format('YYYY-MM-DD')
+      }
+      if (this.state.fieldTypeDict[key] === 30 ) {
+        // 时间
+        values[key] = values[key].format('YYYY-MM-DD HH:mm:ss')
+      }
+    }
 
     values.transition_id = transitionId;
-    values.workflow_id = Number(this.props.workflowId);
-    const result = await newTicketRequest(values)
-    if (result.code === 0) {
-      message.success('创建工单成功');
+    if (this.props.ticketId) {
+      // 处理工单
+      const result = await handleTicketRequest(this.props.ticketId, values)
+      if (result.code === 0) {
+        message.success('处理工单成功');
+        // #tode 刷新页面，关闭弹窗
+        this.props.handleTicketOk();
+
+      } else {
+        message.error(result.msg);
+      }
+
     } else {
-      message.error(result.msg);
+      // 新建工单
+      values.workflow_id = Number(this.props.workflowId);
+      const result = await newTicketRequest(values)
+      if (result.code === 0) {
+        message.success('创建工单成功');
+        this.props.newTicketOk(result.data.ticket_id)
+        // #tode 刷新页面,关闭弹窗
+      } else {
+        message.error(result.msg);
+      }
     }
 
-
-    console.log(`创建工单,transition_id:${transitionId}`);
-
-
   }
+
+
 
   genHandleButtonItem = (item: any) => {
     const buttonItems = []
@@ -250,7 +363,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           type='primary'
           htmlType="submit"
           value = {result.transition_id}
-          onClick={()=>this.handleNewTicket(result.transition_id)}
+          onClick={()=>this.handleTicket(result.transition_id)}
         >
           {result.transition_name}
         </Button>
@@ -261,7 +374,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           type='primary'
           danger
           value = {result.transition_id}
-          onClick={()=>this.handleNewTicket(result.transition_id)}
+          onClick={()=>this.handleTicket(result.transition_id)}
         >
           {result.transition_name}
         </Button>
@@ -270,7 +383,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         buttonItem = <Button
           value = {result.transition_id}
           htmlType="submit"
-          onClick={()=>this.handleNewTicket(result.transition_id)}
+          onClick={()=>this.handleTicket(result.transition_id)}
         >
           {result.transition_name}
         </Button>

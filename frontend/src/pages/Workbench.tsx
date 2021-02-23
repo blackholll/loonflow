@@ -17,6 +17,8 @@ class Workbench extends Component<any, any> {
       workflowResult: [],
       selectWorkflowId: 0,
       selectWorkflowName: '',
+      newTicketId: 0,
+      reloadFlag: 0,
       newTicketVisible:false};
 
   }
@@ -52,6 +54,10 @@ class Workbench extends Component<any, any> {
     this.setState({newTicketVisible: false})
   }
 
+  newTicketOk = (ticketId) =>{
+    this.setState({newTicketVisible: false, reloadFlag: ticketId})
+  }
+
   render() {
     return (
       <PageContainer>
@@ -75,7 +81,7 @@ class Workbench extends Component<any, any> {
 
         </Card>
         <Card title="我的待办">
-          <TicketList category={'duty'}/>
+          <TicketList category={'duty'} reloadFlag={this.state.reloadFlag}/>
         </Card>
 
         <Modal
@@ -87,7 +93,7 @@ class Workbench extends Component<any, any> {
           footer={null}
           destroyOnClose
         >
-        <TicketDetail workflowId={this.state.selectWorkflowId} ticketId={0}/>
+        <TicketDetail workflowId={this.state.selectWorkflowId} ticketId={0} newTicketOk={(ticketId)=>this.newTicketOk(ticketId)}/>
 
         </Modal>
 

@@ -186,6 +186,8 @@ class WorkflowCustomFieldList extends Component<any, any> {
             return "多选下拉列表"
           } else if (record.field_type_id === 55) {
             return "文本域"
+          } else if (record.field_type_id === 58) {
+            return "富文本"
           } else if (record.field_type_id === 60) {
             return "用户"
           } else if (record.field_type_id === 70) {
@@ -321,6 +323,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
                 <Select.Option value={45}>下拉列表</Select.Option>
                 <Select.Option value={50}>多选下拉列表</Select.Option>
                 <Select.Option value={55}>文本域</Select.Option>
+                <Select.Option value={58}>富文本(待支持)</Select.Option>
                 <Select.Option value={60}>用户名</Select.Option>
                 <Select.Option value={70}>多选用户名</Select.Option>
                 <Select.Option value={80}>附件</Select.Option>

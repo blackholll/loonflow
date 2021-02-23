@@ -191,7 +191,7 @@ class TicketTransition(LoonBaseView):
         app_name = request.META.get('HTTP_APPNAME')
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not app_permission_check:
-            return api_response(-1, msg, '')
+            return api_response(0, msg, dict(value=[]))
 
         if not username:
             return api_response(-1, '参数不全，请提供username', '')
@@ -671,3 +671,18 @@ class TicketRetreat(LoonBaseView):
         else:
             return api_response(-1, result, {})
 
+
+class UploadFile(LoonBaseView):
+    def post(self, request, *args, **kwargs):
+        """
+        上传文件
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        flag, result = ticket_base_service_ins.upload_file(request)
+        if flag:
+            return api_response(0, '', result)
+        else:
+            return api_response(-1, result, {})

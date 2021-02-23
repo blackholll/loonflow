@@ -6,6 +6,7 @@
 **/migrations/0*.py
 media/flowchart/*.*
 media/workflow_script/*.*
+media/ticket_file/*.*
 !media/workflow_script/demo_script.py
 media/notice_script/*.*
 !media/notice_script/demo_notice_script.py

@@ -23,6 +23,23 @@ class TicketList extends Component<any, any> {
     this.fetchWorkflowData();
   };
 
+  componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
+    console.log(this.props.reloadFlag);
+    console.log(prevProps.reloadFlag);
+    if (this.props.reloadFlag !== prevProps.reloadFlag) {
+      console.log('重新获取数据');
+      this.fetchTicketData({});
+    }
+  }
+
+  // shouldComponentUpdate(nextProps: Readonly<any>, nextState: Readonly<any>, nextContext: any): boolean {
+  //   if (this.props.reloadFlag !== nextProps.reloadFlag){
+  //     console.log('需要重新加载列表');
+  //     return true
+  //   }
+  //   return false
+  // }
+
   fetchTicketData = async (params) => {
     this.setState({ticketListLoading: true})
     const result = await getTicketList({category: this.props.category});
@@ -65,6 +82,10 @@ class TicketList extends Component<any, any> {
     });
   };
 
+  handleTicketOk = () => {
+    this.setState({openTicketId: null, visible:false});
+    this.fetchTicketData({});
+  }
 
   searchTicket = (values) => {
     console.log(values);
@@ -233,7 +254,7 @@ class TicketList extends Component<any, any> {
           footer={null}
 
         >
-          <TicketDetail ticketId={this.state.openTicketId} />
+          <TicketDetail ticketId={this.state.openTicketId} handleTicketOk={()=>this.handleTicketOk()}/>
         </Modal>
       </div>
     )

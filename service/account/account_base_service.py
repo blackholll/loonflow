@@ -279,11 +279,12 @@ class AccountBaseService(BaseService):
                 return False, sub_dept_id_list
             sub_dept_id_list_total = sub_dept_id_list_total + sub_dept_id_list
 
-        user_name_list = []
-        if sub_dept_id_list:
-            user_queryset = LoonUser.objects.filter(dept_id__in=sub_dept_id_list_total).all()
-            for user in user_queryset:
-                user_name_list.append(user.username)
+        user_dept_queryset = LoonUserDept.objects.filter(dept_id__in=sub_dept_id_list_total).all()
+        user_id_list = [user_dept.user_id for user_dept in user_dept_queryset]
+
+        user_queryset = LoonUser.objects.filter(id__in=user_id_list).all()
+        user_name_list = [user.username for user in user_queryset]
+
         return True, user_name_list
 
     @classmethod

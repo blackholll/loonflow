@@ -1004,7 +1004,7 @@ class TicketBaseService(BaseService):
             return False, result
 
         if not result.get('permission'):
-            return True, dict(result=[], msg=result.get('msg'))
+            return True, dict(transition_dict_list=[], msg=result.get('msg'))
 
         ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
 
@@ -2443,6 +2443,20 @@ class TicketBaseService(BaseService):
                 return False, "just ticket's creator can close ticket in start state or workflow_admin can close ticket in any state"
         else:
             return True, "ticket's workflow admin casn close ticket in any state"
+
+    @classmethod
+    def upload_file(cls, request: any)->tuple:
+        import os, uuid
+        file_obj = request.FILES.get('file')
+        source_file_name = file_obj.name
+        source_file_type = source_file_name.split('.')[-1]
+        file_name = str(uuid.uuid1()) + '.' + source_file_type
+
+        f = open(os.path.join(settings.MEDIA_ROOT, 'ticket_file/{}'.format(file_name)), 'wb')
+        for chunk in file_obj.chunks():
+            f.write(chunk)
+        f.close()
+        return True, dict(file_name=file_name, file_path='/media/ticket_file/{}'.format(file_name))
 
 
 ticket_base_service_ins = TicketBaseService()
