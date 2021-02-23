@@ -83,7 +83,7 @@ class TicketList extends Component<any, any> {
   };
 
   handleTicketOk = () => {
-    this.setState({openTicketId: null, visible:false});
+    this.setState({visible:false});
     this.fetchTicketData({});
   }
 
