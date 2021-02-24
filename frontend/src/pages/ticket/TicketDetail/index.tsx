@@ -1,4 +1,4 @@
-import {Form, Input, message, Col, Row, InputNumber, Radio, DatePicker, Checkbox, Select, Button, Upload} from 'antd';
+import {Form, Input, message, Col, Row, InputNumber, Radio, DatePicker, Checkbox, Select, Button, Upload, Collapse} from 'antd';
 import React, { Component, Fragment } from 'react';
 import {getWorkflowInitState} from "@/services/workflows";
 import {queryUserSimple} from "@/services/user";
@@ -9,6 +9,7 @@ import {
   handleTicketRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
+import TicketStep from "@/pages/ticket/TicketLog";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -419,20 +420,40 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
 
     return (
-      <Fragment>
-        <Form
-          {...formItemLayout}
-          name="ticketDetailForm"
-          ref={this.formRef}
-          className="ant-advanced-search-form"
-        >
-          <Row gutter={24}>
-            {form_items}
-          </Row>
-          {handleButtonItems}
-        </Form>
+      // <Fragment>
+        <Collapse defaultActiveKey={['flowStep', 'ticketDetail']} bordered={false}>
+          {this.props.ticketId?
+            <Collapse.Panel header="流程图" key="flowchart">
+              流程图
+            </Collapse.Panel>: null
+          }
 
-      </Fragment>
+          {this.props.ticketId?
+          <Collapse.Panel header="操作记录" key="flowLog">
+            <TicketStep ticketId={this.props.ticketId}/>
+          </Collapse.Panel> : null}
+
+          {this.props.ticketId?
+          <Collapse.Panel header="工单进度" key="flowStep">
+            工单进度
+          </Collapse.Panel> : null }
+          
+          <Collapse.Panel header="工单信息" key="ticketDetail">
+            <Form
+              {...formItemLayout}
+              name="ticketDetailForm"
+              ref={this.formRef}
+              className="ant-advanced-search-form"
+            >
+              <Row gutter={24}>
+                {form_items}
+              </Row>
+              {handleButtonItems}
+            </Form>
+          </Collapse.Panel>
+        </Collapse>
+
+      // </Fragment>
     )
   }
 }

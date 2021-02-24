@@ -69,3 +69,10 @@ export async function getTicketTransitionRequest(params: getDetailDetailRequestT
     method: 'get',
   })
 }
+
+export async function getTicketFlowLogRequest(ticketId: number) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/flowlogs`,{
+    method: 'get',
+  })
+}
+
