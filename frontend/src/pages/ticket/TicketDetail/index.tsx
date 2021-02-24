@@ -10,6 +10,7 @@ import {
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
 import TicketStep from "@/pages/ticket/TicketLog";
+import WorkflowGraph from "@/pages/workflow/workflowGraph";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -28,6 +29,7 @@ export interface TicketDetailState {
   ticketTransitionList: [],
   fieldTypeDict: {},
   fileList: {},
+  nowTicketWorkflowId: 0, // 当前工单详情的workflowid
   userSelectDict: {}
 
 }
@@ -88,6 +90,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     if (result.code === 0 ){
       this.setState({
         ticketDetailInfoData: result.data.value.field_list,
+        nowTicketWorkflowId: result.data.value.workflow_id
       })
     } else {
       message.error(result.msg)
@@ -424,7 +427,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         <Collapse defaultActiveKey={['flowStep', 'ticketDetail']} bordered={false}>
           {this.props.ticketId?
             <Collapse.Panel header="流程图" key="flowchart">
-              流程图
+              <WorkflowGraph workflowId={this.state.nowTicketWorkflowId}/>
             </Collapse.Panel>: null
           }
 
@@ -437,7 +440,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           <Collapse.Panel header="工单进度" key="flowStep">
             工单进度
           </Collapse.Panel> : null }
-          
+
           <Collapse.Panel header="工单信息" key="ticketDetail">
             <Form
               {...formItemLayout}
