@@ -9,8 +9,9 @@ import {
   handleTicketRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
-import TicketStep from "@/pages/ticket/TicketLog";
+import TicketLog from "@/pages/ticket/TicketLog";
 import WorkflowGraph from "@/pages/workflow/workflowGraph";
+import TicketStep from "@/pages/ticket/TicketStep";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -433,12 +434,12 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
           {this.props.ticketId?
           <Collapse.Panel header="操作记录" key="flowLog">
-            <TicketStep ticketId={this.props.ticketId}/>
+            <TicketLog ticketId={this.props.ticketId}/>
           </Collapse.Panel> : null}
 
           {this.props.ticketId?
           <Collapse.Panel header="工单进度" key="flowStep">
-            工单进度
+            <TicketStep ticketId={this.props.ticketId}/>
           </Collapse.Panel> : null }
 
           <Collapse.Panel header="工单信息" key="ticketDetail">

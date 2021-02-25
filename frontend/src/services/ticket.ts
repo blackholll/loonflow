@@ -76,3 +76,10 @@ export async function getTicketFlowLogRequest(ticketId: number) {
   })
 }
 
+
+export async function getTicketStepRequest(ticketId: number) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/flowsteps`,{
+    method: 'get',
+  })
+}
+

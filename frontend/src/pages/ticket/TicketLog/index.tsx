@@ -14,10 +14,10 @@ const TicketLog = (props: TicketLogType) => {
 
 
   useEffect(()=>{
-    fetchTicketStepData();
+    fetchTicketLogData();
   },[props.ticketId])
 
-  const fetchTicketStepData = async() => {
+  const fetchTicketLogData = async() => {
     const result = await getTicketFlowLogRequest(props.ticketId);
     if (result.code === 0) {
       setFlogData(result.data.value);
