@@ -424,4 +424,28 @@ class WorkflowBaseService(BaseService):
     def get_permission_list_by_args(cls, app_namelist, role):
         pass
 
+    @classmethod
+    @auto_log
+    def can_intervene(cls, workflow_id, username):
+        """
+        判断用户是否有对此工作流对应工单的干预权限
+        :param workflow_id:
+        :param username:
+        :return:
+        """
+        # todo: intervene列表， 创建人，管理员
+        workflow_query_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0).first()
+        if not workflow_query_obj:
+            return False, 'workflow is not existed'
+        if username == workflow_query_obj.creator:
+            return True, True
+
+        permission_queryset = WorkflowUserPermission.objects.filter(permission__in=['admin', 'intervene'], is_deleted=0,
+                                                                    user_type='user').all()
+        for permission in permission_queryset:
+            if permission.user == username:
+                return True, True
+        return True, False
+
+
 workflow_base_service_ins = WorkflowBaseService()

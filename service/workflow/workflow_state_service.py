@@ -32,7 +32,7 @@ class WorkflowStateService(BaseService):
 
     @staticmethod
     @auto_log
-    def get_workflow_states_serialize(workflow_id: int, per_page: int=10, page: int=1, query_value: str='')->tuple:
+    def get_workflow_states_serialize(workflow_id: int, per_page: int=10, page: int=1, query_value: str='', simple=False)->tuple:
         """
         获取序列化工作流状态记录
         get restful workflow's state by params
@@ -40,6 +40,7 @@ class WorkflowStateService(BaseService):
         :param per_page:
         :param page:
         :param query_value:
+        :param simle: 是否只返回简单数据
         :return:
         """
         if not workflow_id:
@@ -68,6 +69,9 @@ class WorkflowStateService(BaseService):
             result_dict['state_field_str'] = json.loads(result_dict['state_field_str'])
             result_dict['label'] = json.loads(result_dict['label'])
             result_dict['participant_info'] = participant_info
+            if simple:
+                result_new_dict = dict(id=workflow_states_object.id, name=workflow_states_object.name)
+                result_dict = result_new_dict
 
             workflow_states_restful_list.append(result_dict)
         return True, dict(workflow_states_restful_list=workflow_states_restful_list,

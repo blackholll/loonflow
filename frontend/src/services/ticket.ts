@@ -25,8 +25,22 @@ export interface  handleTicketRequestParamsType {
 
 export interface getDetailDetailRequestType {
   ticket_id: number;
-
 }
+
+export interface changeStateParamsType {
+  state_id: number;
+  suggestion?: string;
+}
+
+export interface deliverTicketParamsType {
+  target_username: string;
+  suggestion?: string;
+}
+
+export interface closeTicketParamsType {
+  suggestion?: string;
+}
+
 
 
 export async function getTicketList(params: TicketParamsType) {
@@ -83,3 +97,23 @@ export async function getTicketStepRequest(ticketId: number) {
   })
 }
 
+export async function closeTicketRequest(ticketId: number, params:closeTicketParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/close`,{
+    method: 'post',
+    data: params
+  })
+}
+
+export async function deliverTicketRequest(ticketId: number, params:deliverTicketParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/deliver`,{
+    method: 'post',
+    data: params
+  })
+}
+
+export async function changeTicketStateRequest(ticketId: number, params:changeStateParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/state`, {
+    method: 'put',
+    data: params
+  })
+}

@@ -136,6 +136,13 @@ export async function getWorkflowState(workflowId: Number, params:WorkflowStateP
   })
 }
 
+export async function getWorkflowSimpleState(workflowId: Number, params:WorkflowStateParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/simple_states`, {
+    method: 'get',
+    params: params
+  })
+}
+
 export async function updateWorkflowState(workflowId: Number, stateId: Number, params:workflowStateEditType) {
   return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/states/${stateId}`, {
     method: 'patch',
@@ -188,3 +195,10 @@ export async function getWorkflowSimpleDescription(workflowId: Number){
     method: 'get'
   })
 }
+
+export async function canInterveneRequest(workflowId: number) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/can_intervene`, {
+    method: 'get',
+  })
+}
+

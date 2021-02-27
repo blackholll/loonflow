@@ -497,6 +497,32 @@ class WorkflowStateView(LoonBaseView):
         return api_response(code, msg, data)
 
 
+class WorkflowSimpleStateView(LoonBaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        获取工作流状态列表(简单信息)
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        request_data = request.GET
+        # username = request_data.get('username', '')  # 后续会根据username做必要的权限控制
+        username = request.META.get('HTTP_USERNAME')
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        flag, result = workflow_state_service_ins.get_workflow_states_serialize(workflow_id, per_page, page,
+                                                                                search_value, simple=True)
+
+        if flag is not False:
+            paginator_info = result.get('paginator_info')
+            data = dict(value=result.get('workflow_states_restful_list'), per_page=paginator_info.get('per_page'),
+                        page=paginator_info.get('page'), total=paginator_info.get('total'))
+            code, msg, = 0, ''
+        else:
+            code, data, msg = -1, {}, result
+        return api_response(code, msg, data)
+
+
 class WorkflowStateDetailView(LoonBaseView):
     patch_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is needed'),
@@ -1055,4 +1081,25 @@ class WorkflowSimpleDescriptionView(LoonBaseView):
             code, data, msg = -1, {}, workflow_simple_description
         else:
             code, data, msg = 0, workflow_simple_description, ''
+        return api_response(code, msg, data)
+
+
+class WorkflowCanInterveneView(LoonBaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        是否有干预权限
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        username = request.META.get('HTTP_USERNAME')
+
+        flag, result = workflow_base_service_ins.can_intervene(workflow_id, username)
+        if flag is False:
+            code, data, msg = -1, {}, result
+        else:
+            code, data, msg = 0, {'can_intervene': result}, ''
+
         return api_response(code, msg, data)
