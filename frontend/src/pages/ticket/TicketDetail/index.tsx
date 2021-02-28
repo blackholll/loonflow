@@ -22,7 +22,12 @@ import {
   getDetailDetailRequest,
   newTicketRequest,
   getTicketTransitionRequest,
-  handleTicketRequest, closeTicketRequest, changeTicketStateRequest, deliverTicketRequest, acceptTicketRequest
+  handleTicketRequest,
+  closeTicketRequest,
+  changeTicketStateRequest,
+  deliverTicketRequest,
+  acceptTicketRequest,
+  addNodeTicketRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
 import TicketLog from "@/pages/ticket/TicketLog";
@@ -50,8 +55,10 @@ export interface TicketDetailState {
   simpleStateList: [],
   isChangeStateModalVisible: false,
   isDeliverModalVisible: false,
-  isCloseModalVisible: fakse,
+  isCloseModalVisible: false,
+  isAddNodeModalVisible: false,
   newStateId:0,
+  deliverFromAdmin: false,
   userSelectDict: {}
 
 }
@@ -60,10 +67,19 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   constructor(props: Readonly<TicketDetailProps>) {
     super(props);
     this.state = {
-      ticketTransitionList: [],
       ticketDetailInfoData: [],
-      fileList: {},
+      ticketTransitionList: [],
       fieldTypeDict: {},
+      fileList: {},
+      nowTicketWorkflowId: 0, // 当前工单详情的workflowid
+      fetchCanIntervene: false, // 是否可以干预工单
+      simpleStateList: [],
+      isChangeStateModalVisible: false,
+      isDeliverModalVisible: false,
+      isCloseModalVisible: false,
+      isAddNodeModalVisible: false,
+      newStateId:0,
+      deliverFromAdmin: false,
       userSelectDict: {}
     }
   }
@@ -155,10 +171,18 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     this.setState({isChangeStateModalVisible: true})
   }
 
-  showDeliverModal = () => {
-    this.setState({isDeliverModalVisible: true})
+  showAdminDeliverModal = () => {
+    this.setState({isDeliverModalVisible: true, deliverFromAdmin: true})
   }
 
+  showDeliverModal = () => {
+    this.setState({isDeliverModalVisible: true, deliverFromAdmin: false})
+  }
+
+  showAddNodeModal = () => {
+    this.setState({isAddNodeModalVisible: true})
+
+  }
   showCloseTicketModal = () => {
     this.setState({isCloseModalVisible: true})
   }
@@ -167,6 +191,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     this.setState({
         isChangeStateModalVisible: false,
         isDeliverModalVisible: false,
+        isAddNodeModalVisible: false,
         isCloseModalVisible: false
       }
     )
@@ -190,8 +215,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
   }
 
-  onAdminDeliverFinish = async(values) => {
-    values.from_admin=1;
+  onDeliverFinish = async(values) => {
+    if (this.state.deliverFromAdmin){
+      values.from_admin=1;
+    }
     const result = await deliverTicketRequest(this.props.ticketId, values);
     if(result.code === 0) {
       message.success('转交成功');
@@ -201,6 +228,22 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
     else {
       message.error(`转交失败:${result.msg}`)
+    }
+  }
+
+  onAddNodeFinish = async(values) => {
+    if (this.state.deliverFromAdmin){
+      values.from_admin=1;
+    }
+    const result = await addNodeTicketRequest(this.props.ticketId, values);
+    if(result.code === 0) {
+      message.success('加签成功');
+      this.setState({isDeliverModalVisible: false});
+      this.fetchTicketDetailInfo();
+      this.fetchTicketTransitionInfo();
+    }
+    else {
+      message.error(`加签失败:${result.msg}`)
     }
   }
 
@@ -524,6 +567,22 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       buttonItems.push(buttonItem);
 
     })
+
+    if (item&& item[0] &&item[0].in_add_node===false && item[0].is_accept===false){
+      buttonItems.push(
+        <Button type="dashed" onClick={this.showDeliverModal} style={{marginLeft:50}}>
+          转交
+        </Button>
+      )
+      buttonItems.push(
+        <Button type="dashed"  onClick={this.showAddNodeModal}>
+          加签
+        </Button>
+      )
+
+    }
+
+
     return buttonItems;
   }
 
@@ -605,7 +664,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               强制修改状态
             </Button>
             <Divider type="vertical" />
-            <Button type="primary" danger onClick={this.showDeliverModal}>
+            <Button type="primary" danger onClick={this.showAdminDeliverModal}>
               强制转交
             </Button>
 
@@ -635,13 +694,13 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           </Form>
         </Modal>
 
-        <Modal title="强制转交"
+        <Modal title= {this.state.deliverFromAdmin? "强制转交": "转交"}
                visible={this.state.isDeliverModalVisible}
                onCancel={this.closeModal}
                footer={null}
         >
           <Form
-            onFinish={this.onAdminDeliverFinish}
+            onFinish={this.onDeliverFinish}
           >
             <Form.Item
               name="target_username"
@@ -714,6 +773,47 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
             </Form.Item>
           </Form>
         </Modal>
+
+        <Modal title="加签"
+               visible={this.state.isAddNodeModalVisible}
+               onCancel={this.closeModal}
+               footer={null}
+        >
+          <Form
+            onFinish={this.onAddNodeFinish}
+          >
+            <Form.Item
+              name="target_username"
+              rules={[{ required: true, message: '请选择加签对象' }]}
+            >
+              <Select
+                placeholder="请输入关键词搜索转交人"
+                showSearch onSearch = {(search_value)=>this.userSimpleSearch('target_username', search_value)} filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }>
+                {this.state.userSelectDict['target_username'] && this.state.userSelectDict['target_username'].map(d => (
+                  <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
+                ))}
+
+              </Select>
+            </Form.Item>
+            <Form.Item
+              name="suggestion"
+            >
+              <TextArea
+                placeholder="请输入备注/处理意见"
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" className="login-form-button">
+                提交
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
+
+
+
       </div>
     )
   }

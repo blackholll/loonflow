@@ -37,6 +37,11 @@ export interface deliverTicketParamsType {
   suggestion?: string;
 }
 
+export interface addNodeTicketParamsType {
+  target_username: string;
+  suggestion?: string;
+}
+
 export interface closeTicketParamsType {
   suggestion?: string;
 }
@@ -106,6 +111,13 @@ export async function closeTicketRequest(ticketId: number, params:closeTicketPar
 
 export async function deliverTicketRequest(ticketId: number, params:deliverTicketParamsType) {
   return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/deliver`,{
+    method: 'post',
+    data: params
+  })
+}
+
+export async function addNodeTicketRequest(ticketId: number, params:addNodeTicketParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/add_node`,{
     method: 'post',
     data: params
   })
