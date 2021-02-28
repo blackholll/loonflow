@@ -1196,7 +1196,7 @@ class TicketBaseService(BaseService):
             cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                          participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                                          participant=username, state_id=source_ticket_state_id, creator=username,
-                                         ticket_data=json.dumps(ticket_all_data)))
+                                         ticket_data=ticket_all_data))
 
         # 通知消息
         from tasks import send_ticket_notice
