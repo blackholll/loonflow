@@ -127,8 +127,8 @@ class NoticeDetail extends PureComponent<any, any> {
         >
           <Radio.Group onChange={this.onTypeChange} defaultValue={String(this.state.noticeInfo.type_id)}>
             <Radio value="1">hook</Radio>
-            <Radio value="2">企微消息</Radio>
-            <Radio value="3">钉钉消息</Radio>
+            {/*<Radio value="2">企微消息</Radio>*/}
+            {/*<Radio value="3">钉钉消息</Radio>*/}
           </Radio.Group>
         </Form.Item>
         {
