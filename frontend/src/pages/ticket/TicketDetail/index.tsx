@@ -22,7 +22,7 @@ import {
   getDetailDetailRequest,
   newTicketRequest,
   getTicketTransitionRequest,
-  handleTicketRequest, closeTicketRequest, changeTicketStateRequest, deliverTicketRequest
+  handleTicketRequest, closeTicketRequest, changeTicketStateRequest, deliverTicketRequest, acceptTicketRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
 import TicketLog from "@/pages/ticket/TicketLog";
@@ -460,6 +460,17 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   }
 
 
+  acceptTicket = async(ticketId: number) => {
+    //接单
+    const result = await acceptTicketRequest(ticketId)
+    if (result.code === 0) {
+      message.success('接单成功');
+      this.fetchTicketDetailInfo();
+      this.fetchTicketTransitionInfo();
+    } else {
+      message.error(`接单失败: ${result.msg}`)
+    }
+  }
 
   genHandleButtonItem = (item: any) => {
     const buttonItems = []
@@ -468,37 +479,48 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     let buttonItem = null
 
     item.map(result => {
+      if (result.is_accept === true) {
+        buttonItem = <Button
+          htmlType="submit"
+          value = {result.transition_id}
+          onClick={()=>this.acceptTicket(this.props.ticketId)}
+        >
+          {result.transition_name}
+        </Button>
+      } else {
+        if (result.attribute_type_id === 1) {
+          buttonItem = <Button
+            type='primary'
+            htmlType="submit"
+            value = {result.transition_id}
+            onClick={()=>this.handleTicket(result.transition_id)}
+          >
+            {result.transition_name}
+          </Button>
+        }
+        else if (result.attribute_type_id === 2) {
+          buttonItem = <Button
+            htmlType="submit"
+            type='primary'
+            danger
+            value = {result.transition_id}
+            onClick={()=>this.handleTicket(result.transition_id)}
+          >
+            {result.transition_name}
+          </Button>
+        } else if (result.attribute_type_id === 3) {
+          // 其他类型
+          buttonItem = <Button
+            value = {result.transition_id}
+            htmlType="submit"
+            onClick={()=>this.handleTicket(result.transition_id)}
+          >
+            {result.transition_name}
+          </Button>
+        }
+      }
 
-      if (result.attribute_type_id === 1) {
-        buttonItem = <Button
-          type='primary'
-          htmlType="submit"
-          value = {result.transition_id}
-          onClick={()=>this.handleTicket(result.transition_id)}
-        >
-          {result.transition_name}
-        </Button>
-      }
-      else if (result.attribute_type_id === 2) {
-        buttonItem = <Button
-          htmlType="submit"
-          type='primary'
-          danger
-          value = {result.transition_id}
-          onClick={()=>this.handleTicket(result.transition_id)}
-        >
-          {result.transition_name}
-        </Button>
-      } else if (result.attribute_type_id === 3) {
-        // 其他类型
-        buttonItem = <Button
-          value = {result.transition_id}
-          htmlType="submit"
-          onClick={()=>this.handleTicket(result.transition_id)}
-        >
-          {result.transition_name}
-        </Button>
-      }
+
       buttonItems.push(buttonItem);
 
     })
@@ -558,7 +580,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               <Row gutter={24}>
                 {form_items}
               </Row>
-              {this.state.ticketTransitionList.length !== 0?
+              {this.state.ticketTransitionList.length !== 0 && this.props.ticketId!==0?
                 <Form.Item
                   name="suggestion"
                 >

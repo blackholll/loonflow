@@ -117,3 +117,9 @@ export async function changeTicketStateRequest(ticketId: number, params:changeSt
     data: params
   })
 }
+
+export async function acceptTicketRequest(ticketId: number) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/accept`, {
+    method: 'post',
+  })
+}

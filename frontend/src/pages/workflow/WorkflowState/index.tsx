@@ -416,8 +416,8 @@ class WorkflowState extends Component<any, any> {
                 style={{ width: '100%' }}
                 placeholder="请选择分配方式"
               >
-                <Option value={1}>直接处理</Option>
-                <Option value={2}>主动接单</Option>
+                <Option value={2}>直接处理</Option>
+                <Option value={1}>主动接单</Option>
                 <Option value={3}>随机分配</Option>
                 <Option value={4}>全部处理</Option>
               </Select>
