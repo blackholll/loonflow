@@ -59,9 +59,9 @@ class Manage extends Component<any, any> {
             <TabPane tab="通知配置" key="1">
               <NoticeRecord />
             </TabPane>
-            <TabPane tab="LDAP配置" key="2">
-              Content of Tab Pane 2
-            </TabPane>
+            {/*<TabPane tab="LDAP配置" key="2">*/}
+            {/*  Content of Tab Pane 2*/}
+            {/*</TabPane>*/}
           </Tabs>
 
         </Card>
