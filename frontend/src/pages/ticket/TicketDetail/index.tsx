@@ -190,7 +190,8 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
   }
 
-  onDeliverFinish = async(values) => {
+  onAdminDeliverFinish = async(values) => {
+    values.from_admin=1;
     const result = await deliverTicketRequest(this.props.ticketId, values);
     if(result.code === 0) {
       message.success('转交成功');
@@ -557,6 +558,16 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               <Row gutter={24}>
                 {form_items}
               </Row>
+              {this.state.ticketTransitionList.length !== 0?
+                <Form.Item
+                  name="suggestion"
+                >
+                  <TextArea
+                    placeholder="请输入处理意见"
+                  />
+                </Form.Item>: null
+              }
+
               {handleButtonItems}
             </Form>
           </Collapse.Panel>
@@ -608,7 +619,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
                footer={null}
         >
           <Form
-            onFinish={this.onDeliverFinish}
+            onFinish={this.onAdminDeliverFinish}
           >
             <Form.Item
               name="target_username"
