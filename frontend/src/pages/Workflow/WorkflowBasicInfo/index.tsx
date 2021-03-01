@@ -251,6 +251,10 @@ const WorkflowBasicInfo = (props) => {
               style={{ width: '100%' }}
               placeholder="请输入关键词搜索并选择工作流管理员"
               onSearch = {searchAdminer}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                || option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
             >
               {searchAdminerResult && searchAdminerResult.map(d => (
                 <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
@@ -270,6 +274,10 @@ const WorkflowBasicInfo = (props) => {
               style={{ width: '100%' }}
               placeholder="请输入关键词搜索并请选择工作流管理员"
               onSearch = {searchIntervener}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                || option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
             >
               {searchIntervenerResult && searchIntervenerResult.map(d => (
                 <Option key={d.username}>{`${d.alias}(${d.username})`}</Option>
@@ -291,6 +299,10 @@ const WorkflowBasicInfo = (props) => {
               style={{ width: '100%' }}
               placeholder="请输入关键词搜索并请选择查看权限人"
               onSearch = {searchViewer}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                || option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
             >
               {searchViewerResult && searchViewerResult.map(d => (
                 <Option value={d.username}>{`${d.alias}(${d.username})`}</Option>
