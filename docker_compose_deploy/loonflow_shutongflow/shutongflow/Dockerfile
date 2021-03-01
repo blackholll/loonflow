@@ -26,5 +26,5 @@ RUN pip3 install -r requirements.txt -i http://pypi.douban.com/simple/ --trusted
 WORKDIR /opt/shutongFlow/fronted
 RUN cnpm i
 WORKDIR /opt
-RUN git clone -b v1.0.2 https://gitee.com/shihowcom/loonflow_ro loonflow
+RUN git clone -b v1.0.13 https://gitee.com/shihowcom/loonflow_ro loonflow
 RUN python3 /opt/loonflow/docker_compose_deploy/loonflow_shutongflow/setup_shutongflow.py

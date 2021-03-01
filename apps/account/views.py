@@ -291,6 +291,7 @@ class LoonDeptView(LoonBaseView):
         parent_dept_id = request_data_dict.get('parent_dept_id')
         leader = request_data_dict.get('leader')
         approver = request_data_dict.get('approver')
+
         label = request_data_dict.get('label')
         creator = request.user.username
         flag, result = account_base_service_ins.add_dept(name, parent_dept_id, leader, approver, label, creator)

@@ -105,6 +105,9 @@ function makeUserOption(data) {
     $("#limitExpression").val(data.limit_expression);
     $("#displayFormStr").val(data.display_form_str);
     $("#workflowId").val(data.id);
+    $("#titleTemplate").val(data.title_template);
+    $("#contentTemplate").val(data.content_template);
+
     $('#workflowModal').modal('show');
   }
 

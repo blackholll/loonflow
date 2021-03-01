@@ -588,6 +588,8 @@ class TicketBaseService(BaseService):
         if len(suggestion) > 1000:
             kwargs['suggestion'] = '{}...(be truncated because More than 1000)'\
                 .format(kwargs.get('suggestion', '')[:960])
+        kwargs['suggestion'] = suggestion
+
         if not kwargs.get('creator'):
             kwargs['creator'] = kwargs.get('participant', '')
         new_ticket_flow_log = TicketFlowLog(**kwargs)
@@ -1140,7 +1142,7 @@ class TicketBaseService(BaseService):
             if destination_state.remember_last_man_enable and multi_all_person == '{}':
                 # 获取此状态的最后处理人
                 flag, result = cls.get_ticket_state_last_man(ticket_id, destination_state.id)
-                if not flag and result.get('last_man'):
+                if flag and result.get('last_man'):
                     destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
                     destination_participant = result.get('last_man')
 
@@ -1189,7 +1191,7 @@ class TicketBaseService(BaseService):
             cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
                                          participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
                                          participant=username, state_id=source_ticket_state_id, creator=username,
-                                         ticket_data=json.dumps(ticket_all_data)))
+                                         ticket_data=ticket_all_data))
 
         # 通知消息
         from tasks import send_ticket_notice
@@ -2015,10 +2017,10 @@ class TicketBaseService(BaseService):
 
         if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM:
-                destination_participant = random.sample(destination_participant_list, 1)[0]
+                destination_participant = random.sample(destination_participant_list_new, 1)[0]
             elif state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL:
                 multi_all_person_dict = {}
-                for destination_participant_0 in destination_participant_list:
+                for destination_participant_0 in destination_participant_list_new:
                     multi_all_person_dict[destination_participant_0] = {}
                 multi_all_person = json.dumps(multi_all_person_dict)
 
@@ -2169,7 +2171,7 @@ class TicketBaseService(BaseService):
 
         if not result:
             # hook执行失败了，记录失败状态.以便允许下次再执行
-            cls.update_ticket_field_value({'script_run_last_result': False})
+            cls.update_ticket_field_value(ticket_id,{'script_run_last_result': False})
             # 记录错误信息
             flag, result_data = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
             all_ticket_data_json = result_data.get('all_field_value_json')
@@ -2178,20 +2180,20 @@ class TicketBaseService(BaseService):
                 dict(ticket_id=ticket_id, transition_id=0, suggestion=msg,
                      intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_HOOK,
                      participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
-                     participant='hook', state_id=result.state_id, ticket_data=all_ticket_data_json,
+                     participant='hook', state_id=ticket_obj.state_id, ticket_data=all_ticket_data_json,
                      creator='hook'))
             return True, ''
 
         state_id = ticket_obj.state_id
         flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(state_id)
-        transition_id = transition_queryset[0]  # hook状态只支持一个流转
+        transition_id = transition_queryset[0].id  # hook状态只支持一个流转
 
         new_request_dict = field_value
 
         new_request_dict.update({'transition_id': transition_id, 'suggestion': msg, 'username': 'loonrobot'})
 
         # 执行流转
-        flag, msg = cls.handle_ticket(ticket_id, new_request_dict, by_timer=False, by_task=False)
+        flag, msg = cls.handle_ticket(ticket_id, new_request_dict, by_timer=False, by_task=False, by_hook=True)
         if not flag:
             return False, msg
         return True, ''
@@ -2404,7 +2406,11 @@ class TicketBaseService(BaseService):
         ticket_result.state_id = result.id
         ticket_result.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_result.participant = ticket_result.creator
+        ticket_result.act_state_id = constant_service_ins.TICKET_ACT_STATE_RETREAT
         ticket_result.save()
+
+        cls.update_ticket_relation(ticket_id, ticket_result.creator)
+
         # 新增操作记录
         flag, result = cls.get_ticket_all_field_value_json(ticket_result.id)
         if flag is False:
@@ -2434,7 +2440,8 @@ class TicketBaseService(BaseService):
             flag, ticket_result = cls.get_ticket_by_id(ticket_id)
             if flag is False:
                 return False, ticket_result
-            flag, start_state_result = workflow_state_service_ins.get_workflow_start_state(ticket_id)
+            workflow_id = ticket_result.workflow_id
+            flag, start_state_result = workflow_state_service_ins.get_workflow_start_state(workflow_id)
             if flag is False:
                 return False,  start_state_result
             if ticket_result.creator == username and ticket_result.state_id == start_state_result.id:
