@@ -215,6 +215,7 @@ class TicketFlowlog(LoonBaseView):
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
         ticket_data = int(request_data.get('ticket_data', 0))
+        desc = int(request_data.get('desc', 1)) # 是否降序
         app_name = request.META.get('HTTP_APPNAME')
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not app_permission_check:
@@ -223,7 +224,7 @@ class TicketFlowlog(LoonBaseView):
         if not username:
             return api_response(-1, '参数不全，请提供username', '')
 
-        flag, result = ticket_base_service_ins.get_ticket_flow_log(ticket_id, username, per_page, page, ticket_data)
+        flag, result = ticket_base_service_ins.get_ticket_flow_log(ticket_id, username, per_page, page, ticket_data, desc)
 
         if flag is not False:
             paginator_info = result.get('paginator_info')

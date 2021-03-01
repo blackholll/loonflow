@@ -1349,7 +1349,7 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_flow_log(cls, ticket_id: int, username: str, per_page: int=10, page: int=1, ticket_data=0)->tuple:
+    def get_ticket_flow_log(cls, ticket_id: int, username: str, per_page: int=10, page: int=1, ticket_data=0, desc=1)->tuple:
         """
         获取工单流转记录
         get ticket's flow log
@@ -1358,9 +1358,14 @@ class TicketBaseService(BaseService):
         :param per_page:
         :param page:
         :param ticket_data: 是否返回当前工单所有字段信息
+        :param desc: 是否降序
         :return:
         """
-        ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all().order_by('-id')
+        if desc == 0:
+            ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all().order_by('id')
+        else:
+            ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all().order_by(
+                '-id')
         paginator = Paginator(ticket_flow_log_queryset, per_page)
 
         try:
