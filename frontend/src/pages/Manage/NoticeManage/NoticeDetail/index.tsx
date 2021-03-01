@@ -37,16 +37,6 @@ class NoticeDetail extends PureComponent<any, any> {
     }
   }
 
-  // shouldComponentUpdate(nextProps: Readonly<any>, nextState: Readonly<any>, nextContext: any): boolean {
-  //   if (nextProps.noticeId !== this.props.noticeId && nextProps.noticeId !== 0){
-  //     this.fetchNoticeDetailData(nextProps.noticeId);
-  //     return true
-  //   } else {
-  //     return false
-  //   }
-  // }
-
-
   fetchNoticeDetailData = async (noticeId) => {
     //
     const result = await getNoticeDetailRequest({noticeId:noticeId});

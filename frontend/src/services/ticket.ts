@@ -46,6 +46,10 @@ export interface closeTicketParamsType {
   suggestion?: string;
 }
 
+export interface commentTicketParamsType {
+  suggestion: string;
+}
+
 
 
 export async function getTicketList(params: TicketParamsType) {
@@ -133,5 +137,12 @@ export async function changeTicketStateRequest(ticketId: number, params:changeSt
 export async function acceptTicketRequest(ticketId: number) {
   return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/accept`, {
     method: 'post',
+  })
+}
+
+export async function addCommentRequest(ticketId: number, params:commentTicketParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/comments`, {
+    method: 'post',
+    data: params
   })
 }

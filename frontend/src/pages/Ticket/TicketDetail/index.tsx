@@ -27,7 +27,7 @@ import {
   changeTicketStateRequest,
   deliverTicketRequest,
   acceptTicketRequest,
-  addNodeTicketRequest
+  addNodeTicketRequest, addCommentRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
 import TicketLog from "@/pages/ticket/TicketLog";
@@ -51,7 +51,7 @@ export interface TicketDetailState {
   fieldTypeDict: {},
   fileList: {},
   nowTicketWorkflowId: 0, // 当前工单详情的workflowid
-  fetchCanIntervene: false, // 是否可以干预工单
+  canIntervene: false, // 是否可以干预工单
   simpleStateList: [],
   isChangeStateModalVisible: false,
   isDeliverModalVisible: false,
@@ -59,6 +59,7 @@ export interface TicketDetailState {
   isAddNodeModalVisible: false,
   newStateId:0,
   deliverFromAdmin: false,
+  isCommentModalVisible: false,
   userSelectDict: {}
 
 }
@@ -72,7 +73,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       fieldTypeDict: {},
       fileList: {},
       nowTicketWorkflowId: 0, // 当前工单详情的workflowid
-      fetchCanIntervene: false, // 是否可以干预工单
+      canIntervene: false, // 是否可以干预工单
       simpleStateList: [],
       isChangeStateModalVisible: false,
       isDeliverModalVisible: false,
@@ -80,6 +81,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       isAddNodeModalVisible: false,
       newStateId:0,
       deliverFromAdmin: false,
+      isCommentModalVisible: false,
       userSelectDict: {}
     }
   }
@@ -187,11 +189,16 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     this.setState({isCloseModalVisible: true})
   }
 
+  showCommentModal = () => {
+    this.setState({isCommentModalVisible: true})
+  }
+
   closeModal = () => {
     this.setState({
         isChangeStateModalVisible: false,
         isDeliverModalVisible: false,
         isAddNodeModalVisible: false,
+        isCommentModalVisible: false,
         isCloseModalVisible: false
       }
     )
@@ -231,7 +238,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
   }
 
-  onAddNodeFinish = async(values) => {
+  onAddNodeFinish = async(values:any) => {
     if (this.state.deliverFromAdmin){
       values.from_admin=1;
     }
@@ -246,6 +253,18 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       message.error(`加签失败:${result.msg}`)
     }
   }
+
+  onCommentFinish = async(values:any) => {
+    const result =  await addCommentRequest(this.props.ticketId, values);
+    if(result.code === 0) {
+      message.success('留言成功');
+      this.setState({isCommentModalVisible: false});
+    }
+    else {
+      message.error(`留言失败:${result.msg}`)
+    }
+  }
+
 
   fileChange = (field_key:string, info: any) => {
 
@@ -563,7 +582,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         }
       }
 
-
       buttonItems.push(buttonItem);
 
     })
@@ -580,6 +598,14 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         </Button>
       )
 
+    }
+
+    if (this.state.ticketDetailInfoData !== []) {
+      buttonItems.push(
+        <Button type="dashed"  onClick={this.showCommentModal}>
+          留言
+        </Button>
+      )
     }
 
 
@@ -802,6 +828,29 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
             >
               <TextArea
                 placeholder="请输入备注/处理意见"
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" className="login-form-button">
+                提交
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
+
+        <Modal title="留言"
+               visible={this.state.isCommentModalVisible}
+               onCancel={this.closeModal}
+               footer={null}
+        >
+          <Form
+            onFinish={this.onCommentFinish}
+          >
+            <Form.Item
+              name="suggestion"
+            >
+              <TextArea
+                placeholder="请输入意见"
               />
             </Form.Item>
             <Form.Item>
