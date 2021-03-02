@@ -2022,10 +2022,10 @@ class TicketBaseService(BaseService):
 
         if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             if state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_RANDOM:
-                destination_participant = random.sample(destination_participant_list_new, 1)[0]
+                destination_participant = random.sample(destination_participant, 1)[0]
             elif state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL:
                 multi_all_person_dict = {}
-                for destination_participant_0 in destination_participant_list_new:
+                for destination_participant_0 in destination_participant:
                     multi_all_person_dict[destination_participant_0] = {}
                 multi_all_person = json.dumps(multi_all_person_dict)
 
