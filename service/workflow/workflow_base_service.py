@@ -451,5 +451,40 @@ class WorkflowBaseService(BaseService):
                 return True, True
         return True, False
 
+    @classmethod
+    @auto_log
+    def get_statistics(cls, workflow_id, start_time, end_time):
+        """
+        对应工单数量统计数据
+        :param workflow_id:
+        :param start_time:
+        :param end_time:
+        :return:
+        """
+        from django.db.models import Count
+        query_params = {'is_deleted': 0, 'workflow_id': workflow_id}
+        if start_time:
+            query_params['gmt_created__gte'] = start_time
+        if end_time:
+            query_params['gmt_created__lte'] = end_time
+
+        from apps.ticket.models import TicketRecord
+        queryset_result = TicketRecord.objects.filter(**query_params).extra(
+            select={'year': 'year(gmt_created)', 'month': 'month(gmt_created)', 'day': 'day(gmt_created)',
+                    'workflow_id': 'workflow_id'}).values('year', 'month', 'day', 'workflow_id').annotate(
+            count_len=Count('gmt_created')).order_by()
+
+        result_list = []
+        for queryset in queryset_result:
+            date_str = '%d-%02d-%02d' % (queryset['year'], queryset['month'], queryset['day'])
+
+            result_list.append(dict(day=date_str, count=queryset['count_len']))
+        # 按日期排序
+        result_list = sorted(result_list, key=lambda r: r['day'])
+
+        return True, dict(result_list=result_list)
+
+
+
 
 workflow_base_service_ins = WorkflowBaseService()

@@ -4,7 +4,7 @@ from apps.workflow.views import StateView, WorkflowView, WorkflowInitView, Workf
     WorkflowRunScriptDetailView, WorkflowCustomNoticeView, WorkflowCustomNoticeDetailView, WorkflowDetailView, \
     WorkflowTransitionView, WorkflowCustomFieldView, WorkflowCustomFieldDetailView, WorkflowStateDetailView, \
     WorkflowTransitionDetailView, WorkflowUserAdminView, SimpleWorkflowCustomNoticeView, WorkflowSimpleDescriptionView, \
-    WorkflowCanInterveneView, WorkflowSimpleStateView
+    WorkflowCanInterveneView, WorkflowSimpleStateView, WorkflowStatisticsView
 
 urlpatterns = [
     path('', WorkflowView.as_view()),
@@ -20,6 +20,7 @@ urlpatterns = [
     path('/<int:workflow_id>/custom_fields', WorkflowCustomFieldView.as_view()),
     path('/<int:workflow_id>/custom_fields/<int:custom_field_id>', WorkflowCustomFieldDetailView.as_view()),
     path('/<int:workflow_id>/simple_description', WorkflowSimpleDescriptionView.as_view()),
+    path('/<int:workflow_id>/statistics', WorkflowStatisticsView.as_view()),
 
     path('/states/<int:state_id>', StateView.as_view()),
     path('/run_scripts', WorkflowRunScriptView.as_view()),

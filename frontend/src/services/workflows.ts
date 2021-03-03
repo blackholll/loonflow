@@ -72,7 +72,11 @@ export interface  WorkflowDetailType {
 
 export interface  workflowTransitionEditType {
   name: string,
+}
 
+export interface  workflowStatisticsType {
+  time_start: string,
+  time_end: string,
 }
 
 export async function getWorkflowList(params: WorkflowParamsType) {
@@ -199,6 +203,14 @@ export async function getWorkflowSimpleDescription(workflowId: Number){
 export async function canInterveneRequest(workflowId: number) {
   return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/can_intervene`, {
     method: 'get',
+  })
+}
+
+
+export async function workflowStatisticsRequest(workflowId: number, params:workflowStatisticsType) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/statistics`, {
+    method: 'get',
+    params: params
   })
 }
 

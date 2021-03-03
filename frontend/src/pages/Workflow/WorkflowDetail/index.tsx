@@ -5,6 +5,7 @@ import WorkflowState from "@/pages/workflow/WorkflowState";
 import WorkflowTransiton from "@/pages/workflow/WorkflowTransition";
 import WorkflowGraph from "@/pages/workflow/workflowGraph";
 import WorkflowBasicInfo from "@/pages/workflow/WorkflowBasicInfo";
+import WorkflowStatistic from "@/pages/Workflow/WorkflowStatistic";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -68,7 +69,7 @@ class WorkflowDetail extends Component<any, any> {
             <WorkflowGraph workflowId={this.state.workflowId}/>
           </TabPane>
           <TabPane tab="统计" key="statisticsTab">
-            敬请期待...
+            <WorkflowStatistic workflowId={this.state.workflowId}/>
           </TabPane>
         </Tabs>
       </Card>

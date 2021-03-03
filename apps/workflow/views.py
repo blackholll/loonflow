@@ -1103,3 +1103,27 @@ class WorkflowCanInterveneView(LoonBaseView):
             code, data, msg = 0, {'can_intervene': result}, ''
 
         return api_response(code, msg, data)
+
+
+class WorkflowStatisticsView(LoonBaseView):
+    @manage_permission_check('workflow_admin')
+    def get(self, request, *args, **kwargs):
+        """
+        工作流统计
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        request_data = request.GET
+        start_time = request_data.get('start_time', '')
+        end_time = request_data.get('end_time', '')
+
+
+        flag, workflow_statistics = workflow_base_service_ins.get_statistics(workflow_id, start_time, end_time)
+        if flag is False:
+            code, data, msg = -1, {}, workflow_statistics
+        else:
+            code, data, msg = 0, workflow_statistics, ''
+        return api_response(code, msg, data)
