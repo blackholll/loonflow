@@ -60,16 +60,13 @@ vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043
 另外boostrap版本还提供了docker镜像，供新人快速部署(仅供查看效果图，不要直接用于生产环境):https://hub.docker.com/r/webterminal/workflowdemo/
 
 ### loonflow
-loonflow 1.1.0 的 react+ant design版本的用户侧功能，还在开发中。。。
-以下是之前的管理后台界面(bootstrap)
-![user_manage](/static/images/user_manage.png)
-![workflow_list](/static/images/workflow_list.png)
-![workflow_edit](/static/images/workflow_edit.png)
-![customfield](/static/images/workflow_config_detail.png)
-![flowchart](/static/images/flowchart.png)
+![user_manage](/static/images/1.1.x/login.png)
+![user_manage](/static/images/1.1.x/workbench.png)
+![user_manage](/static/images/1.1.x/new_ticket.png)
+![user_manage](/static/images/1.1.x/custom_field.png)
+![user_manage](/static/images/1.1.x/user.png)
+![user_manage](/static/images/1.1.x/system_config.png)
 
-![ticket_manage](/static/images/ticket_manage.png)
-![ticket_manage](/static/images/ticket_manage_detail.png)
 
 ## 使用文档
 [使用文档](https://loonflow.readthedocs.io)
