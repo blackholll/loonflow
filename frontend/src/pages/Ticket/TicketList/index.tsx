@@ -13,7 +13,28 @@ let currentValue;
 class TicketList extends Component<any, any> {
   constructor(props) {
     super(props);
-    this.state = {ticketResult: [], workflowResult: [], ticketListLoading: false, userResult: []};
+    this.state = {
+      ticketResult: [],
+      workflowResult: [],
+      ticketListLoading: false,
+      userResult: [],
+      pagination: {
+        current: 1,
+        total: 0,
+        pageSize: 10,
+        onChange: (current) => {
+          const pagination = { ...this.state.pagination };
+          pagination.page = current;
+          pagination.current = current;
+          this.setState({ pagination }, () => {
+            this.fetchTicketData({
+              page: pagination.page,
+              per_page: pagination.pageSize
+            })
+          });
+        }
+      }
+    };
   }
   formRef = React.createRef<FormInstance>();
 
@@ -40,11 +61,17 @@ class TicketList extends Component<any, any> {
   //   return false
   // }
 
-  fetchTicketData = async (params) => {
+  fetchTicketData = async (values) => {
     this.setState({ticketListLoading: true})
-    const result = await getTicketList({category: this.props.category});
+    values.category = this.props.category;
+    const result = await getTicketList(values);
     if (result.code === 0) {
-      this.setState({ticketResult: result.data.value, ticketListLoading: false});
+      const pagination = { ...this.state.pagination };
+      pagination.page = result.data.page;
+      pagination.pageSize = result.data.per_page;
+      pagination.total = result.data.total;
+
+      this.setState({ticketResult: result.data.value, ticketListLoading: false, pagination});
     } else {
       message.error(result.msg);
       this.setState({ticketListLoading: false});
@@ -166,7 +193,7 @@ class TicketList extends Component<any, any> {
           >
             <Select
               showSearch
-              labelInValue
+              // labelInValue
               style={{ width: 200 }}
               placeholder="选择工单类型"
               optionFilterProp="children"
@@ -175,7 +202,7 @@ class TicketList extends Component<any, any> {
               }
             >
               {this.state.workflowResult.map(d => (
-                <Select.Option key={d.id}>{d.name}</Select.Option>
+                <Select.Option key={d.id} value={d.id}>{d.name}</Select.Option>
               ))}
             </Select>
           </Form.Item>
@@ -242,7 +269,12 @@ class TicketList extends Component<any, any> {
 
         </Form>
         <div id="components-table-demo-basic">
-          <Table loading={this.state.ticketListLoading} columns={columns} dataSource={this.state.ticketResult} rowKey={record=>record.id}/>
+          <Table loading={this.state.ticketListLoading}
+                 columns={columns}
+                 dataSource={this.state.ticketResult}
+                 rowKey={record=>record.id}
+                 pagination={this.state.pagination}
+          />
         </div>
         <Modal
           title={`工单详情: #${this.state.openTicketId}`}

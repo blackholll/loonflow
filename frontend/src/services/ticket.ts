@@ -3,7 +3,7 @@ import { request } from 'umi';
 
 export interface TicketParamsType {
   category: string;
-
+  [propName: string]: any;
 }
 
 export interface WorkflowParamsType {
