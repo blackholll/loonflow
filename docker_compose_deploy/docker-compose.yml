@@ -12,8 +12,8 @@ services:
   loonflow-web:
     hostname: loonflow-web
     build: 
-      context: ./loonflow-web
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: docker_compose_deploy/loonflow-web/Dockerfile
     depends_on:
       - loonflow-redis
     ports:
@@ -28,8 +28,8 @@ services:
   loonflow-task:
     hostname: loonflow-task
     build: 
-      context: ./loonflow-task
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: docker_compose_deploy/loonflow-task/Dockerfile
     command:
       - /bin/sh
       - -c
