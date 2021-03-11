@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {Table, Col, Card, Popconfirm, Form, Input, Select, Radio, Button, Modal, Row, message} from "antd";
 import {addRole, getRoleList, updateRole} from "@/services/user";
-import RoleUserList from "@/pages/user/Role/RoleUserList";
+import RoleUserList from "@/pages/User/Role/RoleUserList";
 
 
 class RoleList extends Component<any, any> {

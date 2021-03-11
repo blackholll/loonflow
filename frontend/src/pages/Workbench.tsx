@@ -3,8 +3,8 @@ import { PageContainer } from '@ant-design/pro-layout';
 import {Card, Select, Button, message, Modal} from 'antd';
 import DutyTicket from './ticket/DutyTicket';
 import {getWorkflowList} from "@/services/workflows";
-import TicketDetail from "@/pages/ticket/TicketDetail";
-import TicketList from "@/pages/ticket/TicketList";
+import TicketDetail from "@/pages/Ticket/TicketDetail";
+import TicketList from "@/pages/Ticket/TicketList";
 
 const { Option } = Select;
 

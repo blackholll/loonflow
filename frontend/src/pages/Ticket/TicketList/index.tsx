@@ -3,7 +3,7 @@ import moment from 'moment';
 import styles from "./index.less";
 import {Table, message, Modal, Col, Form, Input, Row, DatePicker, Button, Select} from "antd";
 import { getTicketList } from '@/services/ticket';
-import TicketDetail from "@/pages/ticket/TicketDetail";
+import TicketDetail from "@/pages/Ticket/TicketDetail";
 import {getWorkflowList} from "@/services/workflows";
 
 const { RangePicker } = DatePicker;

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {Table, Button, Modal, message, Popconfirm} from "antd";
 import {delNoticeDetailRequest, getNoticeListRequest} from "@/services/manage";
-import NoticeDetail from "@/pages/manage/NoticeManage/NoticeDetail";
+import NoticeDetail from "@/pages/Manage/NoticeManage/NoticeDetail";
 
 
 class NoticeRecord extends Component<any, any> {

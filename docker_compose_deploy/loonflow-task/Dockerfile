@@ -8,7 +8,7 @@ RUN mkdir -p /var/log/loonflow
 COPY . /opt/loonflow/
 
 WORKDIR /opt/loonflow/requirements
-RUN pip3 install -r pro.txt -i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com
+RUN pip3 install -r pro.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ --trusted-host=pypi.tuna.tsinghua.edu.cn
 # 复制config.py文件
 WORKDIR /opt/loonflow/settings
 RUN cp pro.py.sample config.py
@@ -21,21 +21,6 @@ RUN sed -i "s/'NAME': 'loonflownew'/'NAME': 'loonflow_1_1test'/g" /opt/loonflow/
 RUN sed -i "s/'USER': 'loonflownew'/'USER': 'loonflow_1_1test'/g" /opt/loonflow/settings/config.py
 RUN sed -i "s/'PASSWORD': '123456'/'PASSWORD': '123456'/g" /opt/loonflow/settings/config.py
 RUN sed -i "s/'HOST': '127.0.0.1'/'HOST': '192.168.50.136'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
-RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
 RUN sed -i "s/'PORT': '3306'/'PORT': '3306'/g" /opt/loonflow/settings/config.py
 
 # 修改日志路径

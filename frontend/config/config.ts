@@ -2,10 +2,10 @@
 import { defineConfig } from 'umi';
 import defaultSettings from './defaultSettings';
 import proxy from './proxy';
-import UserList from "@/pages/user/User";
-import RoleList from "@/pages/user/Role/RoleList";
-import DeptList from "@/pages/user/Dept/DeptList";
-import TokenList from "@/pages/user/Token/TokenList";
+import UserList from "@/pages/User/User";
+import RoleList from "@/pages/User/Role/RoleList";
+import DeptList from "@/pages/User/Dept/DeptList";
+import TokenList from "@/pages/User/Token/TokenList";
 
 const { REACT_APP_ENV } = process.env;
 
@@ -42,7 +42,7 @@ export default defineConfig({
         {
           name: 'login',
           path: '/user/login',
-          component: './user/login',
+          component: './User/login',
         },
       ],
     },
@@ -60,36 +60,36 @@ export default defineConfig({
         {
           "path": "/tickets/duty",
           "name": "我的待办",
-          "component": '../../src/pages/ticket/DutyTicket',
+          "component": '../../src/pages/Ticket/DutyTicket',
         },
         {
           "path": "/tickets/owner",
           "name": "我的申请",
-          "component": '../../src/pages/ticket/OwnerTicket',
+          "component": '../../src/pages/Ticket/OwnerTicket',
 
         },
         {
           "path": "/tickets/relation",
           "name": "与我相关",
-          "component": '../../src/pages/ticket/RelatedTicket',
+          "component": '../../src/pages/Ticket/RelatedTicket',
 
         },
         {
           "path": "/tickets/view",
           "name": "工单查看",
-          "component": '../../src/pages/ticket/ViewTicket',
+          "component": '../../src/pages/Ticket/ViewTicket',
 
         },
         {
           "path": "/tickets/intervene",
           "name": "工单干预",
-          "component": '../../src/pages/ticket/InterveneTicket',
+          "component": '../../src/pages/Ticket/InterveneTicket',
 
         },
         {
           "path": "/tickets/all",
           "name": "所有工单",
-          "component": '../../src/pages/ticket/AllTicket',
+          "component": '../../src/pages/Ticket/AllTicket',
 
         }
       ]
@@ -98,11 +98,11 @@ export default defineConfig({
       path: '/workflows',
       name: '工作流管理',
       icon: 'DeploymentUnitOutlined',
-      component: '../../src/pages/workflow/WorkflowList',
+      component: '../../src/pages/Workflow/WorkflowList',
     },
     {
       path: '/workflows/detail',
-      component: '../../src/pages/workflow/WorkflowDetail',
+      component: '../../src/pages/Workflow/WorkflowDetail',
 
     },
     {
@@ -114,25 +114,25 @@ export default defineConfig({
         {
           "path": "/users/user",
           "name": "用户管理",
-          "component": '../../src/pages/user/User/UserList',
+          "component": '../../src/pages/User/User/UserList',
 
         },
         {
           "path": "/users/role",
           "name": "角色管理",
-          "component": '../../src/pages/user/Role/RoleList',
+          "component": '../../src/pages/User/Role/RoleList',
 
         },
         {
           "path": "/users/dept",
           "name": "部门管理",
-          "component": '../../src/pages/user/Dept/DeptList',
+          "component": '../../src/pages/User/Dept/DeptList',
 
         },
         {
           "path": "/users/app",
           "name": "调用权限",
-          "component": '../../src/pages/user/Token/TokenList',
+          "component": '../../src/pages/User/Token/TokenList',
         }
       ],
     },
@@ -146,7 +146,7 @@ export default defineConfig({
       path: 'account/changepwd',
       layout: false,
       icon: 'ToolOutlined',
-      component: './account/ChangePwd',
+      component: './Account/ChangePwd',
     },
     {
       path: '/',

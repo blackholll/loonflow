@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import {Table, Col, Card, Row, Form, Input, Button, message, Modal, Select, Radio, Popconfirm} from "antd";
 import {addUser, delUserRequest, getDeptList, getUserList, resetUserPasswd, updateUser} from "@/services/user";
-import UserRoleList from "@/pages/user/User/UserRoleList";
+import UserRoleList from "@/pages/User/User/UserRoleList";
 
 const { Option } = Select;
 

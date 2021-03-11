@@ -30,9 +30,9 @@ import {
   addNodeTicketRequest, addCommentRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
-import TicketLog from "@/pages/ticket/TicketLog";
-import WorkflowGraph from "@/pages/workflow/workflowGraph";
-import TicketStep from "@/pages/ticket/TicketStep";
+import TicketLog from "@/pages/Ticket/TicketLog";
+import WorkflowGraph from "@/pages/Workflow/WorkflowGraph";
+import TicketStep from "@/pages/Ticket/TicketStep";
 
 const { Option } = Select;
 const { TextArea } = Input;

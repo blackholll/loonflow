@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import {Card, Select, Button, message, Modal, Tabs} from 'antd';
 import {getWorkflowList} from "@/services/workflows";
-import NoticeRecord from "@/pages/manage/NoticeManage";
+import NoticeRecord from "@/pages/Manage/NoticeManage";
 
 const { Option } = Select;
 

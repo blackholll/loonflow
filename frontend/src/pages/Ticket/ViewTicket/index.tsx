@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import TicketList from "@/pages/ticket/TicketList";
+import TicketList from "@/pages/Ticket/TicketList";
 import {Card} from "antd";
 
 class ViewTicket extends Component<any, any> {

@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import {Card, Input, Select, Collapse, Tabs} from "antd";
-import WorkflowCustomFieldList from "@/pages/workflow/WorkflowCustomFieldList";
-import WorkflowState from "@/pages/workflow/WorkflowState";
-import WorkflowTransiton from "@/pages/workflow/WorkflowTransition";
-import WorkflowGraph from "@/pages/workflow/workflowGraph";
-import WorkflowBasicInfo from "@/pages/workflow/WorkflowBasicInfo";
+import WorkflowCustomFieldList from "@/pages/Workflow/WorkflowCustomFieldList";
+import WorkflowState from "@/pages/Workflow/WorkflowState";
+import WorkflowTransiton from "@/pages/Workflow/WorkflowTransition";
+import WorkflowGraph from "@/pages/Workflow/WorkflowGraph";
+import WorkflowBasicInfo from "@/pages/Workflow/WorkflowBasicInfo";
 import WorkflowStatistic from "@/pages/Workflow/WorkflowStatistic";
 
 const { Option } = Select;
