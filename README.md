@@ -1,9 +1,9 @@
 # 注意
-　　<font color='red' size='30'> v1.1.0分支版本尚在开发中，请勿用于生产,请使用relase中最新正式版本(r1.0.x)</font>
+当前r1.1.0版本刚发布，问题可能有点多(出现问题我会积极修复)，建议老用户暂时不要升级，后续问题修复差不多后，会提供升级文档
 
 # loonflow
 a workflow engine base on django
-基于django的工作流引擎系统(通过http接口调用，可以作为企业内部统一的工作流引擎，提供诸如权限申请、资源申请、发布申请、请假、报销、it服务等所有工作流场景的服务),如果有一定的开发能力建议只使用后端引擎功能，前端根据场景定制开发可分散于各个内部后台管理系统(如人事、运维、监控、cmdb等等)。从1.1.x版本开始loonflow自带工单新建及处理的前端界面，初级用户可以直接使用。
+基于django的工作流引擎系统(通过http接口调用，可以作为企业内部统一的工作流引擎，提供诸如权限申请、资源申请、发布申请、请假、报销、it服务等所有工作流场景的服务),如果有一定的开发能力建议只使用后端引擎功能，前端根据场景定制开发可分散于各个内部后台管理系统(如人事、运维、监控、cmdb等等)。从1.1.x版本开始loonflow自带工单新建及处理的前端界面，可以直接使用。
 
 欢迎访问我的博客了解我的设计思路 http://loonapp.com/blog/27/
 
@@ -35,11 +35,11 @@ qq群的目的:
 
 ## 基本架构
 LOONFLOW 分为两部分:
-- 前端界面(react+ ant design pro): 包括工单新建、处理、管理、工作流的管理配置、统计等等共
+- 前端界面(react + ant design pro): 包括工单新建、处理、管理、工作流的管理配置、统计等等
 - 提供http api供各个系统(如果oa、cmdb、运维系统、客服系统)的后端调用以完成各自系统定制化的工单需求
 
 ## 相关项目
-在loonflow0.x.x及1.0.x版本时期，未提供用户侧的创建及处理工单界面。感谢以下调用端demo项目。如果你使用vue或者bootstrap写你的前端来整合内部各种需要用到工单的系统，以下项目可供参考
+在loonflow0.x.x及1.0.x版本时期，未提供用户侧的创建及处理工单界面。感谢以下调用端demo项目的提供者。如果你使用vue或者bootstrap写你的前端来整合内部各种需要用到工单的系统，以下项目可供参考
  
 技术栈 | 项目地址 | 作者联系方式 | 说明
 ---|---|---|---
@@ -60,6 +60,9 @@ vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043
 另外boostrap版本还提供了docker镜像，供新人快速部署(仅供查看效果图，不要直接用于生产环境):https://hub.docker.com/r/webterminal/workflowdemo/
 
 ### loonflow
+
+是的，你可以不再使用workflowdemo、shutongflow及howflow-open。 当然你还可以参考这三个项目写自己的调用方系统
+
 ![user_manage](/static/images/1.1.x/login.png)
 ![user_manage](/static/images/1.1.x/workbench.png)
 ![user_manage](/static/images/1.1.x/new_ticket.png)

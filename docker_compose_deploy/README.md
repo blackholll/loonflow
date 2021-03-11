@@ -3,7 +3,7 @@
 
 
 # 准备工作
-- 准备一台linux系统的服务器
+- 准备一台linux系统(建议centos7)的服务器,需要4G以上内存(因为编译前端比较需要内存)
 - 安装好python3(请自行百度或者google)
 - 安装好docker-compose(请自行百度或者google)
 - 配置容器镜像加速(请自行百度或者google)

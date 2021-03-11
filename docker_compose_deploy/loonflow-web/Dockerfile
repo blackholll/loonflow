@@ -43,6 +43,7 @@ RUN ln -s /opt/nodejs/bin/npm /usr/local/bin/npm
 RUN npm config set registry https://registry.npm.taobao.org
 ## 编译前端
 WORKDIR /opt/loonflow/frontend
+RUN npm i
 RUN npm run build
 
 
