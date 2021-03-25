@@ -89,6 +89,7 @@ class WorkflowView(LoonBaseView):
 
 
         creator = request.META.get('HTTP_USERNAME', '')
+        workflow_admin = request_data_dict.get('workflow_admin', '')
         flag, result = workflow_base_service_ins.add_workflow(
             name, description, notices, view_permission_check, limit_expression, display_form_str, creator,
             workflow_admin, title_template, content_template)
