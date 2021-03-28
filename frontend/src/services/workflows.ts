@@ -154,6 +154,13 @@ export async function updateWorkflowState(workflowId: Number, stateId: Number, p
   })
 }
 
+export async function addWorkflow(params:WorkflowDetailType) {
+  return request<API.CommonResponse> (`/api/v1.0/workflows`, {
+    method: 'post',
+    data: params
+  })
+}
+
 export async function addWorkflowState(workflowId: Number, params:workflowStateEditType) {
   return request<API.CommonResponse> (`/api/v1.0/workflows/${workflowId}/states`, {
     method: 'post',

@@ -1,7 +1,7 @@
 import {Form, Input, Button, Checkbox, Row, Col, Tooltip, Select, Switch, message} from 'antd';
 import React, {useState, userEffect, useEffect} from 'react';
 import {QuestionCircleOutlined} from "@ant-design/icons/lib";
-import {getWorkflowDetail, updateWorkflowDetail, updateWorkflowState} from "@/services/workflows";
+import {addWorkflow, getWorkflowDetail, updateWorkflowDetail, updateWorkflowState} from "@/services/workflows";
 import {getSimpleNoticeListRequest} from "@/services/manage";
 import {getSimpleDeptList, getSimpleTokenListRequest, queryUserSimple} from "@/services/user";
 
@@ -44,7 +44,13 @@ const WorkflowBasicInfo = (props) => {
     fetchNoticeList();
     fetchAppTokenList();
     fetchDeptList();
-    fetchWorkflowDetail();
+    if (props.workflowId){
+      fetchWorkflowDetail();
+    }
+    else{
+      console.log('new workflowid')
+    }
+
 
   }, [])
 
@@ -124,12 +130,33 @@ const WorkflowBasicInfo = (props) => {
         values[key] = ''
       }
     }
-    const result = await updateWorkflowDetail(props.workflowId, values);
-    if (result.code ===0){
-      message.success('更新成功')
+    if (values.view_permission_check) {
+      values.view_permission_check = 1
     } else {
-      message.error(result.msg)
+      values.view_permission_check = 0
     }
+
+
+    if (props.workflowId){
+      const result = await updateWorkflowDetail(props.workflowId, values);
+      if (result.code ===0){
+        message.success('更新成功')
+      } else {
+        message.error(result.msg)
+      }
+    }
+    else {
+      // 新增
+      const result = await addWorkflow(values);
+      if (result.code ===0){
+        message.success('新增成功')
+        window.location.href = `/workflows/detail?workflow_id=${result.data.workflow_id}`
+
+      } else {
+        message.error(result.msg)
+      }
+    }
+
   }
 
 
