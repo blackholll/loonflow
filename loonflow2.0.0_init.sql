@@ -686,7 +686,8 @@ CREATE TABLE `ticket_ticketcustomfield` (
   `gmt_modified` datetime(6) NOT NULL,
   `is_deleted` tinyint(1) NOT NULL,
   `multi_username_value` varchar(1000) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_ticket_field` (`ticket_id`,`field_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `ticket_ticketcustomfield` WRITE;
@@ -879,7 +880,8 @@ CREATE TABLE `ticket_ticketflowlog` (
   `gmt_modified` datetime(6) NOT NULL,
   `is_deleted` tinyint(1) NOT NULL,
   `intervene_type_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_ticket_id` (`ticket_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `ticket_ticketflowlog` WRITE;
@@ -1009,7 +1011,12 @@ CREATE TABLE `ticket_ticketrecord` (
   `script_run_last_result` tinyint(1) NOT NULL,
   `act_state_id` int(11) NOT NULL DEFAULT '0' COMMENT '进行状态',
   `multi_all_person` varchar(1000) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_creator` (`creator`),
+  KEY `idx_created` (`gmt_created`),
+  KEY `idx_act_state` (`act_state_id`),
+  KEY `idx_workflow` (`workflow_id`),
+  KEY `idx_sn` (`sn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 LOCK TABLES `ticket_ticketrecord` WRITE;
