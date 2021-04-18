@@ -945,13 +945,13 @@ class AccountBaseService(BaseService):
 
         if flag:
             user_obj = result
-            if user_obj.type_id in (constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN, constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN):
-                password_str = make_password('123456', None, 'pbkdf2_sha256')
-                user_obj.password = password_str
-                user_obj.save()
-                return True, 'password has been reset to 123456'
-            else:
-                return False, 'just admin or workflow admin can be reset password'
+            # if user_obj.type_id in (constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN, constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN):
+            password_str = make_password('123456', None, 'pbkdf2_sha256')
+            user_obj.password = password_str
+            user_obj.save()
+            return True, 'password has been reset to 123456'
+            # else:
+            #     return False, 'just admin or workflow admin can be reset password'
         else:
             return False, result
 
