@@ -462,17 +462,19 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   formRef = React.createRef<FormInstance>();
 
   handleTicket = async (transitionId: number) => {
-    const values = this.formRef.current.getFieldsValue()
+    const values = await this.formRef.current.validateFields();
     for (let key in values){
       if ( [40,50].indexOf(this.state.fieldTypeDict[key]) !== -1){
         // 多选框，多选下拉
-        values[key] = values[key].join(',')
+        if (values[key]){
+          values[key] = values[key].join(',')
+        }
       }
 
       if (this.state.fieldTypeDict[key] === 80 ) {
         // 文件   fieldList.url
         let urlList = [];
-        values[key].fileList.map(attachment => {
+        values[key] && values[key].fileList.map(attachment => {
           urlList.push(attachment.url)
 
         })
@@ -487,7 +489,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         // 日期
         values[key] = values[key].format('YYYY-MM-DD')
       }
-      if (this.state.fieldTypeDict[key] === 30 ) {
+      if (this.state.fieldTypeDict[key] === 30 && values[key]) {
         // 时间
         values[key] = values[key].format('YYYY-MM-DD HH:mm:ss')
       }
