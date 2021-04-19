@@ -19,13 +19,14 @@
   # 如果只是本地测试，无需二次开发，也可以直接参考生产环境部署中直接导入初始sql(初始sql中包含admin用户)
 
 - 创建初始账户: python manage.py createsuperuser
-- 启动开发环境: python manage.py runserver 如果需要启动在其他端口:python manage.py runserver 8888
+- 启动开发环境: python manage.py runserver 6060
 - 安装node v14
 - 安装前端依赖
   进入到frontend目录下执行npm i
 - 启动前端开发环境
   进入到frontend目录下执行npm run dev
 - 启动celery任务: celery -A tasks worker -l info -Q loonflow (用于执行任务脚本、触发任务hook、通知hook。本地开发二次开发如果不需要这些功能时可以不启动)
+- 访问http://127.0.0.1:8000即可
 
 
 -------------
@@ -46,9 +47,9 @@
 
 ::
 
-  mysql -uroot -p  loonflow_1_0 < loonflow_init.sql # 生产环境不建议使用migrate. 用户名及数据库需要根据你的实际情况也即config.py中的配置做相应修改
+  mysql -uroot -p  loonflow_2_0 < loonflow2.0.0.sql # 生产环境不建议使用migrate. 用户名及数据库需要根据你的实际情况也即config.py中的配置做相应修改
 
-- 初始admin账号密码为admin/loonflow123 (用于登录管理后台，管理用户及配置工作流等)
+- 初始admin账号密码为admin/123456 (用于登录管理后台，管理用户及配置工作流等)
 - 启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid # -c参数为启动的celery进程数，注意logfile和pidfile前面是两个-， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整
 - 如需优雅停止celery服务: 
 
