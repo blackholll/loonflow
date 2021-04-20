@@ -61,27 +61,33 @@ class WorkflowBaseService(BaseService):
         workflow_result_id_list = []
         for workflow_result_object in workflow_result_object_list:
             workflow_result_id_list.append(workflow_result_object.id)
-            workflow_result_restful_list.append(
-                dict(id=workflow_result_object.id, name=workflow_result_object.name,
-                     description=workflow_result_object.description, notices=workflow_result_object.notices,
-                     view_permission_check=workflow_result_object.view_permission_check,
-                     limit_expression=workflow_result_object.limit_expression,
-                     display_form_str=workflow_result_object.display_form_str,
-                     creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19],
-                     title_template=workflow_result_object.title_template,
-                     content_template=workflow_result_object.content_template
-                     )
+            workflow_info = dict(
+                id=workflow_result_object.id,
+                name=workflow_result_object.name,
+                description=workflow_result_object.description
             )
+            if from_admin:
+                workflow_info.update(dict(
+                     notices=workflow_result_object.notices,
+                    view_permission_check=workflow_result_object.view_permission_check,
+                    limit_expression=workflow_result_object.limit_expression,
+                    display_form_str=workflow_result_object.display_form_str,
+                    creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19],
+                    title_template=workflow_result_object.title_template,
+                    content_template=workflow_result_object.content_template
+                ))
+            workflow_result_restful_list.append(workflow_info)
         # 获取工作流管理员信息
-        workflow_admin_queryset = WorkflowAdmin.objects.filter(
-            workflow_id__in=workflow_result_id_list, is_deleted=0).all()
-        for workflow_result_restful in workflow_result_restful_list:
-            workflow_admin_list = []
-            for workflow_admin_object in workflow_admin_queryset:
-                if workflow_admin_object.workflow_id == workflow_result_restful['id']:
-                    workflow_admin_list.append(workflow_admin_object.username)
+        if from_admin:
+            workflow_admin_queryset = WorkflowAdmin.objects.filter(
+                workflow_id__in=workflow_result_id_list, is_deleted=0).all()
+            for workflow_result_restful in workflow_result_restful_list:
+                workflow_admin_list = []
+                for workflow_admin_object in workflow_admin_queryset:
+                    if workflow_admin_object.workflow_id == workflow_result_restful['id']:
+                        workflow_admin_list.append(workflow_admin_object.username)
 
-            workflow_result_restful['workflow_admin'] = ','.join(workflow_admin_list)
+                workflow_result_restful['workflow_admin'] = ','.join(workflow_admin_list)
 
         return True, dict(workflow_result_restful_list=workflow_result_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
@@ -100,7 +106,7 @@ class WorkflowBaseService(BaseService):
             workflow_queryset = Workflow.objects.filter(is_deleted=0).all()
         else:
             # 作为工作流创建人+工作流管理员的工作流
-            workflow_admin_queryset = WorkflowAdmin.objects.filter(username=username, is_deleted=0).all()
+            workflow_admin_queryset = WorkflowUserPermission.objects.filter(permission='admin', user_type='user', user=username, is_deleted=0).all()
             workflow_admin_id_list = [workflow_admin.workflow_id for workflow_admin in workflow_admin_queryset]
 
             workflow_queryset = Workflow.objects.filter(

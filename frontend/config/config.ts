@@ -88,6 +88,7 @@ export default defineConfig({
         },
         {
           "path": "/tickets/all",
+          "access": 'superAdmin',
           "name": "所有工单",
           "component": '../../src/pages/Ticket/AllTicket',
 
@@ -97,6 +98,7 @@ export default defineConfig({
     {
       path: '/workflows',
       name: '工作流管理',
+      access: 'workflowAdmin',
       icon: 'DeploymentUnitOutlined',
       component: '../../src/pages/Workflow/WorkflowList',
     },
@@ -110,6 +112,7 @@ export default defineConfig({
       "name": "用户及权限",
       // "icon": "dashboard",
       "icon": "ApartmentOutlined",
+      access: 'superAdmin',
       routes: [
         {
           "path": "/users/user",
@@ -140,6 +143,7 @@ export default defineConfig({
       path: '/manage',
       name: '系统配置',
       icon: 'ToolOutlined',
+      access: 'superAdmin',
       component: './Manage',
     },
     {

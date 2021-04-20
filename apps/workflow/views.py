@@ -9,6 +9,7 @@ from service.permission.manage_permission import manage_permission_check
 from service.workflow.workflow_base_service import workflow_base_service_ins
 from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
 from service.workflow.workflow_custom_notice_service import workflow_custom_notice_service_ins
+from service.workflow.workflow_permission_service import workflow_permission_service_ins
 from service.workflow.workflow_runscript_service import workflow_run_script_service_ins
 from service.workflow.workflow_state_service import workflow_state_service_ins
 from service.workflow.workflow_transition_service import workflow_transition_service_ins
@@ -164,10 +165,16 @@ class WorkflowDetailView(LoonBaseView):
         workflow_id = kwargs.get('workflow_id')
 
         app_name = request.META.get('HTTP_APPNAME')
+        username = request.user.username
         # 判断是否有工作流的权限
         app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
         if not app_permission:
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
+
+        workflow_admin_permission, msg = workflow_permission_service_ins.workflow_id_permission_check(workflow_id, 'admin', 'user', username)
+        if workflow_admin_permission is False:
+            return api_response(-1, msg, {})
+
         flag, workflow_result = workflow_base_service_ins.get_full_info_by_id(workflow_id)
         if flag is False:
             code, msg, data = -1, workflow_result, {}

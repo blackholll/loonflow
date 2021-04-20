@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Link } from 'umi';
-import {Table, Form, Modal, Popconfirm, Card, Row, Col, Input, Button} from "antd";
+import {Table, Form, Modal, Popconfirm, Card, Row, Col, Input, Button, message} from "antd";
 import {getWorkflowList} from "@/services/workflows";
 
 
@@ -34,7 +34,7 @@ class WorkflowList extends Component<any, any> {
   }
 
   searchWorkflow = async(values) => {
-    const result = await getWorkflowList({...values, per_page:10, page:1});
+    const result = await getWorkflowList({...values, per_page:10, page:1, from_admin:1});
     if (result.code ===0 ){
       this.setState({workflowListResult: result.data.value});
     } else
@@ -44,6 +44,7 @@ class WorkflowList extends Component<any, any> {
   }
 
   fetchWorkflowData = async(params) => {
+    params.from_admin=1
     this.setState({
       workflowListLoading: true
     });
@@ -54,7 +55,7 @@ class WorkflowList extends Component<any, any> {
         workflowListResult: result.data.value
       })
     } else {
-      mesage.error(`获取工作流列表失败: ${result.msg}`)
+      message.error(`获取工作流列表失败: ${result.msg}`)
     }
   }
 
