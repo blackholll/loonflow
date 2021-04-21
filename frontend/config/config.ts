@@ -83,6 +83,7 @@ export default defineConfig({
         {
           "path": "/tickets/intervene",
           "name": "工单干预",
+          "access": 'workflowAdmin',
           "component": '../../src/pages/Ticket/InterveneTicket',
 
         },

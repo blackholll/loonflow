@@ -1,6 +1,8 @@
 from apps.workflow.models import WorkflowUserPermission
+from service.account.account_base_service import account_base_service_ins
 from service.base_service import BaseService
 from service.common.common_service import common_service_ins
+from service.common.constant_service import constant_service_ins
 
 
 class WorkflowPermissionService(BaseService):
@@ -57,6 +59,18 @@ class WorkflowPermissionService(BaseService):
         if workflow_query_set:
             return True, ''
         else:
+            if permission == 'api':
+                return False, 'app: {} has no api permission for workflow_id: {}'.format(user, workflow_id)
+            if permission == 'admin':
+                return False, 'user: {} has no admin permission for workflow_id:{}'.format(user, workflow_id)
+            if permission == 'intervene':
+                return False, 'user: {} has no intervene permission for workflow_id:{}'.format(user, workflow_id)
+            if permission == 'view':
+                if user_type == 'user':
+                    return False, 'user: {} has no view permission for workflow_id:{}'.format(user, workflow_id)
+                if user_type == 'department':
+                    return False, 'department: {} has no view permission for workflow_id:{}'.format(user, workflow_id)
+
             return False, 'no permission'
 
     def get_record_list_by_app_list(self, app_list):
@@ -115,5 +129,31 @@ class WorkflowPermissionService(BaseService):
                 is_deleted=0, permission='api', user_type='app', user=app_name, workflow_id__in=workflow_ids.split(',')).update(is_deleted=1)
         return True, ''
 
+    def manage_workflow_permission_check(self, workflow_id, username, app_name):
+        """
+        用户是否有管理工作流的权限
+        :param workflow_id:
+        :param username:
+        :param app_name:
+        :return:
+        """
+        # 判断应用是否有工作流的权限
+        flag, msg = self.workflow_id_permission_check(workflow_id, 'api', 'app', app_name)
+        if flag is False:
+            return flag, msg
+
+        # 工作流创建人有管理权限
+        from service.workflow.workflow_base_service import workflow_base_service_ins
+        flag, workflow_obj = workflow_base_service_ins.get_by_id(workflow_id)
+        if workflow_obj.creator == username:
+            return True, "creator has workflow's manage permission"
+        # 超级管理员拥有所有工作流的管理权限
+        flag, user_obj = account_base_service_ins.get_user_by_username(username)
+        if flag is False:
+            return flag, user_obj
+        if user_obj.type_id == constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN:
+            return True, "superuser has all workflow's manage permission"
+        flag, msg = self.workflow_id_permission_check(workflow_id, 'admin', 'user', username)
+        return flag, msg
 
 workflow_permission_service_ins = WorkflowPermissionService()

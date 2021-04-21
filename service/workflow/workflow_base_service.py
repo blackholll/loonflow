@@ -100,7 +100,7 @@ class WorkflowBaseService(BaseService):
         :param username:
         :return:
         """
-        # 如果是admin,拥有所有工作流的权限
+        # 如果是超级管理员,拥有所有工作流的权限
         flag, result = account_base_service_ins.admin_permission_check(username=username)
         if flag:
             workflow_queryset = Workflow.objects.filter(is_deleted=0).all()
