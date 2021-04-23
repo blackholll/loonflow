@@ -17,6 +17,7 @@ class TicketList extends Component<any, any> {
       ticketResult: [],
       workflowResult: [],
       ticketListLoading: false,
+      searchArgs: {},
       userResult: [],
       pagination: {
         current: 1,
@@ -64,6 +65,7 @@ class TicketList extends Component<any, any> {
   fetchTicketData = async (values) => {
     this.setState({ticketListLoading: true})
     values.category = this.props.category;
+    values = Object.assign(values, this.state.searchArgs);
     const result = await getTicketList(values);
     if (result.code === 0) {
       const pagination = { ...this.state.pagination };
@@ -115,10 +117,8 @@ class TicketList extends Component<any, any> {
   }
 
   searchTicket = (values) => {
-    console.log(values);
-
+    this.setState({searchArgs: values})
     this.fetchTicketData(values);
-
   }
 
 
@@ -136,6 +136,11 @@ class TicketList extends Component<any, any> {
         title: "流水号",
         dataIndex: "sn",
         key: "sn"
+      },
+      {
+        title: "标题",
+        dataIndex: "title",
+        key: "title"
       },
       {
         title: "类型",
@@ -188,7 +193,7 @@ class TicketList extends Component<any, any> {
         </Col>,
         <Col span={6} key={"workflowId"}>
           <Form.Item
-            name={"workflow_id"}
+            name={"workflow_ids"}
             label={"工单类型"}
           >
             <Select
