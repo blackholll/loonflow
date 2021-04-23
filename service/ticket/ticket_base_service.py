@@ -277,8 +277,13 @@ class TicketBaseService(BaseService):
             act_state_id = constant_service_ins.TICKET_ACT_STATE_DRAFT
         else:
             act_state_id = constant_service_ins.TICKET_ACT_STATE_ONGOING
+        flag, workflow_base_obj = workflow_base_service_ins.get_by_id(workflow_id)
+        title_template = workflow_base_obj.title_template
+        title = request_data_dict.get('title', '')
+        if title_template:
+            title = title_template.format(**request_data_dict)
 
-        new_ticket_obj = TicketRecord(sn=ticket_sn, title=request_data_dict.get('title', ''), workflow_id=workflow_id,
+        new_ticket_obj = TicketRecord(sn=ticket_sn, title=title, workflow_id=workflow_id,
                                       state_id=destination_state_id, parent_ticket_id=parent_ticket_id,
                                       parent_ticket_state_id=parent_ticket_state_id,
                                       participant=destination_participant,
