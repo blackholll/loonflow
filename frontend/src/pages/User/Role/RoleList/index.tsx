@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {Table, Col, Card, Popconfirm, Form, Input, Select, Radio, Button, Modal, Row, message} from "antd";
-import {addRole, getRoleList, updateRole} from "@/services/user";
+import {addRole, delRoleRequest, getRoleList, updateRole} from "@/services/user";
 import RoleUserList from "@/pages/User/Role/RoleUserList";
 
 
@@ -90,6 +90,18 @@ class RoleList extends Component<any, any> {
     } else {
       message.error(`保存失败:${result.msg}`)
     }
+  }
+
+  delRole = async(roldId) => {
+    const result = await delRoleRequest(roldId);
+    if (result.code === 0 ) {
+      message.success('删除角色成功');
+      this.fetchRoleData({});
+    }
+    else{
+      message.error(result.msg);
+    }
+
   }
 
   handleRoleUserOk = () => {

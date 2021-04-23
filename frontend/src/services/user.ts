@@ -124,6 +124,11 @@ export async function delUserRequest(userId: number){
     method: 'delete',
   })
 }
+export async function delRoleRequest(roleId: number){
+  return request<API.CommonResponse> (`/api/v1.0/accounts/roles/${roleId}`,{
+    method: 'delete',
+  })
+}
 
 export async function getUserRole(userId: number, params: getUserRoleType) {
   return request<API.CommonResponse> (`/api/v1.0/accounts/users/${userId}/roles`)
