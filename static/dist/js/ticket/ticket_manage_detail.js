@@ -107,7 +107,8 @@ $(document).ready(function() {
           else if ([5, 10, 15, 20, 25, 30, 60, 70, 80].indexOf(field.field_type_id) > -1) {
             var newfield = '<label for="starttime" class="col-sm-2 control-label">' + field.field_name
               + '</label><div class="col-md-4"> <input class="form-control" type="text" readonly="readonly" value='
-              + field.field_value + '></div>';
+              + '"' + field.field_value  + '"'+ '></div>';
+
             detailHtml = detailHtml + newfield;
         }
         })
