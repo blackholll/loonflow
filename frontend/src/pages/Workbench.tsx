@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
-import {Card, Select, Button, message, Modal} from 'antd';
+import {Card, Select, Button, message, Modal, Tooltip} from 'antd';
 import DutyTicket from './ticket/DutyTicket';
 import {getWorkflowList} from "@/services/workflows";
 import TicketDetail from "@/pages/Ticket/TicketDetail";
@@ -77,7 +77,9 @@ class Workbench extends Component<any, any> {
               <Option key={d.id}>{d.name}</Option>
             ))}
           </Select>
-          <Button type="primary" onClick={this.showNewTicketModal}>新建</Button>
+          <Tooltip title={this.state.selectWorkflowId? "": "请先选择工单类型"}>
+          <Button type="primary" onClick={this.showNewTicketModal} disabled={this.state.selectWorkflowId? false: true }>新建</Button>
+          </Tooltip>
 
         </Card>
         <Card title="我的待办">

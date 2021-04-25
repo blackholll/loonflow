@@ -136,7 +136,7 @@ class WorkflowInitView(LoonBaseView):
             return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
 
         if not (workflow_id and username):
-            return api_response(-1, '请提供username', '')
+            return api_response(-1, '请提供username或workflow_id', '')
         flag, state_result = workflow_state_service_ins.get_workflow_init_state(workflow_id)
         if flag is not False:
             code, msg, data = 0, '', state_result
