@@ -1538,6 +1538,12 @@ class TicketBaseService(BaseService):
         flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(state_id)
         if not state_obj:
             return False, state_obj
+        
+        if state_obj.type_id == constant_service_ins.STATE_TYPE_END:
+            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_CLOSED
+        if state_obj.type_id == constant_service_ins.STATE_TYPE_START:
+            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_DRAFT
+
         if state_obj.workflow_id == ticket_obj.workflow_id:
             # 获取目标状态的处理人信息
             flag, destination_participant_info = cls.get_ticket_state_participant_info(state_id, ticket_id=ticket_id)
