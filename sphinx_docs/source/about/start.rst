@@ -40,6 +40,7 @@
 - 编译前端
   
 ::
+
   进入frontend目录下，依次执行npm i 和npm run build （主要需要事先安装好node,建议安装node v14版本）  
 
 - 启动redis(用于生成唯一的工单流水号+celery异步任务[执行脚本、状态hook、通知hook]，centos7下redis service配置文件可参考https://github.com/blackholll/loonflow-helper/tree/master/deploy)
@@ -49,7 +50,7 @@
 
   mysql -uroot -p  loonflow_2_0 < loonflow2.0.0.sql # 生产环境不建议使用migrate. 用户名及数据库需要根据你的实际情况也即config.py中的配置做相应修改
 
-- 初始admin账号密码为admin/123456 (用于登录管理后台，管理用户及配置工作流等)
+- 初始admin账号密码为admin/123456
 - 启动celery任务: celery multi start -A tasks worker -l info -c 8 -Q loonflow --logfile=xxx.log --pidfile=xxx.pid # -c参数为启动的celery进程数，注意logfile和pidfile前面是两个-， logfile为日志文件路径, pidfile为pid文件路径，可自行视情况调整
 - 如需优雅停止celery服务: 
 
