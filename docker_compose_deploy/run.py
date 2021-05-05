@@ -88,7 +88,11 @@ def init_db(db_host, db_port, db_name, ddl_db_user, ddl_db_password):
     init_sql = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/loonflow2.0.0_init.sql'
     cmd_str = 'docker run -i arey/mysql-client -h{} -P{} -p{} -u{} {} < {}'.format(db_host, db_port, ddl_db_password, ddl_db_user, db_name, init_sql)
     print(cmd_str)
-    run_cmd(cmd_str)
+    flag, msg = run_cmd(cmd_str)
+    if flag is False:
+        print('初始化数据库失败:{}. 请检查run.py中数据配置后重试'.format(msg))
+        sys.exit()
+
     print('-' * 30)
     print('完成初始化sql导入')
 
