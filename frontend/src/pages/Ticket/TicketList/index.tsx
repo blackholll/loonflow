@@ -106,6 +106,17 @@ class TicketList extends Component<any, any> {
   }
 
   searchTicket = (values) => {
+    console.log(values);
+    if (values.create_time){
+      if (values.create_time[0]){
+        values.create_start = values.create_time[0].format('YYYY-MM-DD HH:mm:ss')
+      }
+      if (values.create_time[1]){
+        values.create_end = values.create_time[1].format('YYYY-MM-DD HH:mm:ss')
+      }
+      delete(values.create_time)
+
+    }
     this.setState({searchArgs: values})
     this.fetchTicketData(values);
   }
