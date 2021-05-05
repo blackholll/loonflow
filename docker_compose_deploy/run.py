@@ -74,10 +74,11 @@ def update_db_config(db_host, db_port, db_name, db_user, db_password):
     print('完成数据库配置')
 
 
-def init_db(db_host, db_name, ddl_db_user, ddl_db_password):
+def init_db(db_host, db_port, db_name, ddl_db_user, ddl_db_password):
     """
     初始数据库
     :param db_host:
+    :param db_port:
     :param ddl_db_user:
     :param ddl_db_password:
     :return:
@@ -85,7 +86,7 @@ def init_db(db_host, db_name, ddl_db_user, ddl_db_password):
     print('-'*30)
     print('开始导入初始化sql，需要下载镜像arey/mysql-client, 请耐心等候')
     init_sql = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/loonflow2.0.0_init.sql'
-    cmd_str = 'docker run -i arey/mysql-client -h{} -p{} -u{} {} < {}'.format(db_host, ddl_db_password, ddl_db_user,db_name, init_sql)
+    cmd_str = 'docker run -i arey/mysql-client -h{} -P{} -p{} -u{} {} < {}'.format(db_host, db_port, ddl_db_password, ddl_db_user, db_name, init_sql)
     print(cmd_str)
     run_cmd(cmd_str)
     print('-' * 30)
@@ -130,7 +131,7 @@ if __name__ == '__main__':
     if params[1] == 'install':
         if not (db_host and db_name and db_password and db_user):
             raise Exception('安装loonflow需要初始化你的数据库表结构及初始admin账号，请提供拥有ddl权限的数据库用户及密码')
-        init_db(db_host, db_name, ddl_db_user, ddl_db_password)
+        init_db(db_host, db_port, db_name, ddl_db_user, ddl_db_password)
         update_db_config(db_host, db_port, db_name, db_user, db_password)
         start()
     elif params[1] == 'start':
