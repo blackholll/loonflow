@@ -46,21 +46,10 @@ class TicketList extends Component<any, any> {
   };
 
   componentDidUpdate(prevProps: Readonly<any>, prevState: Readonly<any>, snapshot?: any) {
-    console.log(this.props.reloadFlag);
-    console.log(prevProps.reloadFlag);
     if (this.props.reloadFlag !== prevProps.reloadFlag) {
-      console.log('重新获取数据');
       this.fetchTicketData({});
     }
   }
-
-  // shouldComponentUpdate(nextProps: Readonly<any>, nextState: Readonly<any>, nextContext: any): boolean {
-  //   if (this.props.reloadFlag !== nextProps.reloadFlag){
-  //     console.log('需要重新加载列表');
-  //     return true
-  //   }
-  //   return false
-  // }
 
   fetchTicketData = async (values) => {
     this.setState({ticketListLoading: true})

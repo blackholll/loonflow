@@ -94,9 +94,8 @@ class TicketBaseService(BaseService):
             workflow_admin_id_list = [workflow['id'] for workflow in workflow_list]
             # query_params &= Q(workflow_id__in=workflow_admin_id_list)
 
-            if kwargs.get('creator') != '':
-                # 管理员查询的情况下才可用
-                query_params &= Q(creator=kwargs.get('creator'))
+        if kwargs.get('creator') != '':
+            query_params &= Q(creator=kwargs.get('creator'))
 
         if sn:
             query_params &= Q(sn__startswith=sn)
