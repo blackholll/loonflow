@@ -125,7 +125,7 @@ class WorkflowList extends Component<any, any> {
           <Row gutter={24}>
             <Col span={6} key={"search_value"}>
               <Form.Item
-                name={"name"}
+                name={"search_value"}
                 label={"查询"}
               >
                 <Input placeholder="支持工作流名模糊查询" />
