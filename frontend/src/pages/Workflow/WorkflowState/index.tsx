@@ -398,7 +398,7 @@ class WorkflowState extends Component<any, any> {
                   <Option value={6}>脚本</Option>
                   <Option value={7}>工单字段</Option>
                   <Option value={8}>父工单字段</Option>
-                  <Option value={19}>hook</Option>
+                  <Option value={10}>hook</Option>
                   <Option value={0}>无</Option>
               </Select>
             </Form.Item>

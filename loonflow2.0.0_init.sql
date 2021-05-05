@@ -1481,9 +1481,9 @@ CREATE TABLE `workflow_workflowuserpermission` (
   `permission` varchar(100) DEFAULT NULL,
   `user_type` varchar(100) DEFAULT NULL,
   `user` varchar(100) DEFAULT NULL,
-  `workflow_id_id` int(11) NOT NULL,
+  `workfl` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `workflow_workflowuserpermission_workflow_id_id_0221212d` (`workflow_id_id`)
+  KEY `workflow_workflowuserpermission_workflow_id_id_0221212d` (`workflow_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
