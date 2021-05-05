@@ -142,7 +142,7 @@ class TicketBaseService(BaseService):
 
         if category == 'owner':
             query_params &= Q(creator=username)
-            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category == 'duty':
             # 为了加快查询速度，该结果从ticket_usr表中获取。 对于部门、角色、这种处理人类型的，工单流转后 修改了部门或角色对应的人员会存在这些人无法在待办列表中查询到工单
             duty_query_expression = Q(ticketuser__in_process=True, ticketuser__username=username)
@@ -152,17 +152,17 @@ class TicketBaseService(BaseService):
                 constant_service_ins.TICKET_ACT_STATE_CLOSED
             ])
             query_params &= act_state_expression
-            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category == 'relation':
             relation_query_expression = Q(ticketuser__username=username)
             query_params &= relation_query_expression
-            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category == 'worked':
             worked_query_expression = Q(ticketuser__username=username, ticketuser__worked=True)
             query_params &= worked_query_expression
-            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         else:
-            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
 
         paginator = Paginator(ticket_objects, per_page)
 
