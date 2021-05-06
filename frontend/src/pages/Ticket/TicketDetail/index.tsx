@@ -16,6 +16,7 @@ import {
   Popconfirm, Modal
 } from 'antd';
 import React, { Component, Fragment } from 'react';
+import moment from 'moment';
 import {canInterveneRequest, getWorkflowInitState, getWorkflowSimpleState} from "@/services/workflows";
 import {queryUserSimple} from "@/services/user";
 import {
@@ -151,6 +152,25 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         ticketDetailInfoData: result.data.value.field_list,
         nowTicketWorkflowId: result.data.value.workflow_id
       })
+      let formInitValues = {};
+      if (result.data.value.field_list !== []){
+        result.data.value.field_list.map(result => {
+          if (result.field_type_id === 30){
+            formInitValues[result.field_key] = moment(result.field_value);
+          }
+          // else if (result.field_type_id === 80){
+            // 附件
+            // let newList = this.state.fileList;
+            // newList[result.field_key] = result.field_value
+            // this.setState({ fileList: newList });
+
+          // }
+          else{
+            formInitValues[result.field_key] = result.field_value;
+          }
+        })
+      }
+      this.formRef.current.setFieldsValue(formInitValues);
     } else {
       message.error(result.msg)
     }
@@ -324,14 +344,14 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
       if (item.field_type_id === 5) {
         // 字符串
-        child = <Input {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <Input {...formItemChildOptions}/>
 
       } else if (item.field_type_id === 10){
         // 整形
-        child = <InputNumber precision={0} {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <InputNumber precision={0} {...formItemChildOptions}/>
       } else if (item.field_type_id === 15){
         // 浮点型
-        child = <InputNumber {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <InputNumber {...formItemChildOptions}/>
       } else if (item.field_type_id === 20){
         // 布尔
         const radioOption = []
@@ -340,16 +360,15 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         }
         child = <Radio.Group
           {...formItemChildOptions}
-          defaultValue={item.field_value}
         >
           {radioOption}
         </Radio.Group>
       } else if (item.field_type_id == 25){
         // 日期类型
-        child = <DatePicker {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <DatePicker {...formItemChildOptions}/>
       } else if (item.field_type_id == 30){
         // 日期时间类型
-        child = <DatePicker {...formItemChildOptions} showTime defaultValue={item.field_value}/>
+        child = <DatePicker {...formItemChildOptions} showTime/>
       } else if (item.field_type_id == 35){
         // 单选
         const radioOption = []
@@ -358,7 +377,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         }
         child = <Radio.Group
           {...formItemChildOptions}
-          defaultValue={item.field_value}
         >
           {radioOption}
         </Radio.Group>
@@ -371,7 +389,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           )
         }
         child = <Checkbox.Group style={{ width: '100%' }}
-                                defaultValue={item.field_value}
         >{checkboxOption}</Checkbox.Group>
       } else if (item.field_type_id == 45){
         // 下拉列表
@@ -384,7 +401,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         child = <Select showSearch filterOption={(input, option) =>
           option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
         } {...formItemChildOptions}
-                        defaultValue={item.field_value}
         >
           {selectOption}
         </Select>
@@ -400,22 +416,21 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         child = <Select showSearch mode="multiple" filterOption={(input, option) =>
           option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
         } {...formItemChildOptions}
-            defaultValue={item.field_value}
         >
           {selectOption}
         </Select>
 
       } else if (item.field_type_id === 55){
         // 文本
-        child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions} defaultValue="ssss"/>
+        child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions}/>
         // child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions} defaultValue={item.field_value}/>
       } else if (item.field_type_id === 58){
         // 富文本，先以文本域代替，后续再支持
-        child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions} defaultValue={item.field_value}/>
+        child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions}/>
       }
       else if (item.field_type_id === 80){
         // 附件
-        child = <Upload action="api/v1.0/tickets/upload_file" listType="text" onChange={(info)=>this.fileChange(item.field_key, info)} defaultFileList={this.state.fileList[item.field_key]}>
+        child = <Upload action="api/v1.0/tickets/upload_file" listType="text" onChange={(info)=>this.fileChange(item.field_key, info)} fileList={this.state.fileList[item.field_key]}>
           <Button icon={<UploadOutlined />}>Click to upload</Button>
         </Upload>
       }
@@ -426,7 +441,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           showSearch onSearch = {(search_value)=>this.userSimpleSearch(item.field_key, search_value)} filterOption={(input, option) =>
           option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
         } {...formItemChildOptions}
-          defaultValue={item.field_value}
         >
           {this.state.userSelectDict[item.field_key] && this.state.userSelectDict[item.field_key].map(d => (
             <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
@@ -442,7 +456,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           showSearch onSearch = {(search_value)=>this.userSimpleSearch(item.field_key, search_value)} filterOption={(input, option) =>
           option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
         } {...formItemChildOptions}
-          defaultValue={item.field_value}
          >
           {this.state.userSelectDict[item.field_key] && this.state.userSelectDict[item.field_key].map(d => (
             <Option key={d.username} value={d.username}>{`${d.alias}(${d.username})`}</Option>
@@ -453,7 +466,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
 
       else {
-        child = <Input {...formItemChildOptions} defaultValue={item.field_value} />
+        child = <Input {...formItemChildOptions}/>
       }
     }
 
@@ -464,7 +477,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         <Form.Item
           name={item.field_key}
           label={item.field_name}
-          // initialValue:
           {...formItemOptions}
         >
           {child}
@@ -634,9 +646,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     const form_items = [];
     if (this.state.ticketDetailInfoData !== []){
       this.state.ticketDetailInfoData.map(result => {
-        form_items.push(this.switchFormItem(result))
+        form_items.push(this.switchFormItem(result));
       })
     }
+
     const handleButtonItems = this.genHandleButtonItem(this.state.ticketTransitionList);
 
     const formItemLayout = {
@@ -649,7 +662,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         sm: { span: 16 },
       },
     };
-
 
 
     return (
