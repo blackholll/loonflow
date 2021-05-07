@@ -202,7 +202,7 @@ class AccountBaseService(BaseService):
             approver_list = []
             for user_dept in user_dept_queryset:
                 if user_dept.dept.approver:
-                    approver_list.append(user_dept.dept.approver.split(','))
+                    approver_list.extend(user_dept.dept.approver.split(','))
                 else:
                     approver_list.append(user_dept.dept.leader)
             return True, ','.join(list(set(approver_list)))
