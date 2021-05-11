@@ -174,7 +174,6 @@ class TicketList extends Component<any, any> {
         render: (text: string, record: any) => (
           <span>
         <a style={{ marginRight: 16 }} onClick={()=> this.showTicketDetail(record.id)}>详情</a>
-        <a>新页面打开</a>
       </span>
         )
       }

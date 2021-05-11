@@ -152,24 +152,47 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         ticketDetailInfoData: result.data.value.field_list,
         nowTicketWorkflowId: result.data.value.workflow_id
       })
+
       let formInitValues = {};
+      let fieldTypeDict = {}
       if (result.data.value.field_list !== []){
         result.data.value.field_list.map(result => {
+          fieldTypeDict[result.field_key] = result.field_type_id
           if (result.field_type_id === 30){
             formInitValues[result.field_key] = moment(result.field_value);
           }
-          // else if (result.field_type_id === 80){
+          else if (result.field_type_id === 80){
             // 附件
-            // let newList = this.state.fileList;
-            // newList[result.field_key] = result.field_value
-            // this.setState({ fileList: newList });
+            let newList = this.state.fileList;
+            let fileList1 = [];
+            let fileList0 = result.field_value.split();
+            fileList0.forEach((file0)=>{
+              fileList1.push(
+                {
+                  url: file0,
+                  name: file0.split('/').slice(-1)[0],
+                  uid: file0
+                }
+              )
 
-          // }
+            })
+
+
+            // newList[result.field_key] = result.field_value.split();
+            newList[result.field_key] = fileList1
+            console.log('newList')
+            console.log(newList)
+            // this.setState({ fileList: newList });
+            formInitValues[result.field_key] = {fileList: fileList1};
+
+          }
           else{
             formInitValues[result.field_key] = result.field_value;
           }
         })
       }
+      this.setState({fieldTypeDict});
+
       this.formRef.current.setFieldsValue(formInitValues);
     } else {
       message.error(result.msg)
@@ -336,7 +359,20 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
     if (item.field_attribute === 1) {
       // todo: 下拉列表、布尔radio等显示的处理
-      child = <div>{item.field_value}</div>
+      if (item.field_type_id === 80){
+
+        child = []
+        const url_list = item.field_value.split()
+        console.log(url_list);
+        url_list.forEach((url0)=>{
+
+          child.push(<a href={url0}>{url0.split('/').slice(-1)[0]}</a>)
+        })
+      }
+      else{
+        child = <div>{item.field_value}</div>
+
+      }
     }  else {
       if (item.field_attribute === 2 ) {
         formItemOptions.rules = [{ required: true, message: `Please input ${item.field_key}` }]
@@ -431,6 +467,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       else if (item.field_type_id === 80){
         // 附件
         child = <Upload action="api/v1.0/tickets/upload_file" listType="text" onChange={(info)=>this.fileChange(item.field_key, info)} fileList={this.state.fileList[item.field_key]}>
+        {/*child = <Upload action="api/v1.0/tickets/upload_file" listType="text" onChange={(info)=>this.fileChange(item.field_key, info)}>*/}
           <Button icon={<UploadOutlined />}>Click to upload</Button>
         </Upload>
       }
@@ -489,6 +526,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
   handleTicket = async (transitionId: number) => {
     const values = await this.formRef.current.validateFields();
+    console.log(values);
     for (let key in values){
       if ( [40,50].indexOf(this.state.fieldTypeDict[key]) !== -1){
         // 多选框，多选下拉
@@ -505,6 +543,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
         })
         values[key] = urlList.join(',')
+        console.log(values[key])
       }
       if (this.state.fieldTypeDict[key] === 20 ) {
         // 日期
