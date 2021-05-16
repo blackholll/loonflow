@@ -98,14 +98,18 @@ class WorkflowTransiton extends Component<any, any> {
   getFieldInitialValues = () => {
     const result = this.state.transitionDetail;
 
-    if (result !== {}) {
-      result.alert_enable = false
-      result.field_require_check = true
-      result.source_state_id = String(result.source_state_id)
-      result.destination_state_id = String(result.destination_state_id)
-      result.attribute_type_id = String(result.attribute_type_id)
+    if (!result.condition_expression) {
+      result.condition_expression = '[]'
     }
-
+    if (result.source_state_id){
+      result.source_state_id = String(result.source_state_id)
+    }
+    if (result.destination_state_id){
+      result.destination_state_id = String(result.destination_state_id)
+    }
+    if (result.destination_state_id){
+      result.destination_state_id = String(result.destination_state_id)
+    }
     return result
   }
 
