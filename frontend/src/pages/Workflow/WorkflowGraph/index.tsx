@@ -1,242 +1,50 @@
-import React, {useEffect, useState, useLayoutEffect} from 'react'
-import ReactDOM from 'react-dom';
+import React, {useEffect, useState} from 'react'
 import G6 from '@antv/g6';
 import {getWorkflowSimpleDescription} from "@/services/workflows";
 import {message} from "antd";
-
-
-const data = {
-  nodes: [
-    {
-      id: "1",
-      dataType: "alps",
-      name: "alps_file1",
-      conf: [
-        {
-          label: "conf",
-          value: "pai_graph.conf"
-        },
-        {
-          label: "dot",
-          value: "pai_graph.dot"
-        },
-        {
-          label: "init",
-          value: "init.rc"
-        }
-      ]
-    },
-    {
-      id: "2",
-      dataType: "alps",
-      name: "alps_file2",
-      conf: [
-        {
-          label: "conf",
-          value: "pai_graph.conf"
-        },
-        {
-          label: "dot",
-          value: "pai_graph.dot"
-        },
-        {
-          label: "init",
-          value: "init.rc"
-        }
-      ]
-    },
-    {
-      id: "3",
-      dataType: "alps",
-      name: "alps_file3",
-      conf: [
-        {
-          label: "conf",
-          value: "pai_graph.conf"
-        },
-        {
-          label: "dot",
-          value: "pai_graph.dot"
-        },
-        {
-          label: "init",
-          value: "init.rc"
-        }
-      ]
-    },
-    {
-      id: "4",
-      dataType: "sql",
-      name: "sql_file1",
-      conf: [
-        {
-          label: "conf",
-          value: "pai_graph.conf"
-        },
-        {
-          label: "dot",
-          value: "pai_graph.dot"
-        },
-        {
-          label: "init",
-          value: "init.rc"
-        }
-      ]
-    },
-    {
-      id: "5",
-      dataType: "sql",
-      name: "sql_file2",
-      conf: [
-        {
-          label: "conf",
-          value: "pai_graph.conf"
-        },
-        {
-          label: "dot",
-          value: "pai_graph.dot"
-        },
-        {
-          label: "init",
-          value: "init.rc"
-        }
-      ]
-    },
-    {
-      id: "6",
-      dataType: "feature_etl",
-      name: "feature_etl_1",
-      conf: [
-        {
-          label: "conf",
-          value: "pai_graph.conf"
-        },
-        {
-          label: "dot",
-          value: "pai_graph.dot"
-        },
-        {
-          label: "init",
-          value: "init.rc"
-        }
-      ]
-    },
-    {
-      id: "7",
-      dataType: "feature_etl",
-      name: "feature_etl_1",
-      conf: [
-        {
-          label: "conf",
-          value: "pai_graph.conf"
-        },
-        {
-          label: "dot",
-          value: "pai_graph.dot"
-        },
-        {
-          label: "init",
-          value: "init.rc"
-        }
-      ]
-    },
-    {
-      id: "8",
-      dataType: "feature_extractor",
-      name: "feature_extractor",
-      conf: [
-        {
-          label: "conf",
-          value: "pai_graph.conf"
-        },
-        {
-          label: "dot",
-          value: "pai_graph.dot"
-        },
-        {
-          label: "init",
-          value: "init.rc"
-        }
-      ]
-    }
-  ],
-  edges: [
-    {
-      source: "1",
-      target: "2"
-    },
-    {
-      source: "1",
-      target: "3"
-    },
-    {
-      source: "2",
-      target: "4"
-    },
-    {
-      source: "3",
-      target: "4"
-    },
-    {
-      source: "4",
-      target: "5"
-    },
-    {
-      source: "5",
-      target: "6"
-    },
-    {
-      source: "6",
-      target: "7"
-    },
-    {
-      source: "6",
-      target: "8"
-    }
-  ]
-};
 
 const WorkflowGraph = (props) => {
   const ref = React.useRef(null);
   let graph = null;
 
+
   const [workflowData, setData] = useState({});
-  console.log('source workfow');
-  console.log(workflowData);
 
   const fetchGraphData = async() => {
-    console.log('new');
     const result = await getWorkflowSimpleDescription(props.workflowId);
     if (result.code ===0) {
       let nodes = [];
       let edges = [];
       result.data.workflow_state_info.map(stateItem => (
-        nodes.push({id: String(stateItem.id), name:stateItem.name, conf: stateItem.name, dataType: "alps"})
+        nodes.push({id: String(stateItem.id), name:stateItem.name, conf: stateItem.name, dataType: "sql", type:"rect", label:stateItem.name})
         )
       )
       result.data.workflow_transition_info.map(transitionItem => {
         if (transitionItem.condition_expression !== '[]'){
           let condition_expression_obj = JSON.parse(transitionItem.condition_expression);
-          nodes.push({id: `condition_${transitionItem.id}`, name:'条件表达式'});
+          nodes.push({id: `condition_${transitionItem.id}`, name:'条件表达式', dataType:"sql", type: 'diamond', label:'条件表达式'});
+          edges.push({
+            source: String(transitionItem.source_state_id),
+            target: `condition_${transitionItem.id}`,
+            label: transitionItem.name
+          });
           condition_expression_obj.map(conditionItem => {
-            edges.push({source: String(transitionItem.source_state_id),
+            edges.push({source: `condition_${transitionItem.id}`,
               target:String(conditionItem.target_state_id),
-              label: {name: conditionItem.expression}
+              label: conditionItem.expression
             })
             }
           )
         } else{
-          edges.push({source: String(transitionItem.source_state_id), target: String(transitionItem.destination_state_id), name:transitionItem.name})
+          edges.push({source: String(transitionItem.source_state_id), target: String(transitionItem.destination_state_id), label:transitionItem.name})
         }
         }
       )
-      console.log(nodes);
-      console.log(edges);
       setData({nodes:nodes, edges:edges});
 
 
     } else {
-      message.error('result.msg');
+      message.error(result.msg);
     };
   };
 
@@ -246,7 +54,6 @@ const WorkflowGraph = (props) => {
   }, [])
 
   useEffect( () => {
-    console.log('执行useeffect');
     if (!graph) {
       // 实例化 Graph
       G6.registerNode(
@@ -340,7 +147,6 @@ const WorkflowGraph = (props) => {
         fitView: true
       });
       graph.data(workflowData);
-      // graph.data(data);
       graph.render();
     }
   }, [workflowData]);
