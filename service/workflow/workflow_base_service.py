@@ -248,7 +248,7 @@ class WorkflowBaseService(BaseService):
     @auto_log
     def add_workflow(cls, name: str, description: str, notices: str, view_permission_check: int, limit_expression: str,
                      display_form_str: str, creator: str, workflow_admin: str, title_template: str,
-                     content_template: str)->tuple:
+                     content_template: str, intervener: str, view_depts:str, view_persons:str, api_permission_apps:str)->tuple:
         """
         新增工作流
         add workflow
@@ -269,12 +269,37 @@ class WorkflowBaseService(BaseService):
                                 display_form_str=display_form_str, creator=creator, title_template=title_template,
                                 content_template=content_template)
         workflow_obj.save()
-        workflow_admin_insert_list = []
-        if workflow_admin:
-            for username in workflow_admin.split(','):
-                workflow_admin_insert_list.append(WorkflowAdmin(
-                    workflow_id=workflow_obj.id, username=username, creator=creator))
-            WorkflowAdmin.objects.bulk_create(workflow_admin_insert_list)
+
+        intervener_list = intervener.split(',') if intervener else []
+        workflow_admin_list = workflow_admin.split(',') if workflow_admin else []
+        view_depts_list = view_depts.split(',') if view_depts else []
+        view_persons_list = view_persons.split(',') if view_persons else []
+        api_permission_app_list = api_permission_apps.split(',') if api_permission_apps else []
+
+        workflow_id = workflow_obj.id
+        need_add_permission_queryset = []
+        for need_add_intervener in intervener_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='intervene', user_type='user', user=need_add_intervener))
+
+        for need_add_admin in workflow_admin_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='admin', user_type='user', user=need_add_admin))
+
+        for need_add_view_depts in view_depts_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='view', user_type='department', user=need_add_view_depts))
+
+        for need_add_view_persons in view_persons_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='view', user_type='user', user=need_add_view_persons))
+
+        for need_add_app in api_permission_app_list:
+            need_add_permission_queryset.append(WorkflowUserPermission(
+                workflow_id=workflow_id, permission='api', user_type='app', user=need_add_app))
+
+        WorkflowUserPermission.objects.bulk_create(need_add_permission_queryset)
+
         return True, dict(workflow_id=workflow_obj.id)
 
     @classmethod

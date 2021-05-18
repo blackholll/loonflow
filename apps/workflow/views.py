@@ -83,17 +83,21 @@ class WorkflowView(LoonBaseView):
         content_template = request_data_dict.get('content_template', '')
 
         admins = request_data_dict.get('admins', '')
-        interveners = request_data_dict.get('intervener', '')
+        intervener = request_data_dict.get('intervener', '')
         view_persons = request_data_dict.get('view_persons', '')
         view_depts = request_data_dict.get('view_depts', '')
         api_permission_apps = request_data_dict.get('api_permission_apps', '')
+
+        # workflow_base_service_ins.edit_workflow(
+        #     workflow_id, name, description, notices, view_permission_check, limit_expression, display_form_str,
+        #     workflow_admin, title_template, content_template, intervener, view_depts, view_persons, api_permission_apps)
 
 
         creator = request.META.get('HTTP_USERNAME', '')
         workflow_admin = request_data_dict.get('workflow_admin', '')
         flag, result = workflow_base_service_ins.add_workflow(
             name, description, notices, view_permission_check, limit_expression, display_form_str, creator,
-            workflow_admin, title_template, content_template)
+            workflow_admin, title_template, content_template, intervener, view_depts, view_persons, api_permission_apps)
         if flag is False:
             code, msg, data = -1, result, {}
         else:

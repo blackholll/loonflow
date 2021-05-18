@@ -139,10 +139,16 @@ class WorkflowList extends Component<any, any> {
           </Row>
           <Row>
             <Col span={24} style={{ textAlign: 'right' }}>
-              <Button type="primary" onClick={()=> window.location.href = '/workflows/detail'
-              }>
+              {/*<Button type="primary" onClick={()=> window.location.href = '/workflows/detail'*/}
+              {/*}>*/}
+              {/*  新增*/}
+              {/*</Button>*/}
+
+              <Link to={ '/workflows/detail'}>
+                <Button type="primary" >
                 新增
-              </Button>
+                </Button>
+              </Link>
             </Col>
           </Row>
         </Form>
