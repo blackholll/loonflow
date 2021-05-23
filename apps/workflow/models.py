@@ -52,7 +52,7 @@ class Transition(BaseModel):
     """
     name = models.CharField('操作', max_length=50)
     workflow_id = models.IntegerField('工作流id')
-    transition_type_id = models.IntegerField('流转类型', default=1, help_text='1.常规流转，2.定时器流转,需要设置定时器时间')
+    transition_type_id = models.IntegerField('流转类型', default=1, help_text='1.常规流转，2.定时器流转,需要设置定时器时间')  # 未在使用，即将废弃
     timer = models.IntegerField('定时器(单位秒)', default=0, help_text='流转类型设置为定时器流转时生效,单位秒。处于源状态X秒后如果状态都没有过变化则自动流转到目标状态')
     source_state_id = models.IntegerField('源状态id')
     destination_state_id = models.IntegerField('目的状态id')

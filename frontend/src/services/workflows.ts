@@ -191,7 +191,7 @@ export async function  getWorkflowTransition(workflowId: Number, params:CommonSe
 export async function  updateWorkflowTransition(workflowId: Number, transitionId:Number, params:workflowTransitionEditType) {
   return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}/transitions/${transitionId}`, {
     method: 'patch',
-    params: params
+    data: params
   })
 }
 

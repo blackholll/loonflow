@@ -80,11 +80,6 @@ class WorkflowTransiton extends Component<any, any> {
   }
 
   showWorkflowTransitionModal = (workflowTransitionDetail)=> {
-    console.log('nnnnn')
-    console.log(workflowTransitionDetail)
-    console.log('nnnnn')
-
-
     this.setState({transitionDetail:workflowTransitionDetail, transitionModalVisible:true})
   }
 
@@ -155,14 +150,14 @@ class WorkflowTransiton extends Component<any, any> {
     }
 
 
-    if (this.state.workflowTransitionDetail && this.state.workflowTransitionDetail.id) {
-      result = await updateWorkflowTransition(this.props.workflowId, this.state.workflowTransitionDetail.id, values);
+    if (this.state.transitionDetail && this.state.transitionDetail.id) {
+      result = await updateWorkflowTransition(this.props.workflowId, this.state.transitionDetail.id, values);
     } else {
       result = await addWorkflowTransition(this.props.workflowId, values);
     }
     if (result.code === 0){
       message.success('保存成功');
-      this.setState({workflowTransitionDetail:{}, workflowTransitionModalVisible:false})
+      this.setState({transitionDetail:{}, workflowTransitionModalVisible:false})
       this.fetchTransitionListData({page:1, per_page:10});
     } else {
       message.error(`保存失败:${result.msg}`);

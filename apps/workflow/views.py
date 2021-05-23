@@ -332,9 +332,9 @@ class WorkflowTransitionView(LoonBaseView):
 class WorkflowTransitionDetailView(LoonBaseView):
     patch_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is needed'),
-        'transition_type_id': And(int, error='transition_type_id is needed'),
         'source_state_id': And(int, lambda n: n != 0, error='source_state_id is needed'),
         'attribute_type_id': And(int, lambda n: n != 0, error='attribute_type_id is needed'),
+        Optional('transition_type_id'): int,
         Optional('alert_enable'): int,
         Optional('field_require_check'): int,
         Optional('alert_text'): str,
