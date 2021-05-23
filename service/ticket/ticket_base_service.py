@@ -1761,7 +1761,7 @@ class TicketBaseService(BaseService):
             destination_state_id)
         if destination_transition_queryset:
             for destination_transition in destination_transition_queryset:
-                if destination_transition.transition_type_id == constant_service_ins.TRANSITION_TYPE_TIMER:
+                if destination_transition.timer:
                     from tasks import timer_transition
                     timer_transition.apply_async(args=[ticket_id, destination_state_id, datetime.datetime.now(),
                                                        destination_transition.id],

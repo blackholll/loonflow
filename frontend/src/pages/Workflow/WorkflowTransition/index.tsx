@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Table, From, Popconfirm, Row, Col, Input, Button, Modal} from "antd";
+import { Table, From, Popconfirm, Row, Col, Input, InputNumber, Button, Modal} from "antd";
 import {QuestionCircleOutlined} from "@ant-design/icons/lib";
 import {
   addWorkflowState, addWorkflowTransition,
@@ -12,7 +12,6 @@ import {message} from "antd";
 import {Form} from "antd";
 import {Tooltip} from "antd";
 import {Switch} from "antd";
-import {InputNumber} from "antd";
 import {Radio} from "antd";
 import {Select} from "antd";
 
@@ -105,6 +104,9 @@ class WorkflowTransiton extends Component<any, any> {
     if (result.destination_state_id){
       result.destination_state_id = String(result.destination_state_id)
     }
+    if (!result.timer){
+      result.timer = 0
+    }
     return result
   }
 
@@ -157,8 +159,9 @@ class WorkflowTransiton extends Component<any, any> {
     }
     if (result.code === 0){
       message.success('保存成功');
-      this.setState({transitionDetail:{}, workflowTransitionModalVisible:false})
+      this.setState({transitionDetail:{}, transitionModalVisible:false})
       this.fetchTransitionListData({page:1, per_page:10});
+
     } else {
       message.error(`保存失败:${result.msg}`);
     }
@@ -360,6 +363,11 @@ class WorkflowTransiton extends Component<any, any> {
                        rules={[{ validator: this.isExpressionCheck}]}
             >
               <TextArea/>
+            </Form.Item>
+            <Form.Item name="timer"
+                       label={<span>定时器(单位秒)<Tooltip title='设置定时器后，当超过定时器的时间无处理操作，则自动流转到下个状态。0表示不设置'><QuestionCircleOutlined /></Tooltip></span>}
+            >
+              <InputNumber />
             </Form.Item>
             <Form.Item name="attribute_type_id"
                        label={<span>属性类型<Tooltip title="可用于标识工单的状态:审批通过，被拒绝等"><QuestionCircleOutlined /></Tooltip></span>}
