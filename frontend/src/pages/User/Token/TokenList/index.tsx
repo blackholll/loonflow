@@ -229,7 +229,10 @@ class TokenList extends Component<any, any> {
             <Form.Item name="ticket_sn_prefix" label="工单前缀" initialValue={String(this.getTokenDetailField('ticket_sn_prefix'))}>
               <Input />
             </Form.Item>
-            <Form.Item name="workflow_ids" label="工作流权限" initialValue={this.getTokenDetailField('workflow_ids')}>
+            {/*<Form.Item name="workflow_ids" label="工作流权限" initialValue={this.getTokenDetailField('workflow_ids') ? this.getTokenDetailField('workflow_ids') : null}>*/}
+
+            {this.getTokenDetailField('workflow_ids') ?
+              <Form.Item name="workflow_ids" label="工作流权限" initialValue={this.getTokenDetailField('workflow_ids') ? this.getTokenDetailField('workflow_ids') : null}>
               <Select
                 allowClear
                 showSearch
@@ -241,7 +244,21 @@ class TokenList extends Component<any, any> {
                   <Option key={d.id}>{`${d.name}`}</Option>
                 ))}
               </Select>
-            </Form.Item>
+            </Form.Item>:
+              <Form.Item name="workflow_ids" label="工作流权限" >
+                <Select
+                  allowClear
+                  showSearch
+                  mode="multiple"
+                  style={{ width: '100%' }}
+                  placeholder="请选择授予的工作流权限"
+                >
+                  {this.state.workflowResult.map(d => (
+                    <Option key={d.id}>{`${d.name}`}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            }
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
                 确定

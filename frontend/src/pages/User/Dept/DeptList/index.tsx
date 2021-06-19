@@ -24,7 +24,7 @@ class DeptList extends Component<any, any> {
           pagination.page = current;
           pagination.current = current;
           this.setState({ pagination }, () => {
-            this.fetchUserData({
+            this.fetchDeptData({
               page: pagination.page,
               per_page: pagination.pageSize
             })
@@ -42,7 +42,13 @@ class DeptList extends Component<any, any> {
     this.setState({deptResultLoading: true})
     const result = await getDeptList(params);
     if (result.code === 0 ){
-      this.setState({deptResult: result.data.value, deptResultLoading:false})
+      const pagination = { ...this.state.pagination };
+      pagination.page = result.data.page;
+      pagination.pageSize = result.data.per_page;
+      pagination.total = result.data.total;
+
+
+      this.setState({deptResult: result.data.value, deptResultLoading:false, pagination})
     } else {
       message.error(`获取部门列表失败: ${result.msg}`)
     }
