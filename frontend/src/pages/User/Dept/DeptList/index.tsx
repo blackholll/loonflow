@@ -151,7 +151,7 @@ class DeptList extends Component<any, any> {
       },
       {
         title: "部门审批人",
-        dataIndex: ["approver_info", "approver_alias"],
+        dataIndex: "approver",
         key: "approver"
       },
       {
@@ -272,20 +272,38 @@ class DeptList extends Component<any, any> {
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item name="approver" label="审批人" initialValue={this.getDeptDetailField('approver')}>
-              <Select
-                mode="multiple"
-                allowClear
-                style={{ width: '100%' }}
-                placeholder="请选择审批人"
-                onSearch = {this.searchApprover}
+            { this.getDeptDetailField('approver')?
+              <Form.Item name="approver" label="审批人" initialValue={this.getDeptDetailField('approver')}>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  style={{ width: '100%' }}
+                  placeholder="请选择审批人"
+                  onSearch = {this.searchApprover}
 
-              >
-                {this.state.searchApproverResult.map(d => (
-                  <Option key={d.username}>{`${d.alias}(${d.username})`}</Option>
-                ))}
-              </Select>
-            </Form.Item>
+                >
+                  {this.state.searchApproverResult.map(d => (
+                    <Option key={d.username}>{`${d.alias}(${d.username})`}</Option>
+                  ))}
+                </Select>
+              </Form.Item>:
+              <Form.Item name="approver" label="审批人" >
+                <Select
+                  mode="multiple"
+                  allowClear
+                  style={{ width: '100%' }}
+                  placeholder="请选择审批人"
+                  onSearch = {this.searchApprover}
+
+                >
+                  {this.state.searchApproverResult.map(d => (
+                    <Option key={d.username}>{`${d.alias}(${d.username})`}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+
+            }
+
             <Form.Item name="label" label="标签" initialValue={this.getDeptDetailField('label')}>
               <Input />
             </Form.Item>

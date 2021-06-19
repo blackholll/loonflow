@@ -93,7 +93,8 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       this.fetchWorkflowInitState();
     } else {
       // ticket detail
-      this.fetchTicketDetailInfo();
+      this.
+      fetchTicketDetailInfo();
       // get ticket transition
       this.fetchTicketTransitionInfo();
     }
@@ -528,13 +529,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     const values = await this.formRef.current.validateFields();
     console.log(values);
     for (let key in values){
-      if ( [40,50].indexOf(this.state.fieldTypeDict[key]) !== -1){
-        // 多选框，多选下拉
-        if (values[key]){
-          values[key] = values[key].join(',')
-        }
-      }
-
       if (this.state.fieldTypeDict[key] === 80 ) {
         // 文件   fieldList.url
         let urlList = [];
