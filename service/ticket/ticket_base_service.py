@@ -812,17 +812,19 @@ class TicketBaseService(BaseService):
                 participant_alias = participant
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             participant_type_name = '多人'
-            # 依次获取人员信息
             participant_name_list = participant_name.split(',')
-            participant_alias_list = []
-            for participant_name0 in participant_name_list:
-                flag, participant_user_obj = account_base_service_ins.get_user_by_username(participant_name0)
-                if flag:
-                    participant_alias_list.append(participant_user_obj.alias)
-                else:
-                    participant_alias_list.append(participant_name0)
+            participant_map = {"name": set(), "alias": set()}
+            flag, participant_user_objs = account_base_service_ins.get_user_list_by_usernames(participant_name_list)
+            if flag:
+                for participant_user in participant_user_objs:
+                    participant_map["name"].add(participant_user.name)
+                    participant_map["alias"].add(participant_user.alias)
 
-            participant_alias = ','.join(participant_alias_list)
+                participant_map["alias"].update(
+                    set(participant_name_list) - participant_map["name"]
+                )
+
+            participant_alias = ','.join(participant_map["alias"])
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
