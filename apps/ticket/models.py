@@ -29,13 +29,15 @@ class TicketFlowLog(BaseModel):
     """
     ticket_id = models.IntegerField('工单id')
     transition_id = models.IntegerField('流转id', help_text='与worklow.Transition关联， 为0时表示认为干预的操作')
-    suggestion = models.CharField('处理意见', max_length=10000, default='', blank=True)
+    # suggestion = models.CharField('处理意见', max_length=10000, default='', blank=True)
+    suggestion = models.TextField('处理意见', blank=True)
 
     participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
     participant = models.CharField('处理人', max_length=50, default='', blank=True)
     state_id = models.IntegerField('当前状态id', default=0, blank=True)
     intervene_type_id = models.IntegerField('干预类型', default=0, help_text='见service.constant_service中定义')
-    ticket_data = models.CharField('工单数据', max_length=10000, default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
+    # ticket_data = models.CharField('工单数据', max_length=10000, default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
+    ticket_data = models.TextField('工单数据', blank=True, help_text='可以用于记录当前表单数据，json格式')
 
 
 class TicketCustomField(BaseModel):
