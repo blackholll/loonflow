@@ -817,7 +817,7 @@ class TicketBaseService(BaseService):
             flag, participant_user_objs = account_base_service_ins.get_user_list_by_usernames(participant_name_list)
             if flag:
                 for participant_user in participant_user_objs:
-                    participant_map["name"].add(participant_user.name)
+                    participant_map["name"].add(participant_user.username)
                     participant_map["alias"].add(participant_user.alias)
 
                 participant_map["alias"].update(
