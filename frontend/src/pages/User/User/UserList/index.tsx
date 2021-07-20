@@ -143,10 +143,16 @@ class UserList extends Component<any, any> {
   showEditModal = (record: any) =>{
     record.is_active = record.is_active? 1: 0;
     const deptInfo: Arrary = [];
-    record.user_dept_info_list.forEach(result =>{
-      deptInfo.push(String(result.id));
-    })
-    record.dept = deptInfo;
+    if (record.user_dept_info_list.length===0){
+      record.dept = []
+    } else {
+      record.user_dept_info_list.forEach(result =>{
+        deptInfo.push(result.id);
+      })
+      record.dept = deptInfo;
+    }
+    console.log(record);
+
     this.setState({userDetail:record, userModalVisible:true})
   }
 
@@ -334,10 +340,10 @@ class UserList extends Component<any, any> {
                 allowClear
                 style={{ width: '100%' }}
                 placeholder="请选择用户所在部门"
-                //defaultValue={['a10', 'c12']}
               >
                 {this.state.deptResult.map(d => (
-                  <Option key={d.id}>{d.name}</Option>
+
+                  <Option key={d.id} value={d.id}>{d.name}</Option>
                 ))}
               </Select>
             </Form.Item>
