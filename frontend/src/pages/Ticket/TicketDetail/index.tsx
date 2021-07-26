@@ -93,8 +93,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       this.fetchWorkflowInitState();
     } else {
       // ticket detail
-      this.
-      fetchTicketDetailInfo();
+      this.fetchTicketDetailInfo();
       // get ticket transition
       this.fetchTicketTransitionInfo();
     }
@@ -161,7 +160,11 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           fieldTypeDict[result.field_key] = result.field_type_id
           if (result.field_type_id === 30){
             formInitValues[result.field_key] = moment(result.field_value);
+          } else if ([40, 50, 70].indexOf(result.field_type_id) >= 0) {
+            formInitValues[result.field_key] = result.field_value.split(',')
+            console.log(formInitValues);
           }
+
           else if (result.field_type_id === 80){
             // 附件
             let newList = this.state.fileList;
@@ -177,7 +180,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               )
 
             })
-
 
             // newList[result.field_key] = result.field_value.split();
             newList[result.field_key] = fileList1
@@ -491,6 +493,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       else if (item.field_type_id === 70){
         // 多选用户
         child = <Select
+          mode="multiple"
           showSearch onSearch = {(search_value)=>this.userSimpleSearch(item.field_key, search_value)} filterOption={(input, option) =>
           option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
         } {...formItemChildOptions}
@@ -551,6 +554,20 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       if (this.state.fieldTypeDict[key] === 30 && values[key]) {
         // 时间
         values[key] = values[key].format('YYYY-MM-DD HH:mm:ss')
+      }
+      if (this.state.fieldTypeDict[key] === 40 && values[key]) {
+        // 多选框
+        console.log(values);
+        console.log(values[key]);
+        values[key] = values[key].join()
+      }
+      if (this.state.fieldTypeDict[key] === 50 && values[key]) {
+        // 多选下拉
+        values[key] = values[key].join()
+      }
+      if (this.state.fieldTypeDict[key] === 70 && values[key]) {
+        // 多选用户
+        values[key] = values[key].join()
       }
     }
 
