@@ -362,7 +362,55 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
     if (item.field_attribute === 1) {
       // todo: 下拉列表、布尔radio等显示的处理
-      if (item.field_type_id === 80){
+      if (item.field_type_id === 20) {
+        // 布尔
+        let display_result = item.boolean_field_display[item.field_value]
+        child = <div>{display_result}</div>
+      }
+
+      else if (item.field_type_id === 35) {
+        // 单选框
+        let display_result = item.field_choice[item.field_value]
+        child = <div>{display_result}</div>
+      }else if (item.field_type_id === 40) {
+        //多选框
+        let result_list = item.field_value.split(',')
+        let result_display_list = []
+        result_list.forEach((result0)=>{
+          console.log(result0)
+          if(item.field_choice[result0]){
+            result_display_list.push(item.field_choice[result0])
+          }
+        })
+
+        let display_result = result_display_list.join()
+        child = <div>{display_result}</div>
+      } else if (item.field_type_id === 45) {
+        //下拉列表
+        let display_result = item.field_choice[item.field_value]
+        child = <div>{display_result}</div>
+      } else if (item.field_type_id === 50) {
+        //多选下拉列表
+        let result_list = item.field_value.split(',')
+        let result_display_list = []
+        result_list.forEach((result0)=>{
+          console.log(result0)
+          if(item.field_choice[result0]){
+            result_display_list.push(item.field_choice[result0])
+          }
+        })
+
+        let display_result = result_display_list.join()
+        child = <div>{display_result}</div>
+      }else if (item.field_type_id === 60) {
+        //用户名
+        child = <div>{item.field_value}</div>
+      }else if (item.field_type_id === 70) {
+        //多选用户
+        child = <div>{item.field_value}</div>
+      }
+
+      else if (item.field_type_id === 80){
 
         child = []
         const url_list = item.field_value.split()
