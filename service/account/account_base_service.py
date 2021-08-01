@@ -533,7 +533,7 @@ class AccountBaseService(BaseService):
         dept_id_str_list = dept_ids.split(',')
         dept_id_int_list = [int(dept_id_str) for dept_id_str in dept_id_str_list]
         user_id = user_obj.first().id
-        user_dept_queryset = LoonUserDept.objects.filter(user_id=user_id, dept_id__in=dept_id_int_list, is_deleted=0).all()
+        user_dept_queryset = LoonUserDept.objects.filter(user_id=user_id, is_deleted=0).all()
         user_dept_id_exist = [user_dept.dept_id for user_dept in user_dept_queryset]
 
         need_add_list = [dept_id_int for dept_id_int in dept_id_int_list if dept_id_int not in user_dept_id_exist]

@@ -62,17 +62,12 @@ const WorkflowBasicInfo = (props) => {
       setWorkflowInfo(result.data);
 
       const infoResult = result.data;
-      if (infoResult && infoResult['notices']){
-        const notices = infoResult['notices']
-        if (!Array.isArray(result['notices'])){
-          infoResult['notices'] = notices.split(',');
-        }
+      if (infoResult.notices){
+        infoResult['notices'] = infoResult.notices.split(',');
+      } else {
+        infoResult['notices'] = []
       }
       form.setFieldsValue(infoResult)
-
-
-
-
     }
   }
 
@@ -173,7 +168,7 @@ const WorkflowBasicInfo = (props) => {
         <Col span={12} key="firstCol">
           <Form.Item
             name="name"
-            label= "名称1111"
+            label= "名称"
             rules={[
               {
                 required: true,

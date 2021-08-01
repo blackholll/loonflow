@@ -115,18 +115,26 @@ class WorkflowCustomFieldList extends Component<any, any> {
     const result = this.state.customFieldDetail;
 
     if (result && result['field_choice']) {
+      if (!(typeof(result['field_choice']) == "string")){
       result['field_choice'] = JSON.stringify(result['field_choice'])
-      } else {
+      }
+    }
+      else {
       result['field_choice'] = "{}"
     }
 
     if (result && result['boolean_field_display']) {
-      result['boolean_field_display'] = JSON.stringify(result['boolean_field_display'])
+      if (!(typeof(result['boolean_field_display']) == "string")){
+        result['boolean_field_display'] = JSON.stringify(result['boolean_field_display'])
+      }
       } else {
       result['boolean_field_display'] = "{}"
     }
+
     if (result && result['label']) {
-      result['label'] = JSON.stringify(result['label'])
+      if (!(typeof(result['label']) == "string")){
+        result['label'] = JSON.stringify(result['label'])
+      }
     } else {
       result['label'] = "{}"
     }

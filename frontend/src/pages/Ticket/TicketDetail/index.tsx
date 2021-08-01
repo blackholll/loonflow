@@ -15,6 +15,10 @@ import {
   Card, Divider,
   Popconfirm, Modal
 } from 'antd';
+
+import BraftEditor from 'braft-editor';
+import "braft-editor/dist/index.css";
+
 import React, { Component, Fragment } from 'react';
 import moment from 'moment';
 import {canInterveneRequest, getWorkflowInitState, getWorkflowSimpleState} from "@/services/workflows";
@@ -65,6 +69,52 @@ export interface TicketDetailState {
 
 }
 
+
+
+const myUploadFn =(param) =>{
+  const serverURL = 'api/v1.0/tickets/upload_file';
+  const xhr = new XMLHttpRequest
+  const fd = new FormData()
+
+  const successFn = (response) => {
+    // 假设服务端直接返回文件上传后的地址
+    // 上传成功后调用param.success并传入上传后的文件地址
+    param.success({
+      url: JSON.parse(xhr.responseText).data.file_path,
+      meta: {
+        id: JSON.parse(xhr.responseText).data.file_name,
+        title: JSON.parse(xhr.responseText).data.file_name,
+        alt: JSON.parse(xhr.responseText).data.file_name,
+        loop: true, // 指定音视频是否循环播放
+        autoPlay: true, // 指定音视频是否自动播放
+        controls: true, // 指定音视频是否显示控制栏
+      }
+    })
+  }
+
+  const progressFn = (event) => {
+    // 上传进度发生变化时调用param.progress
+    param.progress(event.loaded / event.total * 100)
+  }
+
+  const errorFn = (response) => {
+    // 上传发生错误时调用param.error
+    param.error({
+      msg: 'unable to upload.'
+    })
+  }
+
+  xhr.upload.addEventListener("progress", progressFn, false)
+  xhr.addEventListener("load", successFn, false)
+  xhr.addEventListener("error", errorFn, false)
+  xhr.addEventListener("abort", errorFn, false)
+
+  fd.append('file', param.file)
+  xhr.open('POST', serverURL, true)
+  xhr.send(fd)
+
+}
+
 class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   constructor(props: Readonly<TicketDetailProps>) {
     super(props);
@@ -93,8 +143,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       this.fetchWorkflowInitState();
     } else {
       // ticket detail
-      this.
-      fetchTicketDetailInfo();
+      this.fetchTicketDetailInfo();
       // get ticket transition
       this.fetchTicketTransitionInfo();
     }
@@ -161,7 +210,11 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           fieldTypeDict[result.field_key] = result.field_type_id
           if (result.field_type_id === 30){
             formInitValues[result.field_key] = moment(result.field_value);
+          } else if ([40, 50, 70].indexOf(result.field_type_id) >= 0) {
+            formInitValues[result.field_key] = result.field_value? result.field_value.split(','): []
+            console.log(formInitValues);
           }
+
           else if (result.field_type_id === 80){
             // 附件
             let newList = this.state.fileList;
@@ -177,7 +230,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               )
 
             })
-
 
             // newList[result.field_key] = result.field_value.split();
             newList[result.field_key] = fileList1
@@ -360,7 +412,60 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
     if (item.field_attribute === 1) {
       // todo: 下拉列表、布尔radio等显示的处理
-      if (item.field_type_id === 80){
+      if (item.field_type_id === 20) {
+        // 布尔
+        let display_result = item.boolean_field_display[item.field_value]
+        child = <div>{display_result}</div>
+      }
+
+      else if (item.field_type_id === 35) {
+        // 单选框
+        let display_result = item.field_choice[item.field_value]
+        child = <div>{display_result}</div>
+      }else if (item.field_type_id === 40) {
+        //多选框
+        let result_list = item.field_value?item.field_value.split(','):[]
+        let result_display_list = []
+        result_list.forEach((result0)=>{
+          console.log(result0)
+          if(item.field_choice[result0]){
+            result_display_list.push(item.field_choice[result0])
+          }
+        })
+
+        let display_result = result_display_list.join()
+        child = <div>{display_result}</div>
+      } else if (item.field_type_id === 45) {
+        //下拉列表
+        let display_result = item.field_choice[item.field_value]
+        child = <div>{display_result}</div>
+      } else if (item.field_type_id === 50) {
+        //多选下拉列表
+        let result_list = item.field_value?item.field_value.split(','):[]
+        let result_display_list = []
+        result_list.forEach((result0)=>{
+          console.log(result0)
+          if(item.field_choice[result0]){
+            result_display_list.push(item.field_choice[result0])
+          }
+        })
+
+        let display_result = result_display_list.join()
+        child = <div>{display_result}</div>
+      }else if (item.field_type_id === 60) {
+        //用户名
+        child = <div>{item.field_value}</div>
+      }else if (item.field_type_id === 70) {
+        //多选用户
+        child = <div>{item.field_value}</div>
+      }
+      else if (item.field_type_id === 58) {
+        //富文本
+        child = <div dangerouslySetInnerHTML={{__html: item.field_value }}/>
+      }
+
+
+      else if (item.field_type_id === 80){
 
         child = []
         const url_list = item.field_value.split()
@@ -463,10 +568,14 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         // child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions} defaultValue={item.field_value}/>
       } else if (item.field_type_id === 58){
         // 富文本，先以文本域代替，后续再支持
-        child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions}/>
+        // child = <TextArea autoSize={{ minRows: 2, maxRows: 6 }} {...formItemChildOptions}/>
+        child = <BraftEditor
+          media={{uploadFn: myUploadFn}}
+        />
+
       }
       else if (item.field_type_id === 80){
-        // 附件
+        // 附件import BraftEditor from 'braft-editor'
         child = <Upload action="api/v1.0/tickets/upload_file" listType="text" onChange={(info)=>this.fileChange(item.field_key, info)} fileList={this.state.fileList[item.field_key]}>
         {/*child = <Upload action="api/v1.0/tickets/upload_file" listType="text" onChange={(info)=>this.fileChange(item.field_key, info)}>*/}
           <Button icon={<UploadOutlined />}>Click to upload</Button>
@@ -491,6 +600,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       else if (item.field_type_id === 70){
         // 多选用户
         child = <Select
+          mode="multiple"
           showSearch onSearch = {(search_value)=>this.userSimpleSearch(item.field_key, search_value)} filterOption={(input, option) =>
           option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
         } {...formItemChildOptions}
@@ -520,6 +630,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           {child}
         </Form.Item>
       </Col>
+
     )
   }
 
@@ -551,6 +662,28 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       if (this.state.fieldTypeDict[key] === 30 && values[key]) {
         // 时间
         values[key] = values[key].format('YYYY-MM-DD HH:mm:ss')
+      }
+      if (this.state.fieldTypeDict[key] === 40 && values[key]) {
+        // 多选框
+        console.log(values);
+        console.log(values[key]);
+        values[key] = values[key].join()
+      }
+      if (this.state.fieldTypeDict[key] === 50 && values[key]) {
+        // 多选下拉
+        values[key] = values[key].join()
+      }
+      if (this.state.fieldTypeDict[key] === 58) {
+        // 富文本
+
+        console.log(values[key])
+        values[key] = typeof(values[key])=='string'?values[key]:values[key].toHTML()
+
+        // values[key] = values[key].content.toHTML()
+      }
+      if (this.state.fieldTypeDict[key] === 70 && values[key]) {
+        // 多选用户
+        values[key] = values[key].join()
       }
     }
 
@@ -726,6 +859,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               <Row gutter={24}>
                 {form_items}
               </Row>
+
               {this.state.ticketTransitionList.length !== 0 && this.props.ticketId!==0?
                 <Form.Item
                   name="suggestion"

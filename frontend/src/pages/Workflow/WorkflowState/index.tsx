@@ -94,13 +94,17 @@ class WorkflowState extends Component<any, any> {
     const result = this.state.workflowStateDetail;
 
     if (result && result['label']) {
-      result['label'] = JSON.stringify(result['label'])
-    } else {
+      if (!(typeof (result['label']) == "string")) {
+        result['label'] = JSON.stringify(result['label'])
+      }
+    }else {
       result['label'] = "{}"
     }
     if (result && result['state_field_str']) {
-      result['state_field_str'] = JSON.stringify(result['state_field_str'])
-    } else {
+      if (!(typeof (result['state_field_str']) == "string")) {
+        result['state_field_str'] = JSON.stringify(result['state_field_str'])
+      }
+    }else {
       result['state_field_str'] = "{}"
     }
 
