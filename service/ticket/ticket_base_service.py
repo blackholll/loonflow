@@ -1164,7 +1164,8 @@ class TicketBaseService(BaseService):
         else:
             ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_ONGOING
 
-        if req_transition_obj.attribute_type_id == constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_REFUSE:
+        if req_transition_obj.attribute_type_id == constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_REFUSE \
+                and destination_state.type_id != constant_service_ins.STATE_TYPE_END:
             ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_BACK
 
         ticket_obj.save()
