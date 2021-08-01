@@ -43,6 +43,19 @@ class AccountBaseService(BaseService):
 
     @classmethod
     @auto_log
+    def get_user_list_by_usernames(cls, usernames: list)->tuple:
+        """
+        get user info by username
+        :return:
+        """
+        result = LoonUser.objects.filter(username__in=usernames, is_deleted=0).all()
+        if result:
+            return True, result
+        else:
+            return False, 'usernames: {} is not existed or has been deleted'.format(usernames)
+
+    @classmethod
+    @auto_log
     def get_user_by_user_id(cls, user_id: int)->tuple:
         """
         get user by user id
