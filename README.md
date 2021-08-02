@@ -691,8 +691,6 @@ python manage.py migrate
 ### 提交请假
 ![效果图1](https://i.loli.net/2021/08/01/brcEpqVsDC4adFT.gif)
 ### 老师同意请假
-<<<<<<< HEAD
 ![效果图2](https://i.loli.net/2021/08/01/wMVzJfqL4C78QbN.gif)
-=======
-![效果图2](https://i.loli.net/2021/08/01/wMVzJfqL4C78QbN.gif)
->>>>>>> 1ed3a9f898a3310eac00bceb5eefeef4757ecaf7
+
+
