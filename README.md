@@ -4,6 +4,7 @@
 - 配置python虚拟环境: python3.6.x (python3.6最新稳定版)
 - 安装依赖包: pip install -r requirements/dev.txt
 - 启动redis(用于生成唯一的工单流水号+celery异步任务[执行脚本、状态hook、通知hook])
+- 测试账号密码 管理员:admin 123456 学生：test 123456 老师：laoshi 123456
 - 初始化数据库
 
 ```
