@@ -1,0 +1,117 @@
+{% load static %}
+
+
+{#JQ#}
+<script src="{% static 'bower_components/mystatic/learning_logs/jquery/jquery.min.js' %}"></script>
+
+{#bootstrap#}
+<link rel="stylesheet" href="{% static 'bower_components/mystatic/learning_logs/bootstrap/css/bootstrap.min.css' %}">
+<script src="{% static 'bower_components/mystatic/learning_logs/bootstrap/js/bootstrap.min.js' %}"></script>
+{#vue#}
+<script src="{% static 'bower_components/mystatic/vue/vue.js' %}"></script>
+
+{#饿了么UI#}
+<link rel="stylesheet" href="{% static 'bower_components/mystatic/vue/index.css' %}">
+<script src="{% static 'bower_components/mystatic/vue/index.js' %}"></script>
+
+{#axios#}
+<script src="{% static 'bower_components/mystatic/vue/axios.min.js' %}"></script>
+
+{#编辑器颜色#}
+{#引入monikai.css #}
+<link rel="stylesheet" href="{% static 'bower_components/mystatic/md_css/monokai.css' %}">
+<script src="{% static 'bower_components/mystatic/prism/prism_patched.min.js' %}"></script>
+<script src="{% static 'bower_components/mystatic/prism/plugin.js' %}"></script>
+<link rel="stylesheet" href="{% static 'bower_components/mystatic/prism/prism_patched.min.css' %}">
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width-device-width, initial-scale=1">
+    <title>Student {{ VERSION }}</title>
+</head>
+<style>
+    .el-menu-item a {
+        display: block;
+        color: #909399;
+        text-decoration: none;
+    }
+    .top-menu {
+        display: flex;
+        justify-content: flex-end;
+    }
+    .el-menu--horizontal>.el-submenu {
+        float: right;
+    }
+     .el-menu--horizontal>.el-submenu  {
+        display: block;
+        color: #909399;
+        text-decoration: none;
+    }
+</style>
+
+<body>
+<div id="apps">
+    <el-menu mode="horizontal" style="border-bottom: none;">
+        <el-menu-item index="1" class="dock-left"><a href="{% url 'student:index' %}">工单管理系统</a></el-menu-item>
+                <!-- Django的 if 模板语句 -->
+        {% if user.is_authenticated %}
+            <el-submenu index="6">
+                <template #title><a href="">个人中心</a></template>
+                <el-menu-item index="6-2"><a href="">我的用户名：{{request.user.username}}</a></el-menu-item>
+                <el-menu-item index="6-2"><a href="/api/v1.0/accounts/logout">退出登录</a></el-menu-item>
+
+            </el-submenu>
+        {% else %}
+            <el-submenu index="6">
+                <template #title><a href="">个人中心</a></template>
+                <el-menu-item index="6-1"><a href="/api/v1.0/accounts/login" onclick="">登陆</a></el-menu-item>
+            </el-submenu>
+        {% endif %}
+        <el-submenu index="4">
+            <template #title><a href="{% url 'student:new_ask' %}">请假</a></template>
+            <el-menu-item index="4-1"><a href="{% url 'student:new_ask' %}">提交请假</a></el-menu-item>
+            <el-menu-item index="4-2"><a href="{% url 'student:index' %}">历史请假</a></el-menu-item>
+        </el-submenu>
+
+    </el-menu>
+
+
+
+</div>
+
+
+<div class="container" style="padding-top: 0.5rem;">
+
+    {#header#}
+    <div class="page-header" style="padding-top: 12px;">
+        {% block header %}{% endblock header %}
+    </div>
+
+    {#content#}
+    <div id="content">
+        {% block content %}{% endblock content %}
+    </div>
+
+</div>
+
+</body>
+</html>
+
+<script>
+
+    var Main = {
+        data() {
+            return {
+                dialogVisible: false
+            };
+        },
+        methods: {
+
+        }
+    };
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#apps')
+
+</script>

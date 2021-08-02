@@ -1,0 +1,226 @@
+{% extends "student/base.html" %}
+{% load static %}
+
+{% block header %}
+
+
+{% endblock header %}
+
+{% block content %}
+    <div id="app">
+
+        <br>
+        <el-steps :active="active" finish-status="success">
+            <el-step v-for="(item,index) in titleList" :title="item.title" :description="item.description" :key="index"
+                     @click.native="stepChange(index+1)"></el-step>
+        </el-steps>
+        <br>
+
+        <el-form ref="form" :model="form" label-width="80px">
+
+            <el-form-item label="标题">
+                <el-input v-model="form.title" :disabled="true"></el-input>
+            </el-form-item>
+
+            <el-form-item label="类型">
+                <el-select v-model="form.region" placeholder="请选择类型" :disabled="true">
+                    <el-option label="事假" value="0"></el-option>
+                    <el-option label="病假" value="1"></el-option>
+                </el-select>
+            </el-form-item>
+
+            <el-form-item label="开始时间">
+                <el-col :span="11">
+                    <el-date-picker :disabled="true" value-format="yyyy-MM-dd HH:mm" format="yyyy-MM-dd HH:mm"
+                                    type="datetime" placeholder="选择日期" v-model="form.date1"
+                                    style="width: 100%;"></el-date-picker>
+                </el-col>
+            </el-form-item>
+
+            <el-form-item label="结束时间">
+                <el-col :span="11">
+                    <el-date-picker :disabled="true" value-format="yyyy-MM-dd HH:mm" format="yyyy-MM-dd HH:mm"
+                                    type="datetime" placeholder="选择日期" v-model="form.date2"
+                                    style="width: 100%;"></el-date-picker>
+                </el-col>
+            </el-form-item>
+
+            <el-form-item label="请假天数">
+                <el-input v-model="form.days" :disabled="true"></el-input>
+            </el-form-item>
+
+            <el-form-item label="请假原因">
+                <el-input type="textarea" v-model="form.desc" :disabled="true"></el-input>
+            </el-form-item>
+
+            <el-form-item label="附件下载">
+                <el-input type="text" v-model="form.filename"></el-input>
+            </el-form-item>
+
+        </el-form>
+
+        <el-row>
+            {% if request.user.type_id == 1 or request.user.type_id == 2 %}
+                <el-button type="success" @click="Details()">同意申请</el-button>
+                <el-button type="danger" @click="Cancel()">退回工单</el-button>
+            {% else %}
+                {#                仅查看#}
+            {% endif %}
+        </el-row>
+
+    </div>
+
+    <script>
+        // 取得URL ID
+        let url_id = window.location.pathname.split('/')[3]
+        var Main_setup = {
+            created() {
+
+                // 取得步骤
+                axios.get('/student/flowsteps/' + url_id + '/').then(response => {
+                        if (response.statusText === 'OK') {
+                            for (let i = 0; i < response.data.data.value.length; i++) {
+                                for (let j = 0; j < response.data.data.value[i]['state_flow_log_list'].length; j++) {
+                                    let participant_info = response.data.data.value[i]['state_flow_log_list'][j]['participant_info']['participant_alias']
+                                    let transition_name = response.data.data.value[i]['state_flow_log_list'][j]['transition']['transition_name']
+                                    let gmt_created = response.data.data.value[i]['state_flow_log_list'][j]['gmt_created']
+                                    for (let k = 0; k < this.titleList.length; k++) {
+                                        this.titleList[i]['description'] = participant_info + transition_name + '@' + gmt_created
+                                    }
+                                }
+                                if (response.data.data['current_state_id'] === 1) {
+                                    this.active = 1
+                                } else if (response.data.data['current_state_id'] === 3) {
+                                    this.active = 2
+                                } else if (response.data.data['current_state_id'] === 5) {
+                                    this.active = 3
+                                }
+                            }
+                        } else {
+                            this.$message({
+                                showClose: true,
+                                message: '数据加载失败！',
+                                type: 'error'
+                            });
+                        }
+                    },
+                    response => {
+                        console.log("error");
+                    }
+                );
+
+                // 取得状态
+                axios.get('/student/states/' + url_id + '/').then(response_states => {
+                        if (response_states.statusText === 'OK') {
+
+                            for (let i = 0; i < response_states.data.data.value['field_list'].length; i++) {
+                                let field_key = response_states.data.data.value['field_list'][i]['field_key']
+                                if (field_key === 'days') {
+                                    this.form.days = response_states.data.data.value['field_list'][i]['field_value']
+                                } else if (field_key === 'text_desp') {
+                                    this.form.desc = response_states.data.data.value['field_list'][i]['field_value']
+                                } else if (field_key === 'title') {
+                                    this.form.title = response_states.data.data.value['field_list'][i]['field_value']
+                                } else if (field_key === 'leave_start') {
+                                    this.form.date1 = response_states.data.data.value['field_list'][i]['field_value']
+                                } else if (field_key === 'leave_end') {
+                                    this.form.date2 = response_states.data.data.value['field_list'][i]['field_value']
+                                } else if (field_key === 'leave_type') {
+                                    this.form.region = response_states.data.data.value['field_list'][i]['field_value']
+                                } else if (field_key === 'filename') {
+                                    if (response_states.data.data.value['field_list'][i]['field_value'] === ''){
+                                        this.form.filename = '当前无附件'
+                                    }else{
+                                        this.form.filename = 'http://127.0.0.1:6060' + response_states.data.data.value['field_list'][i]['field_value']
+                                    }
+
+                                }
+
+                            }
+                        } else {
+                            this.$message({
+                                showClose: true,
+                                message: '数据加载失败！',
+                                type: 'error'
+                            });
+                        }
+                    },
+                    response_states => {
+                        console.log("error");
+                    }
+                );
+            },
+
+            data() {
+                return {
+                    active: 1,
+                    titleList: [
+                        {
+                            title: '发起人-新建中',
+                            description: '新建中...'
+                        },
+                        {
+                            title: '教师审批',
+                            description: '等待审批...'
+                        },
+                        {
+                            title: '结束',
+                            description: '已结束...'
+                        },
+                    ],
+                    form: {
+                        title: '加载中',
+                        region: '',
+                        date1: '',
+                        date2: '',
+                        days: '',
+                        desc: ''
+                    }
+                };
+            },
+
+            methods: {
+
+                // 同意工单
+                Details() {
+                    if (this.active >= 3) {
+                        this.$message('工单已完结');
+                    } else {
+                        // 同意工单
+                        axios.get('/student/accept_tickets_submit/' + url_id + '/').then(response_accept_tickets_submit => {
+                            console.log(response_accept_tickets_submit);
+                            if (response_accept_tickets_submit['code'] === 0) {
+                                console.log('同意工单！')
+                            }
+                        }, response => {
+                            console.log("error");
+                        });
+                        window.location.reload()
+                    }
+                },
+                // 退回工单
+                Cancel() {
+
+                    if (this.active >= 3) {
+                        this.$message('工单已完结');
+                    } else {
+                        axios.get('/student/close_tickets/' + url_id + '/').then(response_close_tickets=> {
+                            if (response_close_tickets['code'] === 0) {
+                                console.log('工单撤回成功！')
+                                window.location.reload()
+                            }
+                        }, response => {
+                            console.log("error");
+                        });
+                    }
+                }
+
+
+            }
+        }
+        var Ctor = Vue.extend(Main_setup)
+        new Ctor().$mount('#app')
+    </script>
+    {% include 'student/footer.html' %}
+
+{% endblock content %}

@@ -1,0 +1,9 @@
+[declarations]
+<PROJECT_ROOT>/node_modules
+<PROJECT_ROOT>/lib
+<PROJECT_ROOT>/dist
+
+[options]
+types_first=false
+include_warnings=true
+

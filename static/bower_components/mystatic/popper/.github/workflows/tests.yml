@@ -1,0 +1,51 @@
+name: Unit Tests
+
+on: [push, pull_request]
+
+env:
+  CI: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: CultureHQ/actions-yarn@master
+        with:
+          args: install
+      - name: Flow
+        uses: CultureHQ/actions-yarn@master
+        with:
+          args: test:flow
+      - name: ESLint
+        uses: CultureHQ/actions-yarn@master
+        with:
+          args: test:eslint
+      - name: TypeScript
+        uses: CultureHQ/actions-yarn@master
+        with:
+          args: build:es
+      - name: TypeScript
+        uses: CultureHQ/actions-yarn@master
+        with:
+          args: build:typescript
+      - name: TypeScript
+        uses: CultureHQ/actions-yarn@master
+        with:
+          args: test:typescript
+
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: mujo-code/puppeteer-headful@master
+        with:
+          args: yarn
+      - name: TypeScript
+        uses: mujo-code/puppeteer-headful@master
+        with:
+          args: yarn build:bundles
+      - name: Run Jest Unit Tests
+        uses: mujo-code/puppeteer-headful@master
+        with:
+          args: yarn test:unit

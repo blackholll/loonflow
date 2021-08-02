@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 # from django.conf.urls import url, include
+from django.conf.urls import url
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path, include
@@ -27,5 +28,6 @@ urlpatterns = [
     path('api/v1.0/accounts', include('apps.account.urls')),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
     path('api/v1.0/workflows', include('apps.workflow.urls')),
+    url(r'^student/', include(('student.urls', "student"), namespace='student')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

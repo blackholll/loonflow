@@ -1,0 +1,157 @@
+{% extends "student/base.html" %}
+{% load static %}
+
+{% block content %}
+    <!-- 写文章表单 -->
+    <div id="app">
+
+
+        <el-form :model="ruleForm" label-width="80px" ref="ruleForm" enctype="multipart/form-data"
+                 :hide-required-asterisk="false">
+            <el-form-item label="标题" :required="true" prop="title">
+                <el-input v-model="ruleForm.title"></el-input>
+            </el-form-item>
+            <el-form-item label="类型" :required="true" prop="region">
+                <el-select v-model="ruleForm.region">
+                    <el-option label="事假" value="0"></el-option>
+                    <el-option label="病假" value="1"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="开始时间" :required="true">
+                <el-col :span="11">
+                    <el-date-picker prop="date1" value-format="yyyy-MM-dd HH:mm" format="yyyy-MM-dd HH:mm"
+                                    type="datetime"
+                                    placeholder="选择日期" v-model="ruleForm.date1"
+                                    style="width: 100%;"></el-date-picker>
+                </el-col>
+            </el-form-item>
+
+            <el-form-item label="结束时间" :required="true">
+                <el-col :span="11">
+                    <el-date-picker prop="date2" value-format="yyyy-MM-dd HH:mm" format="yyyy-MM-dd HH:mm"
+                                    type="datetime"
+                                    placeholder="选择日期" v-model="ruleForm.date2"
+                                    style="width: 100%;"></el-date-picker>
+                </el-col>
+            </el-form-item>
+            <el-form-item label="天数" :required="true" prop="days">
+                <el-input type="number" v-model="ruleForm.days"></el-input>
+            </el-form-item>
+
+            <el-form-item label="请假原因" :required="true" prop="desc">
+                <el-input type="textarea" v-model="ruleForm.desc"></el-input>
+            </el-form-item>
+
+            <el-upload style="padding-left: 80px;"
+                       class="upload-demo"
+                       action="http://127.0.0.1:6060/student/ueditor_imgup"
+                       :on-success="handleSuccess"
+                       :before-remove="beforeRemove"
+                       multiple
+                       name="imgup"
+                       id="imgup"
+                       :limit="1"
+                       accept=".jpg,.png,.docx"
+                       :on-exceed="handleExceed"
+                       :file-list="fileList">
+                <el-button size="small" type="primary">点击上传附件</el-button>
+                <div slot="tip" class="el-upload__tip">只能上传jpg/png/docx文件，且不超过500kb</div>
+            </el-upload>
+
+            <el-form-item>
+                <br>
+                <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+                <el-button>取消</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
+    <script src="{% static 'bower_components/mystatic/csrf.js' %}"></script>
+    {#    解决csrf 403#}
+
+    <script>
+
+
+        var Main = {
+            data() {
+                return {
+                    rules: {
+                        title: [
+                            {required: true, message: '请输入标题', trigger: 'blur'},
+                            {min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur'}
+                        ],
+                        region: [
+                            {required: true, message: '请选择类型', trigger: 'change'}
+                        ],
+                        date1: [
+                            {type: 'date', required: true, message: '请选择开始日期', trigger: 'change'}
+                        ],
+                        date2: [
+                            {type: 'date', required: true, message: '请选择结束日期', trigger: 'change'}
+                        ],
+                        days: [
+                            {required: true, message: '请输入天数', trigger: 'blur'},
+                            {min: 1, max: 7, message: '时间在1 - 7 天', trigger: 'blur'}
+                        ],
+                        desc: [
+                            {required: true, message: '请输入简介', trigger: 'blur'},
+                            {min: 5, max: 50, message: '大约50字以内', trigger: 'blur'}
+                        ],
+
+
+                    },
+                    ruleForm: {
+                        filename: '',
+                        title: '',
+                        region: '',
+                        date1: '',
+                        date2: '',
+                        days: '',
+                        desc: ''
+                    },
+                    fileList: []
+                }
+            },
+            methods: {
+                handleSuccess(file, fileList){
+                    this.ruleForm.filename = file['url']
+                    console.log(file['url'])
+                },
+                handleExceed(files, fileList) {
+                    this.$message.warning(`当前限制选择 1个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+                },
+                beforeRemove(file, fileList) {
+                    return this.$confirm(`确定移除 ${file.name}？`);
+                },
+
+                submitForm(form) {
+                    console.log(this.ruleForm);
+                    this.$refs[form].validate((valid) => {
+                        if (valid) {
+                            $.post('/student/postform/', this.ruleForm,
+                                function (result) {
+                                    const obj = JSON.parse(result);
+
+                                    console.log(obj);
+                                    if (obj['code'] === 0) {
+                                        // 提交成功重定向
+                                        window.location.href = '{% url 'student:index'  %}'
+                                    } else {
+                                        console.log(obj['msg'])
+                                    }
+                                })
+                        } else {
+                            return false;
+                        }
+                    });
+                },
+
+            }
+        }
+        $.ajaxSetup({data: {csrfmiddlewaretoken: '{{ csrf_token }}'}})
+
+        var Ctor = Vue.extend(Main)
+        new Ctor().$mount('#app')
+    </script>
+
+    {% include 'student/footer.html' %}
+{% endblock content %}

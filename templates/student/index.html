@@ -1,0 +1,187 @@
+{% extends "student/base.html" %}
+{% load static %}
+
+{% block header %}
+
+
+{% endblock header %}
+
+{% block content %}
+
+    <div id="app">
+        <template>
+            <el-table
+                    :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+                    :default-sort="{}">
+                <el-table-column
+                        prop="id"
+                        label="ID"
+                        width="100"
+                        :sortable="false">
+                </el-table-column>
+                <el-table-column
+                        prop="sn"
+                        label="流水号"
+                        width="210"
+                        :sortable="false">
+                </el-table-column>
+                <el-table-column
+                        prop="title"
+                        label="标题"
+                        width="160"
+                        :sortable="false">
+                </el-table-column>
+                <el-table-column
+                        prop="gmt_created"
+                        label="创建时间	"
+                        width="220 ">
+                </el-table-column>
+
+                <el-table-column
+                        prop="creator_info.alias"
+                        label="创建人"
+                        width="100"
+                        :sortable="false"
+                >
+                </el-table-column>
+
+                <el-table-column
+                        prop="workflow_info.workflow_name"
+                        label="类型"
+                        width="100"
+                        :sortable="false"
+                >
+                </el-table-column>
+
+                <el-table-column
+                        prop="state.state_name"
+                        label="当前状态"
+                        width="100">
+                </el-table-column>
+                <el-table-column>
+                    <template slot="header" slot-scope="scope">
+                        <el-input v-model="search" size="mini" placeholder="搜索"></el-input>
+                    </template>
+                    <template slot-scope="scope">
+                        <el-button type="text" size="small" @click="handleDetails(scope.$index, scope.row)">查看</el-button>
+                        <el-button type="text" size="small" @click="handleCancel(scope.$index, scope.row)">撤销</el-button>
+                    </template>
+
+
+                </el-table-column>
+
+            </el-table>
+
+            <div class="pagination">
+                <el-pagination
+                        @current-change="handleCurrentChange"
+                        :current-page="currentPage"
+                        :page-sizes="[5, 10, 15, 30]"
+                        :page-size="pagesize"
+                        layout="total, sizes,prev, pager, next"
+                        :total="tableData.length"
+                        prev-text="上一页"
+                        next-text="下一页">
+                </el-pagination>
+            </div>
+        </template>
+    </div>
+
+    <script>
+        const Mains = {
+
+            created() {
+                axios.get('/student/lists/').then(response => {
+                    if (response.statusText === 'OK') {
+                        this.tableData = response.data.data.value
+                    } else {
+                        this.$message({
+                            showClose: true,
+                            message: '数据加载失败！',
+                            type: 'error'
+                        });
+                    }
+                }, response => {
+                    console.log("error");
+                });
+
+            },
+
+            mounted() {
+                this.getData();
+            },
+            methods: {
+                getData() {
+                    axios.get('/student/lists/').then(response => {
+                        this.tableData = response.data.data.value
+                    }, response => {
+                        console.log("error");
+                    });
+
+                },
+
+
+                //点击第几页
+                handleCurrentChange: function (currentPage) {
+                    this.currentPage = currentPage;
+                },
+
+                // 点击查看
+                handleDetails(index, row) {
+                    console.log("获取工单信息");
+                    console.log(row.id);
+                    axios.get('/student/info/' + row.id + '/').then(response_data => {
+                        window.open("/student/setup/" + row.id + '/');                 //在另外新建窗口中打开窗口
+                    }, response => {
+                        console.log("error");
+                    });
+                },
+
+                handleCancel(index, row) {
+                    console.log("撤销工单");
+                    axios.get('/student/close_tickets/' + row.id + '/').then(response_data => {
+                        console.log(response_data)
+                        window.location.reload()
+                    }, response => {
+                        console.log("error");
+                    });
+                },
+
+
+            },
+
+            data() {
+                return {
+                    intervalId: null,       // 计时器
+                    currentPage: 1,         // 默认显示页面为1
+                    pagesize: 15,           // 每页的数据条数
+                    search: '',             // 搜索
+                    tableData: [],          // 表格数据
+                    tableDatas:[],
+                }
+            },
+            computed: {
+
+                tableDatas: function () {
+                    var search = this.search;
+                    if (search) {
+                        return this.tableData.filter(function (dataNews) {
+                            return Object.keys(dataNews).some(function (key) {
+                                return String(dataNews[key]).toLowerCase().indexOf(search) > -1
+                            })
+                        })
+                    }
+                    return this.tableData
+                }
+            },
+        };
+
+        const Ctors = Vue.extend(Mains);
+        new Ctors().$mount('#app')
+
+    </script>
+    {% include 'student/footer.html' %}
+
+{% endblock content %}
+
+
