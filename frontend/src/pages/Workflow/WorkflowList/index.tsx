@@ -49,10 +49,17 @@ class WorkflowList extends Component<any, any> {
       workflowListLoading: true
     });
     const result = await getWorkflowList( params);
+    const pagination = { ...this.state.pagination };
+    pagination.page = result.data.page;
+    pagination.pageSize = result.data.per_page;
+    pagination.total = result.data.total;
+
+
     if (result.code ===0 ){
       this.setState({
         workflowListLoading: false,
-        workflowListResult: result.data.value
+        workflowListResult: result.data.value,
+        pagination: pagination
       })
     } else {
       message.error(`获取工作流列表失败: ${result.msg}`)
