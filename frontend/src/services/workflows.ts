@@ -92,6 +92,12 @@ export async function getWorkflowDetail(workflowId: Number) {
   })
 }
 
+export async function delWorkflow(workflowId: Number) {
+  return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}`, {
+    method: 'delete'
+  })
+}
+
 export async function updateWorkflowDetail(workflowId: Number, params: WorkflowDetailType) {
   return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}`, {
     method: 'patch',
