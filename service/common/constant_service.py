@@ -18,7 +18,7 @@ class ConstantService(BaseService):
 
         self.TICKET_ACT_STATE_DRAFT = 0  # 草稿中
         self.TICKET_ACT_STATE_ONGOING = 1  # 进行中
-        self.TICKET_ACT_STATE_BACK = 2  # 被退回
+        self.TICKET_ACT_STATE_BACK = 2  # 被拒绝
         self.TICKET_ACT_STATE_RETREAT = 3  # 被撤回
         self.TICKET_ACT_STATE_FINISH = 4  # 已完成
         self.TICKET_ACT_STATE_CLOSED = 5  # 已关闭

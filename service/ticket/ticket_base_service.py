@@ -1320,7 +1320,7 @@ class TicketBaseService(BaseService):
         """
         worked_queryset = TicketUser.objects.filter(ticket_id=ticket_id, is_deleted=0, username=username).all()
         if worked_queryset:
-            worked_queryset.update(worked=True)
+            worked_queryset.update(worked=True, in_process=False)
         else:
             new_worked_record = TicketUser(ticket_id=ticket_id, username=username, in_process=False, worked=True)
             new_worked_record.save()
@@ -2031,7 +2031,7 @@ class TicketBaseService(BaseService):
                 destination_participant = random.sample(destination_participant, 1)[0]
             elif state_obj.distribute_type_id == constant_service_ins.STATE_DISTRIBUTE_TYPE_ALL:
                 multi_all_person_dict = {}
-                for destination_participant_0 in destination_participant:
+                for destination_participant_0 in destination_participant.split(','):
                     multi_all_person_dict[destination_participant_0] = {}
                 multi_all_person = json.dumps(multi_all_person_dict)
 
