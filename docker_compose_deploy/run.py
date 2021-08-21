@@ -21,13 +21,12 @@ def run_cmd(cmd):
     except Exception as e:
         return False, e.__str__()
 
-
 def stop_compose():
     """
     停止compose服务
     :return:
     """
-    home_path = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/loonflow'
+    home_path = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/docker_compose_deploy'
     cmd_str = 'cd {}&&docker-compose stop'.format(home_path)
     flag, result = run_cmd(cmd_str)
     if flag:
@@ -36,6 +35,21 @@ def stop_compose():
     else:
         print('-' * 30)
         print('停止失败:{}'.format(result))
+
+
+def re_build_start():
+    """
+    重新构建镜像并启动
+    """
+    home_path = os.path.abspath(os.path.join(os.getcwd(), "..")) + '/docker_compose_deploy'
+    cmd_str = 'cd {}&&docker-compose up -d --build'.format(home_path)
+    flag, result = run_cmd(cmd_str)
+    if flag:
+        print('-' * 30)
+        print('重新构建镜像并启动成功')
+    else:
+        print('-' * 30)
+        print('重新构建镜像并启动失败:{}'.format(result))
 
 
 def update_db_config(db_host, db_port, db_name, db_user, db_password):
@@ -143,8 +157,13 @@ if __name__ == '__main__':
         start()
     elif params[1] == 'stop':
         stop_compose()
+    elif params[1] == 'update':
+        # 仅用于小版本升级如a.b.c-->a.b.d,不涉及数据库表结构变更的升级，修改数据配置后直接重新构建镜像并启动
+        update_db_config(db_host, db_port, db_name, db_user, db_password)  # 修改dockerfile
+        re_build_start()
+
     else:
-        raise Exception('usage: python3 run.py install/start/stop')
+        raise Exception('usage: python3 run.py install/start/stop/update')
 
 
 
