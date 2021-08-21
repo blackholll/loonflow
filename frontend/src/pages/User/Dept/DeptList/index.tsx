@@ -146,13 +146,22 @@ class DeptList extends Component<any, any> {
       },
       {
         title: "部门负责人",
-        dataIndex: "leader",
-        key: "leader"
+        key: "leader",
+        render:(text: string, record: any)=>{
+          return record.leader_info?record.leader_info.leader_alias: record.leader;
+        }
       },
       {
         title: "部门审批人",
-        dataIndex: "approver",
-        key: "approver"
+        // dataIndex: "approver",
+        key: "approver",
+        render:(text: string, record:any)=>{
+          let approver_info_list = [];
+          record.approver_info.forEach(approver0=>{
+            approver_info_list.push(approver0.approver_alias);
+          })
+          return approver_info_list.join();
+        }
       },
       {
         title: "标签",
