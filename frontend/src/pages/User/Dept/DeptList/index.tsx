@@ -87,10 +87,10 @@ class DeptList extends Component<any, any> {
     }
   }
 
-  onDeptFinish = async(values) => {
+  onDeptFinish = async(values: any) => {
     let result = {};
     values.parent_dept_id = Number(values.parent_dept_id);
-    values.approver = values.approver.join(',');
+    values.approver = values.approver? values.approver.join(','): "";
     if (this.state.deptDetail && this.state.deptDetail.id) {
       result = await updateDeptRequest(this.state.deptDetail.id, values);
     } else {
