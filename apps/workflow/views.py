@@ -434,7 +434,7 @@ class WorkflowStateView(LoonBaseView):
         Optional('remember_last_man_enable'): int,
         Optional('state_field_str'): str,
         Optional('label'): str,
-        str: object
+        Optional(str): object
     })
 
     def get(self, request, *args, **kwargs):

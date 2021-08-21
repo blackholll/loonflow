@@ -387,6 +387,7 @@ class WorkflowState extends Component<any, any> {
               <Switch checkedChildren="是" unCheckedChildren="否" defaultChecked />
             </Form.Item>
             <Form.Item name="participant_type_id"
+                       rules={[{ required: true }]}
                        label={<span>参与人类型<Tooltip title='初始状态的处理人类型和处理人和选择无和留空(状态的处理人仅供状态变化时确定新的处理人用，不会作为流转时目的状态，所以无需配置)， 结束状态处理人类型和处理人也请选择无和留空，因为结束状态无需人再处理'><QuestionCircleOutlined /></Tooltip></span>}
             >
               <Select
