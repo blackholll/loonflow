@@ -329,7 +329,7 @@ class WorkflowBaseService(BaseService):
                                 limit_expression=limit_expression, display_form_str=display_form_str,
                                 title_template=title_template, content_template=content_template)
         # 更新管理员信息
-        workflow_permission_existed_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id).all()
+        workflow_permission_existed_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
 
         existed_intervener,  existed_workflow_admin, existed_view_depts, existed_view_persons, \
         existed_app_permission_apps = [], [], [], [], []

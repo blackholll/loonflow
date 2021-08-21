@@ -75,6 +75,7 @@
 --------------------------------
 为了方便的数据的持久化以及升级操作,此方式不会启动数据库,请事先准备好数据库。(注意创建库的使用使用utf-8字符集)。只部署loonflow
 (包括nginx、redis),启动时将连接到你提供的数据库(保证持久化数据)。
+成功启动后，可使用 http://{host} 访问， {host}为你的linux服务器的ip地址，admin账号密码为123456
 
 - 准备工作:
 
@@ -94,9 +95,9 @@
   mysql> grant all privileges on loonflow.* to loonflow@'%' identified by '123456';
 
 
-- 启动方式
+- 修改相关配置
 
-确保已经安装了python3后。 cd 到 docker_compose_deploy目录后,执行以下命令
+修改docker_compose_deploy/run.py中的相关配置
 
 ::
 
@@ -110,13 +111,26 @@
   ddl_db_user = ''  # 可以执行ddl(拥有修改表结构权限)的用户
   ddl_db_password = ''  # 可以执行ddl(拥有修改表结构权限)的用户的密码
 
-  # 安装并启动服务
-  python3 run.py install # 此命令后修改dockerfile中的数据库配置，然后启动
+- 安装并启动服务
 
-  # 启动服务
+::
+
+  python3 run.py install # 执行此命令后将修改dockerfile中的数据库配置，构建镜像，然后启动服务
+
+- 启动服务
+
+::
+
   python3 run.py start  # 此命令直接启动服务，请保证之前install过（也就是dockerfile中数据库配置已被修改）
 
-  # 停止服务， 这种方式对于celery task任务非优雅停止，可以使用flower(celery的监控系统)，将任务消费停止，并且等待所有认为都结束后再执行
-  python3 run.py stop
+- 停止服务
 
+::
 
+  python3 run.py stop # 停止服务， 这种方式对于celery task任务非优雅停止，可以使用flower(celery的监控系统)，将任务消费停止，并且等待所有认为都结束后再执行
+
+- 升级并重启服务
+
+::
+
+  python3 run.py update # 仅用于小版本升级如a.b.c-->a.b.d,不涉及数据库表结构变更的升级，执行此命令后将修改数据配置, 然后重新构建镜像并启动, 注意先修改run.py中数据库相关配置
