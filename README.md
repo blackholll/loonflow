@@ -1,11 +1,6 @@
-# 注意
-当前r2.x.x版本刚发布，尚未提供升级文档(最晚21年10月会提供)，建议老用户(1.x及之前的版本用户)暂时不要升级
-
 # loonflow
 a workflow engine base on django
 基于django的工作流引擎系统(通过http接口调用，可以作为企业内部统一的工作流引擎，提供诸如权限申请、资源申请、发布申请、请假、报销、it服务等所有工作流场景的服务),如果有一定的开发能力建议只使用后端引擎功能，前端根据场景定制开发可分散于各个内部后台管理系统(如人事、运维、监控、cmdb等等)。从1.1.x版本开始loonflow自带工单新建及处理的前端界面，可以直接使用。
-
-欢迎访问我的博客了解我的设计思路 http://loonapp.com/blog/27/
 
 正式版本见[release](https://github.com/blackholll/loonflow/releases)中,建议使用最新版本， , 为了方便大家下载会在每次发布新版本后将压缩包上传到qq群文件(qq群:558788490), 你也可以使用git命令直接下载对应代码
 
@@ -61,14 +56,20 @@ vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043
 
 ### loonflow
 
-是的，你可以不再使用workflowdemo、shutongflow及howflow-open。 当然你还可以参考这三个项目写自己的调用方系统
+是的，你可以不再需要使用workflowdemo、shutongflow及howflow-open。 当然你还可以参考这三个项目写自己的调用方系统
 
-![user_manage](/static/images/1.1.x/login.png)
-![user_manage](/static/images/1.1.x/workbench.png)
-![user_manage](/static/images/1.1.x/new_ticket.png)
-![user_manage](/static/images/1.1.x/custom_field.png)
-![user_manage](/static/images/1.1.x/user.png)
-![user_manage](/static/images/1.1.x/system_config.png)
+![user_manage](/static/images/2.0.x/login.png)
+![user_manage](/static/images/2.0.x/workbench.png)
+![user_manage](/static/images/2.0.x/new_ticket.png)
+![user_manage](/static/images/2.0.x/handle_ticket.png)
+![user_manage](/static/images/2.0.x/user.png)
+![user_manage](/static/images/2.0.x/workflow_basic_conf.png)
+![user_manage](/static/images/2.0.x/custom_field.png)
+![user_manage](/static/images/2.0.x/status.png)
+![user_manage](/static/images/2.0.x/transition.png)
+![user_manage](/static/images/2.0.x/system_config.png)
+![user_manage](/static/images/2.0.x/flow_chart.png)
+![user_manage](/static/images/2.0.x/statistics.png)
 
 
 ## 使用文档
