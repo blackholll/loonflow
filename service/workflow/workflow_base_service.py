@@ -136,7 +136,7 @@ class WorkflowBaseService(BaseService):
         #'限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)
         limit_expression_dict = json.loads(limit_expression)
         limit_period = limit_expression_dict.get('period')
-        limit_count = limit_expression_dict.get('limit_count')
+        limit_count = limit_expression_dict.get('count')
         limit_allow_persons = limit_expression_dict.get('allow_persons')
         limit_allow_depts = limit_expression_dict.get('allow_depts')
         limit_allow_roles = limit_expression_dict.get('allow_roles')
@@ -157,15 +157,15 @@ class WorkflowBaseService(BaseService):
                     return False, 'level in limit_expression is invalid'
                 if count_result is False:
                     return False, result
-                if not limit_expression_dict.get('count'):
+                if not limit_count:
                     return False, 'count is need when level is not none'
-                if count_result > limit_expression_dict.get('count'):
-                    return False, '{} tickets can be created in {}hours when workflow_id is {}'\
+                if count_result > limit_count:
+                    return False, '{} tickets can be created in {} hours when workflow_id is {}'\
                         .format(limit_count, limit_period, workflow_id)
 
         if limit_allow_persons:
             if username not in limit_allow_persons.split(','):
-                return False, '{} can not create ticket base on workflow_id:{}'.format(workflow_id)
+                return False, '{} can not create ticket base on workflow_id:{}'.format(username, workflow_id)
         if limit_allow_depts:
             # 获取用户所属部门，包含上级部门
             flag, user_all_dept_id_list = AccountBaseService.get_user_up_dept_id_list(username)

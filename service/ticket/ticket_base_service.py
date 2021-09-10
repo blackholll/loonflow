@@ -1887,7 +1887,6 @@ class TicketBaseService(BaseService):
         if username:
             query_params &= Q(creator=username)
         if period:
-            query_params &= Q(creator=username)
             datetime_now = datetime.datetime.now()
             datetime_start = datetime_now - datetime.timedelta(hours=period)
             query_params &= Q(gmt_created__gte=datetime_start)
