@@ -1505,8 +1505,12 @@ class TicketBaseService(BaseService):
         """
         if transition_id:
             flag, transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(transition_id)
-            transition_name = transition_obj.name
-            attribute_type_id = transition_obj.attribute_type_id
+            if not transition_obj:
+                transition_name = '未知操作'
+                attribute_type_id = constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_OTHER
+            else:
+                transition_name = transition_obj.name
+                attribute_type_id = transition_obj.attribute_type_id
         else:
             if intervene_type_id == constant_service_ins.TRANSITION_INTERVENE_TYPE_DELIVER:
                 transition_name = '转交操作'
