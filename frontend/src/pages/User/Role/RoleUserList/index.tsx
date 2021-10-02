@@ -188,8 +188,14 @@ class RoleUserList extends Component<any, any> {
               style={{ width: '100%' }}
               placeholder="请搜索用户"
               onSearch = {this.searchUser}
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
             >
-              {this.state.searchUserResult.map(d => <Option key={d.id}>{d.alias}</Option>)}
+              {this.state.searchUserResult && this.state.searchUserResult.map(d => (<Option key={d.id} value={d.id}>{`${d.alias}(${d.username})`}</Option>))}
+
+
+
             </Select>
           </Form.Item>
           <Form.Item {...tailLayout}>
