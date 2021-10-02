@@ -373,7 +373,13 @@ class TicketBaseService(BaseService):
     def gen_ticket_sn(cls, app_name: str='')->tuple:
         redis_conn = redis.Redis(connection_pool=POOL)
         ticket_day_count_key = 'ticket_day_count_{}'.format(str(datetime.datetime.now())[:10])
-        ticket_day_count = redis_conn.get(ticket_day_count_key)
+        try:
+            ticket_day_count = redis_conn.get(ticket_day_count_key)
+        except redis.exceptions.ConnectionError:
+            return False, 'Redis连接失败，请确认Redis已启动并配置正确'
+        except Exception as e:
+            raise Exception(e.__str__())
+
         if ticket_day_count is not None:
             new_ticket_day_count = redis_conn.incr(ticket_day_count_key)
         else:
