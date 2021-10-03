@@ -79,7 +79,7 @@ vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043
 
 特别感谢 [JetBrains](https://www.jetbrains.com/?from=mirai) 为本开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=loonflow)  授权  
 
-[<img src="/docs/images/jetbrains-variant-3.png" width="200"/>](https://www.jetbrains.com/?from=loonflow)
+[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com/?from=loonflow)
 
 # 欢迎捐助
 您的支持是我最大的动力,欢迎支付宝扫码捐助
