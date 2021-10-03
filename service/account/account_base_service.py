@@ -186,7 +186,7 @@ class AccountBaseService(BaseService):
         user_dept_queryset = LoonUserDept.objects.filter(user_id=user_obj.id, is_deleted=0).all()
         user_dept_id_list = [user_dept.dept_id for user_dept in user_dept_queryset]
         for user_dept_id in user_dept_id_list:
-            iter_dept(user_obj.dept_id)
+            iter_dept(user_dept_id)
         dept_id_list = list(set(dept_id_list))
         return True, dept_id_list
 
