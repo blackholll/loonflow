@@ -47,6 +47,7 @@ class TokenList extends Component<any, any> {
       pagination.page = result.data.page;
       pagination.pageSize = result.data.per_page;
       pagination.total = result.data.total;
+      pagination.current = result.data.page;
 
       this.setState({tokenResultLoading: false, tokenResult: result.data.value, pagination})
     }
@@ -82,7 +83,8 @@ class TokenList extends Component<any, any> {
 
   onTokenFinish = async(values) => {
     let result = {};
-    values.workflow_ids = values.workflow_ids.join(',');
+
+    values.workflow_ids = values.workflow_ids? values.workflow_ids.join(','): '';
     if (this.state.tokenDetail && this.state.tokenDetail.id ) {
       result = await updateTokenRequest(this.state.tokenDetail.id, values);
     } else {

@@ -364,6 +364,9 @@ const WorkflowBasicInfo = (props) => {
               showSearch
               style={{ width: '100%' }}
               placeholder="请选择允许调用接口的应用"
+              filterOption={(input, option) =>
+                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+              }
             >
               {appTokenList.map(d => (
                 <Option key={d.id}>{d.app_name}</Option>

@@ -83,16 +83,19 @@ class WorkflowPermissionService(BaseService):
             is_deleted=0, permission='api', user_type='app', user__in=app_list).all()
         return True, dict(permission_query_set=permission_query_set)
 
-    def update_app_permission(self, app_name, workflow_ids):
+    def update_app_permission(self, app_token_id, workflow_ids):
         """
         更新应用的权限
-        :param app_name:
+        :param app_token_id:
         :param workflow_ids:
         :return:
         """
-        workflow_id_list = [int(workflow_id) for workflow_id in workflow_ids.split(',')]
+        if workflow_ids:
+            workflow_id_list = [int(workflow_id) for workflow_id in workflow_ids.split(',')]
+        else:
+            workflow_id_list = []
         permission_query_set = WorkflowUserPermission.objects.filter(
-            is_deleted=0, permission='api', user_type='app', user=app_name).all()
+            is_deleted=0, permission='api', user_type='app', user=app_token_id).all()
         exist_workflow_id_list = [permission_query.workflow_id for permission_query in permission_query_set]
 
         flag, need_add_workflow_list = common_service_ins.list_difference(workflow_id_list, exist_workflow_id_list)
@@ -106,11 +109,11 @@ class WorkflowPermissionService(BaseService):
 
         add_permission_query_list = []
         for workflow_id in need_add_workflow_list:
-            add_permission_query_list.append(WorkflowUserPermission(permission='api', user_type='app', user=app_name, workflow_id=workflow_id))
+            add_permission_query_list.append(WorkflowUserPermission(permission='api', user_type='app', user=app_token_id, workflow_id=workflow_id))
         WorkflowUserPermission.objects.bulk_create(add_permission_query_list)
 
         WorkflowUserPermission.objects.filter(
-            is_deleted=0, permission='api', user_type='app', user=app_name, workflow_id__in=need_del_workflow_list).update(is_deleted=1)
+            is_deleted=0, permission='api', user_type='app', user=app_token_id, workflow_id__in=need_del_workflow_list).update(is_deleted=1)
 
         return True, ''
 

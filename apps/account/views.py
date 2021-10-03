@@ -381,7 +381,7 @@ class LoonAppTokenView(LoonBaseView):
     post_schema = Schema({
         'app_name': And(str, lambda n: n != '', error='app_name is needed'),
         Optional('ticket_sn_prefix'): str,
-        'workflow_ids': And(str, lambda n: n != '', error='workflow_ids is needed'),
+        Optional('workflow_ids'): str,
     })
 
     @manage_permission_check('admin')
@@ -467,7 +467,7 @@ class LoonAppTokenDetailView(LoonBaseView):
     patch_schema = Schema({
         'app_name': And(str, lambda n: n != '', error='app_name is needed'),
         Optional('ticket_sn_prefix'): str,
-        'workflow_ids': And(str, lambda n: n != '', error='workflow_ids is needed'),
+        Optional('workflow_ids'): str,
     })
 
     @manage_permission_check('admin')
