@@ -10,11 +10,20 @@
   │   ├── manage  # 管理后台应用
   │   ├── ticket  # 工单应用
   │   └── workflow # 工作流应用
-  ├── docs # 文档目录，后续会将文档全部迁移到wiki中
-  │   ├── apis # 接口文档
-  │   ├── images  # 相关图片
-  │   └── specs  # 代码规范
-  ├── loonflow 
+  ├── docker_compose_deploy # docker compose方式部署相关文件
+  │   ├── loonflow-task  # 异步任务服务相关配置，dcokerfile等
+  │   ├── loonflow-web  # web服务，dcokerfile,nginx配置,uwsgi配置等
+  │   ├── docker-compose.yaml  # docker compose配置
+  │   ├── README.md  # 一些说明
+  │   └── run.py  # docker compose方式部署主程序
+  ├── frontend  # ant design实现的前端部分（包括管理后台及新建、处理工单等页面）
+  │   ├── config # 前端相关配置
+  │   │   ├── config.ts  # 前端路由菜单配置
+  │   │   └── proxy.ts  # 代理配置，本地开发时，将后端请求代理到后端服务的地址
+  │   ├── src  # 前端主要代码
+  │   │   ├── pages # 相关前端页面
+  │   │   └──  services # 服务层，请求后端的接口的逻辑
+  ├── loonflow
   │   └── __init__.py
   |   └── url.py # url路由主入口
   |   └── wsgi.py  # wsgi配置
