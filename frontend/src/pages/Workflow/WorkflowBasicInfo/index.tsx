@@ -369,7 +369,7 @@ const WorkflowBasicInfo = (props) => {
               }
             >
               {appTokenList.map(d => (
-                <Option key={d.id}>{d.app_name}</Option>
+                <Option key={d.app_name}>{d.app_name}</Option>
               ))}
             </Select>
           </Form.Item>

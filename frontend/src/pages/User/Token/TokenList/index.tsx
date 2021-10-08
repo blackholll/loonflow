@@ -213,7 +213,7 @@ class TokenList extends Component<any, any> {
                rowKey={record => record.id} pagination={this.state.pagination}/>
 
         <Modal
-          title="调用权限"
+          title={this.state.tokenDetail.app_name? `调用权限:${this.state.tokenDetail.app_name}`: '调用权限'}
           visible={this.state.tokenModalVisible}
           onOk={this.handleTokenOk}
           onCancel={this.handleTokenCancel}
@@ -225,9 +225,12 @@ class TokenList extends Component<any, any> {
             {...layout}
             onFinish={this.onTokenFinish}
           >
-            <Form.Item name="app_name" label="调用应用" rules={[{ required: true }]} initialValue={this.getTokenDetailField('app_name')}>
-              <Input />
-            </Form.Item>
+            {this.state.tokenDetail && this.state.tokenDetail.id ? null :
+              <Form.Item name="app_name" label="调用应用" rules={[{required: true}]}
+                         initialValue={this.getTokenDetailField('app_name')}>
+                <Input/>
+              </Form.Item>
+            }
             <Form.Item name="ticket_sn_prefix" label="工单前缀" initialValue={String(this.getTokenDetailField('ticket_sn_prefix'))}>
               <Input />
             </Form.Item>

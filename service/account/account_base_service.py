@@ -787,7 +787,7 @@ class AccountBaseService(BaseService):
         token_result_object_format_list = []
 
         for token_result_object in token_result_object_list:
-            app_list = [token_result_object.id for token_result_object in token_result_object_list]
+            app_list = [token_result_object.app_name for token_result_object in token_result_object_list]
             # todo: get token permission workflow list
             from service.workflow.workflow_permission_service import workflow_permission_service_ins
             flag, result = workflow_permission_service_ins.get_record_list_by_app_list(app_list)
@@ -799,7 +799,7 @@ class AccountBaseService(BaseService):
                 token_result_data.pop('token')
             else:
                 for permission in permission_list:
-                    if int(permission.user) == token_result_data.get('id'):
+                    if permission.user == token_result_data.get('app_name'):
                         token_workflow_list.append(str(permission.workflow_id))
             token_result_data['workflow_ids'] = ','.join(token_workflow_list)
 
@@ -831,18 +831,17 @@ class AccountBaseService(BaseService):
         permission_sql_list = []
         if workflow_ids:
             for workflow_id in workflow_ids.split(','):
-                permission_sql_list.append(WorkflowUserPermission(workflow_id=int(workflow_id), permission='api', user_type='app', user=app_token_obj.id))
+                permission_sql_list.append(WorkflowUserPermission(workflow_id=int(workflow_id), permission='api', user_type='app', user=app_name))
         WorkflowUserPermission.objects.bulk_create(permission_sql_list)
 
         return True, dict(app_token_id=app_token_obj.id)
 
     @classmethod
     @auto_log
-    def update_token_record(cls, app_token_id: int, app_name: str, ticket_sn_prefix: str, workflow_ids: str)->tuple:
+    def update_token_record(cls, app_token_id: int, ticket_sn_prefix: str, workflow_ids: str)->tuple:
         """
         update token record
         :param app_token_id:
-        :param app_name:
         :param ticket_sn_prefix:
         :param workflow_ids:
         :return:
@@ -850,16 +849,12 @@ class AccountBaseService(BaseService):
         app_token_obj = AppToken.objects.filter(id=app_token_id, is_deleted=0).first()
         if not app_token_obj:
             return False, 'record is not exist or has been deleted'
-        query_result = AppToken.objects.filter(app_name=app_name, is_deleted=0).exclude(id=app_token_id)
-        if query_result:
-            return False, 'app_name existed,please alter app_name'
 
-        app_token_obj.app_name = app_name
         app_token_obj.ticket_sn_prefix = ticket_sn_prefix
         app_token_obj.save()
 
         from service.workflow.workflow_permission_service import workflow_permission_service_ins
-        workflow_permission_service_ins.update_app_permission(app_token_id, workflow_ids)
+        workflow_permission_service_ins.update_app_permission(app_token_obj.app_name, workflow_ids)
         return True, ''
 
     @classmethod
