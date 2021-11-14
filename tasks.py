@@ -287,6 +287,7 @@ def flow_hook_task(ticket_id):
                                                          suggestion=result.get('msg'),
                                                          participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
                                                          participant='hook', state_id=state_id,
+                                                         intervene_type_id=constant_service_ins.TRANSITION_INTERVENE_TYPE_HOOK,
                                                          ticket_data=all_ticket_data_json,
                                                          creator='loonrobot'
                                                       ))
