@@ -32,6 +32,7 @@ import {
   changeTicketStateRequest,
   deliverTicketRequest,
   acceptTicketRequest,
+  addNodeEndTicketRequest,
   addNodeTicketRequest, addCommentRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
@@ -728,6 +729,19 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
   }
 
+  addNodeEndTicket =  async(ticketId: number) =>{
+    //加签完成
+    const values = await this.formRef.current.validateFields();
+
+    const result = await addNodeEndTicketRequest(ticketId, {suggestion: values['suggestion']});
+    if (result.code === 0) {
+      this.fetchTicketDetailInfo();
+      this.fetchTicketTransitionInfo();
+    } else {
+      message.error(`处理失败: ${result.msg}`)
+    }
+  }
+
   genHandleButtonItem = (item: any) => {
     const buttonItems = []
     let buttonType = 'primary'
@@ -743,7 +757,16 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         >
           {result.transition_name}
         </Button>
-      } else {
+      } else if(result.in_add_node === true){
+        buttonItem = <Button
+          htmlType="submit"
+          value = {result.transition_id}
+          onClick={()=>this.addNodeEndTicket(this.props.ticketId)}
+        >
+          {result.transition_name}
+        </Button>
+      }
+      else {
         if (result.attribute_type_id === 1) {
           buttonItem = <Button
             type='primary'

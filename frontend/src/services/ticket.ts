@@ -127,6 +127,13 @@ export async function addNodeTicketRequest(ticketId: number, params:addNodeTicke
   })
 }
 
+export async function addNodeEndTicketRequest(ticketId: number, params:addNodeTicketParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/add_node_end`,{
+    method: 'post',
+    data: params
+  })
+}
+
 export async function changeTicketStateRequest(ticketId: number, params:changeStateParamsType) {
   return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/state`, {
     method: 'put',
