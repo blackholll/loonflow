@@ -342,7 +342,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     const result = await addNodeTicketRequest(this.props.ticketId, values);
     if(result.code === 0) {
       message.success('加签成功');
-      this.setState({isDeliverModalVisible: false});
+      this.setState({isAddNodeModalVisible: false});
       this.fetchTicketDetailInfo();
       this.fetchTicketTransitionInfo();
     }
@@ -731,9 +731,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
   addNodeEndTicket =  async(ticketId: number) =>{
     //加签完成
-    const values = await this.formRef.current.validateFields();
+    // const values = await this.formRef.current.validateFields();
+    const suggestion = await this.formRef.current.getFieldValue('suggestion');
 
-    const result = await addNodeEndTicketRequest(ticketId, {suggestion: values['suggestion']});
+    const result = await addNodeEndTicketRequest(ticketId, {suggestion: suggestion});
     if (result.code === 0) {
       this.fetchTicketDetailInfo();
       this.fetchTicketTransitionInfo();
