@@ -178,7 +178,7 @@ class TicketBaseService(BaseService):
         ticket_result_restful_list = []
         for ticket_result_object in ticket_result_object_list:
             flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_result_object.state_id)
-            state_name = state_obj.name
+            state_name = state_obj.name if flag else '未知状态'
             flag, participant_info = cls.get_ticket_format_participant_info(ticket_result_object.id)
 
             flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_result_object.workflow_id)
