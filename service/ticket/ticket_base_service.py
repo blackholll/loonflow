@@ -2128,7 +2128,8 @@ class TicketBaseService(BaseService):
                 expression = condition_expression0.get('expression')
                 expression_format = expression.format(**ticket_all_value_dict_copy)
                 import datetime, time  # 用于支持条件表达式中对时间的操作
-                if eval(expression_format, {'__builtins__':None}, {'datetime':datetime, 'time':time}):
+                # 为了安全考虑，仅支持datetime, time, abs. 如果你需要其他库函数，可参考datetime、abs这些自行添加
+                if eval(expression_format, {'__builtins__': None}, {'datetime': datetime, 'time': time, 'abs': abs}):
                     destination_state_id = condition_expression0.get('target_state_id')
                     break
 
