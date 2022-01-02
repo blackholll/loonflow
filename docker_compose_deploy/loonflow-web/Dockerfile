@@ -35,7 +35,7 @@ RUN sed -i "/HOMEPATH = os.environ/c\    HOMEPATH = '/var/log/loonflow'" /opt/lo
 # 前端
 WORKDIR /opt
 ## 安装nodejs
-RUN wget -c https://mirror.tuna.tsinghua.edu.cn/nodejs-release/v14.3.0/node-v14.3.0-linux-x64.tar.xz
+RUN wget -c https://mirror.tuna.tsinghua.edu.cn/nodejs-release/v14.3.0/node-v14.3.0-linux-x64.tar.xz --no-check-certificate
 RUN tar -xvf node-v14.3.0-linux-x64.tar.xz
 RUN mv node-v14.3.0-linux-x64 nodejs
 RUN ln -s /opt/nodejs/bin/node /usr/local/bin/node
