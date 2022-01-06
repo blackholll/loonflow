@@ -4,7 +4,7 @@ amqp==2.5.2
 appnope==0.1.0
 backcall==0.1.0
 billiard==3.5.0.5
-celery==4.1.1
+celery==5.2.2
 certifi==2019.11.28
 chardet==3.0.4
 contextlib2==0.5.5
