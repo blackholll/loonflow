@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DagreGraph } from '@ant-design/charts';
+import { message } from "antd";
 import {getWorkflowSimpleDescription} from "@/services/workflows";
 
 const WorkflowGraph = (props) => {
