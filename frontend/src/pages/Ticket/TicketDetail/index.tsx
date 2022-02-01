@@ -656,11 +656,11 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         values[key] = Number(values[key])
       }
 
-      if (this.state.fieldTypeDict[key] === 25 ) {
+      if (this.state.fieldTypeDict[key] === 25 && typeof(values[key])!='string') {
         // 日期
         values[key] = values[key].format('YYYY-MM-DD')
       }
-      if (this.state.fieldTypeDict[key] === 30 && values[key]) {
+      if (this.state.fieldTypeDict[key] === 30 && typeof(values[key])!='string') {
         // 时间
         values[key] = values[key].format('YYYY-MM-DD HH:mm:ss')
       }
