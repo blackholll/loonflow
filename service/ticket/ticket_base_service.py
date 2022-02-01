@@ -704,57 +704,57 @@ class TicketBaseService(BaseService):
         field_list.append(dict(field_key='sn', field_name=u'流水号', field_value=ticket_obj.sn, order_id=10,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
-                               description='工单的流水号', field_choice={}, boolean_field_display={}, default_value=None,
+                               description='', field_choice={}, boolean_field_display={}, default_value=None,
                                field_template='', label={}, placeholder=''))
         field_list.append(dict(field_key='title', field_name=u'标题', field_value=ticket_obj.title, order_id=20,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,description='工单的标题',
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
         field_list.append(dict(field_key='state_id', field_name=u'状态id', field_value=ticket_obj.state_id, order_id=40,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单当前状态的id',
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
         field_list.append(dict(field_key='participant_info.participant_name', field_name=u'当前处理人',
                                field_value=participant_info_dict['participant_name'], order_id=50,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的当前处理人',
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
         field_list.append(dict(field_key='participant_info.participant_alias', field_name=u'当前处理人',
                                field_value=participant_info_dict['participant_alias'], order_id=55,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
-                               description='工单当前处理人(alias)', field_choice={}, boolean_field_display={},
+                               description='', field_choice={}, boolean_field_display={},
                                default_value=None, field_template='', label={}, placeholder=''))
 
         field_list.append(dict(field_key='workflow.workflow_name', field_name=u'工作流名称', field_value=workflow_name,
                                order_id=60, field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单所属工作流的名称',
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
 
         field_list.append(dict(field_key='creator', field_name=u'创建人', field_value=ticket_obj.creator, order_id=80,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的创建人',
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
         field_list.append(dict(field_key='gmt_created', field_name=u'创建时间',
                                field_value=str(ticket_obj.gmt_created)[:19], order_id=100,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的创建时间',
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
         field_list.append(dict(field_key='gmt_modified', field_name=u'更新时间',
                                field_value=str(ticket_obj.gmt_modified)[:19], order_id=120,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单的更新时间',
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
         field_list.append(dict(field_key='state.state_name', field_name=u'状态名', field_value=state_name, order_id=41,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
-                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='工单当前状态的名称',
+                               field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
 
