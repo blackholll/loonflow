@@ -91,7 +91,7 @@
 ::
 
   # 进入mysql后创建数据库并授权
-  mysql> create database loonflow character set utf8;  # 注意要使用utf8字符集
+  mysql> CREATE DATABASE loonflow DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  # 注意要使用utf8mb4字符集
   mysql> grant all privileges on loonflow.* to loonflow@'%' identified by '123456';
 
 
