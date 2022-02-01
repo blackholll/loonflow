@@ -139,7 +139,12 @@ class WorkflowTransiton extends Component<any, any> {
   onTransitionFinish = async(values) => {
     let result = {};
     values.source_state_id = Number(values.source_state_id)
-    values.destination_state_id = Number(values.destination_state_id)
+    if(values.destination_state_id){
+      values.destination_state_id = Number(values.destination_state_id)
+    }
+    else{
+      values.destination_state_id = 0
+    }
     if (values.field_require_check == true){
       values.field_require_check = 1
     } else {
