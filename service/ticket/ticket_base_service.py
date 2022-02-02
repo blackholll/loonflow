@@ -2485,7 +2485,7 @@ class TicketBaseService(BaseService):
         for chunk in file_obj.chunks():
             f.write(chunk)
         f.close()
-        return True, dict(file_name=file_name, file_path='/media/ticket_file/{}'.format(file_name))
+        return True, dict(file_name=file_name, file_path='/media/ticket_file/{}'.format(file_name), source_file_name=source_file_name)
 
 
 ticket_base_service_ins = TicketBaseService()

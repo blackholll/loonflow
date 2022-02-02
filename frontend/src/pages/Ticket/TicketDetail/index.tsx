@@ -220,17 +220,33 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
             // 附件
             let newList = this.state.fileList;
             let fileList1 = [];
-            let fileList0 = result.field_value.split();
-            fileList0.forEach((file0)=>{
-              fileList1.push(
-                {
-                  url: file0,
-                  name: file0.split('/').slice(-1)[0],
-                  uid: file0
-                }
-              )
+            if(result.field_value.startsWith('[')) {
+              //为了兼容旧格式，所以这么写
+              const urlInfo = JSON.parse(result.field_value)
+              urlInfo.forEach((elem, index) => {
+                fileList1.push(
+                  {
+                    url: elem.url,
+                    name: elem.file_name,
+                    uid: elem.url,
+                    linkProps: `{"download": "${elem.file_name}"}`
+                  }
+                )
+              })
+            }
+            else{
+              let fileList0 = result.field_value.split();
+              fileList0.forEach((file0)=>{
+                fileList1.push(
+                  {
+                    url: file0,
+                    name: file0.split('/').slice(-1)[0],
+                    uid: file0,
+                  }
+                )
 
-            })
+              })
+            }
 
             // newList[result.field_key] = result.field_value.split();
             newList[result.field_key] = fileList1
@@ -370,9 +386,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     let fileList = [...info.fileList];
     if (info.file.status === 'done') {
       fileList = fileList.map(file=>{
-        if (file.response.code === 0){
+        if (file.response && file.response.code === 0){
           file.url = file.response.data.file_path
-          file.name = file.response.data.file_name
+          file.name = file.response.data.source_file_name
+          file.linkProps= `{"download": "${file.response.data.source_file_name}"}`
         }
         return file;
       })
@@ -469,12 +486,19 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       else if (item.field_type_id === 80){
 
         child = []
-        const url_list = item.field_value.split()
-        console.log(url_list);
-        url_list.forEach((url0)=>{
+        if(item.field_value.startsWith('[')){
+          //为了兼容旧格式，所以这么写
+          const urlInfo = JSON.parse(item.field_value)
+          urlInfo.forEach((elem, index)=>{
+            child.push(<a href={elem.url}>{elem.file_name}<br/></a>)
+          })
+        } else {
+          const url_list = item.field_value.split()
+          url_list.forEach((url0)=>{
 
-          child.push(<a href={url0}>{url0.split('/').slice(-1)[0]}</a>)
-        })
+            child.push(<a href={url0}>{url0.split('/').slice(-1)[0]}</a>)
+          })
+        }
       }
       else{
         child = <div>{item.field_value}</div>
@@ -645,10 +669,11 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         // 文件   fieldList.url
         let urlList = [];
         values[key] && values[key].fileList.map(attachment => {
-          urlList.push(attachment.url)
+          //urlList.push(attachment.url)
+          urlList.push({"url":attachment.url, "file_name":attachment.name})
 
         })
-        values[key] = urlList.join(',')
+        values[key] = JSON.stringify(urlList);
         console.log(values[key])
       }
       if (this.state.fieldTypeDict[key] === 20 ) {
