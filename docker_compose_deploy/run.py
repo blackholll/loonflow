@@ -130,7 +130,7 @@ def start():
 
 
 if __name__ == '__main__':
-    db_host = ''  # loonflow使用的数据库的ip
+    db_host = ''  # loonflow使用的数据库的ip,填写实际的ip地址，不要用127.0.0.1或localhost
     db_port = ''  # loonflow使用的数据库的端口
     db_name = ''  # loonflow使用的数据库的名称
     db_user = ''  # loonflow使用的数据库的用户
