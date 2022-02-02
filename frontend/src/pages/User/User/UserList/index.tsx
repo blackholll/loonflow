@@ -40,7 +40,7 @@ class UserList extends Component<any, any> {
 
   componentDidMount() {
     this.fetchUserData({});
-    this.fetchDeptData({});
+    this.fetchDeptData({"per_page":10000});
   }
 
   fetchDeptData = async (params) => {
