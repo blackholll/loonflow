@@ -17,7 +17,7 @@ class WorkflowPermissionService(BaseService):
         获取操作权限
         :param permission:
         :param user_type:
-        :param user:
+        :param user: 支持多人，多部门
         :return:
         """
         if user_type not in ['app', 'user', 'department']:
@@ -38,7 +38,8 @@ class WorkflowPermissionService(BaseService):
             for workflow_obj in workflow_query_set:
                 workflow_id_list.append(workflow_obj.id)
             return True, dict(workflow_id_list=workflow_id_list)
-        result_queryset = WorkflowUserPermission.objects.filter(permission=permission, user_type=user_type, user=user, is_deleted=0).all()
+        result_queryset = WorkflowUserPermission.objects.filter(permission=permission, user_type=user_type,
+                                                                user__in=user.split(','), is_deleted=0).all()
         workflow_id_list = [result.workflow_id for result in result_queryset]
         workflow_id_list = list(set(workflow_id_list))
         return True, dict(workflow_id_list=workflow_id_list)
