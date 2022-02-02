@@ -648,7 +648,7 @@ class TicketBaseService(BaseService):
         else:
             # only read permission
             flag, workflow_obj = workflow_base_service_ins.get_by_id(workflow_id=ticket_obj.workflow_id)
-            display_form_field_list = json.loads(workflow_obj.display_form_str)
+            display_form_field_list = json.loads(workflow_obj.display_form_str) if workflow_obj.display_form_str else []
             for field in field_list:
                 if field['field_key'] in display_form_field_list:
                     new_field_list.append(field)

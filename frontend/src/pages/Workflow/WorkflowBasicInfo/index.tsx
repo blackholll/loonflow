@@ -224,7 +224,7 @@ const WorkflowBasicInfo = (props) => {
             name="display_form_str"
             label= {<span>展现表单<Tooltip title={"当用户只有查看权限，非当前处理人时，工单详情展示的字段信息，格式[\"gmt_created\",\"title\", \"creator\"],"}><QuestionCircleOutlined/></Tooltip></span>}
           >
-            <Input placeholder="请选择需要展示的字段"/>
+            <Input placeholder="请填写需要展示的字段"/>
           </Form.Item>
         </Col>
         <Col span={12} key="secondCol">
