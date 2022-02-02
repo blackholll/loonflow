@@ -161,6 +161,27 @@ class TicketBaseService(BaseService):
             worked_query_expression = Q(ticketuser__username=username, ticketuser__worked=True)
             query_params &= worked_query_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
+        elif category in ('view', 'intervene'):
+            flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission(category, 'user', username)
+            if not flag:
+                view_workflow_ids = []
+            else:
+                view_workflow_ids = result.get('workflow_id_list', [])
+            view_department_workflow_id_list = []
+            if category == 'view':
+                # view 还需要考虑查看权限部门,先查询用户所在部门，然后查询
+                flag, result = account_base_service_ins.get_user_up_dept_id_list(username)
+                if flag:
+                    department_id_str_list = [str(result0) for result0 in result]
+                    flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission(
+                        category, 'department', ','.join(department_id_str_list))
+                    view_department_workflow_id_list = result.get('workflow_id_list', []) if flag else []
+
+            category_workflow_ids = list(set(view_workflow_ids).union(set(view_department_workflow_id_list)))
+
+            view_query_expression = Q(workflow_id__in=category_workflow_ids)
+            query_params &= view_query_expression
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         else:
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
 

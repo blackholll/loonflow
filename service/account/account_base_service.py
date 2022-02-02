@@ -374,15 +374,7 @@ class AccountBaseService(BaseService):
         app_token_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
         if not app_token_obj:
             return False, 'appname is unauthorized'
-        from service.workflow.workflow_permission_service import workflow_permission_service_ins
 
-
-        if workflow_ids:
-            workflow_id_list = workflow_ids.split(',')
-            workflow_id_list = [int(workflow_id) for workflow_id in workflow_id_list]
-            return True, dict(workflow_id_list=workflow_id_list)
-        else:
-            return True, dict(workflow_id_list=[])
 
     @classmethod
     @auto_log
