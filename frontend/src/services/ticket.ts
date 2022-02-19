@@ -50,6 +50,9 @@ export interface commentTicketParamsType {
   suggestion: string;
 }
 
+export interface delTicketParamsType {
+  suggestion: string;
+}
 
 
 export async function getTicketList(params: TicketParamsType) {
@@ -150,6 +153,14 @@ export async function acceptTicketRequest(ticketId: number) {
 export async function addCommentRequest(ticketId: number, params:commentTicketParamsType) {
   return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/comments`, {
     method: 'post',
+    data: params
+  })
+}
+
+
+export async function delTicketRequest(ticketId: number, params:delTicketParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}`, {
+    method: 'delete',
     data: params
   })
 }

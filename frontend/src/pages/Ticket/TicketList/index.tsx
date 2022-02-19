@@ -1,14 +1,15 @@
 import React, {Component} from "react";
 import moment from 'moment';
 import styles from "./index.less";
-import {Table, message, Modal, Col, Form, Input, Row, DatePicker, Button, Select} from "antd";
-import { getTicketList } from '@/services/ticket';
+import {Table, message, Modal, Col, Form, Input, Row, DatePicker, Button, Select, Popconfirm} from "antd";
+import {addCommentRequest, delTicketRequest, getTicketList} from '@/services/ticket';
 import TicketDetail from "@/pages/Ticket/TicketDetail";
 import {getWorkflowList} from "@/services/workflows";
 
 const { RangePicker } = DatePicker;
 let timeout;
 let currentValue;
+const { TextArea } = Input;
 
 class TicketList extends Component<any, any> {
   constructor(props) {
@@ -17,6 +18,8 @@ class TicketList extends Component<any, any> {
       ticketResult: [],
       workflowResult: [],
       ticketListLoading: false,
+      deleteVisible: false,
+      deleteId: 0,
       searchArgs: {},
       userResult: [],
       pagination: {
@@ -90,6 +93,7 @@ class TicketList extends Component<any, any> {
     console.log(e);
     this.setState({
       visible: false,
+      deleteVisible: false
     });
   };
 
@@ -97,6 +101,7 @@ class TicketList extends Component<any, any> {
     console.log(e);
     this.setState({
       visible: false,
+      deleteVisible: false
     });
   };
 
@@ -104,6 +109,22 @@ class TicketList extends Component<any, any> {
     this.setState({visible:false});
     this.fetchTicketData({});
   }
+
+  deleteOk = async(values:any) => {
+    const result = await delTicketRequest(this.state.deleteId, values);
+    if (result.code === 0){
+      message.success('删除成功');
+      this.setState({deleteVisible: false});
+      this.fetchTicketData({});
+    } else {
+      message.error(`删除失败：${result.msg}`);
+    }
+  }
+
+  showDeleteModal = (ticketId:number) => {
+    this.setState({deleteVisible: true, deleteId:ticketId});
+  }
+
 
   searchTicket = (values) => {
     console.log(values);
@@ -171,13 +192,24 @@ class TicketList extends Component<any, any> {
       {
         title: "操作",
         key: "action",
-        render: (text: string, record: any) => (
-          <span>
-        <a style={{ marginRight: 16 }} onClick={()=> this.showTicketDetail(record.id)}>详情</a>
-      </span>
-        )
-      }
+        render: (text: string, record: any) => {
+          if (["all", "intervene"].indexOf(this.props.category) !== -1) {
+            return (
+              <span>
+                <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a> |
+                <a onClick={() => this.showDeleteModal(record.id)} style={{color:'red', marginLeft: 5}}>删除</a>
 
+              </span>
+            )
+          } else {
+            return (
+              <span>
+                <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a>
+              </span>
+            )
+          }
+        }
+  }
     ];
 
     const getFields = () => {
@@ -292,6 +324,30 @@ class TicketList extends Component<any, any> {
         >
           <TicketDetail ticketId={this.state.openTicketId} handleTicketOk={()=>this.handleTicketOk()}/>
         </Modal>
+
+        <Modal
+          title={"删除工单"}
+          visible={this.state.deleteVisible}
+          onCancel={this.handleCancel}
+          footer={null}>
+          <Form
+            onFinish={this.deleteOk}
+          >
+            <Form.Item
+              name="suggestion"
+            >
+              <TextArea
+                placeholder="请输入删除原因"
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" className="login-form-button">
+                提交
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
+
       </div>
     )
   }
