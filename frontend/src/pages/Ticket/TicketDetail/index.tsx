@@ -283,8 +283,9 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     if (result.code === 0) {
       message.success('关闭工单成功');
       this.setState({isCloseModalVisible: false});
-      this.fetchTicketDetailInfo();
-      this.fetchTicketTransitionInfo();
+      this.props.handleTicketOk();
+      // this.fetchTicketDetailInfo();
+      // this.fetchTicketTransitionInfo();
     } else {
       message.error(`关闭工单失败:${result.msg}`)
     }
@@ -396,6 +397,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     if(result.code === 0) {
       message.success('撤回成功');
       this.setState({isRetreatModalVisible: false});
+      this.props.handleTicketOk();
     }
     else {
       message.error(`撤回失败:${result.msg}`)
@@ -817,36 +819,41 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         </Button>
       }
       else {
-        if (result.attribute_type_id === 1) {
-          buttonItem = <Button
-            type='primary'
-            htmlType="submit"
-            value = {result.transition_id}
-            onClick={()=>this.handleTicket(result.transition_id)}
-          >
-            {result.transition_name}
-          </Button>
-        }
-        else if (result.attribute_type_id === 2) {
-          buttonItem = <Button
-            htmlType="submit"
-            type='primary'
-            danger
-            value = {result.transition_id}
-            onClick={()=>this.handleTicket(result.transition_id)}
-          >
-            {result.transition_name}
-          </Button>
+        let buttonType = 'primary';
+        let dangerAttr = false;
+        if (result.attribute_type_id === 2) {
+          dangerAttr = true
         } else if (result.attribute_type_id === 3) {
           // 其他类型
-          buttonItem = <Button
-            value = {result.transition_id}
-            htmlType="submit"
-            onClick={()=>this.handleTicket(result.transition_id)}
-          >
-            {result.transition_name}
-          </Button>
+          buttonType = "default"
         }
+          if (result.alert_enable) {
+            buttonItem = <Popconfirm
+              title={result.alert_text}
+              onConfirm={()=>this.handleTicket(result.transition_id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button
+                value = {result.transition_id}
+                danger = {dangerAttr}
+                type = {buttonType}
+              >
+                {result.transition_name}
+              </Button>
+            </Popconfirm>
+          } else {
+            buttonItem = <Button
+              value = {result.transition_id}
+              danger = {dangerAttr}
+              type = {buttonType}
+              htmlType="submit"
+              onClick={()=>this.handleTicket(result.transition_id)}
+            >
+              {result.transition_name}
+            </Button>
+          }
+
       }
 
       buttonItems.push(buttonItem);
@@ -968,7 +975,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         </Collapse>
         {this.state.canIntervene?
           <Card title="管理员操作">
-            <Button type="primary" danger onClick={this.showCloseTicketModal}>
+            <Button type="primary" danger onClick={this.showCloseModal}>
               强制关闭工单
             </Button>
             <Divider type="vertical" />
