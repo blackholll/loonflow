@@ -363,9 +363,10 @@ class WorkflowState extends Component<any, any> {
               <Input />
             </Form.Item>
             <Form.Item name="is_hidden"
+                       valuePropName="checked"
                        label={<span>是否隐藏<Tooltip title="开启时,工单详情中step图不显示此状态(当前处于此状态时除外)"><QuestionCircleOutlined /></Tooltip></span>}
             >
-              <Switch checkedChildren="是" unCheckedChildren="否" defaultChecked />
+              <Switch checkedChildren="是" unCheckedChildren="否" />
             </Form.Item>
             <Form.Item name="order_id"
                        label={<span>顺序id<Tooltip title="此顺序id,用于获取工单step记录的排序用,因为step是顺序的，而loonflow的工作流是网状的，所以需要指定顺序id以便排序,数字越小越靠前"><QuestionCircleOutlined /></Tooltip></span>}
@@ -383,13 +384,15 @@ class WorkflowState extends Component<any, any> {
               </Radio.Group>
             </Form.Item>
             <Form.Item name="remember_last_man_enable"
+                       valuePropName="checked"
                        label={<span>记忆最后处理人<Tooltip title="开启后，到达此状态时会先检查之前是否有人在此状态处理过，如果有则处理人为最后一次处理的人"><QuestionCircleOutlined /></Tooltip></span>}
                        >
-              <Switch checkedChildren="是" unCheckedChildren="否" defaultChecked />
+              <Switch checkedChildren="是" unCheckedChildren="否" />
             </Form.Item>
             <Form.Item name="enable_retreat"
+                       valuePropName="checked"
                        label={<span>允许撤回<Tooltip title="开启后，工单的创建人可以在工单处于此状态时将工单撤回到初始状态"><QuestionCircleOutlined /></Tooltip></span>}>
-              <Switch checkedChildren="是" unCheckedChildren="否" defaultChecked />
+              <Switch checkedChildren="是" unCheckedChildren="否" />
             </Form.Item>
             <Form.Item name="participant_type_id"
                        rules={[{ required: true }]}

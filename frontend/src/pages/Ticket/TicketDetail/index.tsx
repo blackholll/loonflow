@@ -33,12 +33,13 @@ import {
   deliverTicketRequest,
   acceptTicketRequest,
   addNodeEndTicketRequest,
-  addNodeTicketRequest, addCommentRequest
+  addNodeTicketRequest, addCommentRequest, retreatRequest
 } from "@/services/ticket";
 import {UploadOutlined} from "@ant-design/icons/lib";
 import TicketLog from "@/pages/Ticket/TicketLog";
 import WorkflowGraph from "@/pages/Workflow/WorkflowGraph";
 import TicketStep from "@/pages/Ticket/TicketStep";
+import {decodeJwt, getCookie} from "@/utils/utils";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -54,8 +55,11 @@ export interface TicketDetailProps {
 export interface TicketDetailState {
   ticketDetailInfoData: [],
   ticketTransitionList: [],
+  ticketInfo: {},
+  isRetreatModalVisible:false,
   fieldTypeDict: {},
   fileList: {},
+  enable_retreat: false,
   nowTicketWorkflowId: 0, // 当前工单详情的workflowid
   canIntervene: false, // 是否可以干预工单
   simpleStateList: [],
@@ -69,6 +73,7 @@ export interface TicketDetailState {
   userSelectDict: {}
 
 }
+
 
 
 
@@ -124,12 +129,14 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       ticketTransitionList: [],
       fieldTypeDict: {},
       fileList: {},
+      isRetreatModalVisible: false,
+      isCloseModalVisible: false,
+      enable_retreat: false,
       nowTicketWorkflowId: 0, // 当前工单详情的workflowid
       canIntervene: false, // 是否可以干预工单
       simpleStateList: [],
       isChangeStateModalVisible: false,
       isDeliverModalVisible: false,
-      isCloseModalVisible: false,
       isAddNodeModalVisible: false,
       newStateId:0,
       deliverFromAdmin: false,
@@ -200,6 +207,8 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       this.fetchCanIntervene(result.data.value.workflow_id);
       this.fetchWorkflowSimpleState(result.data.value.workflow_id);
       this.setState({
+        ticketInfo: result.data,
+        enable_retreat: result.data.value.state_info.enable_retreat,
         ticketDetailInfoData: result.data.value.field_list,
         nowTicketWorkflowId: result.data.value.workflow_id
       })
@@ -298,9 +307,13 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     this.setState({isAddNodeModalVisible: true})
 
   }
-  showCloseTicketModal = () => {
+  showCloseModal = () => {
     this.setState({isCloseModalVisible: true})
   }
+  showRetreatModal = () => {
+    this.setState({isRetreatModalVisible: true})
+  }
+
 
   showCommentModal = () => {
     this.setState({isCommentModalVisible: true})
@@ -375,6 +388,17 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
     else {
       message.error(`留言失败:${result.msg}`)
+    }
+  }
+
+  onRetreatFinish = async(values:any) => {
+    const result =  await retreatRequest(this.props.ticketId, values);
+    if(result.code === 0) {
+      message.success('撤回成功');
+      this.setState({isRetreatModalVisible: false});
+    }
+    else {
+      message.error(`撤回失败:${result.msg}`)
     }
   }
 
@@ -851,6 +875,25 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       )
     }
 
+    if (this.state.enable_retreat) {
+      buttonItems.push(
+        <Button type="dashed" danger onClick={this.showRetreatModal}>
+          撤回
+        </Button>
+      )
+    }
+
+    const jwtInfo = decodeJwt(getCookie('jwt'))
+    const currentUserName = jwtInfo? JSON.parse(jwtInfo).data.username: ''
+    const ticketCreator = this.state.ticketInfo? this.state.ticketInfo.value.creator: ''
+    const ticketType = this.state.ticketInfo? this.state.ticketInfo.value.state_info.type_id: 0
+    if (currentUserName === ticketCreator && ticketType===1) {
+      buttonItems.push(
+        <Button type="dashed" danger onClick={this.showCloseModal}>
+          关闭
+        </Button>
+      )
+    }
 
     return buttonItems;
   }
@@ -1105,7 +1148,28 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           </Form>
         </Modal>
 
-
+        <Modal title="撤回"
+               visible={this.state.isRetreatModalVisible}
+               onCancel={this.closeModal}
+               footer={null}
+        >
+          <Form
+            onFinish={this.onRetreatFinish}
+          >
+            <Form.Item
+              name="suggestion"
+            >
+              <TextArea
+                placeholder="请输入意见"
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" className="login-form-button">
+                提交
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
 
       </div>
     )

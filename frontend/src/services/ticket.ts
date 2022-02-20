@@ -54,6 +54,10 @@ export interface delTicketParamsType {
   suggestion: string;
 }
 
+export interface retreatTicketParamsType {
+  suggestion: string;
+}
+
 
 export async function getTicketList(params: TicketParamsType) {
   return request<API.TicketListData>('/api/v1.0/tickets', {
@@ -161,6 +165,13 @@ export async function addCommentRequest(ticketId: number, params:commentTicketPa
 export async function delTicketRequest(ticketId: number, params:delTicketParamsType) {
   return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}`, {
     method: 'delete',
+    data: params
+  })
+}
+
+export async function retreatRequest(ticketId: number, params:retreatTicketParamsType) {
+  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/retreat`, {
+    method: 'post',
     data: params
   })
 }
