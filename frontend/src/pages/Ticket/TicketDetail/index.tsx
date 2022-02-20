@@ -229,7 +229,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
             // 附件
             let newList = this.state.fileList;
             let fileList1 = [];
-            if(result.field_value.startsWith('[')) {
+            if(result.field_value && result.field_value.startsWith('[')) {
               //为了兼容旧格式，所以这么写
               const urlInfo = JSON.parse(result.field_value)
               urlInfo.forEach((elem, index) => {
@@ -244,7 +244,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               })
             }
             else{
-              let fileList0 = result.field_value.split();
+              let fileList0 = result.field_value? result.field_value.split(): [];
               fileList0.forEach((file0)=>{
                 fileList1.push(
                   {
@@ -707,11 +707,11 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         values[key] = Number(values[key])
       }
 
-      if (this.state.fieldTypeDict[key] === 25 && typeof(values[key])!='string') {
+      if (this.state.fieldTypeDict[key] === 25 && values[key] && typeof(values[key])!='string') {
         // 日期
         values[key] = values[key].format('YYYY-MM-DD')
       }
-      if (this.state.fieldTypeDict[key] === 30 && typeof(values[key])!='string') {
+      if (this.state.fieldTypeDict[key] === 30 && values[key] && typeof(values[key])!='string') {
         // 时间
         values[key] = values[key].format('YYYY-MM-DD HH:mm:ss')
       }
