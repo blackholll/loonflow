@@ -57,6 +57,15 @@ class TicketList extends Component<any, any> {
   fetchTicketData = async (values) => {
     this.setState({ticketListLoading: true})
     values.category = this.props.category;
+    console.log('seeeee')
+    console.log(this.props.parentTicketId)
+    console.log(this.props.parentTicketStateId)
+    if(this.props.parentTicketId){
+      values.parent_ticket_id = this.props.parentTicketId
+    }
+    if (this.props.parentTicketStateId){
+      values.parent_ticket_state_id = this.props.parentTicketStateId
+    }
     values = Object.assign(values, this.state.searchArgs);
     const result = await getTicketList(values);
     if (result.code === 0) {
@@ -193,7 +202,7 @@ class TicketList extends Component<any, any> {
         title: "操作",
         key: "action",
         render: (text: string, record: any) => {
-          if (["all", "intervene"].indexOf(this.props.category) !== -1) {
+          if (["all", "intervene"].indexOf(this.props.category) !== -1 && !this.props.parentTicketId) {
             return (
               <span>
                 <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a> |
@@ -280,7 +289,7 @@ class TicketList extends Component<any, any> {
 
     return (
       <div className={styles.container}>
-        <Form
+        {!this.props.parentTicketId? <Form
           name="advanced_search"
           className="ant-advanced-search-form"
           ref={this.formRef}
@@ -303,14 +312,26 @@ class TicketList extends Component<any, any> {
             </Col>
           </Row>
 
-        </Form>
+        </Form>: null}
+
         <div id="components-table-demo-basic">
-          <Table loading={this.state.ticketListLoading}
-                 columns={columns}
-                 dataSource={this.state.ticketResult}
-                 rowKey={record=>record.id}
-                 pagination={this.state.pagination}
-          />
+          {this.props.parentTicketId && this.state.ticketResult.length ?
+            <Table loading={this.state.ticketListLoading}
+                   title={()=>{return '子工单'}}
+                   columns={columns}
+                   dataSource={this.state.ticketResult}
+                   rowKey={record=>record.id}
+                   pagination={this.state.pagination}
+            />
+          : null
+          }
+          {!this.props.parentTicketId? <Table loading={this.state.ticketListLoading}
+                                               columns={columns}
+                                               dataSource={this.state.ticketResult}
+                                               rowKey={record=>record.id}
+                                               pagination={this.state.pagination}
+          />: null}
+
         </div>
         <Modal
           title={`工单详情: #${this.state.openTicketId}`}

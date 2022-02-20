@@ -40,6 +40,8 @@ class TicketListView(LoonBaseView):
         act_state_id = request_data.get('act_state_id', '')
         from_admin = request_data.get('from_admin', '')
         creator = request_data.get('creator', '')
+        parent_ticket_id = int(request_data.get('parent_ticket_id', 0))
+        parent_ticket_state_id = int(request_data.get('parent_ticket_state_id', 0))
 
         # 待办,关联的,创建
         category = request_data.get('category')
@@ -60,7 +62,7 @@ class TicketListView(LoonBaseView):
             sn=sn, title=title, username=username, create_start=create_start, create_end=create_end,
             workflow_ids=workflow_ids, state_ids=state_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
             per_page=per_page, page=page, app_name=app_name, act_state_id=act_state_id, from_admin=from_admin,
-            creator=creator)
+            creator=creator, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id)
         if flag is not False:
             paginator_info = result.get('paginator_info')
             data = dict(value=result.get('ticket_result_restful_list'), per_page=paginator_info.get('per_page'),

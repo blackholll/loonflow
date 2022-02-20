@@ -66,6 +66,14 @@ get
      - int
      - 否
      - 工单的进行状态, 0草稿中(也就是初始状态)、1进行中 2被退回 3被撤回 4已完成 5已关闭
+   * - parent_ticket_id
+     - int
+     - 否
+     - 父工单id
+   * - parent_ticket_state_id
+     - int
+     - 否
+     - 父工单状态id
    * - category
      - varchar
      - 是

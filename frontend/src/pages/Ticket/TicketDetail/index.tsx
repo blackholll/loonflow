@@ -40,6 +40,7 @@ import TicketLog from "@/pages/Ticket/TicketLog";
 import WorkflowGraph from "@/pages/Workflow/WorkflowGraph";
 import TicketStep from "@/pages/Ticket/TicketStep";
 import {decodeJwt, getCookie} from "@/utils/utils";
+import TicketList from "@/pages/Ticket/TicketList";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -58,6 +59,7 @@ export interface TicketDetailState {
   ticketInfo: {},
   isRetreatModalVisible:false,
   fieldTypeDict: {},
+  currentStateId: 0,
   fileList: {},
   enable_retreat: false,
   nowTicketWorkflowId: 0, // 当前工单详情的workflowid
@@ -132,6 +134,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       isRetreatModalVisible: false,
       isCloseModalVisible: false,
       enable_retreat: false,
+      currentStateId: 0,
       nowTicketWorkflowId: 0, // 当前工单详情的workflowid
       canIntervene: false, // 是否可以干预工单
       simpleStateList: [],
@@ -210,6 +213,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         ticketInfo: result.data,
         enable_retreat: result.data.value.state_info.enable_retreat,
         ticketDetailInfoData: result.data.value.field_list,
+        currentStateId: result.data.value.state_id,
         nowTicketWorkflowId: result.data.value.workflow_id
       })
 
@@ -928,7 +932,6 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       },
     };
 
-
     return (
       <div>
         <Collapse defaultActiveKey={['flowStep', 'ticketDetail']} bordered={false}>
@@ -971,6 +974,9 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
               {handleButtonItems}
             </Form>
+
+            <TicketList category={'all'} parentTicketId={this.props.ticketId} parentTicketStateId={this.state.currentStateId}/>
+            {/*<TicketList category={'all'} parentTicketId={this.props.ticketId} parentTicketStateId={34}/>*/}
           </Collapse.Panel>
         </Collapse>
         {this.state.canIntervene?
