@@ -1605,15 +1605,20 @@ class TicketBaseService(BaseService):
                                          participant=username, state_id=source_state_id,
                                          ticket_data=all_ticket_data_json))
 
+
             # 如果目标状态是脚本处理中，需要触发脚本处理
             if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
                 from tasks import run_flow_task  # 放在文件开头会存在循环引用
                 run_flow_task.apply_async(args=[ticket_id, ticket_obj.participant, ticket_obj.state_id],
                                           queue='loonflow')
-            # 目标状态处理人类型是hook，需要出发hook
-            if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
+            # 目标状态处理人类型是hook，需要触发hook
+            elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
                 from tasks import flow_hook_task  # 放在文件开头会存在循环引用
                 flow_hook_task.apply_async(args=[ticket_id], queue='loonflow')
+            else:
+                # 通知消息
+                from tasks import send_ticket_notice
+                send_ticket_notice.apply_async(args=[ticket_id], queue='loonflow')
 
             return True, '修改工单状态成功'
 
