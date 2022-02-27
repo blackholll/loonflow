@@ -330,7 +330,8 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
         isDeliverModalVisible: false,
         isAddNodeModalVisible: false,
         isCommentModalVisible: false,
-        isCloseModalVisible: false
+        isCloseModalVisible: false,
+        isRetreatModalVisible: false,
       }
     )
   }
