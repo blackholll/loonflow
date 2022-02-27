@@ -975,7 +975,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               {handleButtonItems}
             </Form>
 
-            <TicketList category={'all'} parentTicketId={this.props.ticketId} parentTicketStateId={this.state.currentStateId}/>
+            <TicketList category={'all'} parentTicketId={this.props.ticketId}/>
             {/*<TicketList category={'all'} parentTicketId={this.props.ticketId} parentTicketStateId={34}/>*/}
           </Collapse.Panel>
         </Collapse>

@@ -96,9 +96,9 @@ class TicketBaseService(BaseService):
 
         if kwargs.get('creator') != '':
             query_params &= Q(creator=kwargs.get('creator'))
-        if kwargs.get('parent_ticket_id') != '':
+        if kwargs.get('parent_ticket_id'):
             query_params &= Q(parent_ticket_id=kwargs.get('parent_ticket_id'))
-        if kwargs.get('parent_ticket_state_id') != '':
+        if kwargs.get('parent_ticket_state_id'):
             query_params &= Q(parent_ticket_state_id=kwargs.get('parent_ticket_state_id'))
 
         if sn:

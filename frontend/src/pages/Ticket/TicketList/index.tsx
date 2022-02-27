@@ -57,14 +57,8 @@ class TicketList extends Component<any, any> {
   fetchTicketData = async (values) => {
     this.setState({ticketListLoading: true})
     values.category = this.props.category;
-    console.log('seeeee')
-    console.log(this.props.parentTicketId)
-    console.log(this.props.parentTicketStateId)
     if(this.props.parentTicketId){
       values.parent_ticket_id = this.props.parentTicketId
-    }
-    if (this.props.parentTicketStateId){
-      values.parent_ticket_state_id = this.props.parentTicketStateId
     }
     values = Object.assign(values, this.state.searchArgs);
     const result = await getTicketList(values);
