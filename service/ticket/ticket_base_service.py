@@ -1564,7 +1564,7 @@ class TicketBaseService(BaseService):
     @auto_log
     def update_ticket_state(cls, ticket_id: int, state_id: int, username: str, suggestion: str)->tuple:
         """
-        更新状态id,暂时只变更工单状态及工单当前处理人，不考虑目标状态状态处理人类型为脚本、变量、工单字段等等逻辑
+        更新状态id
         update ticket's state by ticket_id, state_id, username
         :param ticket_id:
         :param state_id:
@@ -1585,6 +1585,7 @@ class TicketBaseService(BaseService):
             ticket_obj.state_id = state_id
             ticket_obj.participant_type_id = destination_participant_info.get('destination_participant_type_id', 0)
             ticket_obj.participant = destination_participant_info.get('destination_participant', '')
+            ticket_obj.multi_all_person = '{}'
             ticket_obj.save()
 
             if destination_participant_info.get('destination_participant_type_id', 0) in (
