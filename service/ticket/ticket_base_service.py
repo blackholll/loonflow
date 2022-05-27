@@ -552,7 +552,6 @@ class TicketBaseService(BaseService):
             .get_workflow_custom_field(ticket_obj.workflow_id)
         if flag is False:
             return False, format_custom_field_dict
-        format_custom_field_dict = format_custom_field_dict
         custom_field_key_list = [key for key, value in format_custom_field_dict.items()]
 
         # 因为工单的自定义字段不会太多，且有可能是新增有可能是更新， 所以直接遍历处理
