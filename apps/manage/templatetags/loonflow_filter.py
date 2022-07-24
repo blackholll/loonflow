@@ -7,7 +7,7 @@ register = template.Library()
 @register.filter()
 def add_version(_input):
     """
-    加上版本信息?v=xxx，主要是为了避免静态文件缓存
+    Plus version information?v=xxx, mainly to avoid static file caching
     :param _input:
     :return:
     """

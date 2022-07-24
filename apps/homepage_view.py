@@ -5,10 +5,10 @@ from django.views import View
 class HomepageView(View):
     def get(self, request, *args, **kwargs):
         """
-        首页
+        Front page
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
-        return HttpResponse('<div>欢迎使用loonflow<br><a href="/manage">管理后台</a><br><a href="/admin">django管理后台</a><br><a href="https://github.com/blackholll/loonflow">使用文档</a></div>')
+        return HttpResponse('<div>Welcome to loonflow<br><a href="/manage">management background</a><br><a href="/admin">django management background</a><br><a href="https://github.com/blackholll/loonflow">Working with documentation</a></div>')

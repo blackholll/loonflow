@@ -10,7 +10,7 @@ from service.account.account_base_service import account_base_service_ins
 from service.format_response import api_response
 from apps.loon_base_view import LoonBaseView
 from schema import Schema, Regex, And, Or, Use, Optional
-
+from django.utils.translation import ugettext_lazy as _
 from service.permission.manage_permission import manage_permission_check
 
 
@@ -31,7 +31,7 @@ class LoonUserView(LoonBaseView):
     @manage_permission_check('workflow_admin')
     def get(self, request, *args, **kwargs):
         """
-        获取用户列表
+        get user list
         :param request:
         :param args:
         :param kwargs:
@@ -64,7 +64,7 @@ class LoonUserView(LoonBaseView):
         """
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'post参数为空', {})
+            return api_response(-1, _('post parameter is empty'), {})
         request_data_dict = json.loads(json_str)
         username = request_data_dict.get('username')
         alias = request_data_dict.get('alias')
@@ -153,7 +153,7 @@ class LoonRoleView(LoonBaseView):
     @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
-        用户角色列表
+        User role list
         :param request:
         :param args:
         :param kwargs:
@@ -178,7 +178,6 @@ class LoonRoleView(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
         add role
-        新增角色
         :param request:
         :param args:
         :param kwargs:
@@ -210,7 +209,6 @@ class LoonRoleDetailView(LoonBaseView):
     def patch(self, request, *args, **kwargs):
         """
         update role
-        更新角色信息
         :param request:
         :param args:
         :param kwargs:
@@ -256,7 +254,7 @@ class LoonDeptView(LoonBaseView):
     @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
-        部门列表
+        Department api
         :param request:
         :param args:
         :param kwargs:
@@ -279,7 +277,7 @@ class LoonDeptView(LoonBaseView):
     @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
-        新增部门
+        add department
         :param request:
         :param args:
         :param kwargs:
@@ -313,8 +311,7 @@ class LoonDeptDetailView(LoonBaseView):
     @manage_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
-        delete dept
-        删除部门
+        delete department
         :param request:
         :param args:
         :param kwargs:
@@ -330,7 +327,7 @@ class LoonDeptDetailView(LoonBaseView):
     @manage_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
-        更新部门
+        update department
         :param request:
         :param args:
         :param kwargs:
@@ -355,7 +352,7 @@ class LoonDeptDetailView(LoonBaseView):
 class LoonSimpleDeptView(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
-        部门列表，简单信息
+        Department api, simple information
         :param request:
         :param args:
         :param kwargs:
@@ -388,7 +385,6 @@ class LoonAppTokenView(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
         call api permission
-        调用权限列表
         :param request:
         :param args:
         :param kwargs:
@@ -412,7 +408,6 @@ class LoonAppTokenView(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
         add call api permission
-        新增调用权限记录
         :param request:
         :param args:
         :param kwargs:
@@ -439,8 +434,7 @@ class LoonSimpleAppTokenView(LoonBaseView):
     @manage_permission_check('workflow_admin')
     def get(self, request, *args, **kwargs):
         """
-        call api permission
-        调用权限列表（返回简单数据）
+        call api permission (returns simple data)
         :param request:
         :param args:
         :param kwargs:
@@ -461,7 +455,6 @@ class LoonSimpleAppTokenView(LoonBaseView):
         return api_response(code, msg, data)
 
 
-
 @method_decorator(login_required, name='dispatch')
 class LoonAppTokenDetailView(LoonBaseView):
     patch_schema = Schema({
@@ -472,7 +465,7 @@ class LoonAppTokenDetailView(LoonBaseView):
     @manage_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
-        编辑token
+        edit token
         :param request:
         :param args:
         :param kwargs:
@@ -494,7 +487,7 @@ class LoonAppTokenDetailView(LoonBaseView):
     @manage_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
-        删除记录
+        Delete Record
         :param request:
         :param args:
         :param kwargs:
@@ -512,7 +505,7 @@ class LoonAppTokenDetailView(LoonBaseView):
 class LoonLoginView(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
-        登录验证
+        Login authentication
         :param request:
         :param args:
         :param kwargs:
@@ -520,7 +513,7 @@ class LoonLoginView(LoonBaseView):
         """
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'patch参数为空', {})
+            return api_response(-1, _('patch parameter is empty'), {})
         request_data_dict = json.loads(json_str)
         username = request_data_dict.get('username', '')
         password = request_data_dict.get('password', '')
@@ -533,13 +526,13 @@ class LoonLoginView(LoonBaseView):
             login(request, user)
             return api_response(0, '', {})
         else:
-            return api_response(-1, 'username or password is invalid', {})
+            return api_response(-1, _('username or password is invalid'), {})
 
 
 class LoonLogoutView(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
-        注销
+        log out
         :param request:
         :param args:
         :param kwargs:
@@ -553,7 +546,7 @@ class LoonJwtLoginView(LoonBaseView):
     def post(self, request, *args, **kwargs):
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'invalid args', {})
+            return api_response(-1, _('invalid args'), {})
         request_data_dict = json.loads(json_str)
         username = request_data_dict.get('username', '')
         password = request_data_dict.get('password', '')
@@ -570,7 +563,7 @@ class LoonJwtLoginView(LoonBaseView):
                 login(request, user)
                 return api_response(0, '', {'jwt': jwt_info.decode('utf-8')})
         else:
-            return api_response(-1, 'username or password is invalid', {})
+            return api_response(-1, _('username or password is invalid'), {})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -578,7 +571,7 @@ class LoonUserRoleView(LoonBaseView):
     @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
-        用户角色信息
+        User role information
         """
         user_id = kwargs.get('user_id', 0)
         search_value = request.GET.get('search_value', '')
@@ -601,7 +594,7 @@ class LoonRoleUserView(LoonBaseView):
     @manage_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
-        角色的用户信息
+        User information for the role
         :param request:
         :param args:
         :param kwargs:
@@ -623,7 +616,6 @@ class LoonRoleUserView(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
         add role's user
-        新增角色用户
         :param request:
         :param args:
         :param kwargs:
@@ -647,7 +639,6 @@ class LoonRoleUserDetailView(LoonBaseView):
     def delete(self, request, *args, **kwargs):
         """
          delete role's user
-         删除角色用户
          :param request:
          :param args:
          :param kwargs:
@@ -666,7 +657,7 @@ class LoonUserResetPasswordView(LoonBaseView):
     @manage_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
-        重置密码
+        reset Password
         :param requesdt:
         :param args:
         :param kwargs:
@@ -682,7 +673,7 @@ class LoonUserResetPasswordView(LoonBaseView):
 class LoonUserChangePasswordView(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
-        修改密码
+        change Password
         :param request:
         :param args:
         :param kwargs:
@@ -697,7 +688,7 @@ class LoonUserChangePasswordView(LoonBaseView):
         new_password_again = request_data_dict.get('new_password_again', '')
 
         if new_password != new_password_again:
-            return api_response(-1, '两次密码不一致，请重新输入', {})
+            return api_response(-1, _('The two passwords do not match, please re-enter'), {})
         flag, result = account_base_service_ins.change_password(username, source_password, new_password)
         if flag is False:
             return api_response(-1, result, {})
@@ -708,7 +699,7 @@ class LoonSimpleUserView(LoonBaseView):
 
     def get(self, request, *args, **kwargs):
         """
-        获取用户简要信息列表
+        Get a list of user brief information
         :param request:
         :param args:
         :param kwargs:

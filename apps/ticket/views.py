@@ -7,6 +7,7 @@ from apps.loon_base_view import LoonBaseView
 from service.account.account_base_service import account_base_service_ins
 from service.format_response import api_response
 from service.ticket.ticket_base_service import ticket_base_service_ins
+from django.utils.translation import ugettext_lazy as _
 
 
 class TicketListView(LoonBaseView):
@@ -18,7 +19,7 @@ class TicketListView(LoonBaseView):
 
     def get(self, request, *args, **kwargs):
         """
-        获取工单列表
+        Get a list of tickets
         :param request:
         :param args:
         :param kwargs:
@@ -43,12 +44,12 @@ class TicketListView(LoonBaseView):
         parent_ticket_id = int(request_data.get('parent_ticket_id', 0))
         parent_ticket_state_id = int(request_data.get('parent_ticket_state_id', 0))
 
-        # 待办,关联的,创建
+        # to do, associated, create
         category = request_data.get('category')
         # app_name
         app_name = request.META.get('HTTP_APPNAME')
 
-        # 未指定创建起止时间则取最近一年的记录
+        # If the start and end time of creation is not specified, the records of the most recent year will be taken
         if not(create_start or create_end):
             import datetime
             now = datetime.datetime.now()
@@ -74,7 +75,7 @@ class TicketListView(LoonBaseView):
 
     def post(self, request, *args, **kwargs):
         """
-        新建工单，需要根据不同类型工单传的参数不一样
+        To create a new work order, you need to pass different parameters according to different types of work orders
         :param request:
         :param args:
         :param kwargs:
@@ -87,10 +88,10 @@ class TicketListView(LoonBaseView):
         app_name = request.META.get('HTTP_APPNAME')
         request_data_dict.update(dict(username=request.META.get('HTTP_USERNAME')))
 
-        # 判断是否有创建某工单的权限
+        # Determine whether you have permission to create a work order
         app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, request_data_dict.get('workflow_id'))
         if not app_permission:
-            return api_response(-1, 'APP:{} have no permission to create this workflow ticket'.format(app_name), '')
+            return api_response(-1, _('APP:{} have no permission to create this workflow ticket').format(app_name), '')
 
         flag, result = ticket_base_service_ins.new_ticket(request_data_dict, app_name)
         if flag:
@@ -103,7 +104,7 @@ class TicketListView(LoonBaseView):
 class TicketView(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
-        获取工单详情，根据用户返回不同的内容(是否有工单表单的编辑权限)
+        Get the details of the work order, and return different content according to the user (whether there is editing permission for the work order form)
         :param request:
         :param args:
         :param kwargs:
@@ -119,7 +120,7 @@ class TicketView(LoonBaseView):
         # username = request_data.get('username', '')
         username = request.META.get('HTTP_USERNAME')
         if not username:
-            return api_response(-1, '参数不全，请提供username', '')
+            return api_response(-1, _('Incomplete parameters, please provide username'), '')
         flag, result = ticket_base_service_ins.get_ticket_detail(ticket_id, username)
         if flag:
             code, data = 0, dict(value=result)
@@ -129,7 +130,7 @@ class TicketView(LoonBaseView):
 
     def patch(self, request, *args, **kwargs):
         """
-        处理工单
+        Process work orders
         :param request:
         :param args:
         :param kwargs:
@@ -137,7 +138,7 @@ class TicketView(LoonBaseView):
         """
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'patch参数为空', {})
+            return api_response(-1, _('patch parameter is empty'), {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
 
@@ -156,13 +157,14 @@ class TicketView(LoonBaseView):
 
     def delete(self, request, *args, **kwargs):
         """
-        删除工单，仅用于管理员干预处理工单，loonflow管理后台的功能
+        Delete the work order, only for the administrator to intervene in the processing of the work order,
+        the function of the loonflow management background
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
-        # 校验工单权限
+        # Verify work order permissions
         ticket_id = kwargs.get('ticket_id')
         username = request.META.get('HTTP_USERNAME')
         json_str = request.body.decode('utf-8')
@@ -183,7 +185,7 @@ class TicketView(LoonBaseView):
 
 class TicketTransition(LoonBaseView):
     """
-    工单可以做的操作
+    What the work order can do
     """
     def get(self, request, *args, **kwargs):
         request_data = request.GET
@@ -196,7 +198,7 @@ class TicketTransition(LoonBaseView):
             return api_response(0, msg, dict(value=[]))
 
         if not username:
-            return api_response(-1, '参数不全，请提供username', '')
+            return api_response(-1, _('Incomplete parameters, please provide username'), '')
         flag, result = ticket_base_service_ins.get_ticket_transition(ticket_id, username)
         if flag is False:
             code, data, msg = -1, {}, result
@@ -208,7 +210,7 @@ class TicketTransition(LoonBaseView):
 
 class TicketFlowlog(LoonBaseView):
     """
-    工单流转记录
+    Work order transfer record
     """
     def get(self, request, *args, **kwargs):
         request_data = request.GET
@@ -217,16 +219,18 @@ class TicketFlowlog(LoonBaseView):
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
         ticket_data = int(request_data.get('ticket_data', 0))
-        desc = int(request_data.get('desc', 1)) # 是否降序
+        desc = int(request_data.get('desc', 1)) # descending order
         app_name = request.META.get('HTTP_APPNAME')
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not app_permission_check:
             return api_response(-1, msg, '')
 
         if not username:
-            return api_response(-1, '参数不全，请提供username', '')
+            return api_response(-1, _('Incomplete parameters, please provide username'), '')
 
-        flag, result = ticket_base_service_ins.get_ticket_flow_log(ticket_id, username, per_page, page, ticket_data, desc)
+        flag, result = ticket_base_service_ins.get_ticket_flow_log(
+            ticket_id, username, per_page, page, ticket_data, desc
+        )
 
         if flag is not False:
             paginator_info = result.get('paginator_info')
@@ -240,12 +244,12 @@ class TicketFlowlog(LoonBaseView):
 
 class TicketFlowStep(LoonBaseView):
     """
-    工单流转step: 用于显示工单当前状态的step图(线形结构，无交叉)
+    Work order flow step: step diagram used to display the current state of the work order (linear structure, no intersection)
     """
     def get(self, request, *args, **kwargs):
         request_data = request.GET
         ticket_id = kwargs.get('ticket_id')
-        # username = request_data.get('username', '')  # 可用于权限控制
+        # username = request_data.get('username', '')  # Can be used for permission control
         username = request.META.get('HTTP_USERNAME')
 
         app_name = request.META.get('HTTP_APPNAME')
@@ -254,7 +258,7 @@ class TicketFlowStep(LoonBaseView):
             return api_response(-1, msg, '')
 
         if not username:
-            return api_response(-1, '参数不全，请提供username', '')
+            return api_response(-1, _('Incomplete parameters, please provide username'), '')
 
         flag, result = ticket_base_service_ins.get_ticket_flow_step(ticket_id, username)
         if flag is not False:
@@ -267,7 +271,7 @@ class TicketFlowStep(LoonBaseView):
 
 class TicketState(LoonBaseView):
     """
-    工单状态
+    work order status
     """
     put_schema = Schema({
         'state_id': And(int, lambda n: n != 0, error='state_id is needed and type should be int'),
@@ -276,7 +280,7 @@ class TicketState(LoonBaseView):
 
     def put(self, request, *args, **kwargs):
         """
-        修改工单状态
+        Modify ticket status
         :param request:
         :param args:
         :param kwargs:
@@ -284,7 +288,7 @@ class TicketState(LoonBaseView):
         """
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'patch参数为空', {})
+            return api_response(-1, _('patch parameter is empty'), {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
         username = request.META.get('HTTP_USERNAME')
@@ -292,12 +296,12 @@ class TicketState(LoonBaseView):
         suggestion = request_data_dict.get('suggestion', '')
 
         app_name = request.META.get('HTTP_APPNAME')
-        # 调用来源应用是否有此工单对应工作流的权限校验
+        # Whether the calling source application has permission verification for the workflow corresponding to this ticket
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not app_permission_check:
             return api_response(-1, msg, '')
 
-        # 强制修改工单状态需要对应工作流的管理员或者超级管理员
+        # Forcibly modifying the work order status requires the administrator or super administrator of the corresponding workflow
         flag, result = ticket_base_service_ins.ticket_admin_permission_check(ticket_id, username)
         if flag is False:
             return api_response(-1, result, {})
@@ -309,20 +313,19 @@ class TicketState(LoonBaseView):
             return api_response(0, '', {})
 
 
-
 class TicketsStates(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
-        批量获取工单状态
+        Get work order status in batches
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
         request_data = request.GET
-        # username = request_data.get('username', '')  # 可用于权限控制
+        # username = request_data.get('username', '')  # Can be used for permission control
         username = request.META.get('HTTP_USERNAME')
-        ticket_ids = request_data.get('ticket_ids')  # 逗号隔开
+        ticket_ids = request_data.get('ticket_ids')  # comma separated
         ticket_id_list = ticket_ids.split(',')
         ticket_id_list = [int(ticket_id) for ticket_id in ticket_id_list]
 
@@ -337,7 +340,10 @@ class TicketsStates(LoonBaseView):
 class TicketAccept(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
-        接单,当工单当前处理人实际为多个人时(角色、部门、多人都有可能， 注意角色和部门有可能实际只有一人)
+        Accepting an order, when the current handling person of the work order is actually multiple people
+        (roles, departments, and multiple people are possible,
+         note that roles and departments may actually have only one person)
+
         :param request:
         :param args:
         :param kwargs:
@@ -368,8 +374,17 @@ class TicketDeliver(LoonBaseView):
 
     def post(self, request, *args, **kwargs):
         """
-        转交操作会直接修改工单处理人，且工单状态不变，所以在使用的时候可以在前端做些提醒 避免用户把工单直接转交给下个人，从而干扰了工单的正常流转(
-        如用户提交了一个请假单，部门TL审批状态下，tl本来应该点击"同意"，工单会自动流转到财务人员审批状态。 应该避免tl直接将工单转交给了某个财务)。这个地方后续会考虑怎么优化下，目前先在前端做提醒
+        The transfer operation will directly modify the work order handler,
+        and the work order status will remain unchanged,
+        so you can make some reminders on the front end when using it to
+        prevent the user from directly transferring the work order to the next person,
+        thus interfering with the normal flow of the work order (
+        If the user submits a leave request, the TL should have clicked "Agree"
+        in the approval state of the department TL,
+        and the work order will be automatically transferred to the approval state of the financial staff.
+        It should be avoided that tl hand over the work order directly to a finance).
+        This place will consider how to optimize it in the future. At present, it will be reminded on the front end.
+
         :param request:
         :param args:
         :param kwargs:
@@ -393,7 +408,7 @@ class TicketDeliver(LoonBaseView):
             if flag is False:
                 return api_response(-1, result, {})
         else:
-            # 非管理员操作，校验用户是否有处理权限
+            # Non-administrator operation, check whether the user has processing rights
             flag, result = ticket_base_service_ins.ticket_handle_permission_check(ticket_id, username)
             if flag is False:
                 return api_response(-1, result, {})
@@ -416,7 +431,7 @@ class TicketAddNode(LoonBaseView):
 
     def post(self, request, *args, **kwargs):
         """
-        加签,加签操作会修改工单处理人，工单状态不表
+        Add sign, the add sign operation will modify the work order handler, and the work order status is not displayed
         :param request:
         :param args:
         :param kwargs:
@@ -449,7 +464,8 @@ class TicketAddNodeEnd(LoonBaseView):
 
     def post(self, request, *args, **kwargs):
         """
-        加签处理完成,加签完成操作后工单处理人回回到之前加签发起人
+        The signature processing is completed.
+        After the signature processing is completed, the work order handler returns to the previous issuer to add the signature
         :param request:
         :param args:
         :param kwargs:
@@ -457,7 +473,7 @@ class TicketAddNodeEnd(LoonBaseView):
         """
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'post参数为空', {})
+            return api_response(-1, _('post parameter is empty'), {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
         username = request.META.get('HTTP_USERNAME')
@@ -480,7 +496,7 @@ class TicketField(LoonBaseView):
 
     def patch(self, request, *args, **kwargs):
         """
-        修改工单字段
+        Modify ticket fields
         :param request:
         :param args:
         :param kwargs:
@@ -488,17 +504,13 @@ class TicketField(LoonBaseView):
         """
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'post参数为空', {})
+            return api_response(-1, _('post parameter is empty'), {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
         username = request.META.get('HTTP_USERNAME')
 
         app_name = request.META.get('HTTP_APPNAME')
         app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
-
-
-
-
 
         if not app_permission_check:
             return api_response(-1, msg, '')
@@ -514,7 +526,8 @@ class TicketField(LoonBaseView):
 class TicketScriptRetry(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
-        重新执行工单脚本(用于脚本执行出错的情况), 也可用于hook执行失败的情况
+        Re-execute the ticket script (for the case of script execution error),
+         also for the case of hook execution failure
         :return:
         """
         ticket_id = kwargs.get('ticket_id')
@@ -526,7 +539,7 @@ class TicketScriptRetry(LoonBaseView):
             return api_response(-1, msg, '')
 
         if not username:
-            api_response(-1, 'need arg username', '')
+            api_response(-1, _('need arg username'), '')
         result, msg = ticket_base_service_ins.retry_ticket_script(ticket_id, username)
         if result:
             code, msg, data = 0, 'Ticket script or hook retry start successful', {}
@@ -543,7 +556,7 @@ class TicketComment(LoonBaseView):
 
     def post(self, request, *args, **kwargs):
         """
-        添加评论
+        add comment
         :param request:
         :param args:
         :param kwargs:
@@ -551,7 +564,7 @@ class TicketComment(LoonBaseView):
         """
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'post参数为空', {})
+            return api_response(-1, _('Post parameter is empty'), {})
         request_data_dict = json.loads(json_str)
         ticket_id = kwargs.get('ticket_id')
         username = request.META.get('HTTP_USERNAME')
@@ -567,7 +580,7 @@ class TicketComment(LoonBaseView):
 class TicketHookCallBack(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
-        工单hook回调，用于hoot请求后，被请求方执行完任务后回调loonflow,以触发工单继续流转
+        The work order hook callback is used to call back loonflow after the requested party has performed the task after the hoot request to trigger the work order to continue to flow.
         :param request:
         :param args:
         :param kwargs:
@@ -576,7 +589,7 @@ class TicketHookCallBack(LoonBaseView):
         ticket_id = kwargs.get('ticket_id')
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'post参数为空', {})
+            return api_response(-1, _('post parameter is empty'), {})
         request_data_dict = json.loads(json_str)
         app_name = request.META.get('HTTP_APPNAME')
 
@@ -591,7 +604,8 @@ class TicketHookCallBack(LoonBaseView):
 class TicketParticipantInfo(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
-        工单当前处理人详情，调用方后端可用获取处理人信息后提供催办等功能
+        Details of the current handler of the work order.
+        The caller's backend can obtain the handler information and provide functions such as reminders
         :param request:
         :param args:
         :param kwargs:
@@ -609,7 +623,7 @@ class TicketParticipantInfo(LoonBaseView):
 class TicketClose(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
-        强制关闭工单
+        Force close a ticket
         :param request:
         :param args:
         :param kwargs:
@@ -636,7 +650,7 @@ class TicketClose(LoonBaseView):
 class TicketsNumStatistics(LoonBaseView):
     def get(self, request, *args, **kwargs):
         """
-        工单个数统计
+        Statistics of work orders
         :param request:
         :param args:
         :param kwargs:
@@ -656,7 +670,8 @@ class TicketsNumStatistics(LoonBaseView):
 class TicketRetreat(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
-        撤回工单，允许创建人在指定状态撤回工单至初始状态，状态设置中开启允许撤回
+        Withdraw the work order,
+        allowing the creator to withdraw the work order to the initial state in the specified state, and enable the allowable withdrawal in the state settings
         :param request:
         :param args:
         :param kwargs:
@@ -678,7 +693,7 @@ class TicketRetreat(LoonBaseView):
 class UploadFile(LoonBaseView):
     def post(self, request, *args, **kwargs):
         """
-        上传文件
+        upload files
         :param request:
         :param args:
         :param kwargs:

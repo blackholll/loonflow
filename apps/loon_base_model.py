@@ -1,15 +1,16 @@
 import json
 from django.db import models
+from django.utils.translation import  ugettext_lazy as _
 
 
 class BaseModel(models.Model):
     """
-    基础model
+    basic model
     """
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField('更新时间', auto_now=True)
-    is_deleted = models.BooleanField('已删除', default=False)
+    creator = models.CharField(_('creator'), max_length=50)
+    gmt_created = models.DateTimeField(_('gmt_created'), auto_now_add=True)
+    gmt_modified = models.DateTimeField(_('gmt_modified'), auto_now=True)
+    is_deleted = models.BooleanField(_('is_deleted'), default=False)
     
     def get_dict(self):
         fields = []

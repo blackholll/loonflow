@@ -5,7 +5,7 @@ from django.http import HttpResponse
 
 def api_response(code, msg='', data=''):
     """
-    格式化返回
+    format return
     :param code:
     :param msg:
     :param data:

@@ -25,7 +25,7 @@ class LoonBaseView(View):
                 meth_schema.validate(json_dict)
             except Exception as e:
                 print(e.__str__())
-                return api_response(-1, '请求参数不合法:{}'.format(e.__str__()), {})
+                return api_response(-1, 'Invalid request parameter:{}'.format(e.__str__()), {})
 
 
         return handler(request, *args, **kwargs)

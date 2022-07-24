@@ -2,22 +2,39 @@ from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 from apps.loon_base_model import BaseModel
 from apps.workflow.models import Workflow
+from django.utils.translation import gettext_lazy as _
 
 
 class LoonDept(BaseModel):
     """
-    部门
+    Department
     """
-    name = models.CharField('名称', max_length=50, help_text='部门名称')
-    parent_dept_id = models.IntegerField('上级部门id', blank=True, default=0)
-    leader = models.CharField('部门leader', max_length=50, blank=True, default='', help_text='部门的leader, loonuser表中的用户名')
-    approver = models.CharField('审批人', max_length=100, blank=True, default='', help_text='loonuser表中的用户名, 逗号隔开多个user。当工作流设置为leader审批时， 优先以审批人为准，如果审批人为空，则取leader')
-    label = models.CharField('标签', max_length=50, blank=True, default='', help_text='因为部门信息一般是从别处同步过来， 为保证对应关系，同步时可以在此字段设置其他系统中相应的唯一标识')
+    name = models.CharField(_('name'), max_length=50, help_text=_('Department name'))
+    parent_dept_id = models.IntegerField(_('parent_dept_id'), blank=True, default=0)
+    leader = models.CharField(
+        _('leader'), max_length=50, blank=True, default='',
+        help_text=_('The leader of the department, the username in the loonuser table')
+    )
 
-    creator = models.CharField('创建人', max_length=50, help_text='loonuser表中的用户名')
-    gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField('更新时间', auto_now=True)
-    is_deleted = models.BooleanField('已删除', default=False)
+    approver = models.CharField(
+        _('approver'), max_length=100, blank=True, default='',
+        help_text=_('The username in the loonuser table, with commas separating multiple users.'
+                    ' When the workflow is set to leader approval, the approver shall prevail.'
+                    ' If the approver is empty, the leader shall be selected.')
+    )
+
+    label = models.CharField(
+        _('label'), max_length=50, blank=True, default='',
+        help_text=_('Because the department information is generally synchronized from other places,'
+                    ' in order to ensure the corresponding relationship,'
+                    ' you can set the corresponding unique identifier in other systems'
+                    ' in this field during synchronization.')
+    )
+
+    creator = models.CharField(_('creator'), max_length=50, help_text=_('username in loonuser table'))
+    gmt_created = models.DateTimeField(_('gmt_created'), auto_now_add=True)
+    gmt_modified = models.DateTimeField(_('gmt_modified'), auto_now=True)
+    is_deleted = models.BooleanField(_('is_deleted'), default=False)
 
     def get_dict(self):
         dept_dict_info = super().get_dict()
@@ -25,13 +42,14 @@ class LoonDept(BaseModel):
         if creator_obj:
             dept_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias)
         else:
-            dept_dict_info['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, 'creator'))
+            dept_dict_info['creator_info'] = dict(creator_id=0, creator_alias='',
+                                                  creator_username=getattr(self, 'creator'))
         if self.parent_dept_id:
             parent_dept_obj = LoonDept.objects.filter(id=self.parent_dept_id, is_deleted=0).first()
             if parent_dept_obj:
                 parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name=parent_dept_obj.name)
             else:
-                parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name='未知')
+                parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name='unknown')
         else:
             parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name='')
         dept_dict_info['parent_dept_info'] = parent_dept_info
@@ -83,16 +101,21 @@ class LoonDept(BaseModel):
 
 class LoonRole(BaseModel):
     """
-    角色
+    Role
     """
-    name = models.CharField('名称', max_length=50)
-    description = models.CharField('描述', max_length=50, default='')
-
-    label = models.CharField('标签', max_length=50, blank=True, default='{}', help_text='因为角色信息也可能是从别处同步过来， 为保证对应关系，同步时可以在此字段设置其他系统中相应的唯一标识,字典的json格式')
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField('更新时间', auto_now=True)
-    is_deleted = models.BooleanField('已删除', default=False)
+    name = models.CharField(_('name'), max_length=50)
+    description = models.CharField(_('description'), max_length=50, default='')
+    label = models.CharField(
+        _('label'), max_length=50, blank=True, default='{}',
+        help_text=_('Because the role information may also be synchronized from other places,'
+                    ' in order to ensure the corresponding relationship,'
+                    ' you can set the corresponding unique identifier'
+                    ' in other systems in this field during synchronization, and the json format of the dictionary')
+    )
+    creator = models.CharField(_('creator'), max_length=50)
+    gmt_created = models.DateTimeField(_('gmt_created'), auto_now_add=True)
+    gmt_modified = models.DateTimeField(_('gmt_modified'), auto_now=True)
+    is_deleted = models.BooleanField(_('is_deleted'), default=False)
 
     def get_dict(self):
         role_dict_info = super().get_dict()
@@ -101,7 +124,8 @@ class LoonRole(BaseModel):
             role_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias,
                                                   creator_username=creator_obj.username)
         else:
-            role_dict_info['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, 'creator'))
+            role_dict_info['creator_info'] = dict(creator_id=0, creator_alias='',
+                                                  creator_username=getattr(self, 'creator'))
         return role_dict_info
 
 
@@ -109,7 +133,7 @@ class LoonUserManager(BaseUserManager):
 
     def create_user(self, email, username, password=None, dep=0):
         if not email:
-            raise ValueError('Users must have an email address')
+            raise ValueError(_('Users must have an email address'))
         user = self.model(username=username, email=self.normalize_email(email))
         user.set_password(password)
         user.save(using=self._db)
@@ -124,19 +148,19 @@ class LoonUserManager(BaseUserManager):
 
 class LoonUser(AbstractBaseUser):
     """
-    用户
+    User
     """
-    username = models.CharField('用户名', max_length=50, unique=True)
-    alias = models.CharField('姓名', max_length=50, default='')
-    email = models.EmailField('邮箱', max_length=255)
-    phone = models.CharField('电话', max_length=13, default='')
-    is_active = models.BooleanField('已激活', default=True)
-    type_id = models.IntegerField('用户类型', default=0)  # 见service.common.constant_service中定义
+    username = models.CharField(_('username'), max_length=50, unique=True)
+    alias = models.CharField(_('alias'), max_length=50, default='')
+    email = models.EmailField(_('email'), max_length=255)
+    phone = models.CharField(_('phone'), max_length=13, default='')
+    is_active = models.BooleanField(_('is_active'), default=True)
+    type_id = models.IntegerField(_('type_id'), default=0)  # 见service.common.constant_service中定义
 
-    creator = models.CharField('创建人', max_length=50)
-    gmt_created = models.DateTimeField('创建时间', auto_now_add=True)
-    gmt_modified = models.DateTimeField('更新时间', auto_now=True)
-    is_deleted = models.BooleanField('已删除', default=False)
+    creator = models.CharField(_('creator'), max_length=50)
+    gmt_created = models.DateTimeField(_('gmt_created'), auto_now_add=True)
+    gmt_modified = models.DateTimeField(_('gmt_modified'), auto_now=True)
+    is_deleted = models.BooleanField(_('is_deleted'), default=False)
 
     objects = LoonUserManager()
     USERNAME_FIELD = 'username'
@@ -192,9 +216,11 @@ class LoonUser(AbstractBaseUser):
             elif attr == 'creator':
                 creator_obj = LoonUser.objects.filter(username=getattr(self, attr)).first()
                 if creator_obj:
-                    dict_result['creator_info'] = dict(creator_id= creator_obj.id, creator_alias=creator_obj.alias, creator_username=creator_obj.username)
+                    dict_result['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias,
+                                                       creator_username=creator_obj.username)
                 else:
-                    dict_result['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, attr))
+                    dict_result['creator_info'] = dict(creator_id=0, creator_alias='',
+                                                       creator_username=getattr(self, attr))
             else:
                 dict_result[attr] = getattr(self, attr)
 
@@ -208,7 +234,7 @@ class LoonUser(AbstractBaseUser):
 
 class LoonUserDept(BaseModel):
     """
-    用户部门
+    User department
     """
     user = models.ForeignKey(LoonUser, to_field='id', db_constraint=False, on_delete=False)
     dept = models.ForeignKey(LoonDept, to_field='id', db_constraint=False, on_delete=False)
@@ -216,20 +242,27 @@ class LoonUserDept(BaseModel):
 
 class LoonUserRole(BaseModel):
     """
-    用户角色
+    user role
     """
-    user_id = models.IntegerField('用户id')
-    role_id = models.IntegerField('角色id')
+    user_id = models.IntegerField(_('user_id'))
+    role_id = models.IntegerField(_('role_id'))
 
 
 class AppToken(BaseModel):
     """
-    App token,用于api调用方授权
+    App token,for api caller authorization
     """
-    app_name = models.CharField('应用名称', max_length=50)
-    token = models.CharField('签名令牌', max_length=50, help_text='后端自动生成')
-    ticket_sn_prefix = models.CharField('工单流水号前缀', default='loonflow', max_length=20, help_text='工单流水号前缀，如设置为loonflow,则创建的工单的流水号为loonflow_201805130013')
-    
+    app_name = models.CharField('app_name', max_length=50)
+    token = models.CharField(
+        'token', max_length=50,
+        help_text=_('Automatic backend generation')
+    )
+    ticket_sn_prefix = models.CharField(
+        'ticket_sn_prefix', default='loonflow', max_length=20,
+        help_text=_('Work order serial number prefix, if set to loonflow,'
+                    ' the serial number of the created work order is loonflow_201805130013')
+    )
+
     def get_dict(self):
         role_dict_info = super().get_dict()
         creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()
@@ -237,6 +270,8 @@ class AppToken(BaseModel):
             role_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias,
                                                   creator_username=creator_obj.username)
         else:
-            role_dict_info['creator_info'] = dict(creator_id=0, creator_alias='', creator_username=getattr(self, 'creator'))
+            role_dict_info['creator_info'] = dict(
+                creator_id=0, creator_alias='',
+                creator_username=getattr(self, 'creator')
+            )
         return role_dict_info
-

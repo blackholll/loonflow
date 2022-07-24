@@ -510,7 +510,7 @@ class WorkflowBaseService(BaseService):
             date_str = '%d-%02d-%02d' % (queryset['year'], queryset['month'], queryset['day'])
 
             result_list.append(dict(day=date_str, count=queryset['count_len']))
-        # 按日期排序
+        # Sort by date
         result_list = sorted(result_list, key=lambda r: r['day'])
 
         return True, dict(result_list=result_list)

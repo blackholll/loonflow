@@ -2,88 +2,218 @@ import os
 import uuid
 from django.db import models
 from apps.loon_base_model import BaseModel
+from django.utils.translation import ugettext_lazy as _
 
 
 class Workflow(BaseModel):
     """
-    工作流
+    workflow
     """
-    name = models.CharField('名称', max_length=50)
-    description = models.CharField('描述', max_length=50)
-    notices = models.CharField('通知', default='', blank=True, max_length=50, help_text='CustomNotice中的id.逗号隔开多个通知方式')
-    view_permission_check = models.BooleanField('查看权限校验', default=True, help_text='开启后，只允许工单的关联人(创建人、曾经的处理人)有权限查看工单')
-    limit_expression = models.CharField('限制表达式', max_length=1000, default='{}', blank=True, help_text='限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)')
-    display_form_str = models.CharField('展现表单字段', max_length=10000, default='[]', blank=True, help_text='默认"[]"，用于用户只有对应工单查看权限时显示哪些字段,field_key的list的json,如["days","sn"],内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')
-    title_template = models.CharField('标题模板', max_length=50, default='你有一个待办工单:{title}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：你有一个待办工单:{title}')
-    content_template = models.CharField('内容模板', max_length=1000, default='标题:{title}, 创建时间:{gmt_created}', null=True, blank=True, help_text='工单字段的值可以作为参数写到模板中，格式如：标题:{title}, 创建时间:{gmt_created}')
+    name = models.CharField(_('name'), max_length=50)
+    description = models.CharField(_('description'), max_length=50)
+    notices = models.CharField(
+        _('notices'), default='', blank=True, max_length=50,
+        help_text=_('id in CustomNotice. Comma separates multiple notification methods')
+    )
+    view_permission_check = models.BooleanField(
+        _('view_permission_check'), default=True,
+        help_text=_('After opening, only the associated person (creator, former handler) of the work order is allowed to have permission to view the work order')
+    )
+    limit_expression = models.CharField(
+        _('limit_expression'), max_length=1000, default='{}', blank=True,
+        help_text=_('Limit period ({"period": 24} 24 hours), limit times ({"count": 1} only allow one submission during the limit period), limit level ({"level": 1} for (1 single user) 2 global) limit the number of cycles, default specific users); allow specific people to submit ({"allow_persons":"zhangsan,lisi"} only allow Zhang San to submit work orders, {"allow_depts":"1,2"} only allow Users with department ids 1 and 2 submit work orders, {"allow_roles":"1,2"} only allows users with role ids 1 and 2 to submit work orders)')
+    )
+    display_form_str = models.CharField(
+        _('display_form_str'), max_length=10000, default='[]', blank=True,
+        help_text=_('The default "[]" is used for which fields are displayed when the user only has the corresponding work order viewing permission, the json of the field_key list, such as ["days", "sn"], the built-in special field participant_info.participant_name: current handler information (department name, role name), state.state_name: the state name of the current state, workflow.workflow_name: workflow name')
+    )
+    title_template = models.CharField(
+        _('title_template'), max_length=50, default='You have a to-do ticket: {title}', null=True, blank=True,
+        help_text=_('The value of the ticket field can be written into the template as a parameter, '
+                  'the format is: You have a to-do ticket: {title}')
+    )
+    content_template = models.CharField(
+        _('content_template'), max_length=1000, default='title:{title}, creation time:{gmt_created}', null=True, blank=True,
+        help_text=_('The value of the ticket field can be written into the template as a parameter, the format is: title:{title}, creation time:{gmt_created}')
+    )
 
 
 class WorkflowAdmin(BaseModel):
     """
-    工作流管理员
+    Workflow administrator
     """
     workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=False)
-    username = models.CharField('管理员', max_length=100, help_text='除超级管理员及该工作流创建人外，管理人员也可以直接编辑该工作流')
+    username = models.CharField(
+        _('username'), max_length=100,
+        help_text=_('In addition to the super administrator and the creator of the workflow, managers can also directly edit the workflow')
+    )
 
 
 class State(BaseModel):
     """
-    状态记录, 变量支持通过脚本获取
+    Status record, variable support to get through script
     """
-    name = models.CharField('名称', max_length=50)
-    workflow_id = models.IntegerField('工作流')
-    is_hidden = models.BooleanField('是否隐藏', default=False, help_text='设置为True时,获取工单步骤api中不显示此状态(当前处于此状态时除外)')
-    order_id = models.IntegerField('状态顺序', default=0, help_text='用于工单步骤接口时，step上状态的顺序(因为存在网状情况，所以需要人为设定顺序),值越小越靠前')
-    type_id = models.IntegerField('状态类型id', default=0, help_text='0.普通类型 1.初始状态(用于新建工单时,获取对应的字段必填及transition信息) 2.结束状态(此状态下的工单不得再处理，即没有对应的transition)')
-    enable_retreat = models.BooleanField('允许撤回', default=False, help_text='开启后允许工单创建人在此状态直接撤回工单到初始状态')
+    name = models.CharField(_('name'), max_length=50)
+    workflow_id = models.IntegerField(_('workflow_id'))
+    is_hidden = models.BooleanField(
+        _('is_hidden'), default=False,
+        help_text=_('When set to True, this state is not displayed in the get ticket step api '
+                  '(except when it is currently in this state)')
+    )
+    order_id = models.IntegerField(
+        _('order_id'), default=0,
+        help_text=_('When used in the work order step interface, the order of the states on the step (because there is a mesh condition, so the order needs to be set manually), the smaller the value, the higher')
+    )
+    type_id = models.IntegerField(
+        _('type_id'), default=0,
+        help_text=('0. Common type 1. Initial state (when creating a new work order, the corresponding fields must be filled in and transition information) 2. End state (the work order in this state cannot be processed again, that is, there is no corresponding transition)')
+    )
+    enable_retreat = models.BooleanField(
+        _('enable_retreat'), default=False,
+        help_text=_('After opening, allow the creator of the work order to directly withdraw the work order to the initial state in this state')
+    )
 
-    remember_last_man_enable = models.BooleanField('记忆最后处理人', default=False, help_text='开启后，到达此状态时会先检查之前是否有人在此状态处理过，如果有则处理人为最后一次处理的人')
-    participant_type_id = models.IntegerField('参与者类型id', default=1, blank=True, help_text='0.无处理人,1.个人,2.多人,3.部门,4.角色,5.变量(支持工单创建人,创建人的leader),6.脚本,7.工单的字段内容(如表单中的"测试负责人"，需要为用户名或者逗号隔开的多个用户名),8.父工单的字段内容。 初始状态请选择类型5，参与人填creator')
-    participant = models.CharField('参与者', default='', blank=True, max_length=1000, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\变量(creator,creator_tl)\脚本记录的id等，包含子工作流的需要设置处理人为loonrobot')
+    remember_last_man_enable = models.BooleanField(
+        _('remember_last_man_enable'), default=False,
+        help_text=_('After it is turned on, when reaching this state, it will first check whether someone has processed it in this state before, and if so, the processing person will be the last person who processed it.')
+    )
+    participant_type_id = models.IntegerField(
+        _('participant_type_id'), default=1, blank=True,
+        help_text=_('0. No handler, 1. Individual, 2. Multiple people, 3. Department, 4. Role, 5. Variable (supports the creator of the ticket, the leader of the creator), 6. Script, 7. Field content of the ticket (For example, the "test leader" in the form needs to be the username or multiple usernames separated by commas), 8. Field content of the parent work order. Please select type 5 for the initial state, and the participant fills in the creator')
+    )
+    participant = models.CharField(
+        _('participant'), default='', blank=True, max_length=1000,
+        help_text=_('Can be empty (if there is no processing person, such as end status),'
+                    ' username\multiple usernames (separated by ,)\department id\role id\variable (creator, creator_tl)\id of script record, etc., including sub-workflow The need to set the handler for loonrobot')
+    )
 
-    distribute_type_id = models.IntegerField('分配方式', default=1, help_text='1.主动接单(如果当前处理人实际为多人的时候，需要先接单才能处理) 2.直接处理(即使当前处理人实际为多人，也可以直接处理) 3.随机分配(如果实际为多人，则系统会随机分配给其中一个人) 4.全部处理(要求所有参与人都要处理一遍,才能进入下一步)')
-    state_field_str = models.TextField('表单字段', default='{}', help_text='json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"created_at":1,"title":2, "sn":1}, 内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称')  # json格式存储,包括读写属性1：只读，2：必填，3：可选，4：不显示, 字典的字典
-    label = models.CharField('状态标签', max_length=1000, default='{}', help_text='json格式，由调用方根据实际定制需求自行确定,如状态下需要显示哪些前端组件:{"components":[{"AppList":1, "ProjectList":7}]}')
+    distribute_type_id = models.IntegerField(
+        _('distribute_type_id'), default=1,
+        help_text=_('1. Take the initiative to take orders (if the current handler actually has multiple people,'
+                    ' you need to accept the order before processing)'
+                    ' 2. Direct processing (even if the current handler actually has multiple people,'
+                    ' it can be processed directly)'
+                    ' 3. Random allocation (if the actual number of handlers is actually multiple)'
+                    ' If there are multiple people, the system will randomly assign it to one of them)'
+                    ' 4. Process all (requires all participants to process it once before entering the next step)')
+    )
+    state_field_str = models.TextField(
+        _('state_field_str'), default='{}',
+        help_text=_('json format dictionary storage, including read-write attributes 1: read-only, 2: required, 3: optional. Example: {"created_at":1,"title":2, "sn":1}, built-in special field participant_info .participant_name: current processor information (department name, role name), state.state_name: state name of the current state, workflow.workflow_name: workflow name'))  # json format storage, including read and write attributes 1: read-only, 2: required, 3: optional, 4: not displayed, dictionary of dictionaries
+    label = models.CharField(
+        _('label'), max_length=1000, default='{}',
+        help_text=_('json format, which is determined by the caller according to the actual customization requirements, such as which front-end components need to be displayed in the state: {"components":[{"AppList":1, "ProjectList":7}]}')
+    )
 
 
 class Transition(BaseModel):
     """
-    工作流流转，定时器，条件(允许跳过)， 条件流转与定时器不可同时存在
+    Workflow flow, timer, condition (skip is allowed), conditional flow and timer cannot exist at the same time
     """
-    name = models.CharField('操作', max_length=50)
-    workflow_id = models.IntegerField('工作流id')
-    transition_type_id = models.IntegerField('流转类型', default=1, help_text='1.常规流转，2.定时器流转,需要设置定时器时间')  # 未在使用，即将废弃
-    timer = models.IntegerField('定时器(单位秒)', default=0, help_text='流转类型设置为定时器流转时生效,单位秒。处于源状态X秒后如果状态都没有过变化则自动流转到目标状态')
-    source_state_id = models.IntegerField('源状态id')
-    destination_state_id = models.IntegerField('目的状态id')
-    condition_expression = models.CharField('条件表达式', max_length=1000, default='[]', help_text='流转条件表达式，根据表达式中的条件来确定流转的下个状态，格式为[{"expression":"{days} > 3 and {days}<10", "target_state_id":11}] 其中{}用于填充工单的字段key,运算时会换算成实际的值，当符合条件下个状态将变为target_state_id中的值,表达式只支持简单的运算或datetime/time运算.loonflow会以首次匹配成功的条件为准，所以多个条件不要有冲突' )
-    attribute_type_id = models.IntegerField('属性类型', default=1, help_text='属性类型，1.同意，2.拒绝，3.其他')
-    field_require_check = models.BooleanField('是否校验必填项', default=True, help_text='默认在用户点击操作的时候需要校验工单表单的必填项,如果设置为否则不检查。用于如"退回"属性的操作，不需要填写表单内容')
-    alert_enable = models.BooleanField('点击弹窗提示', default=False)
-    alert_text = models.CharField('弹窗内容', max_length=100, default='', blank=True)
+    name = models.CharField(_('name'), max_length=50)
+    workflow_id = models.IntegerField(_('workflow_id'))
+    transition_type_id = models.IntegerField(
+        _('transition_type_id'), default=1,
+        help_text=_('1. Regular circulation, 2. Timer circulation, you need to set the timer time')
+    )  # Not in use, will soon be abandoned
+    timer = models.IntegerField(
+        _('Timer(seconds)'), default=0,
+        help_text=_('The flow type is set to take effect when the timer flows,'
+                    ' in seconds. After being in the source state for X seconds, '
+                    'if the state has not changed, it will automatically flow to the target state')
+    )
+    source_state_id = models.IntegerField(_('source_state_id'))
+    destination_state_id = models.IntegerField(_('destination_state_id'))
+    condition_expression = models.CharField(
+        _('condition_expression'), max_length=1000, default='[]',
+        help_text=_('The flow condition expression, which determines the next state of the flow according'
+                    ' to the conditions in the expression, '
+                    'the format is [{"expression":"{days} > 3 and {days}<10", "target_state_id":11}]'
+                    ' where { } is used to fill the field key of the work order, '
+                    'which will be converted into the actual value during operation. '
+                    'When the condition is met, the next state will become the value in target_state_id.'
+                    ' The expression only supports simple operations or datetime/time operations.'
+                    ' Loonflow will start with the first time The conditions for successful matching shall prevail,'
+                    ' so multiple conditions should not conflict')
+    )
+    attribute_type_id = models.IntegerField(
+        _('attribute_type_id'), default=1,
+        help_text=_('Attribute Type, 1. Agree, 2. Deny, 3. Other')
+    )
+    field_require_check = models.BooleanField(
+        _('field_require_check'), default=True,
+        help_text=_('By default, when the user clicks the operation,'
+                    ' the required items of the work order form need to be verified.'
+                    ' If it is set to otherwise, it will not be checked.'
+                    ' Used for operations such as "return" attributes without filling in form content')
+    )
+    alert_enable = models.BooleanField(_('alert_enable'), default=False)
+    alert_text = models.CharField(_('alert_text'), max_length=100, default='', blank=True)
 
 
 class CustomField(BaseModel):
-    """自定义字段, 设定某个工作流有哪些自定义字段"""
-    workflow_id = models.IntegerField('工作流id')
-    field_type_id = models.IntegerField('类型', help_text='5.字符串，10.整形，15.浮点型，20.布尔，25.日期，30.日期时间，35.单选框，40.多选框，45.下拉列表，50.多选下拉列表，55.文本域，60.用户名, 70.多选的用户名, 80.附件(只保存路径，多个使用逗号隔开)')
-    field_key = models.CharField('字段标识', max_length=50, help_text='字段类型请尽量特殊，避免与系统中关键字冲突')
+    """Custom fields, set which custom fields a workflow has"""
+    workflow_id = models.IntegerField(_('workflow_id'))
+    field_type_id = models.IntegerField(
+        _('field_type_id'),
+        help_text=_('5. String, 10. Integer, 15. Float, 20. Boolean, 25. Date, 30. Date Time, 35. Radio box,'
+                    ' 40. Multi-select box, 45. Drop-down list, 50. Multi-select drop-down List, 55. Text field, 60. '
+                    'Username, 70. Username for multiple selections, 80. '
+                    'Attachment (only the path is saved, multiple are separated by commas)')
+    )
+    field_key = models.CharField(
+        _('field_key'), max_length=50,
+        help_text=_('Please make the field type as special as possible to avoid conflict with keywords in the system')
+    )
     field_name = models.CharField('字段名称', max_length=50)
-    order_id = models.IntegerField('排序', default=0, help_text='工单基础字段在表单中排序为:流水号0,标题20,状态id40,状态名41,创建人80,创建时间100,更新时间120.前端展示工单信息的表单可以根据这个id顺序排列')
-    default_value = models.CharField('默认值', null=True, blank=True, max_length=100, help_text='前端展示时，可以将此内容作为表单中的该字段的默认值')
-    description = models.CharField('描述', max_length=100, blank=True, default='', help_text='字段的描述信息，可用于显示在字段的下方对该字段的详细描述')
-    placeholder = models.CharField('占位符', max_length=100, blank=True, default='', help_text='用户工单详情表单中作为字段的占位符显示')
-    field_template = models.TextField('文本域模板', default='', blank=True, help_text='文本域类型字段前端显示时可以将此内容作为字段的placeholder')
-    boolean_field_display = models.CharField('布尔类型显示名', max_length=100, default='{}', blank=True,
-                                             help_text='当为布尔类型时候，可以支持自定义显示形式。{"1":"是","0":"否"}或{"1":"需要","0":"不需要"}，注意数字也需要引号')
-    field_choice = models.CharField('radio、checkbox、select的选项', max_length=1000, default='{}', blank=True,
-                                    help_text='radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{"1":"中国", "2":"美国"},注意数字也需要引号')
-    label = models.CharField('标签', max_length=100, blank=True, default='{}', help_text='自定义标签，json格式，调用方可根据标签自行处理特殊场景逻辑，loonflow只保存文本内容')
+    order_id = models.IntegerField(
+        _('order_id'), default=0,
+        help_text=_('The basic fields of the work order are sorted in the form:'
+                    ' serial number 0, title 20, status id 40, status name 41, creator 80, creation time 100,'
+                    ' update time 120. The form that displays the work order information on the front end '
+                    'can be arranged according to this id order')
+    )
+    default_value = models.CharField(
+        _('default_value'), null=True, blank=True, max_length=100,
+        help_text=_('When the front end is displayed, this content can be used as the default '
+                    'value of the field in the form')
+    )
+    description = models.CharField(
+        _('description'), max_length=100, blank=True, default='',
+        help_text=_('Description of the field, which can be used to display '
+                    'a detailed description of the field below the field')
+    )
+    placeholder = models.CharField(
+        _('placeholder'), max_length=100, blank=True, default='',
+        help_text=_('Displayed as a placeholder for a field in the user ticket details form')
+    )
+    field_template = models.TextField(
+        _('field_template'), default='', blank=True,
+        help_text=_('When the text field type field is displayed on the front end,'
+                    ' this content can be used as the placeholder of the field')
+    )
+    boolean_field_display = models.CharField(
+        _('boolean_field_display'), max_length=100, default='{}', blank=True,
+        help_text=_('When it is a boolean type, it can support a custom display form.'
+                    ' {"1":"yes","0":"no"} or {"1":"required","0":"not required"}, note that numbers also need quotes')
+    )
+    field_choice = models.CharField(
+        _('radio, checkbox, select options'), max_length=1000, default='{}', blank=True,
+        help_text=_('Options for radio, checkbox, select, multiselect types, '
+                    'the format is json such as: {"1":"China", "2":"United States"}, '
+                    'note that numbers also need quotation marks')
+    )
+    label = models.CharField(
+        _('label'), max_length=100, blank=True, default='{}',
+        help_text=_('Custom label, json format, the caller can handle special scene logic according '
+                    'to the label, loonflow only saves the text content')
+    )
 
 
 def upload_workflow_script(instance, filename):
     """
-    因为脚本中可能会存在一些私密信息，如账号密码等，所以重命名文件，避免可以直接下载此文件
+    Because there may be some private information in the script, such as account password, etc.,
+    rename the file to avoid downloading the file directly
     :param instance:
     :param filename:
     :return:
@@ -91,24 +221,30 @@ def upload_workflow_script(instance, filename):
     upload_to = 'workflow_script'
     ext = filename.split('.')[-1]
     if ext != 'py':
-        raise Exception('只支持python脚本')
+        raise Exception('Only supports python scripts')
     filename = '{}.{}'.format(uuid.uuid1(), ext)
     return os.path.join(upload_to, filename)
 
 
 class WorkflowScript(BaseModel):
     """
-    流程中执行的脚本
+    Script executed in the process
     """
-    name = models.CharField('名称', max_length=50)
-    saved_name = models.FileField('存储的文件名', upload_to=upload_workflow_script, help_text='请上传python脚本,media/workflow_script/demo_script.py为示例脚本，请参考编写')
-    description = models.CharField('描述', max_length=100, null=True, blank=True)
-    is_active = models.BooleanField('可用', default=True, help_text='此处可用时，才允许实际执行')
+    name = models.CharField(_('name'), max_length=50)
+    saved_name = models.FileField(
+        _('saved_name'), upload_to=upload_workflow_script,
+        help_text=_('Please upload the python script, media/workflow_script/demo_script.py'
+                    ' is an example script, please refer to writing'))
+    description = models.CharField(_('description'), max_length=100, null=True, blank=True)
+    is_active = models.BooleanField(
+        _('is_active'), default=True, help_text=_('Actual execution is allowed only when available here')
+    )
 
 
 def upload_notice_script(instance, filename):
     """
-    因为通知脚本中可能会存在一些私密信息，如账号密码等，所以重命名文件，避免可以直接下载此文件
+    Because there may be some private information in the notification script, such as account password, etc.,
+     rename the file to avoid downloading the file directly
     :param instance:
     :param filename:
     :return:
@@ -116,23 +252,25 @@ def upload_notice_script(instance, filename):
     upload_to = 'notice_script'
     ext = filename.split('.')[-1]
     if ext != 'py':
-        raise Exception('只支持python脚本')
+        raise Exception('Only supports python scripts')
     filename = '{}.{}'.format(uuid.uuid1(), ext)
     return os.path.join(upload_to, filename)
 
 
 class CustomNotice(BaseModel):
     """
-    自定义通知方式，hook
+    Customize notification methods，hook
     """
-    name = models.CharField('名称', max_length=50)
-    description = models.CharField('描述', max_length=100, null=True, blank=True)
-    type_id = models.IntegerField('类型', default=1, help_text='hook,企业微信消息,钉钉消息')
+    name = models.CharField(_('name'), max_length=50)
+    description = models.CharField(_('description'), max_length=100, null=True, blank=True)
+    type_id = models.IntegerField(
+        _('type_id'), default=1, help_text=_('hook, enterprise WeChat message, DingTalk message')
+    )
 
-    corpid = models.CharField('企微corpid', max_length=100, null=True, blank=True)
-    corpsecret = models.CharField('企微corpsecret', max_length=100, null=True, blank=True)
-    appkey = models.CharField('钉钉appkey', max_length=100, null=True, blank=True)
-    appsecret = models.CharField('钉钉appsecret', max_length=100, null=True, blank=True)
+    corpid = models.CharField(_('corpid'), max_length=100, null=True, blank=True)
+    corpsecret = models.CharField(_('corpsecret'), max_length=100, null=True, blank=True)
+    appkey = models.CharField(_('appkey'), max_length=100, null=True, blank=True)
+    appsecret = models.CharField(_('appsecret'), max_length=100, null=True, blank=True)
 
     hook_url = models.CharField('hook url', max_length=100, null=True, blank=True)
     hook_token = models.CharField('hook token', max_length=100, null=True, blank=True)
@@ -140,9 +278,12 @@ class CustomNotice(BaseModel):
 
 class WorkflowUserPermission(BaseModel):
     """
-    用户，部门，应用对工作流的操作权限。 view: 查看对应工单详情(不管该工作流是否开启查看权限校验)，intervene:view+强制修改工单状态的权限。 admin:intervene + 可以修改工作流
+    User, department, and application permissions to operate the workflow. view:
+    View the details of the corresponding work order
+    (regardless of whether the view permission verification is enabled for the workflow),
+    intervene:view+ forcibly modify the permission of the work order status. admin:intervene + can modify the workflow
     """
     workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=False)
-    permission = models.CharField('权限', max_length=100, null=True, blank=True)  # view, intervene， admin, api
-    user_type = models.CharField('用户类型', max_length=100, null=True, blank=True)  # user, department, app
-    user = models.CharField('用户', max_length=100, null=True, blank=True)  # username, department_id, app_name
+    permission = models.CharField(_('permission'), max_length=100, null=True, blank=True)  # view, intervene， admin, api
+    user_type = models.CharField(_('user_type'), max_length=100, null=True, blank=True)  # user, department, app
+    user = models.CharField(_('user'), max_length=100, null=True, blank=True)  # username, department_id, app_name
