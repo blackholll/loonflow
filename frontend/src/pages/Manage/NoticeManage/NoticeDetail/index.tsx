@@ -62,21 +62,21 @@ class NoticeDetail extends PureComponent<any, any> {
       // todo: update
       const result = await updateNoticeDetailRequest(this.state.noticeId, value);
       if (result.code === 0) {
-        message.success('更新成功');
+        message.success('update completed');
         this.props.reloadList();
 
       } else {
-        message.error(`更新失败: ${result.msg}`);
+        message.error(`update failed: ${result.msg}`);
       }
 
     } else {
       const result = await addNoticeListRequest( value);
       if (result.code === 0) {
-        message.success('新增成功');
+        message.success('added successfully');
         this.props.reloadList();
 
       } else {
-        message.error(`新增失败:${result.msg}`);
+        message.error(`Add failed:${result.msg}`);
       }
     }
 
@@ -100,19 +100,19 @@ class NoticeDetail extends PureComponent<any, any> {
         {...layout}
       >
         <Form.Item
-          label="名称"
+          label="name"
           name="name"
           rules={[{ required: true, message: 'Please input notice name!' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="描述"
+          label="description"
           name="description"
         >
           <Input />
         </Form.Item>
-        <Form.Item name="type_id" label="类型"
+        <Form.Item name="type_id" label="type"
                    rules={[{ required: true, message: 'Please select notice type!' }]}
         >
           <Radio.Group onChange={this.onTypeChange} defaultValue={String(this.state.noticeInfo.type_id)}>
@@ -181,7 +181,7 @@ class NoticeDetail extends PureComponent<any, any> {
         }
         <Form.Item {...tailLayout}>
           <Button type="primary" htmlType="submit">
-            确定
+            submit
           </Button>
 
         </Form.Item>

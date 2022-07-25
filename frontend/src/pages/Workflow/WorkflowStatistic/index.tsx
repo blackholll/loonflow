@@ -30,7 +30,7 @@ const WorkflowStatistic: React.FC =(props) => {
       setTicketCountData(result.data.result_list)
     }
     else {
-      message.error(`获取数据失败: %{result.msg}`)
+      message.error(`Failed to get data: %{result.msg}`)
     }
 
   }
@@ -53,7 +53,7 @@ const WorkflowStatistic: React.FC =(props) => {
     height: 400,
     xField: 'day',
     yField: 'count',
-    name: '工单数量',
+    name: 'Number of work orders',
     point: {
       size: 5,
       shape: 'diamond',

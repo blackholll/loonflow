@@ -48,41 +48,41 @@ export default defineConfig({
     },
     {
       path: '/workbench',
-      name: '工作台',
+      name: 'workbench',
       icon: 'ScheduleOutlined',
       component: './Workbench',
     },
     {
       "path": "/tickets",
-      "name": "工单管理",
+      "name": "tickets",
       "icon": "SolutionOutlined",
       routes: [
         {
           "path": "/tickets/duty",
-          "name": "我的待办",
+          "name": "My to do",
           "component": '../../src/pages/Ticket/DutyTicket',
         },
         {
           "path": "/tickets/owner",
-          "name": "我的申请",
+          "name": "My application",
           "component": '../../src/pages/Ticket/OwnerTicket',
 
         },
         {
           "path": "/tickets/relation",
-          "name": "与我相关",
+          "name": "Related to me",
           "component": '../../src/pages/Ticket/RelatedTicket',
 
         },
         {
           "path": "/tickets/view",
-          "name": "工单查看",
+          "name": "Work order view",
           "component": '../../src/pages/Ticket/ViewTicket',
 
         },
         {
           "path": "/tickets/intervene",
-          "name": "工单干预",
+          "name": "work order intervention",
           "access": 'workflowAdmin',
           "component": '../../src/pages/Ticket/InterveneTicket',
 
@@ -90,7 +90,7 @@ export default defineConfig({
         {
           "path": "/tickets/all",
           "access": 'superAdmin',
-          "name": "所有工单",
+          "name": "All work orders",
           "component": '../../src/pages/Ticket/AllTicket',
 
         }
@@ -98,7 +98,7 @@ export default defineConfig({
     },
     {
       path: '/workflows',
-      name: '工作流管理',
+      name: 'Workflow Management',
       access: 'workflowAdmin',
       icon: 'DeploymentUnitOutlined',
       component: '../../src/pages/Workflow/WorkflowList',
@@ -110,39 +110,39 @@ export default defineConfig({
     },
     {
       "path": "/users",
-      "name": "用户及权限",
+      "name": "Users and permissions",
       // "icon": "dashboard",
       "icon": "ApartmentOutlined",
       access: 'superAdmin',
       routes: [
         {
           "path": "/users/user",
-          "name": "用户管理",
+          "name": "User Management",
           "component": '../../src/pages/User/User/UserList',
 
         },
         {
           "path": "/users/role",
-          "name": "角色管理",
+          "name": "Role management",
           "component": '../../src/pages/User/Role/RoleList',
 
         },
         {
           "path": "/users/dept",
-          "name": "部门管理",
+          "name": "Department management",
           "component": '../../src/pages/User/Dept/DeptList',
 
         },
         {
           "path": "/users/app",
-          "name": "调用权限",
+          "name": "Call permission",
           "component": '../../src/pages/User/Token/TokenList',
         }
       ],
     },
     {
       path: '/manage',
-      name: '系统配置',
+      name: 'System Configuration',
       icon: 'ToolOutlined',
       access: 'superAdmin',
       component: './Manage',

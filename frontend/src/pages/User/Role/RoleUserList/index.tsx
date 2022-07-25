@@ -60,7 +60,7 @@ class RoleUserList extends Component<any, any> {
     if (result.code === 0 ) {
       this.setState({roleUserResult: result.data.value, roleUserLoading:false});
     } else {
-      message.error(`获取角色用户列表失败: ${result.msg}`)
+      message.error(`Failed to get role user list: ${result.msg}`)
       this.setState({roleUserLoading:false});
     }
   }
@@ -68,10 +68,10 @@ class RoleUserList extends Component<any, any> {
   delRoleUser = async(userId: number) => {
     const result = await delRoleUserRequest(this.props.roleId, userId);
     if (result.code === 0 ) {
-      message.success('删除角色用户成功');
+      message.success('Delete role user successfully');
       this.fetchRoleUser({page:1, per_page:10});
     } else {
-      message.error(`删除角色用户失败: ${result.msg}`)
+      message.error(`Failed to delete role user: ${result.msg}`)
     }
   }
 
@@ -85,11 +85,11 @@ class RoleUserList extends Component<any, any> {
   onRoleUserFinish = async(values: object) => {
     const result = await addRoleUser(this.props.roleId,{user_id: Number(values.user)});
     if (result.code ===0 ) {
-      message.success('新增角色用户成功');
+      message.success('Added role user successfully');
       this.setState({roleUserModalVisible: false})
       this.fetchRoleUser({});
     } else {
-      message.error(`新增角色用户失败:${result.msg}`);
+      message.error(`Failed to add role user:${result.msg}`);
     }
   }
 
@@ -101,26 +101,26 @@ class RoleUserList extends Component<any, any> {
         key: "id"
       },
       {
-        title: "用户名",
+        title: "username",
         dataIndex: "username",
         key: "username"
       },
       {
-        title: "姓名",
+        title: "alias",
         dataIndex: "alias",
         key: "alias"
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render: (text: string, record: any) => (
           <span>
             <a style={{marginRight: 16, color: "red"}}>
               <Popconfirm
-                title="确认删除么"
+                title="Are you sure to delete?"
                 onConfirm={()=>{this.delRoleUser(record.id)}}
               >
-                删除
+                delete
               </Popconfirm>
             </a>
           </span>
@@ -147,21 +147,21 @@ class RoleUserList extends Component<any, any> {
             <Col span={6} key={"search_value"}>
               <Form.Item
                 name={"search_value"}
-                label={"查询"}
+                label={"search_value"}
               >
-                <Input placeholder="支持姓名模糊查询" />
+                <Input placeholder="Support name fuzzy query" />
               </Form.Item>
             </Col>
             <Col>
               <Button type="primary" htmlType="submit">
-                搜索
+                search
               </Button>
             </Col>
           </Row>
           <Row>
             <Col span={24} style={{ textAlign: 'right' }}>
               <Button type="primary" onClick={()=>this.showRoleUserModal(0)}>
-                新增
+                new
               </Button>
             </Col>
           </Row>
@@ -169,7 +169,7 @@ class RoleUserList extends Component<any, any> {
       <Table loading={this.state.roleUserLoading} columns={columns} dataSource={this.state.roleUserResult}
              rowKey={record => record.id} pagination={this.state.pagination}/>
       <Modal
-        title={"角色用户"}
+        title={"role user"}
         visible={ this.state.roleUserModalVisible}
         width={800}
         footer={null}
@@ -181,12 +181,12 @@ class RoleUserList extends Component<any, any> {
           {...layout}
           onFinish={this.onRoleUserFinish}
         >
-          <Form.Item name="user" label="用户" rules={[{ required: true }]}>
+          <Form.Item name="user" label="user" rules={[{ required: true }]}>
             <Select
               showSearch
               allowClear
               style={{ width: '100%' }}
-              placeholder="请搜索用户"
+              placeholder="Please search for users"
               onSearch = {this.searchUser}
               filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -200,7 +200,7 @@ class RoleUserList extends Component<any, any> {
           </Form.Item>
           <Form.Item {...tailLayout}>
             <Button type="primary" htmlType="submit">
-              确定
+              Submit
             </Button>
           </Form.Item>
 

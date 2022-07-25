@@ -39,7 +39,7 @@ class WorkflowList extends Component<any, any> {
       this.setState({workflowListResult: result.data.value});
     } else
     {
-      message.error(`获取工作流列表失败: ${result.msg}`)
+      message.error(`Failed to get workflow list: ${result.msg}`)
     }
   }
 
@@ -62,7 +62,7 @@ class WorkflowList extends Component<any, any> {
         pagination: pagination
       })
     } else {
-      message.error(`获取工作流列表失败: ${result.msg}`)
+      message.error(`Failed to get workflow list: ${result.msg}`)
     }
   }
 
@@ -70,7 +70,7 @@ class WorkflowList extends Component<any, any> {
   delWorkflowRequest = async(workflowId: number) => {
     const result = await delWorkflow(workflowId);
     if (result.code === 0 ){
-      message.success('删除工作流成功');
+      message.success('Delete workflow succeeded');
       this.fetchWorkflowData({});
     }
 
@@ -79,52 +79,52 @@ class WorkflowList extends Component<any, any> {
   render() {
     const columns = [
       {
-        title: "名称",
+        title: "name",
         dataIndex: "name",
         key: "name"
       },
       {
-        title: "描述",
+        title: "description",
         dataIndex: "description",
         key: "description"
       },
       {
-        title: "工单查看权限校验",
+        title: "view_permission_check",
         dataIndex: "view_permission_check",
         key: "view_permission_check",
         render: (text:boolean, record: any) => {
           if (text) {
-            return "是"
+            return "Yes"
           } else {
-            return "否"
+            return "no"
           }
 
         }
 
       },
       {
-        title: "创建人",
+        title: "founder",
         dataIndex: "creator",
         key: "creator"
       },
       {
-        title: "创建时间",
+        title: "creation time",
         dataIndex: "gmt_created",
         key: "gmt_created"
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render: (text: string, record: any) => (
           <span>
-            <Link to={ `/workflows/detail?workflow_id=${record.id}`}>详情</Link>
+            <Link to={ `/workflows/detail?workflow_id=${record.id}`}>Details</Link>
             |
             <a style={{marginRight: 16, color: "red"}}>
               <Popconfirm
-                title="确认删除么"
+                title="Are you sure to delete?"
                 onConfirm={()=>{this.delWorkflowRequest(record.id)}}
               >
-                删除
+                delete
               </Popconfirm>
             </a>
           </span>
@@ -143,14 +143,14 @@ class WorkflowList extends Component<any, any> {
             <Col span={6} key={"search_value"}>
               <Form.Item
                 name={"search_value"}
-                label={"查询"}
+                label={"search_value"}
               >
-                <Input placeholder="支持工作流名模糊查询" />
+                <Input placeholder="Support workflow name fuzzy query" />
               </Form.Item>
             </Col>
             <Col>
               <Button type="primary" htmlType="submit">
-                搜索
+                search
               </Button>
             </Col>
           </Row>
@@ -158,12 +158,12 @@ class WorkflowList extends Component<any, any> {
             <Col span={24} style={{ textAlign: 'right' }}>
               {/*<Button type="primary" onClick={()=> window.location.href = '/workflows/detail'*/}
               {/*}>*/}
-              {/*  新增*/}
+              {/*  new*/}
               {/*</Button>*/}
 
               <Link to={ '/workflows/detail'}>
                 <Button type="primary" >
-                新增
+                new
                 </Button>
               </Link>
             </Col>

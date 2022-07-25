@@ -63,10 +63,10 @@ class NoticeRecord extends Component<any, any> {
   deleteConfirm = async(noticeId) =>{
     const result = await delNoticeDetailRequest({noticeId: noticeId});
     if (result.code === 0) {
-      message.success('删除成功');
+      message.success('successfully deleted');
       this.fetchNoticeData();
     } else {
-      message.error(`删除失败: ${result.msg}`);
+      message.error(`failed to delete: ${result.msg}`);
 
     }
 
@@ -80,51 +80,51 @@ class NoticeRecord extends Component<any, any> {
         key: "id",
       },
       {
-        title: "名称",
+        title: "name",
         dataIndex: "name",
         key: "name",
       },
       {
-        title: "类型",
+        title: "type",
         key: "type_id",
         render: (text: any, record: any) => {
           if (record.type_id === 1) {
             return "hook";
           } else if (record.type_id === 2) {
-            return "企业微信消息";
+            return "Enterprise WeChat message";
           } else if (record.type_id === 3) {
-            return "钉钉消息";
+            return "Dingding news";
           }
         }
       },
       {
-        title: "描述",
+        title: "description",
         dataIndex: "description",
         key: "description",
       },
       {
-        title: "创建人",
+        title: "creator",
         dataIndex: "creator",
         key: "creator",
       },
       {
-        title: "创建时间",
+        title: "gmt_created",
         dataIndex: "gmt_created",
         key: "gmt_created",
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render: (text: string, record: any) => (
           <span>
-            <a style={{marginRight: 16}} onClick={ ()=>this.showNoticeDetail(record.id)}>编辑</a>
+            <a style={{marginRight: 16}} onClick={ ()=>this.showNoticeDetail(record.id)}>edit</a>
             <Popconfirm
-              title="确认删除此通知记录? 请在删除前确认没有工作流使用该通知"
+              title="Are you sure you want to delete this notification record? Please confirm that no workflow is using this notification before deleting"
               onConfirm={()=>this.deleteConfirm(record.id)}
               okText="Yes"
               cancelText="No"
             >
-              <a href="#" style={{color: "red"}}>删除</a>
+              <a href="#" style={{color: "red"}}>delete</a>
             </Popconfirm>
           </span>
         )
@@ -135,13 +135,13 @@ class NoticeRecord extends Component<any, any> {
     return (
       <div>
         <Button onClick={()=>this.showNoticeDetail(0)} type="primary" style={{ marginBottom: 16 }}>
-          新建
+          new
         </Button>
         <Table loading={this.state.noticeListLoading} columns={columns} dataSource={this.state.NoticeList}
                rowKey={record => record.id}/>
 
         <Modal
-          title="自定义通知"
+          title="Customize notifications"
           visible={this.state.showNoticeModal}
           onOk={this.handleOk}
           onCancel={this.handleCancel}

@@ -37,7 +37,7 @@ class WorkflowBasicInfo extends Component<any, any> {
   fetchWorkflowDetail = async() => {
     const result = await getWorkflowDetail(this.props.workflowId);
     if (result.code !==0) {
-      message.error(`获取工作流基础信息失败: ${result.msg}`);
+      message.error(`Failed to get workflow basic information: ${result.msg}`);
     } else {
       this.setState({workflowBasicResult: result.data});
     }
@@ -125,9 +125,9 @@ class WorkflowBasicInfo extends Component<any, any> {
     };
     const formInitialValues = this.getWorkflowInitialValues();
     // const formInitialValues = {"name":"tttt"};
-    console.log('第一次')
+    console.log('the first time')
     console.log(formInitialValues);
-    console.log('第一次')
+    console.log('the first time')
     this.props.form.resetFields(formInitialValues);
 
 
@@ -145,23 +145,23 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="firstCol">
               <Form.Item
                 name="name"
-                label= "名称1111"
+                label= "name"
                 rules={[
                   {
                     required: true,
-                    message: '请输入工作流名称',
+                    message: 'Please enter a workflow name',
                   },
                 ]}
               >
-                <Input placeholder="请输入工作流名称"/>
+                <Input placeholder="Please enter a workflow name"/>
               </Form.Item>
             </Col>
             <Col span={12} key="secondCol">
               <Form.Item
                 name="description"
-                label= {<span>描述<Tooltip title={"描述信息将出现在新建工单页面"}><QuestionCircleOutlined/></Tooltip></span>}
+                label= {<span>describe<Tooltip title={"The description will appear on the New Ticket page"}><QuestionCircleOutlined/></Tooltip></span>}
               >
-                <Input placeholder="描述信息将显示在新建工单页面" value={'sss'}/>
+                <Input placeholder="The description information will be displayed on the New Ticket page" value={'sss'}/>
               </Form.Item>
             </Col>
           </Row>
@@ -169,14 +169,14 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="firstCol">
               <Form.Item
                 name="notices"
-                label= "选择通知"
+                label= "notices"
               >
                 <Select
                   allowClear
                   showSearch
                   mode= "multiple"
                   style={{ width: '100%' }}
-                  placeholder="请选择通知方式"
+                  placeholder="Please select a notification method"
                 >
                   {this.state.noticeList.map(d => (
                     <Option key={d.id}>{d.name}</Option>
@@ -187,11 +187,11 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="secondCol">
               <Form.Item
                 name="limit_expression"
-                label= {<span>限制表达式<Tooltip title='默认"{}"，限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)'>
+                label= {<span>limit expression<Tooltip title='Default "{}", limit period ({"period":24} 24 hours), limit times ({"count":1} only allow one submission in the limit period), limit level ({"level":1 } For (1 single user 2 global) limit the number of cycles, the default is a specific user); allow specific people to submit ({"allow_persons":"zhangsan,lisi"}Only allow Zhang San to submit work orders,{"allow_depts":"1 ,2"} only allows users with department ids 1 and 2 to submit work orders, {"allow_roles":"1,2"} only allows users with role ids 1 and 2 to submit work orders)'>
              <QuestionCircleOutlined />
         </Tooltip></span>}
               >
-                <Input placeholder="请设置展现表单字段" />
+                <Input placeholder="Please set the display form field" />
               </Form.Item>
             </Col>
           </Row>
@@ -199,17 +199,17 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="firstCol">
               <Form.Item
                 name="display_form_str"
-                label= {<span>展现表单<Tooltip title={"当用户只有查看权限，非当前处理人时，工单详情展示的字段信息，格式[\"gmt_created\",\"title\", \"creator\"],"}><QuestionCircleOutlined/></Tooltip></span>}
+                label= {<span>show form<Tooltip title={"When the user only has viewing permission and is not the current handler, the field information displayed in the ticket details, in the format [\"gmt_created\",\"title\", \"creator\"],"}><QuestionCircleOutlined/></Tooltip></span>}
               >
-                <Input placeholder="请选择需要展示的字段"/>
+                <Input placeholder="Please select the fields to display"/>
               </Form.Item>
             </Col>
             <Col span={12} key="secondCol">
               <Form.Item
                 name="title_template"
-                label= {<span>标题模板<Tooltip title="用户新建工单时未传标题字段(及title字段)时，自动生生成标题。支持将工单字段作为参数写到模板中，如{creator}的请假申请，({date_start}-{date_end})"><QuestionCircleOutlined /></Tooltip></span>}
+                label= {<span>title template<Tooltip title="When the user does not pass the title field (and the title field) when creating a new work order, the title is automatically generated. Supports writing work order fields as parameters into templates, such as {creator}'s leave application, ({date_start}-{date_end})"><QuestionCircleOutlined /></Tooltip></span>}
               >
-                <Input placeholder="请设置标题模板" />
+                <Input placeholder="Please set a title template" />
               </Form.Item>
             </Col>
           </Row>
@@ -217,10 +217,10 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="firstCol">
               <Form.Item
                 name="content_template"
-                label= {<span>通知内容模板<Tooltip title="用于工单消息通知时，消息内容。支持将工单字段作为参数写到模板中，如: 标题:{title}, 创建时间:{gmt_created}"><QuestionCircleOutlined /></Tooltip></span>}
+                label= {<span>Notification Content Template<Tooltip title="Message content when used for ticket notification. Supports writing ticket fields as parameters into templates, such as: title:{title}, creation time:{gmt_created}"><QuestionCircleOutlined /></Tooltip></span>}
               >
                 <TextArea
-                  placeholder="用于工单消息通知时，消息内容。支持将工单字段作为参数写到模板中，如: 标题:{title}, 创建时间:{gmt_created}"
+                  placeholder="Message content when used for ticket notification. Supports writing ticket fields as parameters into templates, such as: title:{title}, creation time:{gmt_created}"
                   autoSize={{ minRows: 2, maxRows: 6 }}
                 />
               </Form.Item>
@@ -230,9 +230,9 @@ class WorkflowBasicInfo extends Component<any, any> {
                 name="view_permission_check"
                 valuePropName= {this.state.workflowDetailResult&& this.state.workflowDetailResult.view_permission_check? "checked": "unchecked"}
 
-                label= {<span>查看权限校验<Tooltip title="开启后，非对应工单关系人(创建人、当前处理人、曾经需要其处理的处理人)无查看工单详情的权限"><QuestionCircleOutlined /></Tooltip></span>}
+                label= {<span>View permission check<Tooltip title="After it is turned on, people who are not related to the work order (creator, current handler, and handlers who used to handle it) do not have permission to view the details of the work order"><QuestionCircleOutlined /></Tooltip></span>}
               >
-                <Switch checkedChildren="开启" unCheckedChildren="关闭" />
+                <Switch checkedChildren="on" unCheckedChildren="off" />
               </Form.Item>
             </Col>
           </Row>
@@ -241,14 +241,14 @@ class WorkflowBasicInfo extends Component<any, any> {
               <Form.Item
                 name="workflow_admin"
 
-                label= {<span>管理员<Tooltip title="被设置管理员，则可以修改工作流，干预对应的工单状态(强制修改状态)"><QuestionCircleOutlined /></Tooltip></span>}
+                label= {<span>administrator<Tooltip title="If an administrator is set, you can modify the workflow and interfere with the corresponding work order status (mandatory modification status)"><QuestionCircleOutlined /></Tooltip></span>}
               >
                 <Select
                   allowClear
                   showSearch
                   mode="multiple"
                   style={{ width: '100%' }}
-                  placeholder="请输入关键词搜索并选择工作流管理员"
+                  placeholder="Please enter a keyword search and select Workflow Manager"
                   onSearch = {this.searchAdminer}
                 >
                   {this.state.searchAdminerResult && this.state.searchAdminerResult.map(d => (
@@ -260,14 +260,14 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="secondCol">
               <Form.Item
                 name="intervener"
-                label= {<span>干预人<Tooltip title="被设置为干预人，可以在'工单管理'-'工单干预'中看到该类型所有工单，并可以对这些工单干预操作(强制修改工单状态)"><QuestionCircleOutlined /></Tooltip></span>}
+                label= {<span>intervening person<Tooltip title="Set as the intervention person, you can see all the work orders of this type in 'work order management' - 'work order intervention', and can intervene on these work orders (mandatory modification of the work order status)"><QuestionCircleOutlined /></Tooltip></span>}
               >
                 <Select
                   allowClear
                   showSearch
                   mode="multiple"
                   style={{ width: '100%' }}
-                  placeholder="请输入关键词搜索并请选择工作流管理员"
+                  placeholder="Please enter keyword search and please select Workflow Manager"
                   onSearch = {this.searchIntervener}
                 >
                   {this.state.searchIntervenerResult && this.state.searchIntervenerResult.map(d => (
@@ -281,14 +281,14 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="firstCol">
               <Form.Item
                 name="view_persons"
-                label= {<span>查看权限人<Tooltip title="被设置为查看权限人，可以在'工单管理'-'工单查看'中看到该类型的所有工单列表"><QuestionCircleOutlined /></Tooltip></span>}
+                label= {<span>查看权限人<Tooltip title="The person who is set as the viewing authority can see the list of all work orders of this type in 'Work Order Management' - 'Work Order View'"><QuestionCircleOutlined /></Tooltip></span>}
               >
                 <Select
                   allowClear
                   showSearch
                   mode="multiple"
                   style={{ width: '100%' }}
-                  placeholder="请输入关键词搜索并请选择查看权限人"
+                  placeholder="Please enter a keyword to search and please select a viewing authority"
                   onSearch = {this.searchViewer}
                 >
                   {this.state.searchViewerResult && this.state.searchViewerResult.map(d => (
@@ -300,14 +300,14 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="secondCol">
               <Form.Item
                 name="view_depts"
-                label= {<span>查看权限部门<Tooltip title="被设置为查看权限部门的下属所有人，可以在'工单管理'-'工单查看'中看到该类型的所有工单列表"><QuestionCircleOutlined /></Tooltip></span>}
+                label= {<span>View permission department<Tooltip title="The subordinate owner of the department that is set to view the authority can see a list of all work orders of this type in 'Work Order Management' - 'Work Order View'"><QuestionCircleOutlined /></Tooltip></span>}
               >
                 <Select
                   mode="multiple"
                   allowClear
                   showSearch
                   style={{ width: '100%' }}
-                  placeholder="请选择授予查看权限的部门"
+                  placeholder="Please select a department to grant viewing access"
                 >
                   {this.state.deptList.map(d => (
                     <Option key={d.id}>{`${d.name}(id:${d.id})`}</Option>
@@ -321,14 +321,14 @@ class WorkflowBasicInfo extends Component<any, any> {
             <Col span={12} key="firstCol">
               <Form.Item
                 name="api_permission_apps"
-                label= "API授权应用"
+                label= "API authorization application"
               >
                 <Select
                   mode="multiple"
                   allowClear
                   showSearch
                   style={{ width: '100%' }}
-                  placeholder="请选择允许调用接口的应用"
+                  placeholder="Please select an application that is allowed to call the interface"
                 >
                   {this.state.appTokenList.map(d => (
                     <Option key={d.id}>{d.app_name}</Option>
@@ -339,7 +339,7 @@ class WorkflowBasicInfo extends Component<any, any> {
           </Row>
           <Form.Item {...tailLayout}>
             <Button type="primary" htmlType="submit">
-              确定
+              submit
             </Button>
           </Form.Item>
         </Form>

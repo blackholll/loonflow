@@ -25,7 +25,7 @@ const LoginMessage: React.FC<{
 );
 
 /**
- * 此方法会跳转到 redirect 参数所在的位置
+ * This method will jump to the location of the redirect parameter
  */
 const replaceGoto = () => {
   const urlParams = new URL(window.location.href);
@@ -56,11 +56,11 @@ const Login: React.FC<{}> = () => {
   const handleSubmit = async (values: LoginParamsType) => {
     setSubmitting(true);
     try {
-      // 登录
+      // Log in
       const msg = await fakeAccountLogin({ ...values, type });
       if (msg.code === 0) {
         Cookies.set('jwt',msg.data.jwt);
-        message.success('登录成功！');
+        message.success('login successful！');
         replaceGoto();
         setTimeout(() => {
           refresh();
@@ -70,7 +70,7 @@ const Login: React.FC<{}> = () => {
       // 如果失败去设置用户错误信息
       setUserLoginState(msg);
     } catch (error) {
-      message.error('登录失败，请重试！');
+      message.error('Login failed, please try again！');
     }
     setSubmitting(false);
   };
@@ -87,38 +87,38 @@ const Login: React.FC<{}> = () => {
               <span className={styles.title}>Loonflow</span>
             </Link>
           </div>
-          <div className={styles.desc}>Loonflow 致力于为企业提供统一的工作流解决方案</div>
+          <div className={styles.desc}>Loonflow Committed to providing enterprises with a unified workflow solution</div>
         </div>
 
         <div className={styles.main}>
           <LoginFrom activeKey={type} onTabChange={setType} onSubmit={handleSubmit}>
-            <Tab key="account" tab="账户密码登录">
+            <Tab key="account" tab="Account password login">
               {code === -1 && loginType === 'account' && !submitting && (
-                <LoginMessage content="账户或密码错误（admin/ant.design）" />
+                <LoginMessage content="wrong account or password（admin/ant.design）" />
               )}
 
               <Username
                 name="username"
-                placeholder="请输入用户名"
+                placeholder="please enter user name"
                 rules={[
                   {
                     required: true,
-                    message: '请输入用户名!',
+                    message: 'please enter user name!',
                   },
                 ]}
               />
               <Password
                 name="password"
-                placeholder="请输入密码"
+                placeholder="Please enter password"
                 rules={[
                   {
                     required: true,
-                    message: '请输入密码！',
+                    message: 'Please enter password！',
                   },
                 ]}
               />
             </Tab>
-            <Submit loading={submitting}>登录</Submit>
+            <Submit loading={submitting}>Log in</Submit>
           </LoginFrom>
         </div>
       </div>

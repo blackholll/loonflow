@@ -144,7 +144,7 @@ class WorkflowState extends Component<any, any> {
         return Promise.resolve();
       }
     }
-    return Promise.reject('格式不正确，需要是字典的的json格式');
+    return Promise.reject('The format is incorrect, it needs to be the json format of the dictionary');
   }
 
 
@@ -163,11 +163,11 @@ class WorkflowState extends Component<any, any> {
       result = await addWorkflowState(this.props.workflowId, values);
     }
     if (result.code === 0){
-      message.success('保存成功');
+      message.success('Successfully saved');
       this.setState({customFieldDetail:{}, workflowStateModalVisible:false})
       this.fetchStateListData({page:1, per_page:10});
     } else {
-      message.error(`保存失败:${result.msg}`);
+      message.error(`Failed to save:${result.msg}`);
     }
 
   }
@@ -175,10 +175,10 @@ class WorkflowState extends Component<any, any> {
   delWorkflowState=async(stateId:Number) => {
     const result = await delWorkflowState(this.props.workflowId, stateId);
     if (result.code === 0){
-      message.success('删除成功');
+      message.success('successfully deleted');
       this.fetchStateListData({page:1, per_page:10});
     } else {
-      message.error(`删除失败:${result.msg}`);
+      message.error(`failed to delete:${result.msg}`);
     }
   }
 
@@ -191,58 +191,58 @@ class WorkflowState extends Component<any, any> {
         key: "id"
       },
       {
-        title: "名称",
+        title: "name",
         dataIndex: "name",
         key: "name"
       },
       {
-        title: "是否隐藏",
+        title: "whether to hide",
         key: "is_hidden",
         render: (text:string, record:any) => {
           if(record.is_hidden) {
-            return "是"
+            return "Yes"
           }
-          return "否"
+          return "No"
         }
       },
       {
-        title: "顺序ID",
+        title: "Order Id",
         dataIndex: "order_id",
         key: "order_id",
       },
       {
-        title: "类型",
+        title: "type",
         key: "type_id",
         render: (text: string, record: any) =>{
           if(record.type_id ===0) {
-            return "普通状态"
+            return "normal state"
           } else if (record.type_id === 1) {
-            return "初始状态"
+            return "initial state"
           } else if (record.type_id === 2) {
-            return "结束状态"
+            return "end state"
           }
         }
       },
       {
-        title: "参与人类型",
+        title: "participant type",
         key: "participant_type",
         render: (text:string, record: any) =>{
           if (record.participant_type_id === 1) {
-            return "个人"
+            return "personal"
           } else if (record.participant_type_id === 2) {
-            return "多人"
+            return "multiple people"
           }else if (record.participant_type_id === 3) {
-            return "部门"
+            return "Department"
           }else if (record.participant_type_id === 4) {
-            return "角色"
+            return "Role"
           }else if (record.participant_type_id === 5) {
-            return "变量"
+            return "variable"
           }else if (record.participant_type_id === 6) {
-            return "脚本"
+            return "Screenplay"
           }else if (record.participant_type_id === 7) {
-            return "工单字段"
+            return "Ticket fields"
           }else if (record.participant_type_id === 8) {
-            return "父工单字段"
+            return "Parent Ticket Fields"
           }else if (record.participant_type_id === 10) {
             return "hook"
           }
@@ -250,47 +250,47 @@ class WorkflowState extends Component<any, any> {
 
       },
       {
-        title: "参与人",
+        title: "participant",
         dataIndex: ["participant_info", "participant_alias"],
         key: "participant",
       },
       {
-        title: "分配方式",
+        title: "Allocation",
         key: "distribute_type_id",
         render: (text:string, record:any) => {
           if (record.distribute_type_id ===1 ){
-            return "主动接单"
+            return "Active order"
           }else if (record.distribute_type_id ===2 ){
-            return "直接处理"
+            return "direct processing"
           }else if (record.distribute_type_id ===3 ){
-            return "随机分配"
+            return "Randomly assigned"
           }else if (record.distribute_type_id ===4 ){
-            return "全部处理"
+            return "Process all"
           }
         }
       },
       {
-        title: "创建人",
+        title: "creator",
         key: "creator",
         dataIndex: "creator"
       },
       {
-        title: "创建时间",
+        title: "gmt_created",
         key: "gmt_created",
         dataIndex: "gmt_created"
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render:(text:string, record:any) => (
           <span>
-                <a style={{marginRight: 16}} onClick={() => this.showWorkflowStateModal(record)}>编辑</a>
+                <a style={{marginRight: 16}} onClick={() => this.showWorkflowStateModal(record)}>edit</a>
                 <a style={{marginRight: 16, color: "red"}}>
                   <Popconfirm
-                    title="确认删除么？ 删除后如果有工单处于此状态将无法被处理，另外检查下是否工作流流转配置中是否用了此状态"
+                    title="Are you sure to delete? After deletion, if there is a work order in this state, it will not be processed. In addition, check whether this state is used in the workflow flow configuration."
                     onConfirm={()=>{this.delWorkflowState(record.id)}}
                   >
-                    删除
+                    delete
                   </Popconfirm>
                 </a>
               </span>
@@ -321,21 +321,21 @@ class WorkflowState extends Component<any, any> {
             <Col span={6} key={"search_value"}>
               <Form.Item
                 name={"search_value"}
-                label={"查询"}
+                label={"search_value"}
               >
-                <Input placeholder="支持根据状态名称模糊查询" />
+                <Input placeholder="Support fuzzy query based on state name" />
               </Form.Item>
             </Col>
             <Col>
               <Button type="primary" htmlType="submit">
-                搜索
+                search
               </Button>
             </Col>
           </Row>
           <Row>
             <Col span={24} style={{ textAlign: 'right' }}>
               <Button type="primary" onClick={()=>this.showWorkflowStateModal({})}>
-                新增
+                new
               </Button>
             </Col>
           </Row>
@@ -344,7 +344,7 @@ class WorkflowState extends Component<any, any> {
         <Table loading={this.state.workflowStateListLoading} columns={columns} dataSource={this.state.workflowStateList}
                rowKey={record => record.id} pagination={this.state.pagination}/>
         <Modal
-          title="状态"
+          title="state"
           visible={this.state.workflowStateModalVisible}
           onOk={this.handleStateOk}
           onCancel={this.handleStateCancel}
@@ -358,93 +358,93 @@ class WorkflowState extends Component<any, any> {
             initialValues={ formInitialValues }
           >
             <Form.Item name="name"
-                       label={<span>名称<Tooltip title="请输入状态的名称,如发起人编辑中，发起人tl审批中，结束等"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>name<Tooltip title="Please enter the name of the status, such as sponsor editing, sponsor tl reviewing, ending, etc."><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]} >
               <Input />
             </Form.Item>
             <Form.Item name="is_hidden"
                        valuePropName="checked"
-                       label={<span>是否隐藏<Tooltip title="开启时,工单详情中step图不显示此状态(当前处于此状态时除外)"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>whether to hide<Tooltip title="When enabled, the step diagram in the work order details does not display this state (except when it is currently in this state)"><QuestionCircleOutlined /></Tooltip></span>}
             >
-              <Switch checkedChildren="是" unCheckedChildren="否" />
+              <Switch checkedChildren="Yes" unCheckedChildren="No" />
             </Form.Item>
             <Form.Item name="order_id"
-                       label={<span>顺序id<Tooltip title="此顺序id,用于获取工单step记录的排序用,因为step是顺序的，而loonflow的工作流是网状的，所以需要指定顺序id以便排序,数字越小越靠前"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>Order id <Tooltip title="This sequence id is used to obtain the sorting of the work order step records. Because the steps are sequential, and the workflow of loonflow is meshed, it is necessary to specify the sequence id for sorting. The smaller the number, the higher the priority."><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]}
             >
               <InputNumber min={0}/>
             </Form.Item>
             <Form.Item name="type_id"
-                       label={<span>状态类型<Tooltip title="每个工作流都需要有一个初始状态，一个结束状态，其他为普通状态。初始状态及结束状态无需设置参与人类型及参与人"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>state type<Tooltip title="Every workflow needs to have an initial state, an end state, and the others are normal states. The initial state and end state do not need to set the participant type and participant"><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]} >
               <Radio.Group >
-                <Radio value={0}>普通状态</Radio>
-                <Radio value={1}>初始状态</Radio>
-                <Radio value={2}>结束状态</Radio>
+                <Radio value={0}>normal state</Radio>
+                <Radio value={1}>initial state</Radio>
+                <Radio value={2}>end state</Radio>
               </Radio.Group>
             </Form.Item>
             <Form.Item name="remember_last_man_enable"
                        valuePropName="checked"
-                       label={<span>记忆最后处理人<Tooltip title="开启后，到达此状态时会先检查之前是否有人在此状态处理过，如果有则处理人为最后一次处理的人"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>memory last processor<Tooltip title="After it is turned on, when reaching this state, it will first check whether someone has processed it in this state before, and if so, the processing person will be the last processing person."><QuestionCircleOutlined /></Tooltip></span>}
                        >
-              <Switch checkedChildren="是" unCheckedChildren="否" />
+              <Switch checkedChildren="Yes" unCheckedChildren="No" />
             </Form.Item>
             <Form.Item name="enable_retreat"
                        valuePropName="checked"
-                       label={<span>允许撤回<Tooltip title="开启后，工单的创建人可以在工单处于此状态时将工单撤回到初始状态"><QuestionCircleOutlined /></Tooltip></span>}>
-              <Switch checkedChildren="是" unCheckedChildren="否" />
+                       label={<span>Allow withdrawal<Tooltip title="After opening, the creator of the ticket can withdraw the ticket to the initial state when the ticket is in this state"><QuestionCircleOutlined /></Tooltip></span>}>
+              <Switch checkedChildren="Yes" unCheckedChildren="No" />
             </Form.Item>
             <Form.Item name="participant_type_id"
                        rules={[{ required: true }]}
-                       label={<span>参与人类型<Tooltip title='初始状态的处理人类型和处理人和选择无和留空(状态的处理人仅供状态变化时确定新的处理人用，不会作为流转时目的状态，所以无需配置)， 结束状态处理人类型和处理人也请选择无和留空，因为结束状态无需人再处理'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>participant type<Tooltip title='Handler type and handler and selection of initial state are none and left blank (the handler of the state is only used to determine a new handler when the state changes, and will not be used as the destination state during the transfer, so no configuration is required), the end state handler type and handler, please select None and leave it blank, because the end state does not need to be processed by anyone.'><QuestionCircleOutlined /></Tooltip></span>}
             >
               <Select
                 allowClear
                 style={{ width: '100%' }}
-                placeholder="请选择参与人类型"
+                placeholder="Please select participant type"
               >
-                  <Option value={1}>个人</Option>
-                  <Option value={2}>多人</Option>
-                  <Option value={3}>部门</Option>
-                  <Option value={4}>角色</Option>
-                  <Option value={5}>变量</Option>
-                  <Option value={6}>脚本</Option>
-                  <Option value={7}>工单字段</Option>
-                  <Option value={8}>父工单字段</Option>
+                  <Option value={1}>personal</Option>
+                  <Option value={2}>multiple people</Option>
+                  <Option value={3}>department</Option>
+                  <Option value={4}>Role</Option>
+                  <Option value={5}>variable</Option>
+                  <Option value={6}>Screenplay</Option>
+                  <Option value={7}>Ticket fields</Option>
+                  <Option value={8}>Parent Ticket Fields</Option>
                   <Option value={10}>hook</Option>
-                  <Option value={0}>无</Option>
+                  <Option value={0}>none</Option>
               </Select>
             </Form.Item>
             <Form.Item name="participant"
-                       label={<span>参与人<Tooltip title='个人(username)\多人(多个username以,隔开\部门(部门id，多个部门以逗号隔开)\角色(角色id)\变量(creator:工单的创建人,creator_tl:工单创建人的TL,多个变量逗号隔开)\脚本记录的id\工单字段(逗号隔开多个)\父工单字段(逗号隔开多个)等，需要在此状态创建子工单时需要设置此处处理人为loonrobot。 当处理人类型为hook方式时,处理人需要按照如下规则配置 {"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true, "extra_info":"xxxx"}。详见文档'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>participant<Tooltip title='Individual (username)\multiple people (multiple usernames separated by ,\department (department id, multiple departments separated by comma)\role (role id)\variable (creator: creator of the work order, creator_tl: work order TL of the creator, multiple variables separated by commas)\id of script record\work order fields (multiple separated by commas)\parent ticket fields (multiple separated by commas), etc. You need to create sub-work orders in this state You need to set the handler here as loonrobot. When the handler type is hook, the handler needs to configure {"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true, "extra_info":"xxxx"}. See documentation for details'><QuestionCircleOutlined /></Tooltip></span>}
             >
               <Input />
 
             </Form.Item>
             <Form.Item name="distribute_type_id"
-                       label={<span>分配方式<Tooltip title='直接处理:当前处理人无需接单，主动接单:当前处理人需要先接单再处理，随机分配:工单将随机指定所配置的当前处理人中一个人， 全部处理:当前所有人都需要处理完且处理动作相同才会流转到下个状态'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>Allocation<Tooltip title='Direct processing: the current handler does not need to accept the order, and takes the initiative to accept the order: the current handler needs to take the order first and then process it, random allocation: the work order will randomly assign one of the configured current handlers, and all processing: all currently need to After processing and the processing action is the same, it will flow to the next state'><QuestionCircleOutlined /></Tooltip></span>}
             >
               <Select
                 allowClear
                 style={{ width: '100%' }}
-                placeholder="请选择分配方式"
+                placeholder="Please select a distribution method"
               >
-                <Option value={2}>直接处理</Option>
-                <Option value={1}>主动接单</Option>
-                <Option value={3}>随机分配</Option>
-                <Option value={4}>全部处理</Option>
+                <Option value={2}>direct processing</Option>
+                <Option value={1}>Active order</Option>
+                <Option value={3}>Randomly assigned</Option>
+                <Option value={4}>Process all</Option>
               </Select>
 
             </Form.Item>
             <Form.Item name="state_field_str"
-                       label={<span>表单字段<Tooltip title='json格式字典存储,包括读写属性1：只读，2：必填，3：可选. 示例：{"gmt_created":1,"title":2, "sn":1}, 内置特殊字段participant_info.participant_name:当前处理人信息(部门名称、角色名称)，state.state_name:当前状态的状态名,workflow.workflow_name:工作流名称'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>form fields<Tooltip title='json format dictionary storage, including read-write attributes 1: read-only, 2: required, 3: optional. Example: {"gmt_created":1,"title":2, "sn":1}, built-in special field participant_info .participant_name: current processor information (department name, role name), state.state_name: state name of the current state, workflow.workflow_name: workflow name'><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ validator: this.isDictJsonCheck}]}
             >
               <Input />
 
             </Form.Item>
             <Form.Item name="label"
-                       label= {<span>标签<Tooltip title="自定义标签，json格式，调用方可根据标签自行处理特殊场景逻辑，loonflow只保存文本内容"><QuestionCircleOutlined /></Tooltip></span>}
+                       label= {<span>label<Tooltip title="Custom label, json format, the caller can handle special scene logic according to the label, loonflow only saves the text content"><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ validator: this.isDictJsonCheck}]}
             >
               <Input />
@@ -452,7 +452,7 @@ class WorkflowState extends Component<any, any> {
 
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
-                确定
+                Submit
               </Button>
             </Form.Item>
 

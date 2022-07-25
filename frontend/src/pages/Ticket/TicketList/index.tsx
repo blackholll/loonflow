@@ -116,11 +116,11 @@ class TicketList extends Component<any, any> {
   deleteOk = async(values:any) => {
     const result = await delTicketRequest(this.state.deleteId, values);
     if (result.code === 0){
-      message.success('删除成功');
+      message.success('successfully deleted');
       this.setState({deleteVisible: false});
       this.fetchTicketData({});
     } else {
-      message.error(`删除失败：${result.msg}`);
+      message.error(`failed to delete：${result.msg}`);
     }
   }
 
@@ -157,17 +157,17 @@ class TicketList extends Component<any, any> {
         key: "id",
       },
       {
-        title: "流水号",
+        title: "serial number",
         dataIndex: "sn",
         key: "sn"
       },
       {
-        title: "标题",
+        title: "title",
         dataIndex: "title",
         key: "title"
       },
       {
-        title: "类型",
+        title: "type",
         dataIndex: "workflow_info",
         key: "workflow_info",
         render: (text: { workflow_name: any }) => (
@@ -175,7 +175,7 @@ class TicketList extends Component<any, any> {
         )
       },
       {
-        title: "当前状态",
+        title: "state",
         dataIndex: "state",
         key: "state",
         render: (text: { state_name: string }) => (
@@ -183,31 +183,31 @@ class TicketList extends Component<any, any> {
         )
       },
       {
-        title: "创建人",
+        title: "creator",
         dataIndex: "creator",
         key: "creator"
       },
       {
-        title: "创建时间",
+        title: "gmt_created",
         dataIndex: "gmt_created",
         key: "gmt_created"
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render: (text: string, record: any) => {
           if (["all", "intervene"].indexOf(this.props.category) !== -1 && !this.props.parentTicketId) {
             return (
               <span>
-                <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a> |
-                <a onClick={() => this.showDeleteModal(record.id)} style={{color:'red', marginLeft: 5}}>删除</a>
+                <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>Details</a> |
+                <a onClick={() => this.showDeleteModal(record.id)} style={{color:'red', marginLeft: 5}}>delete</a>
 
               </span>
             )
           } else {
             return (
               <span>
-                <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>详情</a>
+                <a style={{marginRight: 5}} onClick={() => this.showTicketDetail(record.id)}>Details</a>
               </span>
             )
           }
@@ -220,21 +220,21 @@ class TicketList extends Component<any, any> {
         <Col span={6} key={"titleCol"}>
           <Form.Item
             name={"title"}
-            label={"标题"}
+            label={"Title"}
           >
-            <Input placeholder="支持标题模糊查询" />
+        <Input placeholder="Support title fuzzy query" />
           </Form.Item>
         </Col>,
         <Col span={6} key={"workflowId"}>
           <Form.Item
             name={"workflow_ids"}
-            label={"工单类型"}
+            label={"Ticket type"}
           >
             <Select
               showSearch
               // labelInValue
               style={{ width: 200 }}
-              placeholder="选择工单类型"
+              placeholder="Select ticket type"
               optionFilterProp="children"
               filterOption={(input, option) =>
                 Select.Option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -245,28 +245,28 @@ class TicketList extends Component<any, any> {
               ))}
             </Select>
           </Form.Item>
-
-        </Col>,
+        </Col>
+        ,
         <Col span={6} key={"creator"}>
           <Form.Item
             name={"creator"}
-            label={"创建人"}
+            label={"Creator"}
           >
-            <Input placeholder="请填写工单创建人" />
+            <Input placeholder="Please fill in the ticket creator" />
           </Form.Item>
         </Col>,
         <Col span={6} key={"sn"}>
           <Form.Item
             name={"sn"}
-            label={"流水号"}
+            label={"serial number"}
           >
-            <Input placeholder="请输入工单流水号" />
+            <Input placeholder="Please enter the work order serial number" />
           </Form.Item>
         </Col>,
         <Col span={6} key={"create_time"}>
           <Form.Item
             name={"create_time"}
-            label={"创建时间"}
+            label={"create_time"}
           >
             <RangePicker
               showTime={{
@@ -293,7 +293,7 @@ class TicketList extends Component<any, any> {
           <Row>
             <Col span={24} style={{ textAlign: 'right' }}>
               <Button type="primary" htmlType="submit">
-                搜索
+                search
               </Button>
               <Button
                 style={{ margin: '0 8px' }}
@@ -301,7 +301,7 @@ class TicketList extends Component<any, any> {
                   this.formRef.current.resetFields();
                 }}
               >
-                重置
+                reset
               </Button>
             </Col>
           </Row>
@@ -311,7 +311,7 @@ class TicketList extends Component<any, any> {
         <div id="components-table-demo-basic">
           {this.props.parentTicketId && this.state.ticketResult.length ?
             <Table loading={this.state.ticketListLoading}
-                   title={()=>{return '子工单'}}
+                   title={()=>{return 'Sub work order'}}
                    columns={columns}
                    dataSource={this.state.ticketResult}
                    rowKey={record=>record.id}
@@ -328,7 +328,7 @@ class TicketList extends Component<any, any> {
 
         </div>
         <Modal
-          title={`工单详情: #${this.state.openTicketId}`}
+          title={`Ticket Details: #${this.state.openTicketId}`}
           width={1024}
           visible={this.state.visible}
           onOk={this.handleOk}
@@ -341,7 +341,7 @@ class TicketList extends Component<any, any> {
         </Modal>
 
         <Modal
-          title={"删除工单"}
+          title={"delete ticket"}
           visible={this.state.deleteVisible}
           onCancel={this.handleCancel}
           footer={null}>
@@ -352,7 +352,7 @@ class TicketList extends Component<any, any> {
               name="suggestion"
             >
               <TextArea
-                placeholder="请输入删除原因"
+                placeholder="Please enter the reason for deletion"
               />
             </Form.Item>
             <Form.Item>

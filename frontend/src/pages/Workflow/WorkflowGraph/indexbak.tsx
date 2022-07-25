@@ -121,48 +121,48 @@ class WorkflowGraph extends Component<any, any> {
 
         var description = "";
         var stateTypeDesc = "";
-        var isHiddenDesc = "否";
+        var isHiddenDesc = "no";
         var participantTypeDesc = "";
 
 
         if (otherAttr.type_id === 0){
-          stateTypeDesc = '普通状态';
+          stateTypeDesc = 'normal state';
         }else if (otherAttr.type_id === 1){
-          stateTypeDesc = "开始状态";
+          stateTypeDesc = "start state";
         } else if (otherAttr.type_id === 1){
-          stateTypeDesc = "结束状态";
+          stateTypeDesc = "end state";
         };
         if (otherAttr.is_hidden){
-          isHiddenDesc = "是";
+          isHiddenDesc = "Yes";
         };
         if(otherAttr.participant_type_id===1){
-          participantTypeDesc = "个人";
+          participantTypeDesc = "personal";
         }else if (otherAttr.participant_type_id===2){
-          participantTypeDesc = "多人";
+          participantTypeDesc = "multiple people";
         }else if (otherAttr.participant_type_id===3){
-          participantTypeDesc = "部门";
+          participantTypeDesc = "department";
         }else if (otherAttr.participant_type_id===4){
-          participantTypeDesc = "角色";
+          participantTypeDesc = "Role";
         }else if (otherAttr.participant_type_id===5){
-          participantTypeDesc = "变量";
+          participantTypeDesc = "variable";
         }else if (otherAttr.participant_type_id===6){
-          participantTypeDesc = "脚本";
+          participantTypeDesc = "Screenplay";
         }else if (otherAttr.participant_type_id===7){
-          participantTypeDesc = "工单字段";
+          participantTypeDesc = "Ticket fields";
         }else if (otherAttr.participant_type_id===8){
-          participantTypeDesc = "父工单字段";
+          participantTypeDesc = "Parent Ticket Fields";
         }else if (otherAttr.participant_type_id===9){
-          participantTypeDesc = "多人";
+          participantTypeDesc = "multiple people";
         };
-        description += "顺序ID: "+ otherAttr.order_id + "</br>";
+        description += "sequence ID: "+ otherAttr.order_id + "</br>";
         if (otherAttr.sub_workflow_id){
-          description += "子工作流ID:" + otherAttr.sub_workflow_id
+          description += "Sub workflow ID:" + otherAttr.sub_workflow_id
         };
-        description += "状态类型: "+ stateTypeDesc + "</br>";
-        description += "是否隐藏: "+ isHiddenDesc + "</br>";
-        description += "参与人类型: "+ participantTypeDesc + "</br>";
-        description += "参与人: "+ otherAttr.participant + "</br>";
-        description += "状态表单: "+  JSON.stringify(otherAttr.state_field_str, null, 4)  + "</br>";
+        description += "state type: "+ stateTypeDesc + "</br>";
+        description += "whether to hide: "+ isHiddenDesc + "</br>";
+        description += "participant type: "+ participantTypeDesc + "</br>";
+        description += "participant: "+ otherAttr.participant + "</br>";
+        description += "Status form: "+  JSON.stringify(otherAttr.state_field_str, null, 4)  + "</br>";
 
         return styleTooltip(v, description) })
       // .each(function(v) { $(this).tipsy({ gravity: "w", opacity: 1, html: true }); });

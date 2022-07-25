@@ -52,28 +52,28 @@ class WorkflowDetail extends Component<any, any> {
     return (
       <Card>
         <Tabs defaultActiveKey="1" onChange={this.tabChange}>
-          <TabPane tab="基础信息" key="basicInfoTab">
+          <TabPane tab="basic information" key="basicInfoTab">
             <WorkflowBasicInfo workflowId={this.state.workflowId}/>
           </TabPane>
           {this.state.workflowId?
-            <TabPane tab="自定义字段" key="customFieldTab">
+            <TabPane tab="custom field" key="customFieldTab">
               <WorkflowCustomFieldList workflowId={this.state.workflowId}/>
             </TabPane>
             :null}
           {this.state.workflowId?
-          <TabPane tab="状态" key="stateTab">
+          <TabPane tab="state" key="stateTab">
             <WorkflowState workflowId={this.state.workflowId}/>
           </TabPane> :null}
           {this.state.workflowId?
-          <TabPane tab="流转" key="transitionTab">
+          <TabPane tab="transitionTab" key="transitionTab">
             <WorkflowTransiton workflowId={this.state.workflowId}/>
           </TabPane>: null}
           {this.state.workflowId?
-          <TabPane tab="流程图" key="flowChatTab">
+          <TabPane tab="flow chart" key="flowChatTab">
             <WorkflowGraph workflowId={this.state.workflowId}/>
           </TabPane>:null}
           {this.state.workflowId?
-          <TabPane tab="统计" key="statisticsTab">
+          <TabPane tab="statistics" key="statisticsTab">
             <WorkflowStatistic workflowId={this.state.workflowId}/>
           </TabPane>: null}
         </Tabs>

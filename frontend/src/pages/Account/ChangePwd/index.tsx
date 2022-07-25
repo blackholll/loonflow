@@ -14,7 +14,7 @@ const tailLayout = {
 const ChangePwd = () => {
   const onFinish = async (values: any) => {
     if (values.newPwd !== values.newPwdAgain) {
-      message.error('两次密码不一致，请重新输入')
+      message.error('The two passwords do not match, please re-enter')
     }
     console.log(values);
     values.source_password = values.sourcePwd
@@ -25,7 +25,7 @@ const ChangePwd = () => {
     delete values.newPwd
     const result = await changeUserPassword(values)
     if (result.code === 0) {
-      message.success('修改密码成功')
+      message.success('password has been updated')
     } else {
       message.error(result.msg)
     }
@@ -40,25 +40,25 @@ const ChangePwd = () => {
       onFinish={onFinish}
     >
       <Form.Item
-        label = "原密码"
+        label = "old password"
         name = "sourcePwd"
-        rules={[{ required: true, message: '请输入你的原密码!' }]}
+        rules={[{ required: true, message: 'Please enter your original password!' }]}
       >
         <Input />
 
       </Form.Item>
       <Form.Item
-        label = "新密码"
+        label = "new password"
         name = "newPwd"
-        rules={[{ required: true, message: '请输入新密码!' }]}
+        rules={[{ required: true, message: 'Please enter a new password!' }]}
       >
         <Input.Password />
 
       </Form.Item>
       <Form.Item
-        label = "再次输入新密码"
+        label = "Enter the new password again"
         name = "newPwdAgain"
-        rules={[{ required: true, message: '请再次输入新密码' }]}
+        rules={[{ required: true, message: 'Please enter new password again' }]}
       >
         <Input.Password />
 
@@ -66,7 +66,7 @@ const ChangePwd = () => {
 
       <Form.Item {...tailLayout}>
         <Button type="primary" htmlType="submit">
-          确认
+          confirm
         </Button>
       </Form.Item>
 

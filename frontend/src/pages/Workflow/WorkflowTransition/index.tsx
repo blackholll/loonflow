@@ -70,7 +70,7 @@ class WorkflowTransiton extends Component<any, any> {
       this.setState({transitionList: result.data.value, pagination, transtionListLoading:false})
     }
     else {
-      message.error(`获取工作流流转失败：${result.msg}`)
+      message.error(`Failed to get workflow flow：${result.msg}`)
     }
   }
 
@@ -133,7 +133,7 @@ class WorkflowTransiton extends Component<any, any> {
         return Promise.resolve();
       }
     }
-    return Promise.reject('格式不正确，需要是数组的json格式');
+    return Promise.reject('The format is incorrect, it needs to be the json format of the array');
   }
 
   onTransitionFinish = async(values) => {
@@ -163,106 +163,106 @@ class WorkflowTransiton extends Component<any, any> {
       result = await addWorkflowTransition(this.props.workflowId, values);
     }
     if (result.code === 0){
-      message.success('保存成功');
+      message.success('Successfully saved');
       this.setState({transitionDetail:{}, transitionModalVisible:false})
       this.fetchTransitionListData({page:1, per_page:10});
 
     } else {
-      message.error(`保存失败:${result.msg}`);
+      message.error(`Failed to save:${result.msg}`);
     }
   }
 
   delWorkflowTransition=async(transitionId:Number) => {
     const result = await delWorkflowTransition(this.props.workflowId, transitionId);
     if (result.code === 0){
-      message.success('删除成功');
+      message.success('successfully deleted');
       this.fetchTransitionListData({page:1, per_page:10});
     } else {
-      message.error(`删除失败:${result.msg}`);
+      message.error(`failed to delete:${result.msg}`);
     }
   }
 
   render() {
     const columns = [
       {
-        title: "名称",
+        title: "name",
         dataIndex: "name",
         key: "name"
       },
       {
-        title: "定时器(单位:秒)",
+        title: "Timer (unit: second)",
         dataIndex: "timer",
         key: "timer"
       },
       {
-        title: "源状态",
+        title: "source status",
         dataIndex: ["source_state_info", "name"],
         key: "source_state_info"
       },
       {
-        title: "目标状态",
+        title: "target state",
         dataIndex: ["destination_state_info", "name"],
         key: "destination_state_info"
       },
       {
-        title: "条件表达式",
+        title: "conditional expression",
         dataIndex: "condition_expression",
         key: "condition_expression"
       },
       {
-        title: "属性类型",
+        title: "property type",
         key: "attribute_type_id",
         render:(text:string, record:any) => {
           if (record.attribute_type_id == 1) {
-            return "同意"
+            return "agree"
           } else if (record.attribute_type_id == 2) {
-            return "拒绝"
+            return "reject"
           }
-          return "其他"
+          return "other"
         }
       },
       {
-        title: "是否校验必填项",
+        title: "Whether to verify required items",
         key: "field_require_check",
         render:(text:string, record:any) => {
           if (record.field_require_check) {
-            return "是"
+            return "on"
           }
-          return "否"
+          return "off"
         }
       },
       {
-        title: "点击弹窗提示",
+        title: "Click on the pop-up prompt",
         key: "alert_enable",
         render:(text:string, record:any) => {
           if (record.alert_enable) {
-            return "是"
+            return "on"
           }
-          return "否"
+          return "off"
         }
       },
       {
-        title: "创建人",
+        title: "creator",
         dataIndex: "creator",
         key: "creator",
       },
       {
-        title: "创建时间",
+        title: "gmt_created",
         dataIndex: "gmt_created",
         key: "gmt_created",
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render:(text:string, record:any) => (
           <span>
-                <a style={{marginRight: 16}} onClick={() => this.showWorkflowTransitionModal(record)}>编辑</a>
+                <a style={{marginRight: 16}} onClick={() => this.showWorkflowTransitionModal(record)}>edit</a>
                 <a style={{marginRight: 16, color: "red"}}>
                   <Popconfirm
-                    title="确认删除么？"
+                    title="Are you sure to delete?"
                     onConfirm={()=>{this.delWorkflowTransition(record.id)}}
                   >
-                    删除
+                    delete
                   </Popconfirm>
                 </a>
               </span>
@@ -292,21 +292,21 @@ class WorkflowTransiton extends Component<any, any> {
             <Col span={6} key={"search_value"}>
               <Form.Item
                 name={"search_value"}
-                label={"查询"}
+                label={"search_value"}
               >
-                <Input placeholder="支持根据流转名称模糊查询" />
+                <Input placeholder="Support fuzzy query based on flow name" />
               </Form.Item>
             </Col>
             <Col>
               <Button type="primary" htmlType="submit">
-                搜索
+                search
               </Button>
             </Col>
           </Row>
           <Row>
             <Col span={24} style={{ textAlign: 'right' }}>
               <Button type="primary" onClick={()=>this.showWorkflowTransitionModal({})}>
-                新增
+                new
               </Button>
             </Col>
           </Row>
@@ -315,7 +315,7 @@ class WorkflowTransiton extends Component<any, any> {
         <Table loading={this.state.workflowStateListLoading} columns={columns} dataSource={this.state.transitionList}
                rowKey={record => record.id} pagination={this.state.pagination}/>
         <Modal
-          title="流转"
+          title="circulation"
           visible={this.state.transitionModalVisible}
           onOk={this.handleTransitionOk}
           onCancel={this.handleTransitionOk}
@@ -329,18 +329,18 @@ class WorkflowTransiton extends Component<any, any> {
             initialValues={ formInitialValues }
           >
             <Form.Item name="name"
-                       label={<span>名称<Tooltip title="请输入流转的名称"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>name<Tooltip title="Please enter the name of the transfer"><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]} >
               <Input />
             </Form.Item>
             <Form.Item name="source_state_id"
-                       label={<span>源状态<Tooltip title="请选择流转的初始状态，即在哪个状态下出现这个按钮"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>source status<Tooltip title="Please select the initial state of the flow, that is, in which state this button appears"><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]}
             >
               <Select
                 allowClear
                 style={{ width: '100%' }}
-                placeholder="请选择流转的源状态"
+                placeholder="Please select the source state of the flow"
                 //defaultValue={['a10', 'c12']}
               >
                 {this.state.stateList.map(d => (
@@ -350,12 +350,12 @@ class WorkflowTransiton extends Component<any, any> {
 
             </Form.Item>
             <Form.Item name="destination_state_id"
-                       label={<span>目标状态<Tooltip title="请选择流转的目标，即点击此流转操作后工单状态的变化"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>target state<Tooltip title="Please select the transfer target, that is, the change of the work order status after clicking this transfer operation"><QuestionCircleOutlined /></Tooltip></span>}
             >
               <Select
                 allowClear
                 style={{ width: '100%' }}
-                placeholder="请选择流转的目标状态"
+                placeholder="Please select the destination state of the transfer"
               >
                 {this.state.stateList.map(d => (
                   <Option key={d.id}>{d.name}</Option>
@@ -364,39 +364,39 @@ class WorkflowTransiton extends Component<any, any> {
             </Form.Item>
 
             <Form.Item name="condition_expression"
-                       label={<span>条件表达式<Tooltip title='流转条件表达式，根据表达式中的条件来确定流转的下个状态，格式为[{"expression":"{days} > 3 and {days} ≤10", "target_state_id":11},{"expression":"{days} >10", "target_state_id":12}] 其中{}用于填充工单的字段key,运算时会换算成实际的值，当符合条件下个状态将变为target_state_id中的值,表达式只支持简单的运算或datetime/time运算.loonflow会以首次匹配成功的条件为准，所以多个条件不要有冲突'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>conditional expression<Tooltip title='Flow condition expression, the next state of flow is determined according to the conditions in the expression, the format is [{"expression":"{days} > 3 and {days} ≤10", "target_state_id":11},{" expression":"{days} >10", "target_state_id":12}] where {} is used to fill in the field key of the work order, which will be converted to the actual value during operation, and the next state will become target_state_id when the conditions are met The value of , the expression only supports simple operations or datetime/time operations. Loonflow will take the first successful matching condition as the criterion, so multiple conditions should not conflict'><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ validator: this.isExpressionCheck}]}
             >
               <TextArea/>
             </Form.Item>
             <Form.Item name="timer"
-                       label={<span>定时器(单位秒)<Tooltip title='设置定时器后，当超过定时器的时间无处理操作，则自动流转到下个状态。0表示不设置'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>Timer (in seconds)<Tooltip title='After setting the timer, if there is no processing operation after the timer expires, the flow will automatically go to the next state. 0 means not set'><QuestionCircleOutlined /></Tooltip></span>}
             >
               <InputNumber />
             </Form.Item>
             <Form.Item name="attribute_type_id"
-                       label={<span>属性类型<Tooltip title="可用于标识工单的状态:审批通过，被拒绝等"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>property type<Tooltip title="Can be used to identify the status of the work order: approved, rejected, etc."><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]} >
               <Radio.Group >
-                <Radio value={1}>同意</Radio>
-                <Radio value={2}>拒绝</Radio>
-                <Radio value={3}>其他</Radio>
+                <Radio value={1}>agree</Radio>
+                <Radio value={2}>reject</Radio>
+                <Radio value={3}>other</Radio>
               </Radio.Group>
             </Form.Item>
             <Form.Item name="field_require_check"
                        valuePropName="checked"
-                       label={<span>校验必填项<Tooltip title="默认在用户点击操作的时候需要校验工单表单的必填项,如果设置为否则不检查。用于如'退回'属性的操作，不需要填写表单内容"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>Check required fields<Tooltip title="By default, when the user clicks the operation, the required items of the work order form need to be verified. If it is set to otherwise, it will not be checked. Used for operations such as 'return' attributes without filling in form content"><QuestionCircleOutlined /></Tooltip></span>}
             >
-              <Switch checkedChildren="是" unCheckedChildren="否" />
+              <Switch checkedChildren="on" unCheckedChildren="off" />
             </Form.Item>
             <Form.Item name="alert_enable"
                        valuePropName="checked"
-                       label={<span>点击弹窗提示<Tooltip title="可以用于当用户在处理工单时做特定操作时，弹窗提示信息。 如用户点击'拒绝'时弹窗提示要求用户确认是否真的拒绝，避免点错"><QuestionCircleOutlined /></Tooltip></span>}>
-              <Switch checkedChildren="是" unCheckedChildren="否" />
+                       label={<span>Click on the pop-up prompt<Tooltip title="It can be used for pop-up prompts when the user performs a specific operation while processing a work order. For example, when the user clicks 'Reject', a pop-up window prompts the user to confirm whether it is really rejected, so as to avoid wrong clicks"><QuestionCircleOutlined /></Tooltip></span>}>
+              <Switch checkedChildren="on" unCheckedChildren="off" />
             </Form.Item>
 
             <Form.Item name="alert_text"
-                       label={<span>弹窗内容<Tooltip title='当开启点击弹窗提示时生效，详情中用户点击操作后弹窗提示的内容'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>popup content<Tooltip title='It takes effect when the click pop-up prompt is turned on. In the details, the content of the pop-up prompt after the user clicks the operation'><QuestionCircleOutlined /></Tooltip></span>}
             >
               <Input />
 
@@ -404,7 +404,7 @@ class WorkflowTransiton extends Component<any, any> {
 
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
-                确定
+                Submit
               </Button>
             </Form.Item>
 

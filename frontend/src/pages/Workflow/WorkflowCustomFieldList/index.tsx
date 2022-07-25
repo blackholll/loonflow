@@ -73,11 +73,11 @@ class WorkflowCustomFieldList extends Component<any, any> {
       result = await addCustomField(this.props.workflowId, values);
     }
     if (result.code === 0){
-      message.success('保存成功');
+      message.success('Successfully saved');
       this.setState({customFieldDetail:{}, customFieldModalVisible:false})
       this.fetchCustomFieldListData({page:1, per_page:10});
     } else {
-      message.error(`保存失败:${result.msg}`);
+      message.error(`Failed to save:${result.msg}`);
     }
   }
 
@@ -108,7 +108,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
         return Promise.resolve();
       }
     }
-    return Promise.reject('格式不正确，需要是字典的的json格式');
+    return Promise.reject('The format is incorrect, it needs to be the json format of the dictionary');
   }
 
   getFieldInitialValues = () => {
@@ -144,11 +144,11 @@ class WorkflowCustomFieldList extends Component<any, any> {
   delCustomField = async(fieldId) => {
     const result = await  delCustomField(this.props.workflowId, fieldId);
     if (result.code === 0) {
-      message.success('删除字段成功');
+      message.success('Delete field succeeded');
       this.fetchCustomFieldListData({per_page:10, page:1})
     }
     else {
-      message.error(`删除字段失败: ${result.msg}`);
+      message.error(`Delete field failed: ${result.msg}`);
     }
 
   }
@@ -158,85 +158,85 @@ class WorkflowCustomFieldList extends Component<any, any> {
   render() {
     const columns = [
       {
-        title: "字段名称",
+        title: "Field Name",
         dataIndex: "field_name",
         key: "field_name"
       },
       {
-        title: "字段标识",
+        title: "Field Key",
         dataIndex: "field_key",
         key: "name"
       },
 
       {
-        title: "字段类型",
+        title: "Field Type",
         key: "field_type",
         render: (text: string, record: any) => {
           if (record.field_type_id === 5) {
-            return "字符串"
+            return "string"
           } else if (record.field_type_id === 10){
-            return "整型"
+            return "Integer"
           } else if (record.field_type_id === 15) {
-            return "浮点型"
+            return "floating"
           } else if (record.field_type_id === 20) {
-            return "布尔"
+            return "boolean"
           } else if (record.field_type_id === 25) {
-            return "日期"
+            return "date"
           } else if (record.field_type_id === 30) {
-            return "日期时间"
+            return "datetime"
           } else if (record.field_type_id === 35) {
-            return "单选框"
+            return "Single box"
           } else if (record.field_type_id === 40) {
-            return "多选框"
+            return "Checkbox"
           } else if (record.field_type_id === 45) {
-            return "下拉列表"
+            return "drop-down list"
           } else if (record.field_type_id === 50) {
-            return "多选下拉列表"
+            return "Multi-select drop-down list"
           } else if (record.field_type_id === 55) {
-            return "文本域"
+            return "text field"
           } else if (record.field_type_id === 58) {
-            return "富文本"
+            return "rich text"
           } else if (record.field_type_id === 60) {
-            return "用户"
+            return "user"
           } else if (record.field_type_id === 70) {
-            return "多选用户"
+            return "Multiple users"
           } else if (record.field_type_id === 80) {
-            return "附件"
+            return "appendix"
           }
         }
       },
       {
-        title: "顺序Id",
+        title: "Order Id",
         dataIndex: "order_id",
         key: "order_id"
       },
       {
-        title: "字段描述",
+        title: "Description",
         dataIndex: "description",
         key: "description"
       },
       {
-        title: "创建人",
+        title: "Creator",
         dataIndex: "creator",
         key: "creator"
       },
       {
-        title: "创建时间",
+        title: "creation time",
         dataIndex: "gmt_created",
         key: "gmt_created"
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render:(text:string, record:any) => (
           <span>
-            <a style={{marginRight: 16}} onClick={() => this.showCustomFieldModal(record)}>编辑</a>
+            <a style={{marginRight: 16}} onClick={() => this.showCustomFieldModal(record)}>edit</a>
             <a style={{marginRight: 16, color: "red"}}>
               <Popconfirm
-                title="确认删除么？ 删除后需要删除其他地方此字段的配置，如工作流展现表单，状态的表单字段配置"
+                title="Are you sure to delete? After deleting, you need to delete the configuration of this field in other places, such as the workflow presentation form, the form field configuration of the status"
                 onConfirm={()=>{this.delCustomField(record.id)}}
               >
-                删除
+                delete
               </Popconfirm>
             </a>
           </span>
@@ -264,21 +264,21 @@ class WorkflowCustomFieldList extends Component<any, any> {
             <Col span={6} key={"search_value"}>
               <Form.Item
                 name={"search_value"}
-                label={"查询"}
+                label={"search value"}
               >
-                <Input placeholder="支持根据字段名称模糊查询" />
+                <Input placeholder="Support fuzzy query based on field name" />
               </Form.Item>
             </Col>
             <Col>
               <Button type="primary" htmlType="submit">
-                搜索
+                search
               </Button>
             </Col>
           </Row>
           <Row>
             <Col span={24} style={{ textAlign: 'right' }}>
               <Button type="primary" onClick={()=>this.showCustomFieldModal({})}>
-                新增
+                new
               </Button>
             </Col>
           </Row>
@@ -286,7 +286,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
         <Table loading={this.state.deptListLoading} columns={columns} dataSource={this.state.customFieldList}
                rowKey={record => record.id} pagination={this.state.pagination}/>
         <Modal
-          title="自定义字段"
+          title="custom field"
           visible={this.state.customFieldModalVisible}
           onOk={this.handleCustomFieldOk}
           onCancel={this.handleCustomFieldCancel}
@@ -300,73 +300,73 @@ class WorkflowCustomFieldList extends Component<any, any> {
             initialValues={ formInitialValues }
           >
             <Form.Item name="field_key"
-                       label={<span>字段标识<Tooltip title="请输入字段的标识,要求英文字母及下划线组成，以字母开头，且不得使用工单基础字段如(sn、title、state_id等字符)"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>Field ID<Tooltip title="Please enter the identifier of the field, which must be composed of English letters and underscores, start with a letter, and must not use the basic fields of the work order such as (sn, title, state_id, etc.)"><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]} >
               <Input />
             </Form.Item>
             <Form.Item name="field_name"
-                       label={<span>字段名称<Tooltip title="请输入字段的名称，建议中文，如请假原因、服务器规格等"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>Field Name<Tooltip title="Please enter the name of the field, Chinese is recommended, such as the reason for leave, server specifications, etc."><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]} >
               <Input />
             </Form.Item>
             <Form.Item name="description"
-                       label={<span>字段描述<Tooltip title="字段描述信息将显示在工单详情的该字段下方"><QuestionCircleOutlined /></Tooltip></span>}>
+                       label={<span>Description<Tooltip title="Field description information will be displayed below the field in the ticket details"><QuestionCircleOutlined /></Tooltip></span>}>
               <Input />
             </Form.Item>
-            <Form.Item name="field_type_id" label="字段类型" rules={[{ required: true }]} >
+            <Form.Item name="field_type_id" label="Field Type" rules={[{ required: true }]} >
               <Select
                 allowClear
                 showSearch
                 style={{ width: '100%' }}
-                placeholder="字段的类型"
+                placeholder="type of field"
               >
-                <Select.Option value={5}>字符型</Select.Option>
-                <Select.Option value={10}>整型</Select.Option>
-                <Select.Option value={15}>浮点型</Select.Option>
-                <Select.Option value={20}>布尔</Select.Option>
-                <Select.Option value={25}>日期</Select.Option>
-                <Select.Option value={30}>日期时间</Select.Option>
-                <Select.Option value={35}>单选框</Select.Option>
-                <Select.Option value={40}>多选框</Select.Option>
-                <Select.Option value={45}>下拉列表</Select.Option>
-                <Select.Option value={50}>多选下拉列表</Select.Option>
-                <Select.Option value={55}>文本域</Select.Option>
-                <Select.Option value={58}>富文本(待支持)</Select.Option>
-                <Select.Option value={60}>用户名</Select.Option>
-                <Select.Option value={70}>多选用户名</Select.Option>
-                <Select.Option value={80}>附件</Select.Option>
+                <Select.Option value={5}>character type</Select.Option>
+                <Select.Option value={10}>Integer</Select.Option>
+                <Select.Option value={15}>floating field</Select.Option>
+                <Select.Option value={20}>boolean</Select.Option>
+                <Select.Option value={25}>date</Select.Option>
+                <Select.Option value={30}>datetime</Select.Option>
+                <Select.Option value={35}>Single box</Select.Option>
+                <Select.Option value={40}>Checkbox</Select.Option>
+                <Select.Option value={45}>drop-down list</Select.Option>
+                <Select.Option value={50}>Multi-select drop-down list</Select.Option>
+                <Select.Option value={55}>text field</Select.Option>
+                <Select.Option value={58}>Rich text (to be supported)</Select.Option>
+                <Select.Option value={60}>username</Select.Option>
+                <Select.Option value={70}>Multiple Username</Select.Option>
+                <Select.Option value={80}>appendix</Select.Option>
               </Select>
             </Form.Item>
             <Form.Item name="order_id"
-                       label={<span>顺序id<Tooltip title="工单详情中字段排列顺序。值越小，越靠前,内置字段顺序为: sn:10, title:20, state_id:40, state.state_name:41,participant_info.participant_name:50, participant_info.participant_alias:55,workflow.workflow_name:60,creator:80,gmt_created:100, gmt_modified:120"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>Order Id<Tooltip title="The order of fields in the ticket details. The smaller the value, the higher the priority. The built-in field sequence is: sn:10, title:20, state_id:40, state.state_name:41,participant_info.participant_name:50, participant_info.participant_alias:55,workflow.workflow_name:60,creator :80,gmt_created:100,gmt_modified:120"><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ required: true }]} >
               <Input />
             </Form.Item>
             <Form.Item name="default_value"
-                       label={<span>默认值<Tooltip title="新建工单时，作为该字段的默认值"><QuestionCircleOutlined /></Tooltip></span>}>
+                       label={<span>Defaults<Tooltip title="When a new work order is created, it is used as the default value of this field"><QuestionCircleOutlined /></Tooltip></span>}>
               <Input />
             </Form.Item>
             <Form.Item name="boolean_field_display"
-                       label={<span>布尔显示定义<Tooltip title='当为布尔类型时候，可以支持自定义显示形式。{"1":"是","0":"否"}或{"1":"需要","0":"不需要"}，注意数字也需要引号'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>boolean display definition<Tooltip title='When it is a boolean type, it can support a custom display form. {"1":"yes","0":"no"} or {"1":"required","0":"not required"}, note that numbers also need quotes'><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ validator: this.isDictJsonCheck}]}
             >
               <Input />
             </Form.Item>
             <Form.Item name="field_choice"
-                       label={<span>选项<Tooltip title='radio,checkbox,select,multiselect类型可供选择的选项，格式为json如:{"1":"中国", "2":"美国"},注意数字也需要引号'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>Options<Tooltip title='Options for radio, checkbox, select, multiselect types, the format is json such as: {"1":"China", "2":"United States"}, note that numbers also need quotation marks'><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ validator: this.isDictJsonCheck}]}
             >
               <Input />
 
             </Form.Item>
             <Form.Item name="label"
-                       label= {<span>标签<Tooltip title="自定义标签，json格式，调用方可根据标签自行处理特殊场景逻辑，loonflow只保存文本内容"><QuestionCircleOutlined /></Tooltip></span>}
+                       label= {<span>Label<Tooltip title="Custom label, json format, the caller can handle special scene logic according to the label, loonflow only saves the text content"><QuestionCircleOutlined /></Tooltip></span>}
                        rules={[{ validator: this.isDictJsonCheck}]}
             >
               <Input />
             </Form.Item>
             <Form.Item name="field_template"
-                       label={<span>模板<Tooltip title="文本域类型字段前端显示时可以将此内容作为字段的placeholder或默认值"><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>template<Tooltip title="This content can be used as the placeholder or default value of the field when the text field type field is displayed on the front end"><QuestionCircleOutlined /></Tooltip></span>}
             >
               <TextArea
                 autoSize={{ minRows: 2, maxRows: 6 }}
@@ -375,7 +375,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
 
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
-                确定
+                Submit
               </Button>
             </Form.Item>
 

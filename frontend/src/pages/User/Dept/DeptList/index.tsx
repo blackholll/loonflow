@@ -164,32 +164,32 @@ class DeptList extends Component<any, any> {
         }
       },
       {
-        title: "标签",
+        title: "label",
         dataIndex: "label",
         key: "label"
       },
       {
-        title: "创建人",
+        title: "creator",
         dataIndex: ["creator_info", "creator_alias"],
         key: "creator"
       },
       {
-        title: "创建时间",
+        title: "gmt_created",
         dataIndex: "gmt_created",
         key: "gmt_created"
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render: (text: string, record: any) => (
           <span>
-            <a style={{marginRight: 16}} onClick={() => this.showDeptModal(record)}>编辑</a>
+            <a style={{marginRight: 16}} onClick={() => this.showDeptModal(record)}>edit</a>
             <a style={{marginRight: 16, color: "red"}}>
               <Popconfirm
-                title="确认删除么"
+                title="Are you sure to delete?"
                 onConfirm={()=>{this.delDept(record.id)}}
               >
-                删除
+                Delete
               </Popconfirm>
             </a>
           </span>
@@ -218,21 +218,21 @@ class DeptList extends Component<any, any> {
               <Col span={6} key={"search_value"}>
                 <Form.Item
                   name={"search_value"}
-                  label={"查询"}
+                  label={"Inquire"}
                 >
-                  <Input placeholder="支持部门名称模糊查询" />
+                  <Input placeholder="Support department name fuzzy query" />
                 </Form.Item>
               </Col>
               <Col>
                 <Button type="primary" htmlType="submit">
-                  搜索
+                  search
                 </Button>
               </Col>
             </Row>
             <Row>
               <Col span={24} style={{ textAlign: 'right' }}>
                 <Button type="primary" onClick={()=>this.showDeptModal(0)}>
-                  新增
+                  New
                 </Button>
               </Col>
             </Row>
@@ -241,7 +241,7 @@ class DeptList extends Component<any, any> {
                  rowKey={record => record.id} pagination={this.state.pagination}/>
         </Card>
         <Modal
-          title="部门"
+          title="department"
           visible={this.state.deptModalVisible}
           onOk={this.handleDeptOk}
           onCancel={this.handleDeptCancel}
@@ -253,27 +253,27 @@ class DeptList extends Component<any, any> {
             {...layout}
             onFinish={this.onDeptFinish}
           >
-            <Form.Item name="name" label="名称" rules={[{ required: true }]} initialValue={this.getDeptDetailField('name')}>
+            <Form.Item name="name" label="name" rules={[{ required: true }]} initialValue={this.getDeptDetailField('name')}>
               <Input />
             </Form.Item>
-            <Form.Item name="parent_dept_id" label="上级部门" initialValue={String(this.getDeptDetailField('parent_dept_id'))}>
+            <Form.Item name="parent_dept_id" label="Higher office" initialValue={String(this.getDeptDetailField('parent_dept_id'))}>
               <Select
                 allowClear
                 showSearch
                 style={{ width: '100%' }}
-                placeholder="请选择上级部门"
+                placeholder="Please select a superior department"
               >
               {this.state.deptResult.map(d => (
                 <Option key={d.id}>{d.name}</Option>
               ))}
               </Select>
             </Form.Item>
-            <Form.Item name="leader" label="负责人" initialValue={this.getDeptDetailField('leader')}>
+            <Form.Item name="leader" label="leader" initialValue={this.getDeptDetailField('leader')}>
               <Select
                 allowClear
                 showSearch
                 style={{ width: '100%' }}
-                placeholder="请选择部门负责人"
+                placeholder="Please select a department head"
                 onSearch = {this.searchLeader}
               >
                 {this.state.searchLeaderResult.map(d => (
@@ -282,12 +282,12 @@ class DeptList extends Component<any, any> {
               </Select>
             </Form.Item>
             { this.getDeptDetailField('approver')?
-              <Form.Item name="approver" label="审批人" initialValue={this.getDeptDetailField('approver')}>
+              <Form.Item name="approver" label="approver" initialValue={this.getDeptDetailField('approver')}>
                 <Select
                   mode="multiple"
                   allowClear
                   style={{ width: '100%' }}
-                  placeholder="请选择审批人"
+                  placeholder="Please select an approver"
                   onSearch = {this.searchApprover}
 
                 >
@@ -296,12 +296,12 @@ class DeptList extends Component<any, any> {
                   ))}
                 </Select>
               </Form.Item>:
-              <Form.Item name="approver" label="审批人" >
+              <Form.Item name="approver" label="approver" >
                 <Select
                   mode="multiple"
                   allowClear
                   style={{ width: '100%' }}
-                  placeholder="请选择审批人"
+                  placeholder="Please select an approver"
                   onSearch = {this.searchApprover}
 
                 >
@@ -313,12 +313,12 @@ class DeptList extends Component<any, any> {
 
             }
 
-            <Form.Item name="label" label="标签" initialValue={this.getDeptDetailField('label')}>
+            <Form.Item name="label" label="label" initialValue={this.getDeptDetailField('label')}>
               <Input />
             </Form.Item>
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
-                确定
+                Sure
               </Button>
             </Form.Item>
 

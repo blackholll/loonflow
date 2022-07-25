@@ -171,27 +171,27 @@ class UserList extends Component<any, any> {
 
     const columns = [
       {
-        title: "用户名",
+        title: "username",
         dataIndex: "username",
         key: "username"
       },
       {
-        title: "姓名",
+        title: "alias",
         dataIndex: "alias",
         key: "alias"
       },
       {
-        title: "邮箱",
+        title: "email",
         dataIndex: "email",
         key: "email"
       },
       {
-        title: "电话",
+        title: "phone",
         dataIndex: "phone",
         key: "phone"
       },
       {
-        title: "部门",
+        title: "user dept",
         key: "user_dept",
         render: (text: string, record: any) => {
           const deptInfoList = [];
@@ -203,62 +203,62 @@ class UserList extends Component<any, any> {
         }
       },
       {
-        title: "状态",
+        title: "is_active",
         dataIndex: "is_active",
         key: "is_active",
         render: (text: string, record:any) => {
           if (record.is_active) {
-            return '在职'
+            return 'yes'
           } else {
-            return '已离职'
+            return 'no'
           }
         }
       },
       {
-        title: "用户类型",
+        title: "userType",
         key: "userType",
         render: (text: string, record: any) => {
           if (record.type_id === 0) {
-            return "普通用户"
+            return "general user"
           } else if (record.type_id === 1) {
-            return "工作流管理员"
+            return "Workflow administrator"
           } else if (record.type_id === 2) {
-            return "超级管理员"
+            return "super administrator"
           } else {
-            return "未知"
+            return "unknown"
           }
         }
       },
       {
-        title: "创建人",
+        title: "creator_info",
         dataIndex: ["creator_info", "creator_alias"],
         key: "creator_info"
       },
       {
-        title: "创建时间",
+        title: "created",
         dataIndex: "gmt_created",
         key: "gmt_created"
       },
       {
-        title: "操作",
+        title: "action",
         key: "action",
         render: (text: string, record: any) => (
           <span>
-            <a style={{marginRight: 16}} onClick={() => this.showEditModal(record)}>编辑</a>
+            <a style={{marginRight: 16}} onClick={() => this.showEditModal(record)}>edit</a>
             <a style={{marginRight: 16}}>
               <Popconfirm
-                title="确认重置么？确定后密码将被重置为123456"
+                title="Are you sure to reset? After confirmation, the password will be reset to 123456"
                 onConfirm={()=>this.resetPasswd(record.id)}>
-                <a href="#">重置密码</a>
+                <a href="#">reset Password</a>
               </Popconfirm>
             </a>
-            <a style={{marginRight: 16}} onClick={()=>this.showUserRole(record.id)}>查看角色</a>
+            <a style={{marginRight: 16}} onClick={()=>this.showUserRole(record.id)}>View roles</a>
             <a style={{marginRight: 16, color: "red"}}>
               <Popconfirm
-                title="确认删除么"
+                title="Are you sure to delete?"
                 onConfirm={()=>{this.delUser(record.id)}}
               >
-                删除
+                delete
               </Popconfirm>
             </a>
           </span>
@@ -287,21 +287,21 @@ class UserList extends Component<any, any> {
             <Col span={6} key={"search_value"}>
               <Form.Item
                 name={"search_value"}
-                label={"查询"}
+                label={"search"}
               >
-                <Input placeholder="支持用户名及姓名模糊查询" />
+                <Input placeholder="Support user name and name fuzzy query" />
               </Form.Item>
             </Col>
             <Col>
             <Button type="primary" htmlType="submit">
-              搜索
+              search
             </Button>
             </Col>
           </Row>
           <Row>
             <Col span={24} style={{ textAlign: 'right' }}>
               <Button type="primary" onClick={()=>this.showUserModal(0)}>
-                新增
+                new
               </Button>
               </Col>
           </Row>
@@ -310,7 +310,7 @@ class UserList extends Component<any, any> {
                  rowKey={record => record.id} pagination={this.state.pagination}/>
         </Card>
         <Modal
-          title="用户"
+          title="user"
           visible={this.state.userModalVisible}
           onOk={this.handleUserOk}
           onCancel={this.handleUserCancel}
@@ -322,24 +322,24 @@ class UserList extends Component<any, any> {
             {...layout}
             onFinish={this.onUserFinish}
           >
-            <Form.Item name="username" label="用户名" rules={[{ required: true }]} initialValue={this.getUserDetailField('username')}>
+            <Form.Item name="username" label="username" rules={[{ required: true }]} initialValue={this.getUserDetailField('username')}>
               <Input />
             </Form.Item>
-            <Form.Item name="alias" label="姓名" rules={[{ required: true }]} initialValue={this.getUserDetailField('alias')}>
+            <Form.Item name="alias" label="alias" rules={[{ required: true }]} initialValue={this.getUserDetailField('alias')}>
               <Input />
             </Form.Item>
-            <Form.Item name="email" label="邮箱" rules={[{ required: true }]} initialValue={this.getUserDetailField('email')}>
+            <Form.Item name="email" label="email" rules={[{ required: true }]} initialValue={this.getUserDetailField('email')}>
               <Input />
             </Form.Item>
-            <Form.Item name="phone" label="电话" rules={[{ required: true }]} initialValue={this.getUserDetailField('phone')}>
+            <Form.Item name="phone" label="phone" rules={[{ required: true }]} initialValue={this.getUserDetailField('phone')}>
               <Input />
             </Form.Item>
-            <Form.Item name="dept" label="部门" rules={[{ required: true }]}  initialValue={this.getUserDetailField('dept')}>
+            <Form.Item name="dept" label="department" rules={[{ required: true }]}  initialValue={this.getUserDetailField('department')}>
               <Select
                 mode="multiple"
                 allowClear
                 style={{ width: '100%' }}
-                placeholder="请选择用户所在部门"
+                placeholder="Please select the user's department"
               >
                 {this.state.deptResult.map(d => (
 
@@ -347,23 +347,23 @@ class UserList extends Component<any, any> {
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item name="is_active" label="在职" initialValue={this.getUserDetailField('is_active')}>
+            <Form.Item name="is_active" label="on-the-job" initialValue={this.getUserDetailField('is_active')}>
               <Radio.Group value = {this.state.defaultUserState}>
-                <Radio value={1}>在职</Radio>
-                <Radio value={0}>离职</Radio>
+                <Radio value={1}>on-the-job</Radio>
+                <Radio value={0}>resign</Radio>
               </Radio.Group>
             </Form.Item>
-            <Form.Item name="type_id" label="用户类型" initialValue={this.getUserDetailField('type_id')}>
+            <Form.Item name="type_id" label="user type" initialValue={this.getUserDetailField('type_id')}>
               <Radio.Group >
-                <Radio value={0}>普通用户</Radio>
-                <Radio value={1}>工作流管理员</Radio>
-                <Radio value={2}>超级管理员</Radio>
+                <Radio value={0}>general user</Radio>
+                <Radio value={1}>Workflow administrator</Radio>
+                <Radio value={2}>super administrator</Radio>
               </Radio.Group>
             </Form.Item>
 
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
-                确定
+                Sure
               </Button>
             </Form.Item>
 
@@ -371,7 +371,7 @@ class UserList extends Component<any, any> {
         </Modal>
 
         <Modal
-          title={"用户角色"}
+          title={"user role"}
           visible={ this.state.userRoleModalVisible}
           width={800}
           footer={null}

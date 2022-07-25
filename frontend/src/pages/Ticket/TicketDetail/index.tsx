@@ -200,7 +200,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       })
     }
     else {
-      message.error(`获取用户可以执行的操作失败:${result.msg}`)
+      message.error(`Failed to get actions the user can perform:${result.msg}`)
     }
   }
 
@@ -285,13 +285,13 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   onCloseTicketFinish = async (values) => {
     const result = await closeTicketRequest(this.props.ticketId, values);
     if (result.code === 0) {
-      message.success('关闭工单成功');
+      message.success('Close the work order successfully');
       this.setState({isCloseModalVisible: false});
       this.props.handleTicketOk();
       // this.fetchTicketDetailInfo();
       // this.fetchTicketTransitionInfo();
     } else {
-      message.error(`关闭工单失败:${result.msg}`)
+      message.error(`Failed to close the ticket:${result.msg}`)
     }
 
   }
@@ -343,13 +343,13 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
   onChangeStateFinish = async(values) => {
     const result = await changeTicketStateRequest(this.props.ticketId, values)
     if (result.code === 0 ) {
-      message.success('修改状态成功');
+      message.success('Modify the status successfully');
       this.setState({isChangeStateModalVisible: false});
       this.fetchTicketDetailInfo();
       this.fetchTicketTransitionInfo();
     }
     else {
-      message.error(`修改状态失败:${result.msg}`)
+      message.error(`Failed to modify status:${result.msg}`)
     }
 
   }
@@ -360,13 +360,13 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
     const result = await deliverTicketRequest(this.props.ticketId, values);
     if(result.code === 0) {
-      message.success('转交成功');
+      message.success('The transfer was successful');
       this.setState({isDeliverModalVisible: false});
       this.fetchTicketDetailInfo();
       this.fetchTicketTransitionInfo();
     }
     else {
-      message.error(`转交失败:${result.msg}`)
+      message.error(`transfer failed:${result.msg}`)
     }
   }
 
@@ -376,36 +376,36 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     }
     const result = await addNodeTicketRequest(this.props.ticketId, values);
     if(result.code === 0) {
-      message.success('加签成功');
+      message.success('Signed successfully');
       this.setState({isAddNodeModalVisible: false});
       this.fetchTicketDetailInfo();
       this.fetchTicketTransitionInfo();
     }
     else {
-      message.error(`加签失败:${result.msg}`)
+      message.error(`Signing failed:${result.msg}`)
     }
   }
 
   onCommentFinish = async(values:any) => {
     const result =  await addCommentRequest(this.props.ticketId, values);
     if(result.code === 0) {
-      message.success('留言成功');
+      message.success('Message success');
       this.setState({isCommentModalVisible: false});
     }
     else {
-      message.error(`留言失败:${result.msg}`)
+      message.error(`Failed to leave a message:${result.msg}`)
     }
   }
 
   onRetreatFinish = async(values:any) => {
     const result =  await retreatRequest(this.props.ticketId, values);
     if(result.code === 0) {
-      message.success('撤回成功');
+      message.success('Withdrawal succeeded');
       this.setState({isRetreatModalVisible: false});
       this.props.handleTicketOk();
     }
     else {
-      message.error(`撤回失败:${result.msg}`)
+      message.error(`Failed to withdraw:${result.msg}`)
     }
   }
 
@@ -749,7 +749,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       // 处理工单
       const result = await handleTicketRequest(this.props.ticketId, values)
       if (result.code === 0) {
-        message.success('处理工单成功');
+        message.success('Work order processed successfully');
         // #tode 刷新页面，关闭弹窗
         this.props.handleTicketOk();
 
@@ -762,7 +762,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       values.workflow_id = Number(this.props.workflowId);
       const result = await newTicketRequest(values)
       if (result.code === 0) {
-        message.success('创建工单成功');
+        message.success('Create work order successfully');
         this.props.newTicketOk(result.data.ticket_id)
         // #tode 刷新页面,关闭弹窗
       } else {
@@ -777,11 +777,11 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     //接单
     const result = await acceptTicketRequest(ticketId)
     if (result.code === 0) {
-      message.success('接单成功');
+      message.success('The order is successful');
       this.fetchTicketDetailInfo();
       this.fetchTicketTransitionInfo();
     } else {
-      message.error(`接单失败: ${result.msg}`)
+      message.error(`Order failed: ${result.msg}`)
     }
   }
 
@@ -795,7 +795,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       this.fetchTicketDetailInfo();
       this.fetchTicketTransitionInfo();
     } else {
-      message.error(`处理失败: ${result.msg}`)
+      message.error(`Processing failed: ${result.msg}`)
     }
   }
 
@@ -868,12 +868,12 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     if (item&& item[0] &&item[0].in_add_node===false && item[0].is_accept===false){
       buttonItems.push(
         <Button type="dashed" onClick={this.showDeliverModal} style={{marginLeft:50}}>
-          转交
+          transfer
         </Button>
       )
       buttonItems.push(
         <Button type="dashed"  onClick={this.showAddNodeModal}>
-          加签
+          add signature
         </Button>
       )
 
@@ -882,7 +882,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     if (this.state.ticketDetailInfoData !== []) {
       buttonItems.push(
         <Button type="dashed"  onClick={this.showCommentModal}>
-          留言
+          message
         </Button>
       )
     }
@@ -890,7 +890,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     if (this.state.enable_retreat) {
       buttonItems.push(
         <Button type="dashed" danger onClick={this.showRetreatModal}>
-          撤回
+          withdraw
         </Button>
       )
     }
@@ -902,7 +902,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
     if (currentUserName === ticketCreator && ticketType===1) {
       buttonItems.push(
         <Button type="dashed" danger onClick={this.showCloseModal}>
-          关闭
+          close
         </Button>
       )
     }
@@ -937,22 +937,22 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       <div>
         <Collapse defaultActiveKey={['flowStep', 'ticketDetail']} bordered={false}>
           {this.props.ticketId?
-            <Collapse.Panel header="流程图" key="flowchart">
+            <Collapse.Panel header="flow chart" key="flowchart">
               <WorkflowGraph workflowId={this.state.nowTicketWorkflowId}/>
             </Collapse.Panel>: null
           }
 
           {this.props.ticketId?
-          <Collapse.Panel header="操作记录" key="flowLog">
+          <Collapse.Panel header="flow log" key="flowLog">
             <TicketLog ticketId={this.props.ticketId}/>
           </Collapse.Panel> : null}
 
           {this.props.ticketId?
-          <Collapse.Panel header="工单进度" key="flowStep">
+          <Collapse.Panel header="Work order progress" key="flowStep">
             <TicketStep ticketId={this.props.ticketId}/>
           </Collapse.Panel> : null }
 
-          <Collapse.Panel header="工单信息" key="ticketDetail">
+          <Collapse.Panel header="Work order information" key="ticketDetail">
             <Form
               {...formItemLayout}
               name="ticketDetailForm"
@@ -968,7 +968,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
                   name="suggestion"
                 >
                   <TextArea
-                    placeholder="请输入处理意见"
+                    placeholder="Please enter processing comments"
                   />
                 </Form.Item>: null
               }
@@ -981,24 +981,24 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           </Collapse.Panel>
         </Collapse>
         {this.state.canIntervene?
-          <Card title="管理员操作">
+          <Card title="Admin Action">
             <Button type="primary" danger onClick={this.showCloseModal}>
-              强制关闭工单
+              Force close a ticket
             </Button>
             <Divider type="vertical" />
             <Button type="primary" danger onClick={this.showChangeStateModal}>
 
-              强制修改状态
+              Force change state
             </Button>
             <Divider type="vertical" />
             <Button type="primary" danger onClick={this.showAdminDeliverModal}>
-              强制转交
+              forced transfer
             </Button>
 
           </Card>: null
         }
 
-        <Modal title="强制关闭工单"
+        <Modal title="Force close a ticket"
                visible={this.state.isCloseModalVisible}
                onCancel={this.closeModal}
                footer={null}
@@ -1010,18 +1010,18 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               name="suggestion"
             >
               <TextArea
-                placeholder="请输入备注/意见"
+                placeholder="Please enter remarks/comments"
               />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                确定
+                Submit
               </Button>
             </Form.Item>
           </Form>
         </Modal>
 
-        <Modal title= {this.state.deliverFromAdmin? "强制转交": "转交"}
+        <Modal title= {this.state.deliverFromAdmin? "forced transfer": "transfer"}
                visible={this.state.isDeliverModalVisible}
                onCancel={this.closeModal}
                footer={null}
@@ -1031,10 +1031,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           >
             <Form.Item
               name="target_username"
-              rules={[{ required: true, message: '请选择转交对象' }]}
+              rules={[{ required: true, message: 'Please select a transfer object' }]}
             >
               <Select
-                placeholder="请输入关键词搜索转交人"
+                placeholder="Please enter a keyword to search for the referrer"
                 showSearch onSearch = {(search_value)=>this.userSimpleSearch('target_username', search_value)} filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }>
@@ -1048,18 +1048,18 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               name="suggestion"
             >
               <TextArea
-                placeholder="请输入备注/处理意见"
+                placeholder="Please enter remarks/processing comments"
               />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
+                submit
               </Button>
             </Form.Item>
           </Form>
         </Modal>
 
-        <Modal title="强制修改状态"
+        <Modal title="Force change state"
                visible={this.state.isChangeStateModalVisible}
                onCancel={this.closeModal}
                footer={null}
@@ -1069,12 +1069,12 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           >
             <Form.Item
               name="state_id"
-              rules={[{ required: true, message: '请选择目标状态' }]}
+              rules={[{ required: true, message: 'Please select a target state' }]}
             >
               <Select
                 showSearch
                 style={{ width: 200 }}
-                placeholder="请选择状态"
+                placeholder="Please select a status"
                 optionFilterProp="children"
                 onChange={this.onStateChange}
                 filterOption={(input, option) =>
@@ -1090,18 +1090,18 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               name="suggestion"
             >
               <TextArea
-                placeholder="请输入备注/处理意见"
+                placeholder="Please enter remarks/processing comments"
               />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
+                submit
               </Button>
             </Form.Item>
           </Form>
         </Modal>
 
-        <Modal title="加签"
+        <Modal title="add signature"
                visible={this.state.isAddNodeModalVisible}
                onCancel={this.closeModal}
                footer={null}
@@ -1111,10 +1111,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           >
             <Form.Item
               name="target_username"
-              rules={[{ required: true, message: '请选择加签对象' }]}
+              rules={[{ required: true, message: 'Please select a signature object' }]}
             >
               <Select
-                placeholder="请输入关键词搜索转交人"
+                placeholder="Please enter a keyword to search for the referrer"
                 showSearch onSearch = {(search_value)=>this.userSimpleSearch('target_username', search_value)} filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
               }>
@@ -1128,18 +1128,18 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               name="suggestion"
             >
               <TextArea
-                placeholder="请输入备注/处理意见"
+                placeholder="Please enter remarks/processing comments"
               />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
+                submit
               </Button>
             </Form.Item>
           </Form>
         </Modal>
 
-        <Modal title="留言"
+        <Modal title="message"
                visible={this.state.isCommentModalVisible}
                onCancel={this.closeModal}
                footer={null}
@@ -1151,18 +1151,18 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               name="suggestion"
             >
               <TextArea
-                placeholder="请输入意见"
+                placeholder="Please enter a comment"
               />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
+                submit
               </Button>
             </Form.Item>
           </Form>
         </Modal>
 
-        <Modal title="撤回"
+        <Modal title="withdraw"
                visible={this.state.isRetreatModalVisible}
                onCancel={this.closeModal}
                footer={null}
@@ -1174,12 +1174,12 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
               name="suggestion"
             >
               <TextArea
-                placeholder="请输入意见"
+                placeholder="Please enter a comment"
               />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" className="login-form-button">
-                提交
+                submit
               </Button>
             </Form.Item>
           </Form>

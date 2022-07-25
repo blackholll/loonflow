@@ -84,18 +84,18 @@ class RoleList extends Component<any, any> {
       result = await addRole(values);
     }
     if (result.code === 0){
-      message.success('保存成功');
+      message.success('Successfully saved');
       this.setState({roleDetail:{}, roleModalVisible:false})
       this.fetchRoleData({});
     } else {
-      message.error(`保存失败:${result.msg}`)
+      message.error(`Failed to save:${result.msg}`)
     }
   }
 
   delRole = async(roldId) => {
     const result = await delRoleRequest(roldId);
     if (result.code === 0 ) {
-      message.success('删除角色成功');
+      message.success('Delete role succeeded');
       this.fetchRoleData({});
     }
     else{
@@ -123,27 +123,27 @@ class RoleList extends Component<any, any> {
   render() {
     const columns = [
       {
-        title: "角色名",
+        title: "name",
         dataIndex: "name",
         key: "name"
       },
       {
-        title: "描述",
+        title: "description",
         dataIndex: "description",
         key: "description"
       },
       {
-        title: "标签",
+        title: "label",
         dataIndex: "label",
         key: "label"
       },
       {
-        title: "创建人",
+        title: "creator_info",
         dataIndex: ["creator_info", "creator_alias"],
         key: "creator_info",
       },
       {
-        title: "创建时间",
+        title: "gmt_created",
         dataIndex: "gmt_created",
         key: "gmt_created"
       },
@@ -152,14 +152,14 @@ class RoleList extends Component<any, any> {
         key: "action",
         render: (text: string, record: any) => (
           <span>
-            <a style={{marginRight: 16}} onClick={() => this.showEditModal(record)}>编辑</a>
-            <a style={{marginRight: 16}} onClick={() => this.showRoleUserModal(record.id)}>管理角色用户</a>
+            <a style={{marginRight: 16}} onClick={() => this.showEditModal(record)}>edit</a>
+            <a style={{marginRight: 16}} onClick={() => this.showRoleUserModal(record.id)}>Manage role users</a>
             <a style={{marginRight: 16, color: "red"}}>
               <Popconfirm
-                title="确认删除么"
+                title="Are you sure to delete?"
                 onConfirm={()=>{this.delRole(record.id)}}
               >
-                删除
+                delete
               </Popconfirm>
             </a>
           </span>
@@ -187,21 +187,21 @@ class RoleList extends Component<any, any> {
               <Col span={6} key={"search_value"}>
                 <Form.Item
                   name={"search_value"}
-                  label={"查询"}
+                  label={"search_value"}
                 >
-                  <Input placeholder="支持角色名模糊查询" />
+                  <Input placeholder="Support role name fuzzy query" />
                 </Form.Item>
               </Col>
               <Col>
                 <Button type="primary" htmlType="submit">
-                  搜索
+                  search
                 </Button>
               </Col>
             </Row>
             <Row>
               <Col span={24} style={{ textAlign: 'right' }}>
                 <Button type="primary" onClick={()=>this.showRoleModal(0)}>
-                  新增
+                  new
                 </Button>
               </Col>
             </Row>
@@ -215,7 +215,7 @@ class RoleList extends Component<any, any> {
           />
         </Card>
         <Modal
-          title="角色"
+          title="Role"
           visible={this.state.roleModalVisible}
           onOk={this.handleRoleOk}
           onCancel={this.handleRoleCancel}
@@ -227,25 +227,25 @@ class RoleList extends Component<any, any> {
             {...layout}
             onFinish={this.onRoleFinish}
           >
-            <Form.Item name="name" label="角色名" rules={[{ required: true }]} initialValue={this.getRoleDetailField('name')}>
+            <Form.Item name="name" label="character name" rules={[{ required: true }]} initialValue={this.getRoleDetailField('name')}>
               <Input />
             </Form.Item>
-            <Form.Item name="description" label="描述" initialValue={this.getRoleDetailField('description')}>
+            <Form.Item name="description" label="description" initialValue={this.getRoleDetailField('description')}>
               <Input />
             </Form.Item>
-            <Form.Item name="label" label="标签" initialValue={this.getRoleDetailField('label')}>
+            <Form.Item name="label" label="Label" initialValue={this.getRoleDetailField('label')}>
               <Input />
             </Form.Item>
             <Form.Item {...tailLayout}>
               <Button type="primary" htmlType="submit">
-                确定
+                Submit
               </Button>
             </Form.Item>
 
           </Form>
         </Modal>
         <Modal
-          title="角色用户"
+          title="role user"
           visible={this.state.roleUserModalVisible}
           onOk={this.handleRoleUserOk}
           onCancel={this.handleRoleUserCancel}

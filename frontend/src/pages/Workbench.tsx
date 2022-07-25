@@ -66,7 +66,7 @@ class Workbench extends Component<any, any> {
             showSearch
             labelInValue
             style={{ width: 200 }}
-            placeholder="选择工单类型"
+            placeholder="Select ticket type"
             optionFilterProp="children"
             onChange={this.workflowSelectOnchange}
             filterOption={(input, option) =>
@@ -77,17 +77,17 @@ class Workbench extends Component<any, any> {
               <Option key={d.id}>{d.name}</Option>
             ))}
           </Select>
-          <Tooltip title={this.state.selectWorkflowId? "": "请先选择工单类型"}>
-          <Button type="primary" onClick={this.showNewTicketModal} disabled={this.state.selectWorkflowId? false: true }>新建</Button>
+          <Tooltip title={this.state.selectWorkflowId? "": "Please select a ticket type first"}>
+          <Button type="primary" onClick={this.showNewTicketModal} disabled={this.state.selectWorkflowId? false: true }>new</Button>
           </Tooltip>
 
         </Card>
-        <Card title="我的待办">
+        <Card title="My to do">
           <TicketList category={'duty'} reloadFlag={this.state.reloadFlag}/>
         </Card>
 
         <Modal
-          title={`新建工单:${this.state.selectWorkflowName}`}
+          title={`New work order:${this.state.selectWorkflowName}`}
           visible={this.state.newTicketVisible}
           onOk={this.handleNewTicketOk}
           onCancel={this.handleNewTicketCancle}

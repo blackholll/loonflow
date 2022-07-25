@@ -16,7 +16,7 @@ export default (): React.ReactNode => (
   <PageContainer>
     <Card>
       <Alert
-        message="更快更强的重型组件，已经发布。"
+        message="Faster and stronger heavy components, have been released."
         type="success"
         showIcon
         banner
@@ -26,9 +26,9 @@ export default (): React.ReactNode => (
         }}
       />
       <Typography.Text strong>
-        高级表格{' '}
+        Advanced Form{' '}
         <a href="https://protable.ant.design/" rel="noopener noreferrer" target="__blank">
-          欢迎使用
+          welcome
         </a>
       </Typography.Text>
       <CodePreview>yarn add @ant-design/pro-table</CodePreview>
@@ -38,9 +38,9 @@ export default (): React.ReactNode => (
           marginBottom: 12,
         }}
       >
-        高级布局{' '}
+        Advanced layout{' '}
         <a href="https://prolayout.ant.design/" rel="noopener noreferrer" target="__blank">
-          欢迎使用
+          welcome
         </a>
       </Typography.Text>
       <CodePreview>yarn add @ant-design/pro-layout</CodePreview>
