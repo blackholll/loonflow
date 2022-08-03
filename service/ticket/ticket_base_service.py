@@ -726,58 +726,58 @@ class TicketBaseService(BaseService):
             return False, workflow_obj
         workflow_name = workflow_obj.name
 
-        field_list.append(dict(field_key='sn', field_name=u'流水号', field_value=ticket_obj.sn, order_id=10,
+        field_list.append(dict(field_key='sn', field_name=u'sn', field_value=ticket_obj.sn, order_id=10,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
                                description='', field_choice={}, boolean_field_display={}, default_value=None,
                                field_template='', label={}, placeholder=''))
-        field_list.append(dict(field_key='title', field_name=u'标题', field_value=ticket_obj.title, order_id=20,
+        field_list.append(dict(field_key='title', field_name=u'title', field_value=ticket_obj.title, order_id=20,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
-        field_list.append(dict(field_key='state_id', field_name=u'状态id', field_value=ticket_obj.state_id, order_id=40,
+        field_list.append(dict(field_key='state_id', field_name=u'state_id', field_value=ticket_obj.state_id, order_id=40,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
-        field_list.append(dict(field_key='participant_info.participant_name', field_name=u'当前处理人',
+        field_list.append(dict(field_key='participant_info.participant_name', field_name=u'participant_name',
                                field_value=participant_info_dict['participant_name'], order_id=50,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
-        field_list.append(dict(field_key='participant_info.participant_alias', field_name=u'当前处理人',
+        field_list.append(dict(field_key='participant_info.participant_alias', field_name=u'participant_alias',
                                field_value=participant_info_dict['participant_alias'], order_id=55,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO,
                                description='', field_choice={}, boolean_field_display={},
                                default_value=None, field_template='', label={}, placeholder=''))
 
-        field_list.append(dict(field_key='workflow.workflow_name', field_name=u'工作流名称', field_value=workflow_name,
+        field_list.append(dict(field_key='workflow.workflow_name', field_name=u'workflow_name', field_value=workflow_name,
                                order_id=60, field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
 
-        field_list.append(dict(field_key='creator', field_name=u'创建人', field_value=ticket_obj.creator, order_id=80,
+        field_list.append(dict(field_key='creator', field_name=u'creator', field_value=ticket_obj.creator, order_id=80,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
-        field_list.append(dict(field_key='gmt_created', field_name=u'创建时间',
+        field_list.append(dict(field_key='gmt_created', field_name=u'gmt_created',
                                field_value=str(ticket_obj.gmt_created)[:19], order_id=100,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
-        field_list.append(dict(field_key='gmt_modified', field_name=u'更新时间',
+        field_list.append(dict(field_key='gmt_modified', field_name=u'gmt_modified',
                                field_value=str(ticket_obj.gmt_modified)[:19], order_id=120,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',
                                label={}, placeholder=''))
-        field_list.append(dict(field_key='state.state_name', field_name=u'状态名', field_value=state_name, order_id=41,
+        field_list.append(dict(field_key='state.state_name', field_name=u'state_name', field_value=state_name, order_id=41,
                                field_type_id=constant_service_ins.FIELD_TYPE_STR,
                                field_attribute=constant_service_ins.FIELD_ATTRIBUTE_RO, description='',
                                field_choice={}, boolean_field_display={}, default_value=None, field_template='',

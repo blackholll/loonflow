@@ -9,6 +9,7 @@ class WorkflowPermissionService(BaseService):
     """
     流程服务
     """
+
     def __init__(self):
         pass
 
@@ -110,11 +111,13 @@ class WorkflowPermissionService(BaseService):
 
         add_permission_query_list = []
         for workflow_id in need_add_workflow_list:
-            add_permission_query_list.append(WorkflowUserPermission(permission='api', user_type='app', user=app_name, workflow_id=workflow_id))
+            add_permission_query_list.append(
+                WorkflowUserPermission(permission='api', user_type='app', user=app_name, workflow_id=workflow_id))
         WorkflowUserPermission.objects.bulk_create(add_permission_query_list)
 
         WorkflowUserPermission.objects.filter(
-            is_deleted=0, permission='api', user_type='app', user=app_name, workflow_id__in=need_del_workflow_list).update(is_deleted=1)
+            is_deleted=0, permission='api', user_type='app', user=app_name,
+            workflow_id__in=need_del_workflow_list).update(is_deleted=1)
 
         return True, ''
 
@@ -130,7 +133,8 @@ class WorkflowPermissionService(BaseService):
                 is_deleted=0, permission='api', user_type='app', user=app_name).update(is_deleted=1)
         else:
             WorkflowUserPermission.objects.filter(
-                is_deleted=0, permission='api', user_type='app', user=app_name, workflow_id__in=workflow_ids.split(',')).update(is_deleted=1)
+                is_deleted=0, permission='api', user_type='app', user=app_name,
+                workflow_id__in=workflow_ids.split(',')).update(is_deleted=1)
         return True, ''
 
     def manage_workflow_permission_check(self, workflow_id, username, app_name):
@@ -159,5 +163,6 @@ class WorkflowPermissionService(BaseService):
             return True, "superuser has all workflow's manage permission"
         flag, msg = self.workflow_id_permission_check(workflow_id, 'admin', 'user', username)
         return flag, msg
+
 
 workflow_permission_service_ins = WorkflowPermissionService()

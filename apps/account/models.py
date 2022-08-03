@@ -31,11 +31,6 @@ class LoonDept(BaseModel):
                     ' in this field during synchronization.')
     )
 
-    creator = models.CharField(_('creator'), max_length=50, help_text=_('username in loonuser table'))
-    gmt_created = models.DateTimeField(_('gmt_created'), auto_now_add=True)
-    gmt_modified = models.DateTimeField(_('gmt_modified'), auto_now=True)
-    is_deleted = models.BooleanField(_('is_deleted'), default=False)
-
     def get_dict(self):
         dept_dict_info = super().get_dict()
         creator_obj = LoonUser.objects.filter(username=getattr(self, 'creator')).first()
@@ -112,10 +107,6 @@ class LoonRole(BaseModel):
                     ' you can set the corresponding unique identifier'
                     ' in other systems in this field during synchronization, and the json format of the dictionary')
     )
-    creator = models.CharField(_('creator'), max_length=50)
-    gmt_created = models.DateTimeField(_('gmt_created'), auto_now_add=True)
-    gmt_modified = models.DateTimeField(_('gmt_modified'), auto_now=True)
-    is_deleted = models.BooleanField(_('is_deleted'), default=False)
 
     def get_dict(self):
         role_dict_info = super().get_dict()
@@ -146,7 +137,7 @@ class LoonUserManager(BaseUserManager):
         return user
 
 
-class LoonUser(AbstractBaseUser):
+class LoonUser(AbstractBaseUser, BaseModel):
     """
     User
     """
@@ -156,11 +147,6 @@ class LoonUser(AbstractBaseUser):
     phone = models.CharField(_('phone'), max_length=13, default='')
     is_active = models.BooleanField(_('is_active'), default=True)
     type_id = models.IntegerField(_('type_id'), default=0)  # 见service.common.constant_service中定义
-
-    creator = models.CharField(_('creator'), max_length=50)
-    gmt_created = models.DateTimeField(_('gmt_created'), auto_now_add=True)
-    gmt_modified = models.DateTimeField(_('gmt_modified'), auto_now=True)
-    is_deleted = models.BooleanField(_('is_deleted'), default=False)
 
     objects = LoonUserManager()
     USERNAME_FIELD = 'username'

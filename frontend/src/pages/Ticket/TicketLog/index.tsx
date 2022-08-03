@@ -27,7 +27,7 @@ const TicketLog = (props: TicketLogType) => {
   return <Steps direction="vertical" size="small" current={0}>
 
     {flowLogData.map(item => (
-      <Step key={item.id} title={item.participant_info.participant_alias} description={`于 ${item.gmt_created} 在 "${item.state.state_name}" 状态下，执行了 "${item.transition.transition_name}", 意见: ${item.suggestion}`} />
+      <Step key={item.id} title={item.participant_info.participant_alias} description={`At ${item.gmt_created} exist "${item.state.state_name}" state, executed "${item.transition.transition_name}", view: ${item.suggestion}`} />
     ))}
 
   </Steps>
