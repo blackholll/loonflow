@@ -210,8 +210,8 @@ class LoonUserDept(BaseModel):
     """
     用户部门
     """
-    user = models.ForeignKey(LoonUser, to_field='id', db_constraint=False, on_delete=False)
-    dept = models.ForeignKey(LoonDept, to_field='id', db_constraint=False, on_delete=False)
+    user = models.ForeignKey(LoonUser, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
+    dept = models.ForeignKey(LoonDept, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
 
 
 class LoonUserRole(BaseModel):

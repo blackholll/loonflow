@@ -22,7 +22,7 @@ class WorkflowAdmin(BaseModel):
     """
     工作流管理员
     """
-    workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=False)
+    workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
     username = models.CharField('管理员', max_length=100, help_text='除超级管理员及该工作流创建人外，管理人员也可以直接编辑该工作流')
 
 
@@ -142,7 +142,7 @@ class WorkflowUserPermission(BaseModel):
     """
     用户，部门，应用对工作流的操作权限。 view: 查看对应工单详情(不管该工作流是否开启查看权限校验)，intervene:view+强制修改工单状态的权限。 admin:intervene + 可以修改工作流
     """
-    workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=False)
+    workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
     permission = models.CharField('权限', max_length=100, null=True, blank=True)  # view, intervene， admin, api
     user_type = models.CharField('用户类型', max_length=100, null=True, blank=True)  # user, department, app
     user = models.CharField('用户', max_length=100, null=True, blank=True)  # username, department_id, app_name

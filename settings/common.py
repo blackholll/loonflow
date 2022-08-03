@@ -70,15 +70,6 @@ TEMPLATES = [
     },
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
-
-STATICFILES_DIRS = (
-    ("bower_components", os.path.join(STATIC_ROOT, 'bower_components')),
-    ("dist", os.path.join(STATIC_ROOT, 'dist')),
-    ("plugins", os.path.join(STATIC_ROOT, 'plugins')),
-)
-
 WSGI_APPLICATION = 'loonflow.wsgi.application'
 
 
@@ -131,3 +122,4 @@ else:
     HOMEPATH = os.environ['HOME']
 
 JWT_SALT = 'aUApFqfQjyYVAPo8'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

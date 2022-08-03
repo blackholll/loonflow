@@ -568,7 +568,7 @@ class LoonJwtLoginView(LoonBaseView):
                 return api_response(-1, '', {})
             else:
                 login(request, user)
-                return api_response(0, '', {'jwt': jwt_info.decode('utf-8')})
+                return api_response(0, '', {'jwt': jwt_info})
         else:
             return api_response(-1, 'username or password is invalid', {})
 
