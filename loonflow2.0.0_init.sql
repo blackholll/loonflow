@@ -874,7 +874,7 @@ CREATE TABLE `ticket_ticketflowlog` (
   `participant_type_id` int(11) NOT NULL,
   `participant` varchar(50) NOT NULL,
   `state_id` int(11) NOT NULL,
-  `ticket_data` varchar(10000) NOT NULL,
+  `ticket_data` longtext NOT NULL,
   `creator` varchar(50) NOT NULL,
   `gmt_created` datetime(6) NOT NULL,
   `gmt_modified` datetime(6) NOT NULL,
