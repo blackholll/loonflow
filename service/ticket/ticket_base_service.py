@@ -202,8 +202,8 @@ class TicketBaseService(BaseService):
         ticket_result_object_list = ticket_result_paginator.object_list
         ticket_result_restful_list = []
         for ticket_result_object in ticket_result_object_list:
-            flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_result_object.state_id)
-            state_name = state_obj.name if flag else '未知状态'
+            state_obj_flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_result_object.state_id)
+            state_name = state_obj.name if state_obj_flag else '未知状态'
             flag, participant_info = cls.get_ticket_format_participant_info(ticket_result_object.id)
 
             flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_result_object.workflow_id)
@@ -220,8 +220,12 @@ class TicketBaseService(BaseService):
                 creator_info = dict(username=ticket_result_object.creator, alias='', is_active=False, email='',
                                     phone='', dept_info={})
             ticket_format_obj = ticket_result_object.get_dict()
+
+            state_obj_label = '{}'
+            if state_obj_flag:
+                state_obj_label = json.loads(state_obj.label)
             ticket_format_obj.update(dict(state=dict(state_id=ticket_result_object.state_id, state_name=state_name,
-                                                     state_label=json.loads(state_obj.label)),
+                                                     state_label=state_obj_label),
                                           participant_info=participant_info, creator_info=creator_info,
                                           workflow_info=workflow_info_dict))
 
