@@ -657,23 +657,21 @@ class TicketBaseService(BaseService):
 
         ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
         flag, result = cls.get_ticket_base_field_list(ticket_id)
-        if flag is False:
-            return False, result
-        field_list = result.get('field_list')
+
+        field_list = result.get('field_list') if flag else []
 
         new_field_list = []
 
         if handle_permission:
             flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_obj.state_id)
-            if flag is False:
-                return False, state_obj
-            state_field_str = state_obj.state_field_str
-            state_field_dict = json.loads(state_field_str)
-            state_field_key_list = state_field_dict.keys()
-            for field in field_list:
-                if field['field_key'] in state_field_key_list:
-                    field['field_attribute'] = state_field_dict[field['field_key']]
-                    new_field_list.append(field)
+            if flag:
+                state_field_str = state_obj.state_field_str
+                state_field_dict = json.loads(state_field_str)
+                state_field_key_list = state_field_dict.keys()
+                for field in field_list:
+                    if field['field_key'] in state_field_key_list:
+                        field['field_attribute'] = state_field_dict[field['field_key']]
+                        new_field_list.append(field)
         else:
             # only read permission
             flag, workflow_obj = workflow_base_service_ins.get_by_id(workflow_id=ticket_obj.workflow_id)
@@ -695,13 +693,14 @@ class TicketBaseService(BaseService):
                                 dept_info={})
         # 当前状态信息
         flag, result = workflow_state_service_ins.get_workflow_state_by_id(ticket_obj.state_id)
-        if flag is False:
-            return False, result
-        state_info = result.get_dict()
-        if state_info['participant_type_id'] == constant_service_ins.PARTICIPANT_TYPE_HOOK:
-            state_info['participant'] = 'hook'
-        state_info['state_field_str'] = json.loads(state_info['state_field_str'])
-        state_info['label'] = json.loads(state_info['label'])
+        if flag:
+            state_info = result.get_dict()
+            if state_info['participant_type_id'] == constant_service_ins.PARTICIPANT_TYPE_HOOK:
+                state_info['participant'] = 'hook'
+            state_info['state_field_str'] = json.loads(state_info['state_field_str'])
+            state_info['label'] = json.loads(state_info['label'])
+        else:
+            state_info = dict(id=ticket_obj.state_id, name='--状态已被删除--')
         ticket_result_dict = ticket_obj.get_dict()
         ticket_result_dict.update(dict(field_list=new_field_list, creator_info=creator_info, state_info=state_info))
         return True, ticket_result_dict
@@ -926,17 +925,17 @@ class TicketBaseService(BaseService):
         if not ticket_obj:
             return False, '工单不存在或已被删除'
         ticket_state_id = ticket_obj.state_id
-        flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(ticket_state_id)
 
+        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_state_id)
+        if not flag:
+            return True, dict(permission=False, msg='工单当前状态id不存在或已被删除')
+
+        flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(ticket_state_id)
         if flag is False:
             return False, transition_queryset
 
         if not transition_queryset:
             return True, dict(permission=False, msg='工单当前状态无需操作')
-
-        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_state_id)
-        if not state_obj:
-            return True, dict(permission=False, msg='工单当前状态id不存在或已被删除')
 
         if by_timer and username == 'loonrobot':
             # by time
