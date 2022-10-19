@@ -1,6 +1,7 @@
 import copy
 import json
 import datetime
+import logging
 import random
 
 import redis
@@ -2061,6 +2062,36 @@ class TicketBaseService(BaseService):
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             destination_participant = '***'  # 敏感数据，不保存工单基础表中
+
+        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_FROM_EXTERNAL:
+            import requests
+            external_config = json.loads(participant)
+            external_url = external_config.get('external_url')
+            external_token = external_config.get('external_token')
+            extra_info = external_config.get('extra_info')
+
+            flag, msg = common_service_ins.gen_hook_signature(external_token)
+            if not flag:
+                return False, msg
+            flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
+            if extra_info is not None:
+                all_ticket_data.update(dict(extra_info=extra_info))
+            try:
+                r = requests.post(external_url, headers=msg, json=all_ticket_data, timeout=10)
+                result = r.json()  # {code:0, msg:'', data:'zhangsan,lisi'}
+                if result.get('data').split(',') > 1:
+                    destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
+                else:
+                    destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
+                destination_participant = result.get('data')
+            except Exception as e:
+                import logging
+                import traceback
+                logger = logging.getLogger('django')
+                logger.error('get external participant error:')
+                logger.error(traceback.format_exc())
+                destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONA
+                destination_participant = 'admin'
 
         # 参与人去重复+类型修正
         if destination_participant_type_id in (constant_service_ins.PARTICIPANT_TYPE_PERSONAL, constant_service_ins.PARTICIPANT_TYPE_MULTI):

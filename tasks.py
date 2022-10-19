@@ -257,7 +257,7 @@ def flow_hook_task(ticket_id):
     if participant_type_id != constant_service_ins.PARTICIPANT_TYPE_HOOK:
         return False, ''
     hook_config = state_obj.participant
-    hook_config_dict= json.loads(hook_config)
+    hook_config_dict = json.loads(hook_config)
     hook_url = hook_config_dict.get('hook_url')
     hook_token = hook_config_dict.get('hook_token')
     wait = hook_config_dict.get('wait')

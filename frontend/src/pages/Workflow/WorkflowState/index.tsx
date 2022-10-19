@@ -408,15 +408,16 @@ class WorkflowState extends Component<any, any> {
                   <Option value={3}>部门</Option>
                   <Option value={4}>角色</Option>
                   <Option value={5}>变量</Option>
-                  <Option value={6}>脚本</Option>
+                  {/*/!*<Option value={6}>脚本</Option>*!/ 已废弃*/}
                   <Option value={7}>工单字段</Option>
                   <Option value={8}>父工单字段</Option>
                   <Option value={10}>hook</Option>
+                  <Option value={11}>外部获取</Option>
                   <Option value={0}>无</Option>
               </Select>
             </Form.Item>
             <Form.Item name="participant"
-                       label={<span>参与人<Tooltip title='个人(username)\多人(多个username以,隔开\部门(部门id，多个部门以逗号隔开)\角色(角色id)\变量(creator:工单的创建人,creator_tl:工单创建人的TL,多个变量逗号隔开)\脚本记录的id\工单字段(逗号隔开多个)\父工单字段(逗号隔开多个)等，需要在此状态创建子工单时需要设置此处处理人为loonrobot。 当处理人类型为hook方式时,处理人需要按照如下规则配置 {"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true, "extra_info":"xxxx"}。详见文档'><QuestionCircleOutlined /></Tooltip></span>}
+                       label={<span>参与人<Tooltip title='个人(username)\多人(多个username以,隔开\部门(部门id，多个部门以逗号隔开)\角色(角色id)\变量(creator:工单的创建人,creator_tl:工单创建人的TL,多个变量逗号隔开)\脚本记录的id\工单字段(逗号隔开多个)\父工单字段(逗号隔开多个)等，需要在此状态创建子工单时需要设置此处处理人为loonrobot。 当处理人类型为hook方式时,处理人需要按照如下规则配置 {"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true, "extra_info":"xxxx"},外部获取配置规则:{"external_url":"http://xxx.com/xxx", "external_token":"xxxx", "extra_info":"xxxx"}。详见文档'><QuestionCircleOutlined /></Tooltip></span>}
             >
               <Input />
 

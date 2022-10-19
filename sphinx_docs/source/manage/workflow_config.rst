@@ -135,7 +135,7 @@ loonflow发送hook请求时，header头中将包含signature 和timestamp。
 使用场景如：运维处理中状态下处理人有A、B、C，其中A处理了工单，然后到达发起人确认状态时，发起人发现处理的有问题，
 那么发起人可能是希望将工单退回到之前处理的A。而不是A、B、C都收到工单
 
-参与人类型： 参与人类型包括个人、多人、部门、角色、脚本(建议使用hook替代)、工单字段、父工单字段、hook、无。
+参与人类型： 参与人类型包括个人、多人、部门、角色、工单字段、父工单字段、hook、外部获取、无。
 注意：如果需要在此状态创建子工单，需要将参与人类型设置为个人，参与人使用loonrobot
 
 参与人：参与人信息根据参与人类型不同而不同，如果参与人类型是个人，那么参与人需要填写用户的username。 如果参与人类型是多人，
@@ -150,6 +150,8 @@ wait的值可以是true或者false,如果wait的值是false那么工单触发hoo
 即code=-1 或者服务端无响应或者http status非200工单会标记script_run_last_result为False，你可以调用“重试工单脚本/任务”重新触发hook)，
 如果wait的值是true那么工单触发hook后会停留在当前状态，直到hook方回调(回调逻辑见文档中“工单相关接口”-"工单hook回调")loonflow成功
 (请求参数中result=True)后工单的状态才继续流转。extra_info(非必填)可以用于传一些额外的信息，loonflow会将这个信息连同工单信息传给hook服务端。
+如果参与人类型是'外部获取'，参与人信息需要填写{"external_url":"http://www.xx.com", "external_token":"xxx", "extra_info":""}，
+系统将根据你配置的地址发起post请求，将结果中的内容作为参与人。
 
 ::
 
@@ -158,7 +160,7 @@ wait的值可以是true或者false,如果wait的值是false那么工单触发hoo
   ori_str = timestamp + token
   signature = hashlib.md5(ori_str.encode(encoding='utf-8')).hexdigest()
 
-hook触发时loonflow向hook_url服务端post请求时带的数据如下：
+hook触发时loonflow向hook_url服务端post请求时带的数据如下(外部获取类型post请求数据格式也如此)：
 
 ::
 
@@ -170,6 +172,12 @@ hook触发时loonflow向hook_url服务端post请求时带的数据如下：
     ...., //等等工单的所有字段的值
     "extra_info": "xxxx", // 此处如果你配置hook的时候指定了extra_info那么会有这个字段，如果没配置就没这个信息
   }
+
+对于hook类型你的hook服务端需要response status code 200， 内容为json格式,包含code,msg字段，code为0 表示hook服务端已成功收到请求，并正常处理。
+如{"code":200, "msg":"ok"}，其中msg会被记录到工单的flowlog中,你可以在你处理出错时将出错原因填充到msg字段。
+对于外部获取类型，你的external_url的服务端需要response status code 200,内容为json格式，包含code,msg, data字段，如{"code":0, "msg":"xxx",
+"data":"zhansgan,lisi"}， 其中data字段中包含的是你需要将此工单的处理人设置为哪些username, 多个username使用逗号隔开
+
 
 分配方式： 分配方式包括直接处理、主动接单、随机分配、全部处理。如果设置为直接处理，工单的当前处理人可以直接点击配置的流
 转(如同意、拒绝、完成)来处理。如果设置为主动接单，则当前处理人需要先接单，然后才可以按照配置的流转来处理(表现形式为获取用
