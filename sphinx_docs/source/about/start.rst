@@ -7,7 +7,7 @@
 -------------
 - 将settings/dev.py.sample在settings目录下复制一份并重命名为config.py
 - 创建数据库并修改settings/config.py中相应配置(数据库配置、redis地址配置、日志路径配置等等)
-- 创建python虚拟环境: python3.6.x(python3.6最新稳定版)
+- 创建python虚拟环境: python3.10.x(python3.10最新稳定版)
 - 安装依赖包: pip install -r requirements/dev.txt
 - 启动redis(用于生成唯一的工单流水号+celery异步任务[执行脚本、状态hook、通知hook])
 - 初始化数据库
