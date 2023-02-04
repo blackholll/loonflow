@@ -2079,7 +2079,7 @@ class TicketBaseService(BaseService):
             try:
                 r = requests.post(external_url, headers=msg, json=all_ticket_data, timeout=10)
                 result = r.json()  # {code:0, msg:'', data:'zhangsan,lisi'}
-                if result.get('data').split(',') > 1:
+                if len(result.get('data').split(',')) > 1:
                     destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_MULTI
                 else:
                     destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
