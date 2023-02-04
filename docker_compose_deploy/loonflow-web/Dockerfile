@@ -4,7 +4,14 @@ LABEL maintainer=blackholll@163.com
 # 安装基础包
 RUN mkdir -p /var/log/loonflow & \
     rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm & \
-    yum install -y wget mysql-devel gcc gcc-devel python3 python3-pip python3-dev python3-devel mysql-devel zlib-devel openssl-devel openssl-devel git
+    yum install -y wget mysql-devel gcc gcc-devel python3-devel mysql-devel zlib-devel openssl-devel openssl-devel git automake libtool make
+
+# 安装python3.10
+RUN wget https://www.python.org/ftp/python/3.10.9/Python-3.10.9.tgz
+RUN tar zxvf Python-3.10.9.tgz
+RUN cd Python-3.10.9 && ./configure --enable-optimizations && make altinstall
+RUN python3.10 -m venv /opt/venv/loonflow
+
 
 # 复制文件到镜像
 COPY . /opt/loonflow/
@@ -12,7 +19,7 @@ COPY . /opt/loonflow/
 #WORKDIR /opt
 #RUN mv loonflow_ro loonflow
 WORKDIR /opt/loonflow/requirements
-RUN pip3 install -r pro.txt -i https://pypi.tuna.tsinghua.edu.cn/simple/ --trusted-host=pypi.tuna.tsinghua.edu.cn
+RUN /opt/venv/loonflow/bin/pip install -r pro.txt -i  http://pypi.douban.com/simple --trusted-host pypi.douban.com
 # 复制config.py文件
 WORKDIR /opt/loonflow/settings
 RUN cp pro.py.sample config.py

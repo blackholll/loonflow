@@ -22,7 +22,7 @@ services:
       - /bin/sh
       - -c
       - |
-        uwsgi /opt/loonflow/uwsgi.ini 
+        /opt/venv/loonflow/bin/uwsgi /opt/loonflow/uwsgi.ini 
         nginx -c /etc/nginx/nginx.conf -g "daemon off;"
 
   loonflow-task:
