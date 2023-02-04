@@ -2073,7 +2073,10 @@ class TicketBaseService(BaseService):
             flag, msg = common_service_ins.gen_hook_signature(external_token)
             if not flag:
                 return False, msg
-            flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
+            if not ticket_id:
+                all_ticket_data = ticket_req_dict
+            else:
+                flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
             if extra_info is not None:
                 all_ticket_data.update(dict(extra_info=extra_info))
             try:
