@@ -73,9 +73,6 @@
 --------------------------------
 生产环境docker compose方式部署
 --------------------------------
-为了方便的数据的持久化以及升级操作,此方式不会启动数据库,请事先准备好数据库。(注意创建库的使用使用utf-8字符集)。只部署loonflow
-(包括nginx、redis),启动时将连接到你提供的数据库(保证持久化数据)。
-成功启动后，可使用 http://{host} 访问， {host}为你的linux服务器的ip地址，admin账号密码为123456
 
 - 准备工作:
 
@@ -86,51 +83,58 @@
   安装好docker-compose(请自行百度或者google)
   配置容器镜像加速(请自行百度或者google)
 
-- 准备好数据库，授予权限
+- 启动/停止服务
+::
 
+  # 启动服务
+  cd docker_compose_deploy
+  docker compose -f docker-compose.yml up -d
+
+  # 停止服务
+  docker compose -f docker-compose.yml stop
+
+- 启动/停止服务(使用已有mysql)
 ::
 
   # 进入mysql后创建数据库并授权
-  mysql> CREATE DATABASE loonflow DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;  # 注意要使用utf8mb4字符集
+  mysql> create database loonflow character set utf8mb4;  # 注意要使用utf8mb4字符集
   mysql> grant all privileges on loonflow.* to loonflow@'%' identified by '123456';
 
+  # 移除及更新docker-compose.yml中mysql相关配置
+  移除loonflow-mysql服务
+  移除loonflow-task和loonflow-web服务中depends_on的oonflow-mysql
+  修改loonflow-task和loonflow-web服务中的mysql地址、用户、密码
 
-- 修改相关配置
+  # 启动服务
+  cd docker_compose_deploy
+  docker compose -f docker-compose.yml up -d
 
-修改docker_compose_deploy/run.py中的相关配置
+  # 停止服务
+  docker compose -f docker-compose.yml stop
 
-::
+- 访问服务
 
-  # 修改run.py中数据库相关配置为你准备好的数据库信息
-  db_host = ''  # loonflow使用的数据库的ip
-  db_port = ''  # loonflow使用的数据库的端口
-  db_name = ''  # loonflow使用的数据库的名称
-  db_user = ''  # loonflow使用的数据库的用户
-  db_password = ''  # loonflow使用的数据库的用户密码
-  
-  ddl_db_user = ''  # 可以执行ddl(拥有修改表结构权限)的用户
-  ddl_db_password = ''  # 可以执行ddl(拥有修改表结构权限)的用户的密码
+http://{service's ip}
 
-- 安装并启动服务
 
-::
 
-  python3 run.py install # 执行此命令后将修改dockerfile中的数据库配置，构建镜像，然后启动服务
+-------------
+常见问题
+-------------
+- 部署完后访问用户及密码是多少
 
-- 启动服务
+docker compose方式会自动导入初始数据，用户及密码为admin/123456,其他已经用户的密码应该也是123456。
 
-::
+- docker-compose方式如何修改mysql的密码
 
-  python3 run.py start  # 此命令直接启动服务，请保证之前install过（也就是dockerfile中数据库配置已被修改）
+容器mysql服务的root密码:docker_compose_deploy/docker-compose.yml中MYSQL_ROOT_PASSWORD(需要第一次启动服务之前修改)
 
-- 停止服务
+容器mysql服务loonflow的密码: docker_compose_deploy/loonflow-mysql/init/create_database.sql(需要第一次启动服务之前修改)
 
-::
+- docker-compose方式如何修改redis的密码
 
-  python3 run.py stop # 停止服务， 这种方式对于celery task任务非优雅停止，可以使用flower(celery的监控系统)，将任务消费停止，并且等待所有认为都结束后再执行
+docker_compose_deploy/docker-compose.yml中loonflow-redis中requirepass及其他服务环境变量中的密码
 
-- 升级并重启服务
+- docker-compose方式支持ARM架构下启动么
 
-::
-
-  python3 run.py update # 仅用于小版本升级如a.b.c-->a.b.d,不涉及数据库表结构变更的升级，执行此命令后将修改数据配置, 然后重新构建镜像并启动, 注意先修改run.py中数据库相关配置
+别折腾了，找个linux服务器吧， 我搞了一整天没成功build所有的arm image。
