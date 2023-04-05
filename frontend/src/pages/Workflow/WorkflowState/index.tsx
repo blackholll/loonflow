@@ -73,7 +73,7 @@ class WorkflowState extends Component<any, any> {
   }
 
   searchState = (values) => {
-    this.fetchStateListData({...values, page_page:10, page:1})
+    this.fetchStateListData({...values, per_page:10, page:1})
   }
 
   showWorkflowStateModal = (workflowStateDetail) => {

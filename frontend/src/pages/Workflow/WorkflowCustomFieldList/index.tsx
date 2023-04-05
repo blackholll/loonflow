@@ -53,7 +53,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
   }
 
   searchCustomFiled = (values)=> {
-    this.fetchCustomFieldListData({...values, page_page:10, page:1})
+    this.fetchCustomFieldListData({...values, per_page:10, page:1})
   }
 
   handleCustomFieldOk = () => {
