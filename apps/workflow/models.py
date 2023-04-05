@@ -20,7 +20,7 @@ class Workflow(BaseModel):
 
 class WorkflowAdmin(BaseModel):
     """
-    工作流管理员
+    工作流管理员, 该model已经废弃， 当前使用的是WorkflowUserPermission
     """
     workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
     username = models.CharField('管理员', max_length=100, help_text='除超级管理员及该工作流创建人外，管理人员也可以直接编辑该工作流')
@@ -83,7 +83,7 @@ class CustomField(BaseModel):
 
 def upload_workflow_script(instance, filename):
     """
-    因为脚本中可能会存在一些私密信息，如账号密码等，所以重命名文件，避免可以直接下载此文件
+    因为脚本中可能会存在一些私密信息，如账号密码等，所以重命名文件，避免可以直接下载此文件。已经废弃，不再支持脚本方式的notice,请使用hook
     :param instance:
     :param filename:
     :return:
@@ -98,7 +98,7 @@ def upload_workflow_script(instance, filename):
 
 class WorkflowScript(BaseModel):
     """
-    流程中执行的脚本
+    流程中执行的脚本, 已经废弃，不再支持脚本方式的notice,请使用hook
     """
     name = models.CharField('名称', max_length=50)
     saved_name = models.FileField('存储的文件名', upload_to=upload_workflow_script, help_text='请上传python脚本,media/workflow_script/demo_script.py为示例脚本，请参考编写')
@@ -108,7 +108,7 @@ class WorkflowScript(BaseModel):
 
 def upload_notice_script(instance, filename):
     """
-    因为通知脚本中可能会存在一些私密信息，如账号密码等，所以重命名文件，避免可以直接下载此文件
+    因为通知脚本中可能会存在一些私密信息，如账号密码等，所以重命名文件，避免可以直接下载此文件。 已经废弃，不再支持脚本方式的notice,请使用hook
     :param instance:
     :param filename:
     :return:

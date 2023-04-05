@@ -63,7 +63,7 @@ class WorkflowTransiton extends Component<any, any> {
     this.setState({transitionListLoading: true});
     const result = await getWorkflowTransition(this.props.workflowId, params);
     const pagination = { ...this.state.pagination };
-    pagination.page = result.data.page;
+    pagination.current = result.data.page;
     pagination.pageSize = result.data.per_page;
     pagination.total = result.data.total;
     if (result.code ===0){

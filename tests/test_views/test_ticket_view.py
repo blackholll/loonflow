@@ -130,7 +130,8 @@ class TestTicketView(TestCase):
         result = LoonflowApiCall().api_call('get', url, dict(username='admin'))
         self.assertEqual(result.get('code'), 0)
 
-    def test_alter_ticket_state(self):
+    @mock.patch('tasks.send_ticket_notice.apply_async')
+    def test_alter_ticket_state(self, notice_apply_async):
         """
         修改工单状态
         :return:
@@ -138,6 +139,7 @@ class TestTicketView(TestCase):
         ticket_id = 39
         new_state_id = 4
         url = '/api/v1.0/tickets/{}/state'.format(ticket_id)
+        notice_apply_async.return_value = True
         result = LoonflowApiCall().api_call('put', url, dict(state_id=new_state_id))
         self.assertEqual(result.get('code'), 0)
 

@@ -43,7 +43,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
     this.setState({customFieldListLoading: true})
     const result = await getWorkflowCustomField(this.props.workflowId, params);
     const pagination = { ...this.state.pagination };
-    pagination.page = result.data.page;
+    pagination.current = result.data.page;
     pagination.pageSize = result.data.per_page;
     pagination.total = result.data.total;
 
@@ -53,7 +53,7 @@ class WorkflowCustomFieldList extends Component<any, any> {
   }
 
   searchCustomFiled = (values)=> {
-    this.fetchCustomFieldListData({...values, page_page:10, page:1})
+    this.fetchCustomFieldListData({...values, per_page:10, page:1})
   }
 
   handleCustomFieldOk = () => {

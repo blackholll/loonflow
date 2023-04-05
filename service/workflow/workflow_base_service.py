@@ -1,4 +1,5 @@
 import json
+from django.conf import settings
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import Workflow, WorkflowAdmin, WorkflowUserPermission
@@ -79,13 +80,13 @@ class WorkflowBaseService(BaseService):
             workflow_result_restful_list.append(workflow_info)
         # 获取工作流管理员信息
         if from_admin:
-            workflow_admin_queryset = WorkflowAdmin.objects.filter(
-                workflow_id__in=workflow_result_id_list, is_deleted=0).all()
+            workflow_admin_queryset = WorkflowUserPermission.objects.filter(workflow_id__in=workflow_result_id_list, permission='admin', is_deleted=0).all()
+
             for workflow_result_restful in workflow_result_restful_list:
                 workflow_admin_list = []
                 for workflow_admin_object in workflow_admin_queryset:
                     if workflow_admin_object.workflow_id == workflow_result_restful['id']:
-                        workflow_admin_list.append(workflow_admin_object.username)
+                        workflow_admin_list.append(workflow_admin_object.user)
 
                 workflow_result_restful['workflow_admin'] = ','.join(workflow_admin_list)
 
@@ -136,7 +137,8 @@ class WorkflowBaseService(BaseService):
         #'限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)
         limit_expression_dict = json.loads(limit_expression)
         limit_period = limit_expression_dict.get('period')
-        limit_count = limit_expression_dict.get('limit_count')
+        limit_level = limit_expression_dict.get('level')
+        limit_count = limit_expression_dict.get('count')
         limit_allow_persons = limit_expression_dict.get('allow_persons')
         limit_allow_depts = limit_expression_dict.get('allow_depts')
         limit_allow_roles = limit_expression_dict.get('allow_roles')
@@ -144,12 +146,12 @@ class WorkflowBaseService(BaseService):
         from service.ticket.ticket_base_service import ticket_base_service_ins
 
         if limit_period:
-            if limit_expression_dict.get('level'):
-                if limit_expression_dict.get('level') == 1:
+            if limit_level:
+                if limit_level == 1:
                     flag, result = ticket_base_service_ins.get_ticket_count_by_args(
                         workflow_id=workflow_id, username=username, period=limit_period)
                     count_result = result.get('count_result')
-                elif limit_expression_dict.get('level') == 2:
+                elif limit_level == 2:
                     flag, result = ticket_base_service_ins.get_ticket_count_by_args(
                         workflow_id=workflow_id, period=limit_period)
                     count_result = result.get('count_result')
@@ -157,9 +159,9 @@ class WorkflowBaseService(BaseService):
                     return False, 'level in limit_expression is invalid'
                 if count_result is False:
                     return False, result
-                if not limit_expression_dict.get('count'):
+                if not limit_count:
                     return False, 'count is need when level is not none'
-                if count_result > limit_expression_dict.get('count'):
+                if count_result >= limit_count:
                     return False, '{} tickets can be created in {}hours when workflow_id is {}'\
                         .format(limit_count, limit_period, workflow_id)
 
@@ -515,7 +517,24 @@ class WorkflowBaseService(BaseService):
 
         return True, dict(result_list=result_list)
 
-
+    @classmethod
+    @auto_log
+    def hook_host_valid_check(cls, url):
+        """
+        check the hook host is valid or not
+        """
+        try:
+            host_allowed_list = settings.HOOK_HOST_ALLOWED
+        except Exception as e:
+            # 兼容历史版本，未设置该配置则允许所有
+            return True, ''
+        if host_allowed_list:
+            from urllib.parse import urlparse
+            res = urlparse(url)
+            host = res.netloc
+            if host in host_allowed_list:
+                return True, ''
+        return False, 'hook host is not allowed, please contact the administrator to alter the configure'
 
 
 workflow_base_service_ins = WorkflowBaseService()

@@ -43,7 +43,7 @@ class DeptList extends Component<any, any> {
     const result = await getDeptList(params);
     if (result.code === 0 ){
       const pagination = { ...this.state.pagination };
-      pagination.page = result.data.page;
+      pagination.current = result.data.page;
       pagination.pageSize = result.data.per_page;
       pagination.total = result.data.total;
 

@@ -50,7 +50,7 @@ class WorkflowList extends Component<any, any> {
     });
     const result = await getWorkflowList( params);
     const pagination = { ...this.state.pagination };
-    pagination.page = result.data.page;
+    pagination.current = result.data.page;
     pagination.pageSize = result.data.per_page;
     pagination.total = result.data.total;
 
