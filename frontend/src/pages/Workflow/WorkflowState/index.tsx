@@ -61,7 +61,7 @@ class WorkflowState extends Component<any, any> {
     this.setState({workflowStateListLoading: true});
     const result = await getWorkflowState(this.props.workflowId, params);
     const pagination = { ...this.state.pagination };
-    pagination.page = result.data.page;
+    pagination.current = result.data.page;
     pagination.pageSize = result.data.per_page;
     pagination.total = result.data.total;
     if (result.code ===0){
