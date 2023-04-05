@@ -1,4 +1,5 @@
 import json
+from django.conf import settings
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import Workflow, WorkflowAdmin, WorkflowUserPermission
@@ -515,7 +516,24 @@ class WorkflowBaseService(BaseService):
 
         return True, dict(result_list=result_list)
 
-
+    @classmethod
+    @auto_log
+    def hook_host_valid_check(cls, url):
+        """
+        check the hook host is valid or not
+        """
+        try:
+            host_allowed_list = settings.HOOK_HOST_ALLOWED
+        except Exception as e:
+            # 兼容历史版本，未设置该配置则允许所有
+            return True, ''
+        if host_allowed_list:
+            from urllib.parse import urlparse
+            res = urlparse(url)
+            host = res.netloc
+            if host in host_allowed_list:
+                return True, ''
+        return False, 'hook host is not allowed, please contact the administrator to alter the configure'
 
 
 workflow_base_service_ins = WorkflowBaseService()

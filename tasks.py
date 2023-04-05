@@ -225,6 +225,10 @@ def send_ticket_notice(ticket_id):
         if not notice_obj:
             continue
         hook_url = notice_obj.hook_url
+        from service.workflow.workflow_base_service import workflow_base_service_ins
+        flag, msg = workflow_base_service_ins.hook_host_valid_check(hook_url)
+        if not flag:
+            return False, msg
         hook_token = notice_obj.hook_token
         # gen signature
         flag, headers = common_service_ins.gen_signature_by_token(hook_token)
@@ -263,26 +267,26 @@ def flow_hook_task(ticket_id):
     wait = hook_config_dict.get('wait')
     extra_info = hook_config_dict.get('extra_info')
 
+    from service.workflow.workflow_base_service import workflow_base_service_ins
+    hook_check_flag, hook_result_msg = workflow_base_service_ins.hook_host_valid_check(hook_url)
+
     flag, msg = common_service_ins.gen_hook_signature(hook_token)
     if not flag:
-        return False, msg
+        hook_check_flag, hook_result_msg = flag, msg
     flag, all_ticket_data = ticket_base_service_ins.get_ticket_all_field_value(ticket_id)
-    if extra_info is not None:
-        all_ticket_data.update(dict(extra_info=extra_info))
-    try:
-        r = requests.post(hook_url, headers=msg, json=all_ticket_data, timeout=10)
-        result = r.json()
-    except Exception as e:
-        result = dict(code=-1, msg=e.__str__())
-    if result.get('code') == 0:
-        # 调用成功
-        if wait:
-            # date等格式需要转换为str
-            for key, value in all_ticket_data.items():
-                if type(value) not in [int, str, bool, float]:
-                    all_ticket_data[key] = str(all_ticket_data[key])
+    flag, all_field_value_result = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
+    all_ticket_data_json = all_field_value_result.get('all_field_value_json')
+    if hook_check_flag:
+        if extra_info is not None:
+            all_ticket_data.update(dict(extra_info=extra_info))
+        try:
+            r = requests.post(hook_url, headers=msg, json=all_ticket_data, timeout=10)
+            result = r.json()
+        except Exception as e:
+            result = dict(code=-1, msg=e.__str__())
+        if result.get('code') == 0:
+            # 调用成功
 
-            all_ticket_data_json = json.dumps(all_ticket_data)
             TicketBaseService().add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=0,
                                                          suggestion=result.get('msg'),
                                                          participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
@@ -291,26 +295,22 @@ def flow_hook_task(ticket_id):
                                                          ticket_data=all_ticket_data_json,
                                                          creator='loonrobot'
                                                       ))
+            if not wait:
+                # 不等待hook目标回调，直接流转
+                flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(state_id)
+                transition_id = transition_queryset[0].id  # hook状态只支持一个流转
+
+                new_request_dict = {}
+                new_request_dict.update({'transition_id': transition_id, 'suggestion': msg, 'username': 'loonrobot'})
+                # 执行流转
+                flag, msg = ticket_base_service_ins.handle_ticket(ticket_id, new_request_dict, by_hook=True)
+                if not flag:
+                    return False, msg
             return True, ''
-        else:
-            # 不等待hook目标回调，直接流转
-            flag, transition_queryset = workflow_transition_service_ins.get_state_transition_queryset(state_id)
-            transition_id = transition_queryset[0].id  # hook状态只支持一个流转
+        hook_result_msg = result.get('msg')
 
-            new_request_dict = {}
-            new_request_dict.update({'transition_id': transition_id, 'suggestion': msg, 'username': 'loonrobot'})
-            # 执行流转
-            flag, msg = ticket_base_service_ins.handle_ticket(ticket_id, new_request_dict, by_hook=True)
-            if not flag:
-                return False, msg
-
-    else:
-        ticket_base_service_ins.update_ticket_field_value(ticket_id,{'script_run_last_result': False})
-
-        flag, all_field_value_result = ticket_base_service_ins.get_ticket_all_field_value_json(ticket_id)
-
-        all_ticket_data_json = all_field_value_result.get('all_field_value_json')
-        ticket_base_service_ins.add_ticket_flow_log(
-            dict(ticket_id=ticket_id, transition_id=0, suggestion=result.get('msg'),
-                 participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
-                 participant='hook', state_id=state_id, ticket_data=all_ticket_data_json, creator='loonrobot' ))
+    ticket_base_service_ins.update_ticket_field_value(ticket_id, {'script_run_last_result': False})
+    ticket_base_service_ins.add_ticket_flow_log(
+        dict(ticket_id=ticket_id, transition_id=0, suggestion=hook_result_msg,
+             participant_type_id=constant_service_ins.PARTICIPANT_TYPE_HOOK,
+             participant='hook', state_id=state_id, ticket_data=all_ticket_data_json, creator='loonrobot'))
