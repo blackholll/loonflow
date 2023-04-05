@@ -80,13 +80,13 @@ class WorkflowBaseService(BaseService):
             workflow_result_restful_list.append(workflow_info)
         # 获取工作流管理员信息
         if from_admin:
-            workflow_admin_queryset = WorkflowAdmin.objects.filter(
-                workflow_id__in=workflow_result_id_list, is_deleted=0).all()
+            workflow_admin_queryset = WorkflowUserPermission.objects.filter(workflow_id__in=workflow_result_id_list, permission='admin', is_deleted=0).all()
+
             for workflow_result_restful in workflow_result_restful_list:
                 workflow_admin_list = []
                 for workflow_admin_object in workflow_admin_queryset:
                     if workflow_admin_object.workflow_id == workflow_result_restful['id']:
-                        workflow_admin_list.append(workflow_admin_object.username)
+                        workflow_admin_list.append(workflow_admin_object.user)
 
                 workflow_result_restful['workflow_admin'] = ','.join(workflow_admin_list)
 
