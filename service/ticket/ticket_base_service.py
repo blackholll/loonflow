@@ -309,8 +309,20 @@ class TicketBaseService(BaseService):
         flag, workflow_base_obj = workflow_base_service_ins.get_by_id(workflow_id)
         title_template = workflow_base_obj.title_template
         title = request_data_dict.get('title', '')
+        import copy
+        title_render_data = copy.deepcopy(request_data_dict)
+        now_time = str(datetime.datetime.now())[:19]
+        flag, user_info = account_base_service_ins.get_user_by_username(username)
+        if flag:
+            user_alias = user_info.alias
+        else:
+            user_alias = username
+        title_render_data.update({'title': title, 'sn': ticket_sn, 'state_id': start_state.id, 'participant_info.participant_name': username,
+                                  'participant_info.alias': user_alias, 'workflow.workflow_name': workflow_base_obj.name,
+                                  'creator': username, 'gmt_created': now_time, 'gmt_modified': now_time, 'state.state_name': start_state.name})
+
         if title_template:
-            title = title_template.format(**request_data_dict)
+            title = title_template.format(**title_render_data)
 
         new_ticket_obj = TicketRecord(sn=ticket_sn, title=title, workflow_id=workflow_id,
                                       state_id=destination_state_id, parent_ticket_id=parent_ticket_id,
