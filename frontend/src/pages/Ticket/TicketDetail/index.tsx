@@ -224,7 +224,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           fieldTypeDict[result.field_key] = result.field_type_id
           if (result.field_type_id === 30){
             formInitValues[result.field_key] = moment(result.field_value);
-          } else if ([40, 50, 70].indexOf(result.field_type_id) >= 0) {
+          } else if (result.field_type_id === 25){
+            formInitValues[result.field_key] = moment(result.field_value);
+          }
+          else if ([40, 50, 70].indexOf(result.field_type_id) >= 0) {
             formInitValues[result.field_key] = result.field_value? result.field_value.split(','): []
             console.log(formInitValues);
           }
