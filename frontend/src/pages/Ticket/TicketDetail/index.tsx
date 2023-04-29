@@ -519,7 +519,10 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
       else if (item.field_type_id === 80){
 
-        child = []
+        if (!item.field_value){
+          child = <div></div>
+        } else {
+          child = []
         if(item.field_value.startsWith('[')){
           //为了兼容旧格式，所以这么写
           const urlInfo = JSON.parse(item.field_value)
@@ -533,6 +536,8 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
             child.push(<a href={url0}>{url0.split('/').slice(-1)[0]}</a>)
           })
         }
+        }
+        
       }
       else{
         child = <div>{item.field_value}</div>
