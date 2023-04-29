@@ -48,19 +48,7 @@ bootstrap + django | https://github.com/jimmy201602/workflowdemo |In the QQ grou
 vue.js + django |https://gitee.com/shihow/howflow-open | In the QQ group, QQ number: 39188043 | Support for use in DingTalk, during iteration, welcome to submit pr
 
 
-Here are some renderings and animations
-
-#### vue version book (shuton gflow) demo
-![create_ticket](/static/images/create-ticket.png)
-![todo_list](/static/images/todo-list.png)
-![detail_ticket](/static/images/detail-ticket.png)
-
-### bootstrap版本(workflowdemo)demo
-![bootstrap_demo](/static/images/jimmy201602_demo.gif)
-In addition, the boostrap version also provides a docker image for rapid deployment by newcomers (for viewing renderings only, not directly used in the production environment): https://hub.docker.com/r/webterminal/workflowdemo/
-
-### loonflow
-
+## Renderings
 Yes, you can no longer use workflowdemo, shutongflow and howflow-open. Of course, you can also refer to these three projects to write your own caller system
 
 ![user_manage](/static/images/2.0.x/login.png)

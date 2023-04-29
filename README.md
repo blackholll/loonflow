@@ -32,10 +32,6 @@ qq群的目的:
 - 加微信好友，微信答疑
 - 两次线上会议（半小时内）答疑
 - 提出的合理通用新需求，优先支持
-<<<<<<< HEAD
-=======
-
->>>>>>> v2.0.16
 
 ## 基本架构
 LOONFLOW 分为两部分:
@@ -52,18 +48,7 @@ bootstrap + django | https://github.com/jimmy201602/workflowdemo | qq群中,qq�
 vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043 | 支持在钉钉中使用，迭代中，欢迎提交pr
 
 
-下面是一些效果图和动画
-
-#### vue版本(shutongflow)demo
-![create_ticket](/static/images/create-ticket.png)
-![todo_list](/static/images/todo-list.png)
-![detail_ticket](/static/images/detail-ticket.png)
-
-### bootstrap版本(workflowdemo)demo
-![bootstrap_demo](/static/images/jimmy201602_demo.gif)
-另外boostrap版本还提供了docker镜像，供新人快速部署(仅供查看效果图，不要直接用于生产环境):https://hub.docker.com/r/webterminal/workflowdemo/
-
-### loonflow
+## 效果图
 
 是的，你可以不再需要使用workflowdemo、shutongflow及howflow-open。 当然你还可以参考这三个项目写自己的调用方系统
 
