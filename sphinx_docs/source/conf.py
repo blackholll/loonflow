@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'loonflow'
-copyright = '2020, blackholll'
+copyright = '2020-2023, blackholll'
 author = 'blackholll'
 
 # The full version, including alpha/beta/rc tags
