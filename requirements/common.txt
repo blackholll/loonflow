@@ -13,7 +13,7 @@ click-plugins==1.1.1
 click-repl==0.2.0
 contextlib2==21.6.0
 Deprecated==1.2.13
-Django==4.0.6
+Django==4.1.9
 idna==3.3
 kombu==5.2.4
 packaging==21.3
