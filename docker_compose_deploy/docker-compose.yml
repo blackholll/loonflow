@@ -25,6 +25,8 @@ services:
   loonflow-web:
     hostname: loonflow-web
     image: blackholll/loonflow-web:latest
+    volumes:
+      - ./loonflow-media:/var/loonflow-media
     depends_on:
       - loonflow-redis
       - loonflow-mysql
