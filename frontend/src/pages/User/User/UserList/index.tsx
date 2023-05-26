@@ -347,13 +347,13 @@ class UserList extends Component<any, any> {
                 ))}
               </Select>
             </Form.Item>
-            <Form.Item name="is_active" label="在职" initialValue={this.getUserDetailField('is_active')}>
+            <Form.Item name="is_active" label="在职" rules={[{ required: true }]} initialValue={this.getUserDetailField('is_active')}>
               <Radio.Group value = {this.state.defaultUserState}>
                 <Radio value={1}>在职</Radio>
                 <Radio value={0}>离职</Radio>
               </Radio.Group>
             </Form.Item>
-            <Form.Item name="type_id" label="用户类型" initialValue={this.getUserDetailField('type_id')}>
+            <Form.Item name="type_id" label="用户类型" rules={[{ required: true }]} initialValue={this.getUserDetailField('type_id')}>
               <Radio.Group >
                 <Radio value={0}>普通用户</Radio>
                 <Radio value={1}>工作流管理员</Radio>
