@@ -222,9 +222,9 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       if (result.data.value.field_list !== []){
         result.data.value.field_list.map(result => {
           fieldTypeDict[result.field_key] = result.field_type_id
-          if (result.field_type_id === 30){
+          if (result.field_type_id === 30 && result.field_value !== null){
             formInitValues[result.field_key] = moment(result.field_value);
-          } else if (result.field_type_id === 25){
+          } else if (result.field_type_id === 25 && result.field_value !== null){
             formInitValues[result.field_key] = moment(result.field_value);
           }
           else if ([40, 50, 70].indexOf(result.field_type_id) >= 0) {
