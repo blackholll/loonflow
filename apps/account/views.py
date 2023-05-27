@@ -608,8 +608,11 @@ class LoonRoleUserView(LoonBaseView):
         :return:
         """
         role_id = kwargs.get('role_id', 0)
+        request_data = request.GET
+        page = int(request_data.get('page', 1))
+        per_page = int(request_data.get('per_page', 10))
         search_value = request.GET.get('search_value', '')
-        flag, result = account_base_service_ins.get_role_user_info_by_role_id(role_id, search_value)
+        flag, result = account_base_service_ins.get_role_user_info_by_role_id(role_id, search_value, page, per_page)
 
         if flag is not False:
             data = dict(value=result.get('user_result_format_list'), per_page=result.get('paginator_info').get('per_page'),

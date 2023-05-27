@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import {Table, message, Popconfirm, Row, Col, Form, Input, Button, Modal, Select, Radio} from "antd";
 import {getRoleUserList, delRoleUser, delRoleUserRequest, queryUserSimple, addRoleUser} from "@/services/user";
-import UserRoleList from "@/pages/User/User/UserRoleList";
 
 const { Option } = Select;
 
@@ -23,7 +22,7 @@ class RoleUserList extends Component<any, any> {
           const pagination = { ...this.state.pagination };
           pagination.current = current;
           this.setState({pagination}, ()=> {
-            this.fetchRoleUser({page:current, per_page: pagination.pageSize})
+            this.fetchRoleUser({page:pagination.current, per_page: pagination.pageSize})
           })
         }
       }
@@ -58,7 +57,11 @@ class RoleUserList extends Component<any, any> {
     this.setState({roleUserLoading: true})
     const result = await getRoleUserList(this.props.roleId, params)
     if (result.code === 0 ) {
-      this.setState({roleUserResult: result.data.value, roleUserLoading:false});
+      const pagination = { ...this.state.pagination };
+      pagination.current = result.data.page;
+      pagination.pageSize = result.data.per_page;
+      pagination.total = result.data.total;
+      this.setState({roleUserResult: result.data.value, roleUserLoading:false,pagination});
     } else {
       message.error(`获取角色用户列表失败: ${result.msg}`)
       this.setState({roleUserLoading:false});
