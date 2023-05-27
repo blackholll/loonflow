@@ -10,6 +10,7 @@ class DeptList extends Component<any, any> {
     super();
     this.state = {
       deptResult: [],
+      allDeptResult: [],
       deptDetail: {},
       deptResultLoading: false,
       deptModalVisible: false,
@@ -36,6 +37,16 @@ class DeptList extends Component<any, any> {
 
   componentDidMount() {
     this.fetchDeptData({per_page:10, page:1});
+    this.fetchAlldeptData();
+  }
+  
+  fetchAlldeptData = async() => {
+    const allResult = await getDeptList({per_page: 10000, page:1});
+    if (allResult.code === 0) {
+      this.setState({allDeptResult: allResult.data.value});
+    } else {
+      message.error(`获取全部部门列表失败: ${allResult.msg}`);
+    }
   }
 
   fetchDeptData = async(params: object) => {
@@ -82,6 +93,7 @@ class DeptList extends Component<any, any> {
     if (result.code ===0 ) {
       message.success('删除成功');
       this.fetchDeptData({});
+      this.fetchAlldeptData();
     } else {
       message.error(`删除失败: ${result.msg}`)
     }
@@ -100,6 +112,7 @@ class DeptList extends Component<any, any> {
       message.success('保存成功');
       this.setState({deptModalVisible: false, deptDetail: {}});
       this.fetchDeptData({});
+      this.fetchAlldeptData();
     } else {
       message.error(`保存失败: ${result.msg}`);
     }
@@ -263,7 +276,7 @@ class DeptList extends Component<any, any> {
                 style={{ width: '100%' }}
                 placeholder="请选择上级部门"
               >
-              {this.state.deptResult.map(d => (
+              {this.state.allDeptResult.map(d => (
                 <Option key={d.id}>{d.name}</Option>
               ))}
               </Select>
