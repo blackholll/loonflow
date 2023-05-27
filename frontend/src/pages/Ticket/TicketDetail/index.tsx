@@ -545,7 +545,21 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
       }
     }  else {
       if (item.field_attribute === 2 ) {
-        formItemOptions.rules = [{ required: true, message: `Please input ${item.field_key}` }]
+        if (item.field_type_id === 80){
+          formItemOptions.rules = [{ required: true, message: `Please upload ${item.field_key}` },
+        () => ({
+          validator(rule, value) {
+            if (value.fileList.length === 0){
+              return Promise.reject('please upload file');
+            }
+          return Promise.resolve();
+         },
+      })
+        ]}
+        
+        else {
+          formItemOptions.rules = [{ required: true, message: `Please input ${item.field_key}` }]
+        }
       }
 
       if (item.field_type_id === 5) {
@@ -712,7 +726,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
           urlList.push({"url":attachment.url, "file_name":attachment.name})
 
         })
-        values[key] = JSON.stringify(urlList);
+          values[key] = JSON.stringify(urlList);
         console.log(values[key])
       }
       if (this.state.fieldTypeDict[key] === 20 ) {
