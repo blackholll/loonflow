@@ -1,3 +1,5 @@
+# 这是3.0版本，还在开发中，请勿使用
+
 # loonflow
 a workflow engine base on django
 
