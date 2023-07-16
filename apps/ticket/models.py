@@ -1,75 +1,101 @@
 import datetime, time
 from django.db import models
 from apps.loon_base_model import BaseModel
+from django.utils.translation import gettext_lazy as _
+from apps.workflow.models import Workflow, Node, Transition
+from apps.account.models import LoonUser
 
 
 class TicketRecord(BaseModel):
     """
-    工单记录
+    ticket record
     """
-    title = models.CharField(u'标题', max_length=500, blank=True, default='', help_text="工单的标题")
-    workflow_id = models.IntegerField('关联的流程id', help_text='与workflow.Workflow流程关联')
-    sn = models.CharField(u'流水号', max_length=25, help_text="工单的流水号")
-    state_id = models.IntegerField('当前状态', help_text='与workflow.State关联')
-    parent_ticket_id = models.IntegerField('父工单id', default=0, help_text='与ticket.TicketRecord关联')
-    parent_ticket_state_id = models.IntegerField('对应父工单状态id', default=0, help_text='与workflow.State关联,子工单是关联到父工单的某个状态下的')
-    participant_type_id = models.IntegerField('当前处理人类型', default=0, help_text='0.无处理人,1.个人,2.多人,3.部门,4.角色')
+    title = models.CharField(_("title"), max_length=500, blank=True, default="", help_text="ticket's title")
+    workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
+    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
+    parent_ticket = models.ForeignKey("self", db_constraint=False, on_delete=models.DO_NOTHING)
+    parent_ticket_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
+
+    participant_type_id = models.IntegerField('participant type id', default=0, help_text='0.none,1.personal,2.multi,3.department,4.role')
     participant = models.CharField('当前处理人', max_length=1000, default='', blank=True, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\脚本文件名等')
-    relation = models.CharField('工单关联人', max_length=1000, default='', blank=True, help_text='工单流转过程中将保存所有相关的人(包括创建人、曾经的待处理人)，用于查询')
     in_add_node = models.BooleanField('加签状态中', default=False, help_text='是否处于加签状态下')
     add_node_man = models.CharField('加签人', max_length=50, default='', blank=True, help_text='加签操作的人，工单当前处理人处理完成后会回到该处理人，当处于加签状态下才有效')
-    script_run_last_result = models.BooleanField(u'脚本最后一次执行结果', default=True)
+    hook_last_result = models.BooleanField('hook running result', default=True)
     act_state_id = models.IntegerField('进行状态', default=1, help_text='当前工单的进行状态,详见service.constant_service中定义')
     multi_all_person = models.CharField('全部处理的结果', max_length=1000, default='{}', blank=True, help_text='需要当前状态处理人全部处理时实际的处理结果，json格式')
 
 
+class TicketNode(BaseModel):
+    ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING)
+    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
+
+
 class TicketFlowLog(BaseModel):
     """
-    工单流转日志
+    ticket;s flow log record
     """
-    ticket_id = models.IntegerField('工单id')
-    transition_id = models.IntegerField('流转id', help_text='与worklow.Transition关联， 为0时表示认为干预的操作')
-    suggestion = models.CharField('处理意见', max_length=10000, default='', blank=True)
+    PARTICIPANT_TYPE_CHOICE = [
+        ('', 'none'),
+        ('person', 'person'),
+        ('hook', 'hook'),
+    ]
 
-    participant_type_id = models.IntegerField('处理人类型', help_text='见service.constant_service中定义')
-    participant = models.CharField('处理人', max_length=50, default='', blank=True)
-    state_id = models.IntegerField('当前状态id', default=0, blank=True)
-    intervene_type_id = models.IntegerField('干预类型', default=0, help_text='见service.constant_service中定义')
-    ticket_data = models.TextField('工单数据', default='', blank=True, help_text='可以用于记录当前表单数据，json格式')
+    FLOW_TYPE_CHOICE = [
+        ('forward', 'forward'),
+        ('countersign', 'countersign'),
+        ('countersign_end', 'countersign_end'),
+        ('accept', 'accept'),
+        ('comment', 'comment'),
+        ('delete', 'delete'),
+        ('force_close', 'force_close'),
+        ('force_alter_node', 'force_alter_node'),
+        ('retreat', 'retreat'),
+        ('hook', 'hook')
+    ]
+    ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING)
+    transition = models.ForeignKey(Transition, db_constraint=False, on_delete=models.DO_NOTHING)
+    comment = models.CharField(_('comment'), max_length=10000, default='', blank=True)
+
+    participant_type = models.CharField(_('participant_type'), choices=PARTICIPANT_TYPE_CHOICE)
+    participant = models.CharField(_('participant'), max_length=50, default='', blank=True)
+    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
+    flow_type = models.IntegerField(_('flow_type'), default=0, help_text='见service.constant_service中定义')
+    ticket_data = models.JSONField(_('ticket_data'), default='', blank=True)
 
 
 class TicketCustomField(BaseModel):
     """
-    工单自定义字段， 工单自定义字段实际的值。
+    ticket's custom field
     """
-    name = models.CharField(u'字段名', max_length=50)
-    field_key = models.CharField(u'字段标识', max_length=50)
-    ticket_id = models.IntegerField(u'工单id')
-    field_type_id = models.IntegerField(u'字段类型', help_text='见service.constant_service中定义')
-    char_value = models.CharField('字符串值', max_length=1000, default='', blank=True)
-    int_value = models.IntegerField('整形值', default=0, blank=True)
-    float_value = models.FloatField('浮点值', default=0.0, blank=True)
-    bool_value = models.BooleanField('布尔值', default=False, blank=True)
-    # date_value = models.DateField('日期值', default='0001-01-01', blank=True)
-    date_value = models.DateField('日期值', default=datetime.datetime.strptime('0001-01-01', "%Y-%m-%d"), blank=True)
-    # datetime_value = models.DateTimeField('日期时间值', default='0001-01-01 00:00:00', blank=True)
-    datetime_value = models.DateTimeField('日期时间值', default=datetime.datetime.strptime('0001-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'), blank=True)
-    # time_value = models.TimeField('时间值', default='00:00:01', blank=True)
-    time_value = models.TimeField('时间值', default=datetime.datetime.strptime('00:00:01','%H:%M:%S'), blank=True)
-    radio_value = models.CharField('radio值', default='', max_length=50, blank=True)
-    checkbox_value = models.CharField('checkbox值', default='', max_length=50, blank=True, help_text='逗号隔开多个选项')
-    select_value = models.CharField('下拉列表值', default='', max_length=50, blank=True)
-    multi_select_value = models.CharField('多选下拉列表值', default='', max_length=50, blank=True, help_text='逗号隔开多个选项')
-    text_value = models.TextField('文本值', default='', blank=True)
-    username_value = models.CharField('用户名', max_length=50, default='', blank=True)
-    multi_username_value = models.CharField('多选用户名', max_length=1000, default='', blank=True)
+    FIELD_TYPE_CHOICE = [
+        ('string', 'string'),
+        ('integer', 'integer'),
+        ('decimal', 'decimal'),
+        ('date', 'date'),
+        ('datetime', 'datetime'),
+        ('select', 'select'),
+        ('cascade', 'cascade'),
+        ('user', 'user'),
+        ('file', 'file'),
+        ('rich_text', 'rich_text')
+    ]
+    name = models.CharField("name", max_length=50)
+    field_key = models.CharField(_("field_key"), max_length=50)
+    ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING)
+    field_type = models.CharField(_("field_type"), choices=FIELD_TYPE_CHOICE)
+    common_value = models.CharField('common_value', max_length=5000, default='', blank=True) # for string, select, cascade, user, file
+    integer_value = models.IntegerField('integer', default=0, blank=True)
+    float_value = models.FloatField('float_value', default=0.0, blank=True)
+    datetime_value = models.DateTimeField('datetime_value', default=datetime.datetime.strptime('0001-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'), blank=True)
+    time_value = models.TimeField('time_value', default=datetime.datetime.strptime('00:00:01', '%H:%M:%S'), blank=True)
+    rich_text_value = models.TextField('rich_text_value', default='', blank=True)  # for richtext
 
 
 class TicketUser(BaseModel):
     """
-    工单关系人, 用于加速待办工单及关联工单列表查询
+    ticket related user
     """
     ticket = models.ForeignKey(TicketRecord, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
-    username = models.CharField('关系人', max_length=100)
-    in_process = models.BooleanField('待处理中', default=False)
-    worked = models.BooleanField('处理过', default=False)
+    username = models.ForeignKey(LoonUser, db_constraint=False, on_delete=models.DO_NOTHING)
+    in_process = models.BooleanField('in_process', default=False)
+    processed = models.BooleanField('processed', default=False)

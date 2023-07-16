@@ -3,7 +3,7 @@ from django.http import HttpResponse
 
 def index(request):
     """
-    总览
+    overview
     :param request:
     :return:
     """

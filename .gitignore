@@ -21,3 +21,4 @@ coverage_html_report
 .coverage
 loonflow_test.db
 venv
+clock_flag.txt
