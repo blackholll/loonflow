@@ -1,13 +1,12 @@
 import json
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.workflow.models import State
+from apps.workflow.models import Node as State
 from service.account.account_base_service import account_base_service_ins
 from service.base_service import BaseService
 from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
 from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
-from service.workflow.workflow_runscript_service import workflow_run_script_service_ins
 from service.workflow.workflow_transition_service import workflow_transition_service_ins
 
 
@@ -290,13 +289,6 @@ class WorkflowStateService(BaseService):
                 else:
                     participant_name_alias_list.append('未知')
             participant_alias = ','.join(participant_name_alias_list)
-
-
-        elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
-            if participant:
-                flag, result = workflow_run_script_service_ins.get_run_script_by_id(int(participant))
-                if flag:
-                    participant_alias = result.get('script_obj').name
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
             participant_type_name = 'hook'
             participant_alias = participant_name

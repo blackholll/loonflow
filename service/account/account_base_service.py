@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
-from apps.account.models import AppToken, LoonUser, LoonUserRole, LoonDept, LoonRole, LoonUserDept
+from apps.account.models import LoonUser, LoonUserRole, LoonDept, LoonRole, LoonUserDept, Application
 from service.base_service import BaseService
 from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
@@ -25,7 +25,7 @@ class AccountBaseService(BaseService):
         :param app_name:
         :return:
         """
-        app_token_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
+        app_token_obj = Application.objects.filter(app_name=app_name, is_deleted=0).first()
         return True, app_token_obj
 
     @classmethod
@@ -371,7 +371,7 @@ class AccountBaseService(BaseService):
                 workflow_id_list.append(workflow_obj.id)
             return True, dict(workflow_id_list=workflow_id_list)
 
-        app_token_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
+        app_token_obj = Application.objects.filter(app_name=app_name, is_deleted=0).first()
         if not app_token_obj:
             return False, 'appname is unauthorized'
 
@@ -766,7 +766,7 @@ class AccountBaseService(BaseService):
         query_params = Q(is_deleted=False)
         if search_value:
             query_params &= Q(app_name__contains=search_value)
-        token_objects = AppToken.objects.filter(query_params)
+        token_objects = Application.objects.filter(query_params)
         paginator = Paginator(token_objects, per_page)
         try:
             token_result_paginator = paginator.page(page)
@@ -812,10 +812,10 @@ class AccountBaseService(BaseService):
         """
         import uuid
         token = uuid.uuid1()
-        query_result = AppToken.objects.filter(app_name=app_name, is_deleted=0)
+        query_result = Application.objects.filter(app_name=app_name, is_deleted=0)
         if query_result:
             return False, 'app_name existed,please alter app_name'
-        app_token_obj = AppToken(app_name=app_name, ticket_sn_prefix=ticket_sn_prefix,
+        app_token_obj = Application(app_name=app_name, ticket_sn_prefix=ticket_sn_prefix,
                                  token=token, creator=username)
         app_token_obj.save()
 
@@ -838,7 +838,7 @@ class AccountBaseService(BaseService):
         :param workflow_ids:
         :return:
         """
-        app_token_obj = AppToken.objects.filter(id=app_token_id, is_deleted=0).first()
+        app_token_obj = Application.objects.filter(id=app_token_id, is_deleted=0).first()
         if not app_token_obj:
             return False, 'record is not exist or has been deleted'
 
@@ -857,7 +857,7 @@ class AccountBaseService(BaseService):
         :param app_token_id:
         :return:
         """
-        app_token_obj = AppToken.objects.filter(id=app_token_id, is_deleted=0).first()
+        app_token_obj = Application.objects.filter(id=app_token_id, is_deleted=0).first()
         if not app_token_obj:
             return False, 'record is not exist or has been deleted'
         app_token_obj.is_deleted = True

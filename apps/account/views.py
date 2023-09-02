@@ -1,6 +1,7 @@
 import json
 
 import jwt
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -12,6 +13,44 @@ from apps.loon_base_view import LoonBaseView
 from schema import Schema, Regex, And, Or, Use, Optional
 
 from service.permission.manage_permission import manage_permission_check
+
+class LoonTenantView(LoonBaseView):
+    post_schema = Schema({
+        "name": And(str, lambda n: n != '', error='name is needed'),
+        Optional('en_name'): str,
+        "domain": And(str, lambda n: n != '', error='domain is needed'),
+        "icon": And(str, lambda n: n != '', error='icon is needed'),
+        Optional('default_timezone'): str,
+        Optional('workflow_limit'): int,
+        Optional('ticket_limit'): int,
+    })
+
+    # @manage_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get tenant list
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        from apps.account.models import LoonTenant
+        loon_obj = LoonTenant(name="test1")
+        loon_obj.save()
+        return HttpResponse("success")
+
+    @manage_permission_check("admin")
+    def post(self, request, *args, **kwargs):
+        """
+        add tenant
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        from apps.account.models import LoonTenant
+        pass
+
 
 
 @method_decorator(login_required, name='dispatch')

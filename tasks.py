@@ -25,7 +25,7 @@ app.autodiscover_tasks()
 import json
 import requests
 from apps.ticket.models import TicketRecord
-from apps.workflow.models import Transition, State, WorkflowScript, Workflow, CustomNotice
+from apps.workflow.models import Transition, Node, Workflow, CustomNotice
 from service.account.account_base_service import account_base_service_ins
 from service.common.constant_service import constant_service_ins
 from service.ticket.ticket_base_service import TicketBaseService, ticket_base_service_ins
@@ -67,67 +67,6 @@ def stdoutIO(stdout=None):
     sys.stdout = old
 
 
-@app.task
-def run_flow_task(ticket_id, script_id_str, state_id, action_from='loonrobot'):
-    """
-    执行工作流脚本
-    :param script_id_star:通过脚本id来执行, 保存的是字符串
-    :param ticket_id:
-    :param state_id:
-    :param action_from:
-    :return:
-    """
-    script_id = int(script_id_str)
-    ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-    if ticket_obj.participant == script_id_str and ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
-        ## 校验脚本是否合法
-        # 获取脚本名称
-        script_obj = WorkflowScript.objects.filter(id=script_id, is_deleted=False, is_active=True).first()
-        if not script_obj:
-            return False, '脚本未注册或非激活状态'
-
-        script_file = os.path.join(settings.MEDIA_ROOT, script_obj.saved_name.name)
-        globals = {'ticket_id': ticket_id, 'action_from': action_from}
-        # 如果需要脚本执行完成后，工单不往下流转(也就脚本执行失败或调用其他接口失败的情况)，需要在脚本中抛出异常
-        try:
-            with stdoutIO() as s:
-                # execfile(script_file, globals)  # for python 2
-                exec(open(script_file, encoding='utf-8').read(), globals)
-            script_result = True
-            # script_result_msg = ''.join(s.buflist)
-            script_result_msg = ''.join(s.getvalue())
-        except Exception as e:
-            logger.error(traceback.format_exc())
-            script_result = False
-            script_result_msg = e.__str__()
-
-        logger.info('*' * 20 + '工作流脚本回调,ticket_id:[%s]' % ticket_id + '*' * 20)
-        logger.info('*******工作流脚本回调，ticket_id:{}*****'.format(ticket_id))
-
-        # 因为上面的脚本执行时间可能会比较长，为了避免db session失效，重新获取ticket对象
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-        # 新增处理记录,脚本后只允许只有一个后续直连状态
-        transition_obj = Transition.objects.filter(source_state_id=state_id, is_deleted=False).first()
-
-        new_ticket_flow_dict = dict(ticket_id=ticket_id, transition_id=transition_obj.id,
-                                    suggestion=script_result_msg, participant_type_id=constant_service_ins.PARTICIPANT_TYPE_ROBOT,
-                                    participant='脚本:(id:{}, name:{})'.format(script_obj.id, script_obj.name), state_id=state_id, creator='loonrobot')
-
-        ticket_base_service_ins.add_ticket_flow_log(new_ticket_flow_dict)
-        if not script_result:
-            # 脚本执行失败，状态不更新,标记任务执行结果
-            ticket_obj.script_run_last_result = False
-            ticket_obj.save()
-            return False, script_result_msg
-        # 自动执行流转
-        flag, msg = ticket_base_service_ins.handle_ticket(ticket_id, dict(username='loonrobot',
-                                                                    suggestion='脚本执行完成后自行流转',
-                                                                    transition_id=transition_obj.id), False, True)
-        if flag:
-            logger.info('******脚本执行成功,工单基础信息更新完成, ticket_id:{}******'.format(ticket_id))
-        return flag, msg
-    else:
-        return False, '工单当前处理人为非脚本，不执行脚本'
 
 
 @app.task
@@ -255,7 +194,7 @@ def flow_hook_task(ticket_id):
     # 查询工单状态
     ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
     state_id = ticket_obj.state_id
-    state_obj = State.objects.filter(id=state_id, is_deleted=0).first()
+    state_obj = Node.objects.filter(id=state_id, is_deleted=0).first()
 
     participant_type_id = state_obj.participant_type_id
     if participant_type_id != constant_service_ins.PARTICIPANT_TYPE_HOOK:

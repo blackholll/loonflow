@@ -8,11 +8,19 @@ from apps.workflow.models import Workflow
 
 class LoonTenant(BaseModel):
     """
-    tenant
+    tenant， timezone: https://blog.csdn.net/whatday/article/details/109856495
     """
+    LANG_CHOICE = [("zh-cn", "simple chinese"),
+                   ("en", "English")
+                   ]
     name = models.CharField(_('name'), max_length=100)
     domain = models.CharField(_('domain'), max_length=100, help_text='the domain of the tenant, such as xxx.com')
     icon = models.CharField(_('icon'), max_length=100, help_text='the icon name of the tenant, such as xxx.jpg')
+    timezone = models.CharField(_('timezone'), default="CST", max_length=100)
+    lang = models.CharField(_("lang"), choices=LANG_CHOICE, default="zh-cn", max_length=100)
+    workflow_limit = models.IntegerField(_("workflow_limit"), default=0),
+    ticket_limit = models.IntegerField(_("ticket_limit"), default=0)
+
 
 
 class LoonUserDept(BaseModel):
@@ -41,17 +49,22 @@ class DeptApprover(BaseModel):
 
 class LoonUserManager(BaseUserManager):
 
-    def create_user(self, email, username, password=None, dep=0):
+    # def create_user(self, email, password=None, dep=0):
+    #     if not email:
+    #         raise ValueError('Users must have an email address')
+    #     user = self.model(email=self.normalize_email(email))
+    #     user.set_password(password)
+    #     user.tenant_id = "0"
+    #     user.save(using=self._db)
+    #     return user
+
+    def create_superuser(self, email, password):
         if not email:
             raise ValueError('Users must have an email address')
-        user = self.model(username=username, email=self.normalize_email(email))
+        user = self.model(email=self.normalize_email(email))
         user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, username, password):
-        user = self.create_user(email=self.normalize_email(email), username=username, password=password)
-        user.type_id = 2
+        user.tenant_id = "0"
+        user.type = "admin"
         user.save(using=self._db)
         return user
 
@@ -60,6 +73,17 @@ class LoonUser(AbstractBaseUser, BaseModel):
     """
     用户
     """
+    TYPE_CHOICE = [
+        ("admin", "admin"),
+        ("workflow_admin", "workflow_admin"),
+        ("common", "common")
+    ]
+    STATUS_CHOICE = [
+        ("in_post", "in_post"),
+        ("resigned", "resigned"),
+    ]
+    USERNAME_FIELD = "email"
+    name = models.CharField('name', max_length=50, default='')
     alias = models.CharField('alias', max_length=50, default='')
     tenant = models.ForeignKey(LoonTenant, db_constraint=False, on_delete=models.DO_NOTHING)
     dept = models.ManyToManyField('LoonDept', through=LoonUserDept)
@@ -67,16 +91,20 @@ class LoonUser(AbstractBaseUser, BaseModel):
 
     email = models.EmailField('email', max_length=255, unique=True)
     phone = models.CharField('phone', max_length=13, default='')
-    is_active = models.BooleanField('is active', default=True)
-    type_id = models.IntegerField('user type', default=0)  # 见service.common.constant_service中定义
+    status = models.CharField('status', choices=STATUS_CHOICE)
+    type = models.CharField(_("type"), choices=TYPE_CHOICE)
+    timezone = models.CharField(_("timezone"), blank=True, default="", null=False)
 
     objects = LoonUserManager()
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = []
 
     @property
     def is_staff(self):
         return self.is_active
+
+    @property
+    def get_username(self):
+        return self.email
 
     def get_short_name(self):
         return self.alias

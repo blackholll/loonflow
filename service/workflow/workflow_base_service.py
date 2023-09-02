@@ -2,7 +2,7 @@ import json
 from django.conf import settings
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.workflow.models import Workflow, WorkflowAdmin, WorkflowUserPermission
+from apps.workflow.models import Workflow, WorkflowUserPermission
 from service.base_service import BaseService
 from service.common.common_service import common_service_ins
 from service.common.log_service import auto_log

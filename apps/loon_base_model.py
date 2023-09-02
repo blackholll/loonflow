@@ -32,6 +32,7 @@ class SnowflakeIDGenerator:
         self.last_timestamp = -1
 
     def __call__(self):
+        print('call snow')
         timestamp = int(time.time()*1000)
         if timestamp < self.last_timestamp:
             # clock backwards issue. 3bit for clock flag
@@ -53,32 +54,12 @@ class SnowflakeIDGenerator:
     #     return timestamp
 
 
-class SnowflakeIDField(models.BigAutoField):
-    def __init__(self, machine_flag, *args, **kwargs):
-        self.generator = SnowflakeIDGenerator(machine_flag)
-        super().__init__(*args, **kwargs)
-
-    def get_internal_type(self):
-        return 'BigAutoField'
-
-    def db_type(self, connection):
-        return 'bigint'
-
-    def get_db_prep_value(self, value, connection, prepared=False):
-        if value is None:
-            return None
-        return int(value)
-
-    def generate_value(self, *args, **kwargs):
-        return self.generator()
-
-
 class BaseModel(models.Model):
     """
     basic model
     """
-    id = SnowflakeIDField(machine_id, primary_key=True)
-    tenant_id = models.BigIntegerField(_('tenant_id'))
+    id = models.BigIntegerField(primary_key=True, default=SnowflakeIDGenerator(machine_id)())
+    tenant_id = models.BigIntegerField(_('tenant_id'), default="0")
     creator = models.CharField(_('creator'), max_length=50)
     created_at = models.DateTimeField(_('created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('updated at'), auto_now=True)

@@ -15,7 +15,7 @@ class Workflow(BaseModel):
     name = models.CharField(_('name'), max_length=50)
     description = models.CharField(_('description'), max_length=50)
     notices = models.CharField(_('notices'), default='', blank=True, max_length=50)
-    limit_expression = JSONField(_('limit_expression'), max_length=1000, default='{}', blank=True)
+    limit_expression = models.JSONField(_('limit_expression'), max_length=1000, default=dict, blank=True)
     display_form_str = models.CharField(_('display_form_str'), max_length=10000, default='[]', blank=True)
     title_template = models.CharField(_('title_template'), max_length=50, default='', blank=True)
     content_template = models.CharField(_('content_template'), max_length=1000, default='title:{title}, created at:{created_at}')
@@ -61,9 +61,8 @@ class Node(BaseModel):
     remember_last_man = models.BooleanField(_('remember_last_man'), default=False, help_text='ticket to this node will assign to the previous handler if the value is true')
     participant_type = models.CharField(_('participant_type'), max_length=100, choices=PARTICIPANT_TYPE_CHOICE)
     participant = models.CharField(_('participant'), default='', blank=True, max_length=1000, help_text='need support sub-workflow, then you should set the participant as loonflowrobot')
-
     distribute_type = models.CharField(_('distribute_type'), default='direct', choices=DISTRIBUTE_TYPE_CHOICE)
-    state_field_str = models.JSONField(_('state_field_str'), default='{}')
+    node_field_str = models.JSONField(_('state_field_str'), default=dict)
     label = models.CharField(_('label'), max_length=5000, default='', help_text='you can add custom info for custom fucntion')
 
 
@@ -77,9 +76,9 @@ class Transition(BaseModel):
         ('other', 'other')
     ]
     name = models.CharField(_('name'), max_length=50)
-    workflow_id = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
+    workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_workflow")
     source_node_id = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
-    destination_node_id = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
+    destination_node_id = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_destination")
     condition_expression = models.CharField(_('condition_expression'), max_length=1000, default='')
     transition_type = models.IntegerField(_('transition_type'), choices=TRANSITION_TYPE_CHOICE)
     field_require_check = models.BooleanField(_('field_require_check'), default=True, help_text='will check whether all field rule is valid if this attr is true')
@@ -90,17 +89,20 @@ class Transition(BaseModel):
 class CustomField(BaseModel):
     """CustomField"""
     FIELD_TYPE_CHOICE = [
-        ('string', 'string'),
-        ('integer', 'integer'),
-        ('decimal', 'decimal'),
+        ('text', 'text'),
+        ('number', 'number'),
         ('date', 'date'),
-        ('datetime', 'datetime'),
+        ('time', 'time'),
+        ('radio', 'radio'),
+        ('checkbox', 'checkbox'),
         ('select', 'select'),
         ('cascade', 'cascade'),
         ('user', 'user'),
         ('file', 'file'),
         ('rich_text', 'rich_text')
     ]
+    #
+
     workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
     field_type = models.CharField(_('field_type'), choices=FIELD_TYPE_CHOICE)
     field_key = models.CharField(_('field_key'), max_length=50)
@@ -126,6 +128,8 @@ class CustomNotice(BaseModel):
     name = models.CharField(_('name'), max_length=50)
     description = models.CharField(_('description'), max_length=100, null=True, blank=True)
     type = models.IntegerField(_('type'), choices=NOTICE_TYPE_CHOICE)
+    # todo: save config to json
+
     corp_id = models.CharField('corp_id', max_length=100, null=True, blank=True)
     corp_secret = models.CharField('corp_secret', max_length=100, null=True, blank=True)  # encrypted
     app_key = models.CharField('app_key', max_length=100, null=True, blank=True)
