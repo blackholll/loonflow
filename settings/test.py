@@ -10,7 +10,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'service.permission.api_permission.ApiPermissionCheck',
+    'service.permission.app_permission.AppPermissionCheck',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -42,3 +42,4 @@ else:
     CELERY_BROKER_URL = 'redis://{}:{}/{}'.format(REDIS_HOST, REDIS_PORT, REDIS_DB)
 
 FIXTURE_DIRS = ('tests/fixtures/',)
+MACHINE_ID = 0

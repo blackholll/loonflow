@@ -354,7 +354,7 @@ class WorkflowStateService(BaseService):
         :param enable_retreat:
         :return:
         """
-        state_obj = State.objects.filter(id=state_id, is_deleted=0)
+        state_obj = State.objects.filter(id=state_id)
         if state_obj:
             state_obj.update(workflow_id=workflow_id, name=name,
                              is_hidden=is_hidden, order_id=order_id, type_id=type_id,
@@ -371,7 +371,7 @@ class WorkflowStateService(BaseService):
         :param state_id:
         :return:
         """
-        state_obj = State.objects.filter(id=state_id, is_deleted=0)
+        state_obj = State.objects.filter(id=state_id)
         if state_obj:
             state_obj.update(is_deleted=1)
         return True, {}

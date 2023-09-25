@@ -39,7 +39,7 @@ class WorkflowPermissionService(BaseService):
                 workflow_id_list.append(workflow_obj.id)
             return True, dict(workflow_id_list=workflow_id_list)
         result_queryset = WorkflowUserPermission.objects.filter(permission=permission, user_type=user_type,
-                                                                user__in=user.split(','), is_deleted=0).all()
+                                                                user__in=user.split(',')).all()
         workflow_id_list = [result.workflow_id for result in result_queryset]
         workflow_id_list = list(set(workflow_id_list))
         return True, dict(workflow_id_list=workflow_id_list)

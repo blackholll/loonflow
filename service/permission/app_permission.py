@@ -9,38 +9,25 @@ from service.account.account_base_service import AccountBaseService, account_bas
 from service.common.common_service import CommonService, common_service_ins
 
 
-class ApiPermissionCheck(MiddlewareMixin):
+class AppPermissionCheck(MiddlewareMixin):
     """
-    api call permission check middleware
+    app call permission check middleware
     """
     def process_request(self, request):
-        if request.path.startswith('/api/v1.0/accounts/login'):
-            # 登录接口特殊处理
-            return
         if request.path == '/api/v1.0/login':
-            # jwt 登录
+            # for jwt login
             return
         if request.path.startswith('/api/'):
-            # for common check
-            if request.user.is_authenticated:
-                request.META.update(dict(HTTP_APPNAME='loonflow'))
-                request.META.update(dict(HTTP_USERNAME=request.user.username))
-                return
             if request.COOKIES.get('jwt'):
                 # for jwt check
                 flag, msg = self.jwt_permission_check(request)
                 if flag is False:
                     return HttpResponse(json.dumps(dict(code=-1, msg=msg, data={})))
                 else:
-                    username = msg['data']['username']
-                    flag, user_obj = account_base_service_ins.get_user_by_username(username)
-                    if flag is False:
-                        return HttpResponse(json.dumps(dict(code=-1, msg=user_obj, data={})))
                     request.META.update(dict(HTTP_APPNAME='loonflow'))
-                    request.META.update(dict(HTTP_USERNAME=username))
-                    user_obj.backend = 'django.contrib.auth.backends.ModelBackend'
-                    login(request, user_obj)
-
+                    request.META.update(dict(HTTP_EMAIL=msg.email))
+                    request.META.update(dict(HTTP_USERID=msg.id))
+                    request.META.update(dict(HTTP_TENANTID=msg.tenant_id))
                 return
             # for app call token check
             flag, msg = self.token_permission_check(request)
@@ -72,7 +59,7 @@ class ApiPermissionCheck(MiddlewareMixin):
 
     def jwt_permission_check(self, request):
         """
-        jwt check
+        jwt check, user existed check, user status check
         :param request:
         :return:
         """
@@ -80,7 +67,7 @@ class ApiPermissionCheck(MiddlewareMixin):
         jwt_salt = settings.JWT_SALT
 
         try:
-            return True, jwt.decode(jwt_info, jwt_salt, algorithms=['HS256'])
+            jwt_data = jwt.decode(jwt_info, jwt_salt, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
             return False, 'Token expired'
 
@@ -88,3 +75,10 @@ class ApiPermissionCheck(MiddlewareMixin):
             return False, 'Invalid token'
         except Exception as e:
             return False, e.__str__()
+        #  check user status
+        flag, user_info = AccountBaseService.get_user_by_email(jwt_data.get("data").get('email'))
+        if flag is False:
+            return False, "user is not existed or has been deleted"
+        if user_info.status == "resigned":
+            return False, "resigned staff can not login"
+        return True, user_info

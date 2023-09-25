@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'apps.account',
     'apps.ticket',
     'apps.workflow',
+    'apps.util'
+
 ]
 
 
@@ -104,7 +106,9 @@ TIME_FORMAT = 'H:i:s'
 
 
 LOGIN_URL = '/account/login/'
-AUTH_USER_MODEL = 'account.LoonUser'
+AUTH_USER_MODEL = 'account.User'
+AUTHENTICATION_BACKENDS = ['service.account.account_auth_service.EmailBackend']
+
 
 STATIC_URL = '/static/'
 

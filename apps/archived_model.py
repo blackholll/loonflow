@@ -4,8 +4,11 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import JSONField
 
 
-class LoonArchived(BaseModel):
+class Archived(BaseModel):
     """archived record"""
-    table_name = models.CharField(_('table name'), max_length=100)
+    model_name = models.CharField("model name", max_length=100)
     data = JSONField(_('archived data'))
+
+    class Meta:
+        app_label = 'archived'
 

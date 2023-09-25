@@ -1,12 +1,12 @@
 import datetime, time
 from django.db import models
-from apps.loon_base_model import BaseModel
+from apps.loon_base_model import BaseCommonModel
 from django.utils.translation import gettext_lazy as _
 from apps.workflow.models import Workflow, Node, Transition
-from apps.account.models import LoonUser
+from apps.account.models import User
 
 
-class TicketRecord(BaseModel):
+class TicketRecord(BaseCommonModel):
     """
     ticket record
     """
@@ -25,17 +25,17 @@ class TicketRecord(BaseModel):
     participant = models.CharField('当前处理人', max_length=1000, default='', blank=True, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\脚本文件名等')
     in_add_node = models.BooleanField('加签状态中', default=False, help_text='是否处于加签状态下')
     add_node_man = models.CharField('加签人', max_length=50, default='', blank=True, help_text='加签操作的人，工单当前处理人处理完成后会回到该处理人，当处于加签状态下才有效')
-    hook_status = models.CharField("hook执行状态", choices=HOOK_STATUS_CHOICE)
+    hook_status = models.CharField("hook执行状态", max_length=50, choices=HOOK_STATUS_CHOICE)
     act_state_id = models.IntegerField('进行状态', default=1, help_text='当前工单的进行状态,详见service.constant_service中定义')
     multi_all_person = models.CharField('全部处理的结果', max_length=1000, default='{}', blank=True, help_text='需要当前状态处理人全部处理时实际的处理结果，json格式')
 
 
-class TicketNode(BaseModel):
+class TicketNode(BaseCommonModel):
     ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_ticket")
     node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_node")
 
 
-class TicketFlowLog(BaseModel):
+class TicketFlowLog(BaseCommonModel):
     """
     ticket;s flow log record
     """
@@ -61,14 +61,14 @@ class TicketFlowLog(BaseModel):
     transition = models.ForeignKey(Transition, db_constraint=False, on_delete=models.DO_NOTHING)
     comment = models.CharField(_('comment'), max_length=10000, default='', blank=True)
 
-    participant_type = models.CharField(_('participant_type'), choices=PARTICIPANT_TYPE_CHOICE)
+    participant_type = models.CharField(_('participant_type'), max_length=50, choices=PARTICIPANT_TYPE_CHOICE)
     participant = models.CharField(_('participant'), max_length=50, default='', blank=True)
     node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
     flow_type = models.IntegerField(_('flow_type'), default=0, help_text='见service.constant_service中定义')
     ticket_data = models.JSONField(_('ticket_data'), default=dict, blank=True)
 
 
-class TicketCustomField(BaseModel):
+class TicketCustomField(BaseCommonModel):
     """
     ticket's custom field
     """
@@ -87,7 +87,7 @@ class TicketCustomField(BaseModel):
     name = models.CharField("name", max_length=50)
     field_key = models.CharField(_("field_key"), max_length=50)
     ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING)
-    field_type = models.CharField(_("field_type"), choices=FIELD_TYPE_CHOICE)
+    field_type = models.CharField(_("field_type"), max_length=50, choices=FIELD_TYPE_CHOICE)
     common_value = models.CharField('common_value', max_length=5000, default='', blank=True) # for string, select, cascade, user, file
     number_value = models.DecimalField('number', default=0, decimal_places=10, max_digits=20, blank=True)
     datetime_value = models.DateTimeField('datetime_value', default=datetime.datetime.strptime('0001-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'), blank=True)
@@ -95,11 +95,11 @@ class TicketCustomField(BaseModel):
     rich_text_value = models.TextField('rich_text_value', default='', blank=True)  # for richtext
 
 
-class TicketUser(BaseModel):
+class TicketUser(BaseCommonModel):
     """
     ticket related user
     """
     ticket = models.ForeignKey(TicketRecord, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
-    username = models.ForeignKey(LoonUser, db_constraint=False, on_delete=models.DO_NOTHING)
+    username = models.ForeignKey(User, db_constraint=False, on_delete=models.DO_NOTHING)
     in_process = models.BooleanField('in_process', default=False)
     processed = models.BooleanField('processed', default=False)

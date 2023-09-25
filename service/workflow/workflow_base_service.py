@@ -80,7 +80,7 @@ class WorkflowBaseService(BaseService):
             workflow_result_restful_list.append(workflow_info)
         # 获取工作流管理员信息
         if from_admin:
-            workflow_admin_queryset = WorkflowUserPermission.objects.filter(workflow_id__in=workflow_result_id_list, permission='admin', is_deleted=0).all()
+            workflow_admin_queryset = WorkflowUserPermission.objects.filter(workflow_id__in=workflow_result_id_list, permission='admin').all()
 
             for workflow_result_restful in workflow_result_restful_list:
                 workflow_admin_list = []
@@ -107,11 +107,11 @@ class WorkflowBaseService(BaseService):
             workflow_queryset = Workflow.objects.filter(is_deleted=0).all()
         else:
             # 作为工作流创建人+工作流管理员的工作流
-            workflow_admin_queryset = WorkflowUserPermission.objects.filter(permission='admin', user_type='user', user=username, is_deleted=0).all()
+            workflow_admin_queryset = WorkflowUserPermission.objects.filter(permission='admin', user_type='user', user=username).all()
             workflow_admin_id_list = [workflow_admin.workflow_id for workflow_admin in workflow_admin_queryset]
 
             workflow_queryset = Workflow.objects.filter(
-                Q(creator=username, is_deleted=0) | Q(id__in=workflow_admin_id_list, is_deleted=0)).all()
+                Q(creator=username) | Q(id__in=workflow_admin_id_list)).all()
 
         workflow_restful_list = [workflow.get_dict() for workflow in workflow_queryset]
 
@@ -219,7 +219,7 @@ class WorkflowBaseService(BaseService):
         workflow_obj = Workflow.objects.filter(is_deleted=0, id=workflow_id).first()
 
         # 权限人
-        permission_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
+        permission_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id).all()
         adminer_list = []
         intervener_list = []
         viewer_username_list = []
@@ -324,14 +324,14 @@ class WorkflowBaseService(BaseService):
         :param content_template:
         :return:
         """
-        workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0)
+        workflow_obj = Workflow.objects.filter(id=workflow_id)
         if workflow_obj:
             workflow_obj.update(name=name, description=description, notices=notices,
                                 view_permission_check=view_permission_check,
                                 limit_expression=limit_expression, display_form_str=display_form_str,
                                 title_template=title_template, content_template=content_template)
         # 更新管理员信息
-        workflow_permission_existed_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
+        workflow_permission_existed_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id).all()
 
         existed_intervener,  existed_workflow_admin, existed_view_depts, existed_view_persons, \
         existed_app_permission_apps = [], [], [], [], []
@@ -415,7 +415,7 @@ class WorkflowBaseService(BaseService):
         :param workflow_id:
         :return:
         """
-        workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0)
+        workflow_obj = Workflow.objects.filter(id=workflow_id)
         if workflow_obj:
             workflow_obj.update(is_deleted=True)
         return True, ''
@@ -471,13 +471,13 @@ class WorkflowBaseService(BaseService):
         :return:
         """
         # todo: intervene列表， 创建人，管理员
-        workflow_query_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0).first()
+        workflow_query_obj = Workflow.objects.filter(id=workflow_id).first()
         if not workflow_query_obj:
             return False, 'workflow is not existed'
         if username == workflow_query_obj.creator:
             return True, True
 
-        permission_queryset = WorkflowUserPermission.objects.filter(permission__in=['admin', 'intervene'], is_deleted=0,
+        permission_queryset = WorkflowUserPermission.objects.filter(permission__in=['admin', 'intervene'],
                                                                     user_type='user').all()
         for permission in permission_queryset:
             if permission.user == username:

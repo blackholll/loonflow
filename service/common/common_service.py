@@ -41,7 +41,7 @@ class CommonService(BaseService):
         :return:
         """
         from apps.account.models import AppToken
-        app_obj = AppToken.objects.filter(app_name=app_name, is_deleted=0).first()
+        app_obj = AppToken.objects.filter(app_name=app_name).first()
         md5_key = app_obj.token
         timestamp = str(int(time.time()))
         ori_str = timestamp + md5_key

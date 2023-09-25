@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 
-class LoonModelBaseAdmin(admin.ModelAdmin):
+class ModelBaseAdmin(admin.ModelAdmin):
     list_display = ('creator', 'is_deleted', 'gmt_created', 'gmt_modified')
     readonly_fields = ['creator']
 

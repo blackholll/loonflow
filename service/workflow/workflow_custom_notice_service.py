@@ -90,7 +90,7 @@ class WorkflowCustomNoticeService(BaseService):
         :param hook_token:
         :return:
         """
-        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id, is_deleted=0)
+        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id)
         if custom_notice_obj:
             custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token,
                                      type_id=type_id, corpid=corpid, corpsecret=corpsecret, appkey=appkey,
@@ -107,7 +107,7 @@ class WorkflowCustomNoticeService(BaseService):
         :id: 
         :return:
         """
-        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id, is_deleted=0)
+        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id)
         if custom_notice_obj:
             custom_notice_obj.update(is_deleted=True)
             return True, ''
@@ -122,7 +122,7 @@ class WorkflowCustomNoticeService(BaseService):
         :param custom_notice_id:
         :return:
         """
-        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id, is_deleted=0).first()
+        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id).first()
         if custom_notice_obj:
             custom_notice_info = custom_notice_obj.get_dict()
             return True, custom_notice_info

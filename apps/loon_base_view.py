@@ -5,7 +5,7 @@ from django.views import View
 from service.format_response import api_response
 
 
-class LoonBaseView(View):
+class BaseView(View):
     """
     base view for params validate
     """

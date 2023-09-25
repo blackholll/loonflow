@@ -37,7 +37,7 @@ class TicketBaseService(BaseService):
         :param ticket_id:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         if ticket_obj:
             return True, ticket_obj
         else:
@@ -398,7 +398,7 @@ class TicketBaseService(BaseService):
                     sub_ticket_state_type_list.append(value.get('type_id'))
                 list_set = set(sub_ticket_state_type_list)
                 if list_set == {constant_service_ins.STATE_TYPE_END}:
-                    parent_ticket_obj = TicketRecord.objects.filter(id=new_ticket_obj.parent_ticket_id, is_deleted=0) \
+                    parent_ticket_obj = TicketRecord.objects.filter(id=new_ticket_obj.parent_ticket_id) \
                         .first()
                     parent_ticket_state_id = parent_ticket_obj.state_id
                     flag, parent_ticket_transition_queryset = workflow_transition_service_ins \
@@ -463,7 +463,7 @@ class TicketBaseService(BaseService):
         :return:
         """
         if field_key in constant_service_ins.TICKET_BASE_FIELD_LIST:
-            ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+            ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
             ticket_obj_dict = ticket_obj.get_dict()
             value = ticket_obj_dict.get(field_key)
         else:
@@ -482,7 +482,7 @@ class TicketBaseService(BaseService):
         :param ticket_id:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         custom_field_queryset = CustomField.objects.filter(is_deleted=0, workflow_id=ticket_obj.workflow_id).all()
         format_field_key_dict = {}
         for custom_field in custom_field_queryset:
@@ -564,7 +564,7 @@ class TicketBaseService(BaseService):
         :param update_dict:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         flag, format_custom_field_dict = workflow_custom_field_service_ins\
             .get_workflow_custom_field(ticket_obj.workflow_id)
         if flag is False:
@@ -577,7 +577,7 @@ class TicketBaseService(BaseService):
             if key in custom_field_key_list:
                 # 判断是否存在，如果存在则更新，如果不存在则新增
                 ticket_custom_field_queryset = TicketCustomField.objects.filter(
-                    ticket_id=ticket_id, field_key=key, is_deleted=0)
+                    ticket_id=ticket_id, field_key=key)
                 field_type_id = format_custom_field_dict[key]['field_type_id']
 
                 if update_dict.get(key) is None:
@@ -621,7 +621,7 @@ class TicketBaseService(BaseService):
                 base_field_dict[key] = value
         # ticket base field
         if base_field_dict:
-            TicketRecord.objects.filter(id=ticket_id, is_deleted=0).update(**base_field_dict)
+            TicketRecord.objects.filter(id=ticket_id).update(**base_field_dict)
         # custom field
         cls.update_ticket_custom_field(ticket_id, update_dict)
 
@@ -668,7 +668,7 @@ class TicketBaseService(BaseService):
         else:
             handle_permission = True
 
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         flag, result = cls.get_ticket_base_field_list(ticket_id)
 
         field_list = result.get('field_list') if flag else []
@@ -726,7 +726,7 @@ class TicketBaseService(BaseService):
         :param ticket_id:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_obj.state_id)
         if flag is False:
             return False, state_obj
@@ -843,7 +843,7 @@ class TicketBaseService(BaseService):
         :param ticket_id:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         participant = ticket_obj.participant
         participant_name = ticket_obj.participant
         participant_type_id = ticket_obj.participant_type_id
@@ -893,7 +893,7 @@ class TicketBaseService(BaseService):
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
             # 脚本类型参数与人是脚本记录的id
             from apps.workflow.models import WorkflowScript
-            script_obj = WorkflowScript.objects.filter(id=int(participant), is_deleted=0).first()
+            script_obj = WorkflowScript.objects.filter(id=int(participant)).first()
             if script_obj:
                 participant_name = participant
                 participant_alias = '脚本:{}'.format(script_obj.name)
@@ -934,7 +934,7 @@ class TicketBaseService(BaseService):
         :param by_hook: is by hook or not
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         if not ticket_obj:
             return False, '工单不存在或已被删除'
         ticket_state_id = ticket_obj.state_id
@@ -1024,7 +1024,7 @@ class TicketBaseService(BaseService):
         :param username:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         if not ticket_obj:
             return False, 'ticket is not existed or has been deleted'
         flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_obj.workflow_id)
@@ -1365,7 +1365,7 @@ class TicketBaseService(BaseService):
         :param username:
         :return:
         """
-        worked_queryset = TicketUser.objects.filter(ticket_id=ticket_id, is_deleted=0, username=username).all()
+        worked_queryset = TicketUser.objects.filter(ticket_id=ticket_id, username=username).all()
         if worked_queryset:
             worked_queryset.update(worked=True, in_process=False)
         else:
@@ -1415,9 +1415,9 @@ class TicketBaseService(BaseService):
         :return:
         """
         if desc == 0:
-            ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all().order_by('id')
+            ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id).all().order_by('id')
         else:
-            ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all().order_by(
+            ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id).all().order_by(
                 '-id')
         paginator = Paginator(ticket_flow_log_queryset, per_page)
 
@@ -1484,12 +1484,12 @@ class TicketBaseService(BaseService):
         :return:
         """
         # 先获取工单对应工作流的信息
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         if not ticket_obj:
             return False, '工单不存在或已被删除'
         workflow_id = ticket_obj.workflow_id
         flag, state_objs = workflow_state_service_ins.get_workflow_states(workflow_id)
-        ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id, is_deleted=0).all()
+        ticket_flow_log_queryset = TicketFlowLog.objects.filter(ticket_id=ticket_id).all()
 
         state_step_dict_list = []
         for state_obj in state_objs:
@@ -1588,7 +1588,7 @@ class TicketBaseService(BaseService):
         :param suggestion:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         if not ticket_obj:
             return False, '工单不存在'
         source_state_id = ticket_obj.state_id
@@ -1680,7 +1680,7 @@ class TicketBaseService(BaseService):
             # update ticket relation people
             cls.update_ticket_relation(ticket_id, username)
 
-            ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+            ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
             ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
             ticket_obj.participant = username
             ticket_obj.save()
@@ -1712,7 +1712,7 @@ class TicketBaseService(BaseService):
         :return:
         """
         cls.update_ticket_relation(ticket_id, target_username)
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = target_username
         ticket_obj.save()
@@ -1749,7 +1749,7 @@ class TicketBaseService(BaseService):
             return False, result.get('msg')
 
         cls.update_ticket_relation(ticket_id, target_username)
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = target_username
         ticket_obj.in_add_node = True
@@ -1784,7 +1784,7 @@ class TicketBaseService(BaseService):
         if result.get('permission') is False:
             return False, result.get('msg')
 
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         ticket_obj.participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
         ticket_obj.participant = ticket_obj.add_node_man
         ticket_obj.in_add_node = False
@@ -1883,7 +1883,7 @@ class TicketBaseService(BaseService):
         :return:
         """
         # 判断工单表记录中最后一次脚本是否执行失败了，即script_run_last_result的值
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         if not ticket_obj:
             return False, 'Ticket is not existed or has been deleted'
         # if ticket_obj.participant_type_id is not CONSTANT_SERVICE.PARTICIPANT_TYPE_ROBOT:
@@ -2261,7 +2261,7 @@ class TicketBaseService(BaseService):
         flag, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
         if not flag:
             return False, msg
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
 
         # 检查工单处理人类型为hook中
         if ticket_obj.participant_type_id != constant_service_ins.PARTICIPANT_TYPE_HOOK:
@@ -2309,7 +2309,7 @@ class TicketBaseService(BaseService):
         :param ticket_id:
         :return:
         """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         from apps.account.models import LoonUser
         participant_username_list, participant_info_list = [], []
 
@@ -2328,7 +2328,7 @@ class TicketBaseService(BaseService):
                 return False, participant_username_list
 
         if participant_username_list:
-            participant_queryset = LoonUser.objects.filter(username__in=participant_username_list, is_deleted=0)
+            participant_queryset = LoonUser.objects.filter(username__in=participant_username_list)
             for participant_0 in participant_queryset:
                 participant_info_list.append(dict(username=participant_0.username, alias=participant_0.alias,
                                                   phone=participant_0.phone, email=participant_0.email))
@@ -2347,7 +2347,7 @@ class TicketBaseService(BaseService):
         :return:
         """
         # 获取工单详细信息
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
         if not ticket_obj:
             return False, '工单不存在或已被删除'
         workflow_id = ticket_obj.workflow_id
@@ -2375,7 +2375,7 @@ class TicketBaseService(BaseService):
         ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_CLOSED
         ticket_obj.save()
         # 更新ticketuser中in_process状态
-        TicketUser.objects.filter(ticket_id=ticket_id, is_deleted=0).update(in_process=False)
+        TicketUser.objects.filter(ticket_id=ticket_id).update(in_process=False)
 
         cls.add_ticket_flow_log(ticket_flow_log_dict)
         return True, ''

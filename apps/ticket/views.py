@@ -3,13 +3,13 @@ from django.http import HttpResponse
 from django.views import View
 from schema import Schema, Regex, And, Or, Use, Optional
 
-from apps.loon_base_view import LoonBaseView
+from apps.loon_base_view import BaseView
 from service.account.account_base_service import account_base_service_ins
 from service.format_response import api_response
 from service.ticket.ticket_base_service import ticket_base_service_ins
 
 
-class TicketListView(LoonBaseView):
+class TicketListView(BaseView):
     post_schema = Schema({
         'workflow_id': And(int, lambda n: n != 0, error='workflow_id is needed and type should be int'),
         'transition_id': And(int, lambda n: n != 0, error='transition_id is needed and type should be int'),
@@ -98,7 +98,7 @@ class TicketListView(LoonBaseView):
         return api_response(code, result, data)
 
 
-class TicketView(LoonBaseView):
+class TicketView(BaseView):
     def get(self, request, *args, **kwargs):
         """
         获取工单详情，根据用户返回不同的内容(是否有工单表单的编辑权限)
@@ -179,7 +179,7 @@ class TicketView(LoonBaseView):
             return api_response(0, '', {})
 
 
-class TicketTransition(LoonBaseView):
+class TicketTransition(BaseView):
     """
     工单可以做的操作
     """
@@ -204,7 +204,7 @@ class TicketTransition(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketFlowlog(LoonBaseView):
+class TicketFlowlog(BaseView):
     """
     工单流转记录
     """
@@ -236,7 +236,7 @@ class TicketFlowlog(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketFlowStep(LoonBaseView):
+class TicketFlowStep(BaseView):
     """
     工单流转step: 用于显示工单当前状态的step图(线形结构，无交叉)
     """
@@ -263,7 +263,7 @@ class TicketFlowStep(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketState(LoonBaseView):
+class TicketState(BaseView):
     """
     工单状态
     """
@@ -308,7 +308,7 @@ class TicketState(LoonBaseView):
 
 
 
-class TicketsStates(LoonBaseView):
+class TicketsStates(BaseView):
     def get(self, request, *args, **kwargs):
         """
         批量获取工单状态
@@ -332,7 +332,7 @@ class TicketsStates(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketAccept(LoonBaseView):
+class TicketAccept(BaseView):
     def post(self, request, *args, **kwargs):
         """
         接单,当工单当前处理人实际为多个人时(角色、部门、多人都有可能， 注意角色和部门有可能实际只有一人)
@@ -357,7 +357,7 @@ class TicketAccept(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketDeliver(LoonBaseView):
+class TicketDeliver(BaseView):
     post_schema = Schema({
         'target_username': And(str, lambda n: n != '', error='target_username is needed'),
         Optional('from_admin'): int,
@@ -406,7 +406,7 @@ class TicketDeliver(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketAddNode(LoonBaseView):
+class TicketAddNode(BaseView):
     post_schema = Schema({
         'target_username': And(str, lambda n: n != '', error='target_username is needed'),
         Optional('suggestion'): str,
@@ -440,7 +440,7 @@ class TicketAddNode(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketAddNodeEnd(LoonBaseView):
+class TicketAddNodeEnd(BaseView):
     post_schema = Schema({
         Optional('suggestion'): str,
     })
@@ -474,7 +474,7 @@ class TicketAddNodeEnd(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketField(LoonBaseView):
+class TicketField(BaseView):
 
     def patch(self, request, *args, **kwargs):
         """
@@ -509,7 +509,7 @@ class TicketField(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketScriptRetry(LoonBaseView):
+class TicketScriptRetry(BaseView):
     def post(self, request, *args, **kwargs):
         """
         重新执行工单脚本(用于脚本执行出错的情况), 也可用于hook执行失败的情况
@@ -533,7 +533,7 @@ class TicketScriptRetry(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketComment(LoonBaseView):
+class TicketComment(BaseView):
 
     post_schema = Schema({
         'suggestion': And(str, lambda n: n != '', error='suggestion is needed'),
@@ -562,7 +562,7 @@ class TicketComment(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketHookCallBack(LoonBaseView):
+class TicketHookCallBack(BaseView):
     def post(self, request, *args, **kwargs):
         """
         工单hook回调，用于hoot请求后，被请求方执行完任务后回调loonflow,以触发工单继续流转
@@ -586,7 +586,7 @@ class TicketHookCallBack(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketParticipantInfo(LoonBaseView):
+class TicketParticipantInfo(BaseView):
     def get(self, request, *args, **kwargs):
         """
         工单当前处理人详情，调用方后端可用获取处理人信息后提供催办等功能
@@ -604,7 +604,7 @@ class TicketParticipantInfo(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketClose(LoonBaseView):
+class TicketClose(BaseView):
     def post(self, request, *args, **kwargs):
         """
         强制关闭工单
@@ -631,7 +631,7 @@ class TicketClose(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class TicketsNumStatistics(LoonBaseView):
+class TicketsNumStatistics(BaseView):
     def get(self, request, *args, **kwargs):
         """
         工单个数统计
@@ -651,7 +651,7 @@ class TicketsNumStatistics(LoonBaseView):
             return api_response(-1, result, {})
 
 
-class TicketRetreat(LoonBaseView):
+class TicketRetreat(BaseView):
     def post(self, request, *args, **kwargs):
         """
         撤回工单，允许创建人在指定状态撤回工单至初始状态，状态设置中开启允许撤回
@@ -673,7 +673,7 @@ class TicketRetreat(LoonBaseView):
             return api_response(-1, result, {})
 
 
-class UploadFile(LoonBaseView):
+class UploadFile(BaseView):
     def post(self, request, *args, **kwargs):
         """
         上传文件

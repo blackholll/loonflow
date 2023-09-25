@@ -105,12 +105,12 @@ def send_ticket_notice(ticket_id):
     # 获取工作流信息，获取工作流的通知信息
     # 获取通知信息的标题和内容模板
     # 将通知内容，通知标题，通知人，作为hook的请求参数
-    ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+    ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
     if not ticket_obj:
         return False, 'ticket is not exist or has been deleted'
 
     workflow_id = ticket_obj.workflow_id
-    workflow_obj = Workflow.objects.filter(id=workflow_id, is_deleted=0).first()
+    workflow_obj = Workflow.objects.filter(id=workflow_id).first()
     notices = workflow_obj.notices
     if not notices:
         return True, 'no notice defined'
@@ -134,7 +134,7 @@ def send_ticket_notice(ticket_id):
     last_flow_log = flow_log_list[0]
     participant_info_list = []
     participant_username_list = []
-    from apps.account.models import LoonUser
+    from apps.account.models import User
     if ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
         participant_username_list = [ticket_obj.participant]
     elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
@@ -150,7 +150,7 @@ def send_ticket_notice(ticket_id):
             return flag, participant_username_list
 
     if participant_username_list:
-        participant_queryset = LoonUser.objects.filter(username__in=participant_username_list, is_deleted=0)
+        participant_queryset = User.objects.filter(username__in=participant_username_list)
         for participant_0 in participant_queryset:
             participant_info_list.append(dict(username=participant_0.username, alias=participant_0.alias,
                                               phone=participant_0.phone, email=participant_0.email))
@@ -160,7 +160,7 @@ def send_ticket_notice(ticket_id):
                'multi_all_person': ticket_obj.multi_all_person, 'ticket_value_info': ticket_value_info,
                'last_flow_log': last_flow_log, 'participant_info_list': participant_info_list}
     for notice_id in notice_id_list:
-        notice_obj = CustomNotice.objects.filter(id=notice_id, is_deleted=0).first()
+        notice_obj = CustomNotice.objects.filter(id=notice_id).first()
         if not notice_obj:
             continue
         hook_url = notice_obj.hook_url
@@ -192,9 +192,9 @@ def flow_hook_task(ticket_id):
     :return:
     """
     # 查询工单状态
-    ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=0).first()
+    ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
     state_id = ticket_obj.state_id
-    state_obj = Node.objects.filter(id=state_id, is_deleted=0).first()
+    state_obj = Node.objects.filter(id=state_id).first()
 
     participant_type_id = state_obj.participant_type_id
     if participant_type_id != constant_service_ins.PARTICIPANT_TYPE_HOOK:

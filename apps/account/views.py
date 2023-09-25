@@ -9,12 +9,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from service.account.account_base_service import account_base_service_ins
 from service.format_response import api_response
-from apps.loon_base_view import LoonBaseView
+from apps.loon_base_view import BaseView
 from schema import Schema, Regex, And, Or, Use, Optional
 
-from service.permission.manage_permission import manage_permission_check
+from service.permission.user_permission import user_permission_check
 
-class LoonTenantView(LoonBaseView):
+
+class TenantView(BaseView):
     post_schema = Schema({
         "name": And(str, lambda n: n != '', error='name is needed'),
         Optional('en_name'): str,
@@ -25,7 +26,7 @@ class LoonTenantView(LoonBaseView):
         Optional('ticket_limit'): int,
     })
 
-    # @manage_permission_check("admin")
+    # @user_permission_check("admin")
     def get(self, request, *args, **kwargs):
         """
         get tenant list
@@ -34,12 +35,12 @@ class LoonTenantView(LoonBaseView):
         :param kwargs:
         :return:
         """
-        from apps.account.models import LoonTenant
-        loon_obj = LoonTenant(name="test1")
+        from apps.account.models import Tenant
+        loon_obj = Tenant(name="test1")
         loon_obj.save()
         return HttpResponse("success")
 
-    @manage_permission_check("admin")
+    @user_permission_check("admin")
     def post(self, request, *args, **kwargs):
         """
         add tenant
@@ -48,29 +49,33 @@ class LoonTenantView(LoonBaseView):
         :param kwargs:
         :return:
         """
-        from apps.account.models import LoonTenant
+        from apps.account.models import Tenant
         pass
 
 
-
-@method_decorator(login_required, name='dispatch')
-class LoonUserView(LoonBaseView):
+class UserView(BaseView):
     post_schema = Schema({
-        'username': And(str, lambda n: n != '', error='username is needed'),
-        'alias': And(str, lambda n: n != '', error='alias is needed'),
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        Optional('alias'): str,
         'email': And(str, lambda n: n != '', error='alias is needed'),
         Optional('password'): str,
-        'phone': str,
-        'dept_ids': str,
-        'type_id': int,
-        'is_active': Use(bool),
-
+        Optional('phone'): str,
+        Optional('dept_id_list'): list,
+        Optional('role_id_list'): list,
+        'type': And(str, lambda n: n in ["admin", "workflow_admin", "common"], error="type should be admin, workflow_admin, common"),
+        'status': And(str, lambda n: n in ["in_post", "resigned"], error="type should be in_post, resigned"),
+        Optional('avatar'): str,
+        Optional('lang'): str,
     })
 
-    @manage_permission_check('workflow_admin')
+    delete_schema = Schema({
+        "user_id_list": And(list, lambda n: len(n)>0, error="user_id_list can not be blank"),
+    })
+
+    @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
-        获取用户列表
+        get user list
         :param request:
         :param args:
         :param kwargs:
@@ -78,12 +83,13 @@ class LoonUserView(LoonBaseView):
         """
         request_data = request.GET
         search_value = request_data.get('search_value', '')
-        per_page = int(request_data.get('per_page', 10))
-        page = int(request_data.get('page', 1))
+        per_page = int(request_data.get('per_page')) if request_data.get('per_page') else 10
+        page = int(request_data.get('page')) if request_data.get('page') else 1
+        department_id = int(request_data.get('department_id')) if request_data.get('department_id') else 0
 
-        flag, result = account_base_service_ins.get_user_list(search_value, page, per_page)
+        flag, result = account_base_service_ins.get_user_list(search_value, department_id, page, per_page)
         if flag is not False:
-            data = dict(value=result.get('user_result_object_format_list'),
+            data = dict(user_list=result.get('user_result_object_format_list'),
                         per_page=result.get('paginator_info').get('per_page'),
                         page=result.get('paginator_info').get('page'),
                         total=result.get('paginator_info').get('total'))
@@ -92,7 +98,7 @@ class LoonUserView(LoonBaseView):
             code, data, msg = -1, '', result
         return api_response(code, msg, data)
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add user
@@ -105,37 +111,77 @@ class LoonUserView(LoonBaseView):
         if not json_str:
             return api_response(-1, 'post参数为空', {})
         request_data_dict = json.loads(json_str)
-        username = request_data_dict.get('username')
+        name = request_data_dict.get('name')
         alias = request_data_dict.get('alias')
         email = request_data_dict.get('email')
         password = request_data_dict.get('password')
         phone = request_data_dict.get('phone')
-        dept_ids = request_data_dict.get('dept_ids')
-        is_active = request_data_dict.get('is_active')
-        type_id = request_data_dict.get('type_id')
-        creator = request.user.username
-        flag, result = account_base_service_ins.add_user(username, alias, email, phone, dept_ids, is_active, type_id, creator, password)
+        dept_id_list = request_data_dict.get('dept_id_list')
+        role_id_list = request_data_dict.get('role_id_list')
+        type = request_data_dict.get('type')
+        status = request_data_dict.get('status')
+        avatar = request_data_dict.get('avatar')
+        lang = request_data_dict.get('lang')
+        creator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        flag, result = account_base_service_ins.add_user(name, alias, email, phone, dept_id_list, role_id_list, type, status, avatar, lang, creator_id, password, tenant_id)
         if flag is False:
             code, msg, data = -1, result, {}
         else:
             code, msg, data = 0, '', result
         return api_response(code, msg, data)
 
+    @user_permission_check("admin")
+    def delete(self, request, *args, **kwargs):
+        """
+        delete uer in batches
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        user_id_list = request_data_dict.get('user_id_list', [])
+        operator_id = request.META.get('HTTP_USERID')
+        flag, result = account_base_service_ins.delete_user_list(user_id_list, operator_id)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, "", dict(user_info=result))
 
-@method_decorator(login_required, name='dispatch')
-class LoonUserDetailView(LoonBaseView):
+
+
+class UserDetailView(BaseView):
     patch_schema = Schema({
-        'username': And(str, lambda n: n != ''),
-        'alias': And(str, lambda n: n != ''),
-        'email': And(str, lambda n: n != ''),
+        'name': And(str, lambda n: n != '', error='name is needed'),
+        Optional('alias'): str,
+        'email': And(str, lambda n: n != '', error='alias is needed'),
         Optional('password'): str,
-        'phone': str,
-        'dept_ids': str,
-        'is_active': Use(bool),
-        'type_id': int
+        Optional('phone'): str,
+        Optional('dept_id_list'): list,
+        Optional('role_id_list'): list,
+        'type': And(str, lambda n: n in ["admin", "workflow_admin", "common"],
+                    error="type should be admin, workflow_admin, common"),
+        'status': And(str, lambda n: n in ["in_post", "resigned"], error="type should be in_post, resigned"),
+        Optional('avatar'): str,
+        Optional('lang'): str,
     })
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
+    def get(self, request, *args, **kwargs):
+        """
+        get user detail
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        flag, result = account_base_service_ins.get_user_format_by_user_id(kwargs.get('user_id'))
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, "", dict(user_info=result))
+
+    @user_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
         edit user
@@ -147,23 +193,27 @@ class LoonUserDetailView(LoonBaseView):
         json_str = request.body.decode('utf-8')
         user_id = kwargs.get('user_id')
         request_data_dict = json.loads(json_str)
-        username = request_data_dict.get('username')
+        name = request_data_dict.get('name')
         alias = request_data_dict.get('alias')
         email = request_data_dict.get('email')
         phone = request_data_dict.get('phone')
-        dept_ids = request_data_dict.get('dept_ids')
-        type_id = request_data_dict.get('type_id')
+        dept_id_list = request_data_dict.get('dept_id_list')
+        role_id_list = request_data_dict.get('role_id_list')
+        type = request_data_dict.get('type')
+        status = request_data_dict.get('status')
+        avatar = request_data_dict.get('avatar')
+        lang = request_data_dict.get('lang')
+        creator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
 
-        is_active = request_data_dict.get('is_active')
-        flag, result = account_base_service_ins.edit_user(user_id, username, alias, email, phone, dept_ids, is_active,
-                                                          type_id)
+        flag, result = account_base_service_ins.edit_user(user_id, name, alias, email, phone, dept_id_list, role_id_list, type, status, avatar, lang, creator_id, tenant_id)
         if flag is not False:
             code, msg, data = 0, '', {}
         else:
             code, msg, data = -1, result, {}
         return api_response(code, msg, data)
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
         delete user record
@@ -173,7 +223,8 @@ class LoonUserDetailView(LoonBaseView):
         :return:
         """
         user_id = kwargs.get('user_id')
-        flag, result = account_base_service_ins.delete_user(user_id)
+        operator_id = request.META.get('HTTP_USERID')
+        flag, result = account_base_service_ins.delete_user(user_id, operator_id)
         if flag:
             code, msg, data = 0, '', {}
             return api_response(code, msg, data)
@@ -182,14 +233,14 @@ class LoonUserDetailView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonRoleView(LoonBaseView):
+class RoleView(BaseView):
     post_schema = Schema({
         'name': And(str, lambda n: n != ''),
         Optional('description'): str,
         Optional('label'): str,
     })
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         用户角色列表
@@ -213,7 +264,7 @@ class LoonRoleView(LoonBaseView):
             code, data = -1, ''
         return api_response(code, msg, data)
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add role
@@ -238,14 +289,14 @@ class LoonRoleView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonRoleDetailView(LoonBaseView):
+class RoleDetailView(BaseView):
     patch_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is need'),
         Optional('description'): str,
         Optional('label'): str,
     })
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
         update role
@@ -266,7 +317,7 @@ class LoonRoleDetailView(LoonBaseView):
             return api_response(-1, result, {})
         return api_response(0, '', {})
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
         delete role
@@ -283,7 +334,7 @@ class LoonRoleDetailView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonDeptView(LoonBaseView):
+class DeptView(BaseView):
     post_schema = Schema({
         'name': And(str, lambda n: n != ''),
         Optional('parent_dept_id'): int,
@@ -292,7 +343,7 @@ class LoonDeptView(LoonBaseView):
         Optional('label'): str,
     })
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         部门列表
@@ -315,7 +366,7 @@ class LoonDeptView(LoonBaseView):
             code, data = -1, ''
         return api_response(code, msg, data)
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         新增部门
@@ -340,7 +391,7 @@ class LoonDeptView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonDeptDetailView(LoonBaseView):
+class DeptDetailView(BaseView):
     patch_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is need'),
         Optional('parent_dept_id'): int,
@@ -349,7 +400,7 @@ class LoonDeptDetailView(LoonBaseView):
         Optional('label'): str,
     })
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
         delete dept
@@ -366,7 +417,7 @@ class LoonDeptDetailView(LoonBaseView):
             return api_response(-1, result, {})
         return api_response(0, '', {})
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
         更新部门
@@ -391,7 +442,7 @@ class LoonDeptDetailView(LoonBaseView):
         return api_response(0, '', {})
 
 
-class LoonSimpleDeptView(LoonBaseView):
+class SimpleDeptView(BaseView):
     def get(self, request, *args, **kwargs):
         """
         部门列表，简单信息
@@ -416,14 +467,14 @@ class LoonSimpleDeptView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonAppTokenView(LoonBaseView):
+class AppTokenView(BaseView):
     post_schema = Schema({
         'app_name': And(str, lambda n: n != '', error='app_name is needed'),
         Optional('ticket_sn_prefix'): str,
         Optional('workflow_ids'): str,
     })
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         call api permission
@@ -447,7 +498,7 @@ class LoonAppTokenView(LoonBaseView):
             code, data, msg = -1, '', result
         return api_response(code, msg, data)
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add call api permission
@@ -474,8 +525,8 @@ class LoonAppTokenView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonSimpleAppTokenView(LoonBaseView):
-    @manage_permission_check('workflow_admin')
+class SimpleAppTokenView(BaseView):
+    @user_permission_check('workflow_admin')
     def get(self, request, *args, **kwargs):
         """
         call api permission
@@ -502,13 +553,13 @@ class LoonSimpleAppTokenView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonAppTokenDetailView(LoonBaseView):
+class AppTokenDetailView(BaseView):
     patch_schema = Schema({
         Optional('ticket_sn_prefix'): str,
         Optional('workflow_ids'): str,
     })
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
         编辑token
@@ -530,7 +581,7 @@ class LoonAppTokenDetailView(LoonBaseView):
 
         return api_response(code, msg, data)
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
         删除记录
@@ -548,73 +599,32 @@ class LoonAppTokenDetailView(LoonBaseView):
         return api_response(code, msg, data)
 
 
-class LoonLoginView(LoonBaseView):
-    def post(self, request, *args, **kwargs):
-        """
-        登录验证
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'patch参数为空', {})
-        request_data_dict = json.loads(json_str)
-        username = request_data_dict.get('username', '')
-        password = request_data_dict.get('password', '')
-        try:
-            user = authenticate(username=username, password=password)
-        except Exception as e:
-            return api_response(-1, e.__str__(), {})
-
-        if user is not None:
-            login(request, user)
-            return api_response(0, '', {})
-        else:
-            return api_response(-1, 'username or password is invalid', {})
-
-
-class LoonLogoutView(LoonBaseView):
-    def get(self, request, *args, **kwargs):
-        """
-        注销
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        logout(request)
-        return redirect('/manage')
-
-
-class LoonJwtLoginView(LoonBaseView):
+class JwtLoginView(BaseView):
     def post(self, request, *args, **kwargs):
         json_str = request.body.decode('utf-8')
         if not json_str:
-            return api_response(-1, 'invalid args', {})
+            return api_response(-1, 'invalid params', {})
         request_data_dict = json.loads(json_str)
-        username = request_data_dict.get('username', '')
+        email = request_data_dict.get('email', '')
         password = request_data_dict.get('password', '')
         try:
-            user = authenticate(username=username, password=password)
+            user = authenticate(email=email, password=password)
         except Exception as e:
             return api_response(-1, e.__str__(), {})
         if user is not None:
             # todo: get jwt
-            flag, jwt_info = account_base_service_ins.get_user_jwt(username)
+            flag, jwt_info = account_base_service_ins.get_user_jwt(email)
             if flag is False:
                 return api_response(-1, '', {})
             else:
-                login(request, user)
                 return api_response(0, '', {'jwt': jwt_info})
         else:
             return api_response(-1, 'username or password is invalid', {})
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonUserRoleView(LoonBaseView):
-    @manage_permission_check('admin')
+class UserRoleView(BaseView):
+    @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         用户角色信息
@@ -632,12 +642,12 @@ class LoonUserRoleView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonRoleUserView(LoonBaseView):
+class RoleUserView(BaseView):
     post_schema = Schema({
         'user_id': And(int, error='user_id is needed and should be int')
     })
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
         角色的用户信息
@@ -661,7 +671,7 @@ class LoonRoleUserView(LoonBaseView):
             code, data = -1, ''
         return api_response(code, msg, data)
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add role's user
@@ -684,8 +694,8 @@ class LoonRoleUserView(LoonBaseView):
 
 
 @method_decorator(login_required, name='dispatch')
-class LoonRoleUserDetailView(LoonBaseView):
-    @manage_permission_check('admin')
+class RoleUserDetailView(BaseView):
+    @user_permission_check('admin')
     def delete(self, request, *args, **kwargs):
         """
          delete role's user
@@ -703,9 +713,9 @@ class LoonRoleUserDetailView(LoonBaseView):
         return api_response(0, '', {})
 
 
-class LoonUserResetPasswordView(LoonBaseView):
+class UserResetPasswordView(BaseView):
 
-    @manage_permission_check('admin')
+    @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         重置密码
@@ -721,7 +731,7 @@ class LoonUserResetPasswordView(LoonBaseView):
         return api_response(0, result, {})
 
 
-class LoonUserChangePasswordView(LoonBaseView):
+class UserChangePasswordView(BaseView):
     def post(self, request, *args, **kwargs):
         """
         修改密码
@@ -746,7 +756,7 @@ class LoonUserChangePasswordView(LoonBaseView):
         return api_response(0, result, {})
 
 
-class LoonSimpleUserView(LoonBaseView):
+class SimpleUserView(BaseView):
 
     def get(self, request, *args, **kwargs):
         """

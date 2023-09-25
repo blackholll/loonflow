@@ -20,7 +20,7 @@ class WorkflowCustomFieldService(BaseService):
         :param workflow_id:
         :return:
         """
-        custom_field_queryset = CustomField.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
+        custom_field_queryset = CustomField.objects.filter(workflow_id=workflow_id).all()
         format_custom_field_dict = {}
         for custom_field in custom_field_queryset:
             if custom_field.label:
@@ -44,7 +44,7 @@ class WorkflowCustomFieldService(BaseService):
         :param workflow_id:
         :return:
         """
-        custom_field_queryset = CustomField.objects.filter(workflow_id=workflow_id, is_deleted=0).all()
+        custom_field_queryset = CustomField.objects.filter(workflow_id=workflow_id).all()
         return True, dict(
             ticket_custom_field_key_list=[custom_field.field_key for custom_field in custom_field_queryset])
 
@@ -139,7 +139,7 @@ class WorkflowCustomFieldService(BaseService):
         :param creator:
         :return:
         """
-        custom_filed_queryset = CustomField.objects.filter(id=custom_field_id, is_deleted=0)
+        custom_filed_queryset = CustomField.objects.filter(id=custom_field_id)
         if custom_filed_queryset:
             custom_filed_queryset.update(workflow_id=workflow_id, field_type_id=field_type_id, field_key=field_key,
                                          field_name=field_name, order_id=order_id, default_value=default_value,
@@ -156,7 +156,7 @@ class WorkflowCustomFieldService(BaseService):
         :param custom_field_id:
         :return:
         """
-        custom_field_queryset = CustomField.objects.filter(id=custom_field_id, is_deleted=0)
+        custom_field_queryset = CustomField.objects.filter(id=custom_field_id)
         if custom_field_queryset:
             custom_field_queryset.update(is_deleted=True)
         return True, ''

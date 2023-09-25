@@ -1,12 +1,12 @@
 import os
 import uuid
 from django.db import models
-from apps.loon_base_model import BaseModel
+from apps.loon_base_model import BaseCommonModel
 from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.fields import JSONField
 
 
-class Workflow(BaseModel):
+class Workflow(BaseCommonModel):
     """
     workflow,
     limit_expression: {"period":24, "period_unit":"hour", "count":1,  "allow_persons":【"xx","ddd"], "allow_depts":["xx","ss"], "allow_roles":["xx"],["yy"],"level":"personal"}
@@ -21,7 +21,7 @@ class Workflow(BaseModel):
     content_template = models.CharField(_('content_template'), max_length=1000, default='title:{title}, created at:{created_at}')
 
 
-class Node(BaseModel):
+class Node(BaseCommonModel):
     """
     node
     """
@@ -56,17 +56,16 @@ class Node(BaseModel):
     workflow_id = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
     is_hidden = models.BooleanField(_('is_hidden'), default=False)
     order_id = models.IntegerField(_('order_id'), default=0)
-    type = models.CharField(_('type'), choices=TYPE_CHOICE, default='common')
+    type = models.CharField(_('type'), max_length=50, choices=TYPE_CHOICE, default='common')
     allow_retreat = models.BooleanField(_('allow_retreat'), default=False)
     remember_last_man = models.BooleanField(_('remember_last_man'), default=False, help_text='ticket to this node will assign to the previous handler if the value is true')
     participant_type = models.CharField(_('participant_type'), max_length=100, choices=PARTICIPANT_TYPE_CHOICE)
     participant = models.CharField(_('participant'), default='', blank=True, max_length=1000, help_text='need support sub-workflow, then you should set the participant as loonflowrobot')
-    distribute_type = models.CharField(_('distribute_type'), default='direct', choices=DISTRIBUTE_TYPE_CHOICE)
+    distribute_type = models.CharField(_('distribute_type'), max_length=50, default='direct', choices=DISTRIBUTE_TYPE_CHOICE)
     node_field_str = models.JSONField(_('state_field_str'), default=dict)
-    label = models.CharField(_('label'), max_length=5000, default='', help_text='you can add custom info for custom fucntion')
 
 
-class Transition(BaseModel):
+class Transition(BaseCommonModel):
     """
     transition
     """
@@ -86,7 +85,7 @@ class Transition(BaseModel):
     alert_text = models.CharField(_('alert_text'), max_length=100, default='', blank=True)
 
 
-class CustomField(BaseModel):
+class CustomField(BaseCommonModel):
     """CustomField"""
     FIELD_TYPE_CHOICE = [
         ('text', 'text'),
@@ -104,7 +103,7 @@ class CustomField(BaseModel):
     #
 
     workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
-    field_type = models.CharField(_('field_type'), choices=FIELD_TYPE_CHOICE)
+    field_type = models.CharField(_('field_type'), max_length=50, choices=FIELD_TYPE_CHOICE)
     field_key = models.CharField(_('field_key'), max_length=50)
     field_name = models.CharField(_('field_name'), max_length=50)
     order_id = models.IntegerField(_('order_id'), default=0)
@@ -112,10 +111,9 @@ class CustomField(BaseModel):
     description = models.CharField(_('description'), max_length=100, blank=True, default='')
     placeholder = models.TextField(_('placeholder'), max_length=100, blank=True, default='')
     extra = models.JSONField(_('extra')) # unit, option
-    label = models.CharField('label', max_length=5000, blank=True, default='')
 
 
-class CustomNotice(BaseModel):
+class CustomNotice(BaseCommonModel):
     """
     custom notice
     """
@@ -139,7 +137,7 @@ class CustomNotice(BaseModel):
     hook_token = models.CharField('hook token', max_length=100, null=True, blank=True)
 
 
-class WorkflowUserPermission(BaseModel):
+class WorkflowUserPermission(BaseCommonModel):
     """
     permission record for workflow
     """
