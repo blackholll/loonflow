@@ -6,6 +6,7 @@ from django.contrib.auth import login
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
+from service.account.account_user_service import AccountUserService
 from service.common.common_service import CommonService, common_service_ins
 
 
@@ -28,6 +29,7 @@ class AppPermissionCheck(MiddlewareMixin):
                     request.META.update(dict(HTTP_EMAIL=msg.email))
                     request.META.update(dict(HTTP_USERID=msg.id))
                     request.META.update(dict(HTTP_TENANTID=msg.tenant_id))
+                    request.META.update(dict(HTTP_TENANNAME=msg.tenant.name))
                 return
             # for app call token check
             flag, msg = self.token_permission_check(request)
@@ -76,7 +78,7 @@ class AppPermissionCheck(MiddlewareMixin):
         except Exception as e:
             return False, e.__str__()
         #  check user status
-        flag, user_info = AccountBaseService.get_user_by_email(jwt_data.get("data").get('email'))
+        flag, user_info = AccountUserService.get_user_by_email(jwt_data.get("data").get('email'))
         if flag is False:
             return False, "user is not existed or has been deleted"
         if user_info.status == "resigned":

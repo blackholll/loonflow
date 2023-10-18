@@ -10,6 +10,9 @@ from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import CustomField
 from apps.ticket.models import TicketRecord, TicketCustomField, TicketFlowLog, TicketUser
+from service.account.account_dept_service import account_dept_service_ins
+from service.account.account_role_service import account_role_service_ins
+from service.account.account_user_service import account_user_service_ins
 from service.redis_pool import POOL
 from service.base_service import BaseService
 from service.common.log_service import auto_log
@@ -175,7 +178,7 @@ class TicketBaseService(BaseService):
             view_department_workflow_id_list = []
             if category == 'view':
                 # view 还需要考虑查看权限部门,先查询用户所在部门，然后查询
-                flag, result = account_base_service_ins.get_user_up_dept_id_list(username)
+                flag, result = account_user_service_ins.get_user_up_dept_id_list(username)
                 if flag:
                     department_id_str_list = [str(result0) for result0 in result]
                     flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission(
@@ -210,9 +213,9 @@ class TicketBaseService(BaseService):
             flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_result_object.workflow_id)
             workflow_info_dict = dict(workflow_id=workflow_obj.id, workflow_name=workflow_obj.name)
 
-            flag, creator_obj = account_base_service_ins.get_user_by_username(ticket_result_object.creator)
+            flag, creator_obj = account_user_service_ins.get_user_by_username(ticket_result_object.creator)
             if flag:
-                flag, dept_dict_info = account_base_service_ins.get_user_dept_info(user_id=creator_obj.id)
+                flag, dept_dict_info = account_user_service_ins.get_user_dept_info(user_id=creator_obj.id)
 
                 creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
                                     is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone,
@@ -312,7 +315,7 @@ class TicketBaseService(BaseService):
         import copy
         title_render_data = copy.deepcopy(request_data_dict)
         now_time = str(datetime.datetime.now())[:19]
-        flag, user_info = account_base_service_ins.get_user_by_username(username)
+        flag, user_info = account_user_service_ins.get_user_by_username(username)
         if flag:
             user_alias = user_info.alias
         else:
@@ -694,10 +697,10 @@ class TicketBaseService(BaseService):
                     new_field_list.append(field)
         # order by field's order id
         new_field_list = sorted(new_field_list, key=lambda r: r['order_id'])
-        flag, creator_obj = account_base_service_ins.get_user_by_username(ticket_obj.creator)
+        flag, creator_obj = account_user_service_ins.get_user_by_username(ticket_obj.creator)
         if flag:
 
-            flag, dept_dict_info = account_base_service_ins.get_user_dept_info(user_id=creator_obj.id)
+            flag, dept_dict_info = account_user_service_ins.get_user_dept_info(user_id=creator_obj.id)
             creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
                                 is_active=creator_obj.is_active, email=creator_obj.email,
                                 phone=creator_obj.phone, dept_info=dept_dict_info)
@@ -852,7 +855,7 @@ class TicketBaseService(BaseService):
         if participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
             participant_type_name = '个人'
             # participant_user_obj, msg = AccountBaseService.get_user_by_username(participant)
-            flag, participant_user_obj = account_base_service_ins.get_user_by_username(participant)
+            flag, participant_user_obj = account_user_service_ins.get_user_by_username(participant)
             if flag:
                 participant_alias = participant_user_obj.alias
             else:
@@ -861,7 +864,7 @@ class TicketBaseService(BaseService):
             participant_type_name = '多人'
             participant_name_list = participant_name.split(',')
             participant_map = {"name": set(), "alias": set()}
-            flag, participant_user_objs = account_base_service_ins.get_user_list_by_usernames(participant_name_list)
+            flag, participant_user_objs = account_user_service_ins.get_user_list_by_usernames(participant_name_list)
             if flag:
                 for participant_user in participant_user_objs:
                     participant_map["name"].add(participant_user.username)
@@ -875,7 +878,7 @@ class TicketBaseService(BaseService):
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
             participant_type_name = '部门'
-            flag, dept_obj = account_base_service_ins.get_dept_by_id(int(ticket_obj.participant))
+            flag, dept_obj = account_dept_service_ins.get_dept_by_id(int(ticket_obj.participant))
             if flag is False:
                 return False, dept_obj
             if not dept_obj:
@@ -884,7 +887,7 @@ class TicketBaseService(BaseService):
             participant_alias = participant_name
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
             participant_type_name = '角色'
-            flag, role_obj = account_base_service_ins.get_role_by_id(int(ticket_obj.participant))
+            flag, role_obj = account_role_service_ins.get_role_by_id(int(ticket_obj.participant))
 
             if flag is False or (not role_obj):
                 return False, 'role is not existed or has been deleted'
@@ -904,7 +907,7 @@ class TicketBaseService(BaseService):
             multi_all_person_dict = json.loads(ticket_obj.multi_all_person)
             participant_alias0_list = []
             for key, value in multi_all_person_dict.items():
-                flag, participant_user_obj = account_base_service_ins.get_user_by_username(key)
+                flag, participant_user_obj = account_user_service_ins.get_user_by_username(key)
                 if not flag:
                     participant_alias0 = key
                 else:
@@ -978,7 +981,7 @@ class TicketBaseService(BaseService):
                 # return None, '非当前处理人，无权处理'
             current_participant_count = len(participant.split(','))
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-            flag, dept_user_list = account_base_service_ins.get_dept_username_list(participant)
+            flag, dept_user_list = account_dept_service_ins.get_dept_username_list(participant)
             if flag is False:
                 return flag, dept_user_list
             if username not in dept_user_list:
@@ -988,7 +991,7 @@ class TicketBaseService(BaseService):
             current_participant_count = len(dept_user_list)
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
-            flag, role_user_list = account_base_service_ins.get_role_username_list(int(participant))
+            flag, role_user_list = account_role_service_ins.get_role_username_list(int(participant))
             if not flag:
                 return False, role_user_list
             if username not in role_user_list:
@@ -1033,7 +1036,7 @@ class TicketBaseService(BaseService):
         if not workflow_obj.view_permission_check:
             return True, "this ticket's workflow config did not open view permission check"
         else:
-            flag, user_obj = account_base_service_ins.get_user_by_username(username)
+            flag, user_obj = account_user_service_ins.get_user_by_username(username)
             if flag is False:
                 return False, 'user is not existed or has been deleted'
             else:
@@ -1387,12 +1390,12 @@ class TicketBaseService(BaseService):
                                                constant_service_ins.PARTICIPANT_TYPE_MULTI):
             add_relation = destination_participant
         elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-            flag, username_list = account_base_service_ins.get_dept_username_list(destination_participant)
+            flag, username_list = account_dept_service_ins.get_dept_username_list(destination_participant)
             if flag is False:
                 return False, username_list
             add_relation = ','.join(username_list)
         elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
-            flag, username_list = account_base_service_ins.get_role_username_list(int(destination_participant))
+            flag, username_list = account_role_service_ins.get_role_username_list(int(destination_participant))
             if flag is False:
                 return False, username_list
             add_relation = ','.join(username_list)
@@ -1449,7 +1452,7 @@ class TicketBaseService(BaseService):
                                     participant_email='', participant_phone=''
                                     )
             if ticket_flow_log.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
-                flag, participant_query_obj = account_base_service_ins.get_user_by_username(ticket_flow_log.participant)
+                flag, participant_query_obj = account_user_service_ins.get_user_by_username(ticket_flow_log.participant)
                 if flag:
                     participant_info.update(participant_alias=participant_query_obj.alias,
                                             participant_email=participant_query_obj.email,
@@ -1511,7 +1514,7 @@ class TicketBaseService(BaseService):
                                                 participant_email='', participant_phone=''
                                                 )
                         if ticket_flow_log.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_PERSONAL:
-                            flag, participant_query_obj = account_base_service_ins.get_user_by_username(
+                            flag, participant_query_obj = account_user_service_ins.get_user_by_username(
                                 ticket_flow_log.participant)
                             if flag:
                                 participant_info.update(participant_alias=participant_query_obj.alias,
@@ -2049,7 +2052,7 @@ class TicketBaseService(BaseService):
                 if participant0 == 'creator':
                     destination_participant_list.append(creator)
                 elif participant0 == 'creator_tl':
-                    flag, approver = account_base_service_ins.get_user_dept_approver(creator)
+                    flag, approver = account_dept_service_ins.get_user_dept_approver(creator)
                     if flag is False:
                         return False, approver
                     destination_participant_list.append(approver)
@@ -2058,14 +2061,14 @@ class TicketBaseService(BaseService):
 
         elif participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
             # 支持多部门
-            flag, destination_participant_list = account_base_service_ins.get_dept_username_list(
+            flag, destination_participant_list = account_dept_service_ins.get_dept_username_list(
                 destination_participant)
             destination_participant = ','.join(destination_participant_list)
             destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
             if flag is False:
                 return False, destination_participant_list
         elif destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
-            flag, destination_participant_list = account_base_service_ins.get_role_username_list(
+            flag, destination_participant_list = account_role_service_ins.get_role_username_list(
                 int(destination_participant))
             destination_participant = ','.join(destination_participant_list)
             destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
@@ -2318,12 +2321,12 @@ class TicketBaseService(BaseService):
         elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
             participant_username_list = ticket_obj.participant.split(',')
         elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
-            flag, participant_username_list = account_base_service_ins.get_role_username_list(ticket_obj.participant)
+            flag, participant_username_list = account_role_service_ins.get_role_username_list(ticket_obj.participant)
             if flag is False:
                 return False, participant_username_list
 
         elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-            flag, participant_username_list = account_base_service_ins.get_dept_username_list(ticket_obj.participant)
+            flag, participant_username_list = account_dept_service_ins.get_dept_username_list(ticket_obj.participant)
             if flag is False:
                 return False, participant_username_list
 
@@ -2417,7 +2420,7 @@ class TicketBaseService(BaseService):
         :return:
         """
         # 超级管理员拥有所有工作流管理权限
-        flag, result = account_base_service_ins.get_user_by_username(username)
+        flag, result = account_user_service_ins.get_user_by_username(username)
         if flag is False:
             return False, result
         if result.type_id == constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN:

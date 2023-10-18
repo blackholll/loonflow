@@ -5,7 +5,8 @@ import sys
 import traceback
 import logging
 from celery import Celery
-
+from service.account.account_dept_service import account_dept_service_ins
+from service.account.account_role_service import account_role_service_ins
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings.config')
@@ -26,7 +27,7 @@ import json
 import requests
 from apps.ticket.models import TicketRecord
 from apps.workflow.models import Transition, Node, Workflow, CustomNotice
-from service.account.account_base_service import account_base_service_ins
+from service.account.account_user_service import account_user_service_ins
 from service.common.constant_service import constant_service_ins
 from service.ticket.ticket_base_service import TicketBaseService, ticket_base_service_ins
 from service.common.common_service import CommonService, common_service_ins
@@ -140,12 +141,12 @@ def send_ticket_notice(ticket_id):
     elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_MULTI:
         participant_username_list = ticket_obj.participant.split(',')
     elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROLE:
-        flag, participant_username_list = account_base_service_ins.get_role_username_list(ticket_obj.participant)
+        flag, participant_username_list = account_role_service_ins.get_role_username_list(ticket_obj.participant)
         if flag is False:
             return False, participant_username_list
 
     elif ticket_obj.participant_type_id == constant_service_ins.PARTICIPANT_TYPE_DEPT:
-        flag, participant_username_list = account_base_service_ins.get_dept_username_list(ticket_obj.participant)
+        flag, participant_username_list = account_dpet_service_ins.get_dept_username_list(ticket_obj.participant)
         if not flag:
             return flag, participant_username_list
 

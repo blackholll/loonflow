@@ -1,8 +1,11 @@
+import logging
 import simplejson
-import json
 from django.views import View
+from schema import SchemaError
 
 from service.format_response import api_response
+
+logger = logging.getLogger('django')
 
 
 class BaseView(View):
@@ -19,14 +22,17 @@ class BaseView(View):
             handler = self.http_method_not_allowed
         request_method = request.method.lower()
         meth_schema = getattr(self, request.method.lower() + '_schema', None)
-        if meth_schema and request_method in ['post', 'patch', 'put']:
-            try:
+        if meth_schema:
+            if request_method in ['post', 'patch', 'put']:
                 json_dict = simplejson.loads(request.body)
+            else:
+                json_dict = dict(request.GET)
+            try:
                 meth_schema.validate(json_dict)
+            except SchemaError as Se:
+                logger.error(Se)
+                return api_response(-1, 'Request data is invalid:{}'.format(str(Se)), {})
             except Exception as e:
-                print(e.__str__())
-                return api_response(-1, '请求参数不合法:{}'.format(e.__str__()), {})
-
-
+                logger.error(e)
+                return api_response(-1, 'Internal Server Error', {})
         return handler(request, *args, **kwargs)
-

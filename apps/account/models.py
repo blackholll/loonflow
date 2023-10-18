@@ -46,6 +46,7 @@ class DeptApprover(BaseCommonModel):
     user = models.ForeignKey("User", to_field="id", db_constraint=False, on_delete=models.DO_NOTHING)
 
 
+
 class UserManager(BaseUserManager):
     def create_superuser(self, email, password):
         if not email:
@@ -54,9 +55,10 @@ class UserManager(BaseUserManager):
         # create a new tenant if there is no tenant with id=1
         tenant_queryset = Tenant.objects.filter(id=1).first()
         if not tenant_queryset:
-            default_tenant = Tenant(id=1, name="loonflow", domain="loonapp.com")
+            # default_tenant = Tenant(id=1, name="loonflow", domain="loonapp.com")
+            default_tenant = Tenant(name="loonflow", domain="loonapp.com")
             default_tenant.save(using=self._db)
-
+            Tenant.objects.filter(domain="loonapp.com").update(id=1)
         user = self.model(email=self.normalize_email(email))
         user.set_password(password)
         user.tenant_id = 1

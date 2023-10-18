@@ -8,11 +8,14 @@ from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from service.account.account_base_service import account_base_service_ins
+from service.account.account_dept_service import account_dept_service_ins
+from service.account.account_user_service import account_user_service_ins
 from service.format_response import api_response
 from apps.loon_base_view import BaseView
 from schema import Schema, Regex, And, Or, Use, Optional
 
 from service.permission.user_permission import user_permission_check
+from service.common.schema_valid_service import SchemaValidService
 
 
 class TenantView(BaseView):
@@ -333,6 +336,37 @@ class RoleDetailView(BaseView):
         return api_response(0, '', {})
 
 
+class DeptTreeView(BaseView):
+    get_schema = Schema({
+        "search_value": Use(SchemaValidService.parse_str_list, error="Search_value must be None or a string"),
+        "parent_department_id": Use(SchemaValidService.parse_integer_list, error="parent_department_id must be None or a int")
+    })
+
+    @user_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get department tree
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        parent_department_id = int(request_data.get('parent_department_id')) if request_data.get('parent_department_id') else 0
+        flag, result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_department_id)
+        # flag, result = account_dept_service_ins.get_dept_tree(search_value, parent_department_id)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', dict(dept_list=result))
+
+
+
+
+
+
+
 @method_decorator(login_required, name='dispatch')
 class DeptView(BaseView):
     post_schema = Schema({
@@ -613,7 +647,7 @@ class JwtLoginView(BaseView):
             return api_response(-1, e.__str__(), {})
         if user is not None:
             # todo: get jwt
-            flag, jwt_info = account_base_service_ins.get_user_jwt(email)
+            flag, jwt_info = account_user_service_ins.get_user_jwt(email)
             if flag is False:
                 return api_response(-1, '', {})
             else:
@@ -725,7 +759,7 @@ class UserResetPasswordView(BaseView):
         :return:
         """
         user_id = kwargs.get('user_id')
-        flag, result = account_base_service_ins.reset_password(user_id=user_id)
+        flag, result = account_user_service_ins.reset_password(user_id=user_id)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, result, {})
@@ -750,7 +784,7 @@ class UserChangePasswordView(BaseView):
 
         if new_password != new_password_again:
             return api_response(-1, '两次密码不一致，请重新输入', {})
-        flag, result = account_base_service_ins.change_password(username, source_password, new_password)
+        flag, result = account_user_service_ins.change_password(username, source_password, new_password)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, result, {})
