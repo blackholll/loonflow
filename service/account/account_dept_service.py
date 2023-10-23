@@ -184,12 +184,13 @@ class AccountDeptService(BaseService):
 
     @classmethod
     @auto_log
-    def get_dept_tree(cls, tenant_id: int, search_value: str, parent_department_id: int) -> tuple:
+    def get_dept_tree(cls, tenant_id: int, search_value: str, parent_department_id: int, simple: bool) -> tuple:
         """
         get department tree
         :param tenant_id:
         :param search_value:
         :param parent_department_id:
+        :param simple:
         :return:
         """
         query_params = Q()
@@ -246,12 +247,12 @@ class AccountDeptService(BaseService):
             has_child_dept_id_list.append(parent_obj.parent_dept_id)
 
         flag, all_leaf_node_value_list = tree_service_ins.get_leaf_value_list_from_tree(dept_id_tree)
-        return cls.get_tree_list_from_tree_and_other(dept_id_tree, user_map, dept_info_map, has_child_dept_id_list, all_leaf_node_value_list, tenant_id)
+        return cls.get_tree_list_from_tree_and_other(dept_id_tree, user_map, dept_info_map, has_child_dept_id_list, all_leaf_node_value_list, tenant_id, simple)
 
     @classmethod
     @auto_log
     def get_tree_list_from_tree_and_other(cls, tree_node, user_map: dict, dept_info_map: dict,
-                                          has_child_dept_id_list: list, all_leaf_node_value_list: list, tenant_id:int) -> tuple:
+                                          has_child_dept_id_list: list, all_leaf_node_value_list: list, tenant_id:int, simple:bool) -> tuple:
         """
         get tree list from treenode, user info, approver info. if node has leaf node,  it should be expended
         :param tree_node:
@@ -259,6 +260,7 @@ class AccountDeptService(BaseService):
         :param dept_info_map:
         :param has_child_dept_id_list:
         :param all_leaf_node_value_list:
+        :param simple:
         :return:
         """
 
@@ -273,23 +275,27 @@ class AccountDeptService(BaseService):
                 tenant_obj = Tenant.objects.get(id=tenant_id)
 
                 current_info.update(dict(id=0, name=tenant_obj.name))
+            if not simple:
+                current_info["leader_info"] = user_map.get(dept_info_map.get(tree_node.value).get("leader_id")) if tree_node.value else {}
+                approver_info_list = dept_info_map.get(tree_node.value).get("approver_info_list") if tree_node.value else []
 
-            current_info["leader_info"] = user_map.get(dept_info_map.get(tree_node.value).get("leader_id")) if tree_node.value else {}
-            approver_info_list = dept_info_map.get(tree_node.value).get("approver_info_list") if tree_node.value else []
-
-            new_approver_info_list = []
-            for approver_info in approver_info_list:
-                new_approver_info = user_map.get(approver_info.get("id"))
-                new_approver_info_list.append(new_approver_info)
-            current_info["approver_info_list"] = new_approver_info_list
+                new_approver_info_list = []
+                for approver_info in approver_info_list:
+                    new_approver_info = user_map.get(approver_info.get("id"))
+                    new_approver_info_list.append(new_approver_info)
+                current_info["approver_info_list"] = new_approver_info_list
+            else:
+                if current_info.get("approver_info_list"):
+                    current_info.pop('approver_info_list')
             current_info["need_expend"] = True if tree_node.value not in all_leaf_node_value_list else False
             current_info["has_children"] = True if tree_node.value not in has_child_dept_id_list else False
             current_info["children"] = []
 
+
             for child in tree_node.children:
                 current_info["children"] = current_info["children"] + cls.get_tree_list_from_tree_and_other(child, user_map, dept_info_map,
                                                                                       has_child_dept_id_list,
-                                                                                      all_leaf_node_value_list, tenant_id)[1]
+                                                                                      all_leaf_node_value_list, tenant_id, simple)[1]
 
             result_list.append(current_info)
         return True, result_list

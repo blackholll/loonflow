@@ -360,6 +360,29 @@ class DeptTreeView(BaseView):
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, '', dict(dept_list=result))
+class SimpleDeptTreeView(BaseView):
+    get_schema = Schema({
+        "search_value": Use(SchemaValidService.parse_str_list, error="Search_value must be None or a string"),
+        "parent_department_id": Use(SchemaValidService.parse_integer_list, error="parent_department_id must be None or a int")
+    })
+
+    @user_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get simple department tree, without leader info and approver info
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        parent_department_id = int(request_data.get('parent_department_id')) if request_data.get('parent_department_id') else 0
+        flag, result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_department_id, True)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, '', dict(dept_list=result))
 
 
 
