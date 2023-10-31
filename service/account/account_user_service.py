@@ -190,7 +190,7 @@ class AccountUserService(BaseService):
         user_info.pop('last_login')
         user_info.pop('created_at')
         user_info.pop('updated_at')
-        user_info.pop('creator')
+        # user_info.pop('creator')
         jwt_salt = settings.JWT_SALT
         jwt_info = jwt.encode(
             {

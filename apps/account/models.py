@@ -144,12 +144,7 @@ class Dept(BaseCommonModel):
 
     def get_dict(self):
         dept_dict_info = super().get_dict()
-        creator_obj = User.objects.filter(username=getattr(self, 'creator')).first()
-        if creator_obj:
-            dept_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias)
-        else:
-            dept_dict_info['creator_info'] = dict(creator_id=0, creator_alias='',
-                                                  creator_username=getattr(self, 'creator'))
+
         if self.parent_dept_id:
             parent_dept_obj = Dept.objects.filter(id=self.parent_dept_id).first()
             if parent_dept_obj:
@@ -157,51 +152,39 @@ class Dept(BaseCommonModel):
             else:
                 parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name='未知')
         else:
-            parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name='')
+            parent_dept_info = None
         dept_dict_info['parent_dept_info'] = parent_dept_info
 
-        if self.leader:
-            leader_obj = User.objects.filter(username=self.leader).first()
+        if self.leader_id:
+            leader_obj = User.objects.filter(id=self.leader_id).first()
             if leader_obj:
                 dept_dict_info['leader_info'] = {
-                    'leader_username': leader_obj.username,
-                    'leader_alias': leader_obj.alias,
-                    'leader_id': leader_obj.id,
+                    'name': leader_obj.name,
+                    'alias': leader_obj.alias,
+                    'id': leader_obj.id,
                 }
             else:
                 dept_dict_info['leader_info'] = {
-                    'leader_username': self.leader,
-                    'leader_alias': self.leader,
-                    'leader_id': 0,
+                    'name': "",
+                    'alias': "",
+                    'id': self.leader_id,
                 }
         else:
             dept_dict_info['leader_info'] = {
-                'leader_username': '',
-                'leader_alias': '',
-                'leader_id': 0,
             }
 
-        if self.approver:
-            approver_list = self.approver.split(',')
-            approver_info_list = []
-            for approver in approver_list:
-                approver_obj = User.objects.filter(username=approver).first()
-                if approver_obj:
-                    approver_info_list.append({
-                        'approver_name': approver_obj.username,
-                        'approver_alias': approver_obj.alias,
-                        'approver_id': approver_obj.id,
-                    })
-                else:
-                    approver_info_list.append({
-                        'approver_name': approver,
-                        'approver_alias': approver,
-                        'approver_id': 0,
-                    })
-            dept_dict_info['approver_info'] = approver_info_list
-        else:
-            dept_dict_info['approver_info'] = []
-
+        dept_approver_queryset = DeptApprover.objects.filter(dept_id=self.id).all()
+        approver_id_list = [dept_approver.user_id for dept_approver in dept_approver_queryset]
+        approver_list = []
+        if approver_id_list:
+            approver_queryset = User.objects.filter(id__in=approver_id_list).all()
+            for approver_obj in approver_queryset:
+                approver_dict = dict()
+                approver_dict["id"] = approver_obj.id
+                approver_dict["name"] = approver_obj.name
+                approver_dict["alias"] = approver_obj.alias
+                approver_list.append(approver_dict)
+        dept_dict_info["approver_info_list"] = approver_list
         return dept_dict_info
 
 

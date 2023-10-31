@@ -92,33 +92,58 @@ class BaseModel(models.Model):
         super(BaseModel, self).save(*args, **kwargs)
 
     def get_dict(self):
-        fields = []
-        for field in self._meta.fields:
-            fields.append(field.name)
-
         dict_result = {}
-        import datetime
-        for attr in fields:
-            if attr == "creator_id":
+        for field in self._meta.fields:
+            if field.name == "creator_id":
                 from apps.account.models import User
-                user_queryset = User.objects.filter(id=getattr(self, attr)).first()
+                user_queryset = User.objects.filter(id=getattr(self, "creator_id")).first()
                 if user_queryset:
                     creator_info = dict(id=user_queryset.id, name=user_queryset.name, alias=user_queryset.alias)
                 else:
-                    creator_info = dict(id=getattr(self, attr), name="", alias="")
-                dict_result["creator"] = creator_info
-            elif attr == "tenant":
+                    creator_info = dict(id=getattr(self, "creator_id"), name="", alias="")
+                dict_result["creator_info"] = creator_info
+            elif field.is_relation:
                 pass
-            elif attr == "password":
+            elif field.name == "password":
                 pass
-
-            elif isinstance(getattr(self, attr), datetime.datetime):
-                dict_result[attr] = getattr(self, attr).strftime('%Y-%m-%d %H:%M:%S %z')
-            elif isinstance(getattr(self, attr), datetime.date):
-                dict_result[attr] = getattr(self, attr).strftime('%Y-%m-%d %z')
+            elif isinstance(getattr(self, field.name), datetime.datetime):
+                dict_result[field.name] = getattr(self, field.name).strftime('%Y-%m-%d %H:%M:%S %z')
+            elif isinstance(getattr(self, field.name), datetime.date):
+                dict_result[field.name] = getattr(self, field.name).strftime('%Y-%m-%d %z')
             else:
-                dict_result[attr] = getattr(self, attr)
+                dict_result[field.name] = getattr(self, field.name)
         return dict_result
+
+
+
+        # fields = []
+        # for field in self._meta.fields:
+        #     fields.append(field.name)
+        #
+        # dict_result = {}
+        # import datetime
+        # for attr in fields:
+        #     if attr == "creator_id":
+        #         from apps.account.models import User
+        #         user_queryset = User.objects.filter(id=getattr(self, attr)).first()
+        #         if user_queryset:
+        #             creator_info = dict(id=user_queryset.id, name=user_queryset.name, alias=user_queryset.alias)
+        #         else:
+        #             creator_info = dict(id=getattr(self, attr), name="", alias="")
+        #         dict_result["creator"] = creator_info
+        #     elif if field.is_relation
+        #     elif attr == "tenant":
+        #         pass
+        #     elif attr == "password":
+        #         pass
+        #
+        #     elif isinstance(getattr(self, attr), datetime.datetime):
+        #         dict_result[attr] = getattr(self, attr).strftime('%Y-%m-%d %H:%M:%S %z')
+        #     elif isinstance(getattr(self, attr), datetime.date):
+        #         dict_result[attr] = getattr(self, attr).strftime('%Y-%m-%d %z')
+        #     else:
+        #         dict_result[attr] = getattr(self, attr)
+        # return dict_result
 
     def get_raw_dict(self):
         """

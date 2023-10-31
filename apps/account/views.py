@@ -1,5 +1,5 @@
 import json
-
+from typing import List
 import jwt
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -339,7 +339,7 @@ class RoleDetailView(BaseView):
 class DeptTreeView(BaseView):
     get_schema = Schema({
         "search_value": Use(SchemaValidService.parse_str_list, error="Search_value must be None or a string"),
-        "parent_department_id": Use(SchemaValidService.parse_integer_list, error="parent_department_id must be None or a int")
+        "parent_dept_id": Use(SchemaValidService.parse_integer_list, error="parent_department_id must be None or a int")
     })
 
     @user_permission_check("admin")
@@ -354,8 +354,8 @@ class DeptTreeView(BaseView):
         request_data = request.GET
         search_value = request_data.get('search_value', '')
         tenant_id = request.META.get('HTTP_TENANTID')
-        parent_department_id = int(request_data.get('parent_department_id')) if request_data.get('parent_department_id') else 0
-        flag, result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_department_id)
+        parent_dept_id = int(request_data.get('parent_dept_id')) if request_data.get('parent_dept_id') else 0
+        flag, result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_dept_id)
         # flag, result = account_dept_service_ins.get_dept_tree(search_value, parent_department_id)
         if flag is False:
             return api_response(-1, result, {})
@@ -363,7 +363,7 @@ class DeptTreeView(BaseView):
 class SimpleDeptTreeView(BaseView):
     get_schema = Schema({
         "search_value": Use(SchemaValidService.parse_str_list, error="Search_value must be None or a string"),
-        "parent_department_id": Use(SchemaValidService.parse_integer_list, error="parent_department_id must be None or a int")
+        "parent_dept_id": Use(SchemaValidService.parse_integer_list, error="parent_dept_id must be None or a int")
     })
 
     @user_permission_check("admin")
@@ -378,8 +378,8 @@ class SimpleDeptTreeView(BaseView):
         request_data = request.GET
         search_value = request_data.get('search_value', '')
         tenant_id = request.META.get('HTTP_TENANTID')
-        parent_department_id = int(request_data.get('parent_department_id')) if request_data.get('parent_department_id') else 0
-        flag, result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_department_id, True)
+        parent_dept_id = int(request_data.get('parent_deptt_id')) if request_data.get('parent_dept_id') else 0
+        flag, result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_dept_id, True)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, '', dict(dept_list=result))
@@ -390,43 +390,19 @@ class SimpleDeptTreeView(BaseView):
 
 
 
-@method_decorator(login_required, name='dispatch')
 class DeptView(BaseView):
     post_schema = Schema({
         'name': And(str, lambda n: n != ''),
         Optional('parent_dept_id'): int,
-        Optional('leader'): str,
-        Optional('approver'): str,
+        Optional('leader_id'): int,
+        Optional('approver_id_list'): list,
         Optional('label'): str,
     })
 
-    @user_permission_check('admin')
-    def get(self, request, *args, **kwargs):
-        """
-        部门列表
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        request_data = request.GET
-        search_value = request_data.get('search_value', '')
-        per_page = int(request_data.get('per_page', 10))
-        page = int(request_data.get('page', 1))
-        flag, result = account_base_service_ins.get_dept_list(search_value, page, per_page)
-        if flag is not False:
-            paginator_info = result.get('paginator_info')
-            data = dict(value=result.get('dept_result_object_format_list'), per_page=paginator_info.get('per_page'),
-                        page=paginator_info.get('page'), total=paginator_info.get('total'))
-            code, msg, = 0, ''
-        else:
-            code, data = -1, ''
-        return api_response(code, msg, data)
-
-    @user_permission_check('admin')
+    @user_permission_check("admin")
     def post(self, request, *args, **kwargs):
         """
-        新增部门
+        create department record
         :param request:
         :param args:
         :param kwargs:
@@ -436,40 +412,73 @@ class DeptView(BaseView):
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
         parent_dept_id = request_data_dict.get('parent_dept_id')
-        leader = request_data_dict.get('leader')
-        approver = request_data_dict.get('approver')
-
+        leader_id = request_data_dict.get('leader_id')
+        approver_id_list = request_data_dict.get('approver_id_list')
         label = request_data_dict.get('label')
-        creator = request.user.username
-        flag, result = account_base_service_ins.add_dept(name, parent_dept_id, leader, approver, label, creator)
+        creator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+
+        flag, result = account_dept_service_ins.add_dept(name, parent_dept_id, leader_id, approver_id_list, label, creator_id, tenant_id)
         if flag is False:
             return api_response(-1, result, {})
-        return api_response(0, result, {})
+        return api_response(0, "", result)
 
-
-@method_decorator(login_required, name='dispatch')
-class DeptDetailView(BaseView):
-    patch_schema = Schema({
-        'name': And(str, lambda n: n != '', error='name is need'),
-        Optional('parent_dept_id'): int,
-        Optional('leader'): str,
-        Optional('approver'): str,
-        Optional('label'): str,
-    })
-
-    @user_permission_check('admin')
+    @user_permission_check("admin")
     def delete(self, request, *args, **kwargs):
         """
-        delete dept
-        删除部门
+        batch delete dept record
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
-        operator = request.user.username
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        dept_id_list = request_data_dict.get('dept_id_list')
+        operator_id = request.META.get('HTTP_USERID')
+        flag, result = account_dept_service_ins.batch_delete_dept(dept_id_list, operator_id)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, "", result)
+
+
+class DeptDetailView(BaseView):
+    patch_schema = Schema({
+        'name': And(str, lambda n: n != '', error='name is need'),
+        Optional('parent_dept_id'): int,
+        Optional('leader_id'): int,
+        Optional('approver_id_list'): list,
+        Optional('label'): str,
+    })
+
+    @user_permission_check('admin')
+    def get(self, request, *args, **kwargs):
+        """
+        dept detail
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
         dept_id = kwargs.get('dept_id')
-        flag, result = account_base_service_ins.delete_dept(dept_id)
+        flag, result = account_dept_service_ins.get_dept_detail_by_id(dept_id)
+        if flag is False:
+            return api_response(-1, result, {})
+        return api_response(0, "", result)
+
+
+    @user_permission_check('admin')
+    def delete(self, request, *args, **kwargs):
+        """
+        delete dept record
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        dept_id = kwargs.get('dept_id')
+        operator_id = request.META.get('HTTP_USERID')
+        flag, result = account_dept_service_ins.delete_dept(dept_id, operator_id)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, '', {})
@@ -477,7 +486,7 @@ class DeptDetailView(BaseView):
     @user_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
-        更新部门
+        update dept
         :param request:
         :param args:
         :param kwargs:
@@ -487,13 +496,14 @@ class DeptDetailView(BaseView):
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
-        parent_dept_id = request_data_dict.get('parent_dept_id')
+        parent_dept_id = int(request_data_dict.get('parent_dept_id')) if request_data_dict.get('parent_dept_id') else 0
         leader = request_data_dict.get('leader')
-        approver = request_data_dict.get('approver')
+        approver_id_list = request_data_dict.get('approver_id_list')
+        leader_id = request_data_dict.get('leader_id')
         label = request_data_dict.get('label')
 
-        flag, result = account_base_service_ins.update_dept(dept_id,name, parent_dept_id, leader,
-                                                            approver, label)
+        flag, result = account_dept_service_ins.update_dept(dept_id, name, parent_dept_id, leader_id,
+                                                            approver_id_list, label)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, '', {})

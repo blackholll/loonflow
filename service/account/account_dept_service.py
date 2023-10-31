@@ -1,9 +1,13 @@
+import time
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q, QuerySet
 
 from apps.account.models import Dept, UserDept, User, DeptApprover, Tenant
+from apps.loon_base_model import SnowflakeIDGenerator
 from service.base_service import BaseService
 from service.common.log_service import auto_log
+from service.util.archive_service import archive_service_ins
 from service.util.tree_service import tree_service_ins
 
 
@@ -79,7 +83,24 @@ class AccountDeptService(BaseService):
         :param dept_id:
         :return:
         """
-        return True, Dept.objects.filter(id=dept_id, is_deleted=False).first()
+        return True, Dept.objects.filter(id=dept_id).first()
+
+    @classmethod
+    @auto_log
+    def get_dept_detail_by_id(cls, dept_id: int) -> tuple:
+        """
+        get dept detail for api
+        :param dept_id:
+        :return:
+        """
+        dept_obj = Dept.objects.get(id=dept_id)
+        result = dept_obj.get_dict()
+        return True, result
+
+
+
+
+
 
     @classmethod
     @auto_log
@@ -131,81 +152,124 @@ class AccountDeptService(BaseService):
 
     @classmethod
     @auto_log
-    def add_dept(cls, name: str, parent_dept_id: int, leader: str, approver: str, label: str, creator: str) -> tuple:
+    def add_dept(cls, name: str, parent_dept_id: int, leader_id: int, approver_id_list: list, label: str, creator_id: int, tenant_id:int) -> tuple:
         """
-        add department
-        新增部门
+        add department record
         :param name:
         :param parent_dept_id:
-        :param leader:
-        :param approver:
+        :param leader_id:
+        :param approver_id_list:
         :param label:
-        :param creator:
+        :param creator_id:
+        :param tenant_id:
         :return:
         """
-        dept_obj = Dept(name=name, parent_dept_id=parent_dept_id, leader=leader, approver=approver, label=label,
-                        creator=creator)
+        dept_obj = Dept(name=name, parent_dept_id=parent_dept_id, leader_id=leader_id, label=label,
+                        creator_id=creator_id, tenant_id=tenant_id)
         dept_obj.save()
+        dept_approver_list = []
+        for approver_id in approver_id_list:
+            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
+            dept_approver_list.append(DeptApprover(dept_id=dept_obj.id, user_id=approver_id, id=SnowflakeIDGenerator()(), tenant_id=tenant_id))
+            SnowflakeIDGenerator().__call__()
+
+        if dept_approver_list:
+            DeptApprover.objects.bulk_create(dept_approver_list)
         return True, dict(dept_id=dept_obj.id)
 
     @classmethod
     @auto_log
-    def update_dept(cls, dept_id: int, name: str, parent_dept_id: int, leader: str, approver: str, label: str) -> tuple:
+    def update_dept(cls, dept_id: int, name: str, parent_dept_id: int, leader_id: int, approver_id_list: list, label: str) -> tuple:
         """
         update department record
-        更新部门
         :param dept_id:
         :param name:
         :param parent_dept_id:
-        :param leader:
-        :param approver:
+        :param leader_id:
+        :param approver_id_list:
         :param label:
         :return:
         """
         dept_queryset = Dept.objects.filter(id=dept_id)
         if not dept_queryset:
             return False, 'dept is not existed or has been deleted'
-        dept_queryset.update(name=name, parent_dept_id=parent_dept_id, leader=leader, approver=approver, label=label)
+        # todo: update dept basic info,update approver info
+        dept_queryset.update(name=name, parent_dept_id=parent_dept_id, leader_id=leader_id, label=label)
+        dept_approver_queryset = DeptApprover.objects.filter(dept_id=dept_id)
+        existed_approver_id_list = [dept_approver.user_id for dept_approver in dept_approver_queryset]
+        need_del_approver_id_list = [existed_approver_id for existed_approver_id in existed_approver_id_list if existed_approver_id not in approver_id_list]
+        need_add_approver_id_list = [approver_id for approver_id in approver_id_list if approver_id not in existed_approver_id_list]
+        add_record = []
+        for need_add_approver_id in need_add_approver_id_list:
+            add_record.append(DeptApprover(dept_id=dept_id, user_id=need_add_approver_id, id=SnowflakeIDGenerator()()))
+            time.sleep(0.001)  # temporary action for  SnowflakeIDGenerator concurrence bug
+        DeptApprover.objects.bulk_create(add_record)
+        if need_del_approver_id_list:
+            DeptApprover.objects.filter(dept_id=dept_id, user_id__in=need_del_approver_id_list).delete()
         return True, ''
 
     @classmethod
     @auto_log
-    def delete_dept(cls, dept_id: int) -> tuple:
+    def delete_dept(cls, dept_id: int, operator_id: int) -> tuple:
         """
         delete department record
         :param dept_id:
+        :param operator_id:
         :return:
         """
-        dept_queryset = Dept.objects.filter(id=dept_id)
-        if not dept_queryset:
-            return False, 'dept is not existed or has been deleted'
-        dept_queryset.update(is_deleted=1)
-        return True, ''
+        dept_obj = Dept.objects.get(id=dept_id)
+        if dept_obj:
+            archive_service_ins.archive_record("Dept", dept_obj, operator_id)
+            dept_approver_queryset = DeptApprover.objects.filter(dept_id=dept_id)
+            if dept_approver_queryset:
+                archive_service_ins.archive_record_list("DeptApprover", dept_approver_queryset, operator_id)
+        return True, ""
 
     @classmethod
     @auto_log
-    def get_dept_tree(cls, tenant_id: int, search_value: str, parent_department_id: int, simple: bool) -> tuple:
+    def batch_delete_dept(cls, dept_id_list: list, operator_id: int) -> tuple:
+        """
+        batch delete dept record
+        :param dept_id_list:
+        :param operator_id:
+        :return:
+        """
+        dept_queryset = Dept.objects.filter(id__in=dept_id_list).all()
+        if dept_queryset:
+            archive_service_ins.archive_record_list("Dept", dept_queryset, operator_id)
+            dept_approver_queryset = DeptApprover.objects.filter(dept_id__in=dept_id_list)
+            if dept_approver_queryset:
+                archive_service_ins.archive_record_list("DeptApprover", dept_approver_queryset, operator_id)
+        return True, ""
+
+
+
+
+
+    @classmethod
+    @auto_log
+    def get_dept_tree(cls, tenant_id: int, search_value: str, parent_dept_id: int, simple: bool) -> tuple:
         """
         get department tree
         :param tenant_id:
         :param search_value:
-        :param parent_department_id:
+        :param parent_dept_id:
         :param simple:
         :return:
         """
         query_params = Q()
         query_params &= Q(tenant_id=tenant_id)
-        if parent_department_id:
-            query_params &= Q(parent_dept_id=parent_department_id)
+        if parent_dept_id:
+            query_params &= Q(parent_dept_id=parent_dept_id)
         if search_value:
             query_params &= Q(name__contains=search_value)
-        if not (parent_department_id or search_value):
+        if not (parent_dept_id or search_value):
             # no parent_department_id and search_value ,only return root department
             query_params &= Q(parent_dept_id=0)
 
         raw_dept_queryset = Dept.objects.filter(query_params)
 
-        flag, dept_link_list = cls.get_department_link_list(raw_dept_queryset)
+        flag, dept_link_list = cls.get_dept_link_list(raw_dept_queryset)
         flag, dept_id_tree = tree_service_ins.build_tree_from_lists(dept_link_list)
         flag, dept_id_list = tree_service_ins.get_value_list_from_tree(dept_id_tree)
 
@@ -301,7 +365,7 @@ class AccountDeptService(BaseService):
         return True, result_list
 
     @classmethod
-    def get_department_link_list(cls, department_queryset: QuerySet):
+    def get_dept_link_list(cls, department_queryset: QuerySet):
         """
         get department link list. [[1,2,3], [1,2,4], [1,4,7], [1,4,8]]
         :param department_queryset:

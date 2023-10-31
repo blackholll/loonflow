@@ -1,4 +1,6 @@
 import json
+import time
+
 from django.forms.models import model_to_dict
 
 from apps.loon_base_model import SnowflakeIDGenerator
@@ -31,11 +33,13 @@ class ArchiveService(BaseService):
         archive record list
         :param model_name:
         :param record_queryset:
+        :param operator_id:
         :return:
         """
         archive_list = []
         for record in record_queryset:
             data = json.dumps(model_to_dict(record))
+            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
             archive_list.append(Archive(data=data, model_name=model_name, creator_id=operator_id, id=SnowflakeIDGenerator().__call__()))
         Archive.objects.bulk_create(archive_list)
 
@@ -43,4 +47,4 @@ class ArchiveService(BaseService):
         return True, ""
 
 
-
+archive_service_ins = ArchiveService()
