@@ -31,6 +31,10 @@ class AppPermissionCheck(MiddlewareMixin):
                     request.META.update(dict(HTTP_TENANTID=msg.tenant_id))
                     request.META.update(dict(HTTP_TENANNAME=msg.tenant.name))
                 return
+            elif request.path == '/api/v1.0/configs/common':
+                request.META.update(dict(HTTP_TENANTID=1))
+                request.META.update(dict(HTTP_USERID=0))
+                return
             # for app call token check
             flag, msg = self.token_permission_check(request)
             if not flag:
