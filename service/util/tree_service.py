@@ -41,7 +41,7 @@ class TreeService(BaseService):
                 # move to child node
                 current_node = child_node
 
-        return True, root
+        return root
 
     @classmethod
     def get_value_list_from_tree(cls, tree_node: TreeNode) -> tuple:
@@ -54,8 +54,8 @@ class TreeService(BaseService):
         if tree_node:
             result_list.append(tree_node.value)
             for child in tree_node.children:
-                result_list += cls.get_value_list_from_tree(child)[1]
-        return True, result_list
+                result_list += cls.get_value_list_from_tree(child)
+        return result_list
 
     @classmethod
     def get_node_list_from_tree(cls, tree_node:TreeNode) -> tuple:

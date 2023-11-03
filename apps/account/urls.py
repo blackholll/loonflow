@@ -7,9 +7,10 @@ from apps.account.views import UserView, UserDetailView, RoleView, DeptView, App
 
 urlpatterns = [
     path('/users', UserView.as_view()),
+    path('/simple_users', SimpleUserView.as_view()),  # exception optimize done
     # path('/users/change_password', UserChangePasswordView.as_view()),
     # path('/simple_users', SimpleUserView.as_view()),
-    path('/users/<int:user_id>', UserDetailView.as_view()),
+    path('/users/<int:user_id>', UserDetailView.as_view()),  # exception optimize done
     # path('/users/<int:user_id>/roles', UserRoleView.as_view()),
     # path('/users/<int:user_id>/reset_password', UserResetPasswordView.as_view()),
     # path('/roles', RoleView.as_view()),

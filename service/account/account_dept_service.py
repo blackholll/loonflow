@@ -1,4 +1,6 @@
+import logging
 import time
+import traceback
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q, QuerySet
@@ -7,14 +9,17 @@ from apps.account.models import Dept, UserDept, User, DeptApprover, Tenant
 from apps.loon_base_model import SnowflakeIDGenerator
 from service.base_service import BaseService
 from service.common.log_service import auto_log
+from service.exception.custom_common_exception import CustomCommonException
 from service.util.archive_service import archive_service_ins
 from service.util.tree_service import tree_service_ins
 
+logger = logging.getLogger("django")
 
 class AccountDeptService(BaseService):
     """
     account department related service
     """
+
     def __init__(self):
         pass
 
@@ -86,21 +91,20 @@ class AccountDeptService(BaseService):
         return True, Dept.objects.filter(id=dept_id).first()
 
     @classmethod
-    @auto_log
-    def get_dept_detail_by_id(cls, dept_id: int) -> tuple:
+    def get_dept_detail_by_id(cls, dept_id: int) -> dict:
         """
         get dept detail for api
         :param dept_id:
         :return:
         """
-        dept_obj = Dept.objects.get(id=dept_id)
+        try:
+            dept_obj = Dept.objects.get(id=dept_id)
+        except Dept.DoesNotExist as e:
+            raise CustomCommonException("dept is not exist")
+        except Exception:
+            raise
         result = dept_obj.get_dict()
-        return True, result
-
-
-
-
-
+        return result
 
     @classmethod
     @auto_log
@@ -151,8 +155,8 @@ class AccountDeptService(BaseService):
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
-    @auto_log
-    def add_dept(cls, name: str, parent_dept_id: int, leader_id: int, approver_id_list: list, label: str, creator_id: int, tenant_id:int) -> tuple:
+    def add_dept(cls, name: str, parent_dept_id: int, leader_id: int, approver_id_list: list, label: str,
+                 creator_id: int, tenant_id: int) -> int:
         """
         add department record
         :param name:
@@ -170,16 +174,19 @@ class AccountDeptService(BaseService):
         dept_approver_list = []
         for approver_id in approver_id_list:
             time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
-            dept_approver_list.append(DeptApprover(dept_id=dept_obj.id, user_id=approver_id, id=SnowflakeIDGenerator()(), tenant_id=tenant_id))
+            dept_approver_list.append(
+                DeptApprover(dept_id=dept_obj.id, user_id=approver_id, id=SnowflakeIDGenerator()(),
+                             tenant_id=tenant_id))
             SnowflakeIDGenerator().__call__()
 
         if dept_approver_list:
             DeptApprover.objects.bulk_create(dept_approver_list)
-        return True, dict(dept_id=dept_obj.id)
+        return dept_obj.id
 
     @classmethod
     @auto_log
-    def update_dept(cls, dept_id: int, name: str, parent_dept_id: int, leader_id: int, approver_id_list: list, label: str) -> tuple:
+    def update_dept(cls, dept_id: int, name: str, parent_dept_id: int, leader_id: int, approver_id_list: list,
+                    label: str) -> bool:
         """
         update department record
         :param dept_id:
@@ -192,13 +199,15 @@ class AccountDeptService(BaseService):
         """
         dept_queryset = Dept.objects.filter(id=dept_id)
         if not dept_queryset:
-            return False, 'dept is not existed or has been deleted'
-        # todo: update dept basic info,update approver info
+            raise CustomCommonException("dept is not existed or has been deleted")
+
         dept_queryset.update(name=name, parent_dept_id=parent_dept_id, leader_id=leader_id, label=label)
         dept_approver_queryset = DeptApprover.objects.filter(dept_id=dept_id)
         existed_approver_id_list = [dept_approver.user_id for dept_approver in dept_approver_queryset]
-        need_del_approver_id_list = [existed_approver_id for existed_approver_id in existed_approver_id_list if existed_approver_id not in approver_id_list]
-        need_add_approver_id_list = [approver_id for approver_id in approver_id_list if approver_id not in existed_approver_id_list]
+        need_del_approver_id_list = [existed_approver_id for existed_approver_id in existed_approver_id_list if
+                                     existed_approver_id not in approver_id_list]
+        need_add_approver_id_list = [approver_id for approver_id in approver_id_list if
+                                     approver_id not in existed_approver_id_list]
         add_record = []
         for need_add_approver_id in need_add_approver_id_list:
             add_record.append(DeptApprover(dept_id=dept_id, user_id=need_add_approver_id, id=SnowflakeIDGenerator()()))
@@ -206,28 +215,33 @@ class AccountDeptService(BaseService):
         DeptApprover.objects.bulk_create(add_record)
         if need_del_approver_id_list:
             DeptApprover.objects.filter(dept_id=dept_id, user_id__in=need_del_approver_id_list).delete()
-        return True, ''
+        return True
 
     @classmethod
     @auto_log
-    def delete_dept(cls, dept_id: int, operator_id: int) -> tuple:
+    def delete_dept(cls, dept_id: int, operator_id: int) -> bool:
         """
         delete department record
         :param dept_id:
         :param operator_id:
         :return:
         """
-        dept_obj = Dept.objects.get(id=dept_id)
+        try:
+            dept_obj = Dept.objects.get(id=dept_id)
+        except Dept.DoesNotExist as e:
+            raise CustomCommonException("dept is not exist")
+        except Exception:
+            raise
         if dept_obj:
             archive_service_ins.archive_record("Dept", dept_obj, operator_id)
             dept_approver_queryset = DeptApprover.objects.filter(dept_id=dept_id)
             if dept_approver_queryset:
                 archive_service_ins.archive_record_list("DeptApprover", dept_approver_queryset, operator_id)
-        return True, ""
+        return True
 
     @classmethod
     @auto_log
-    def batch_delete_dept(cls, dept_id_list: list, operator_id: int) -> tuple:
+    def batch_delete_dept(cls, dept_id_list: list, operator_id: int) -> bool:
         """
         batch delete dept record
         :param dept_id_list:
@@ -240,15 +254,10 @@ class AccountDeptService(BaseService):
             dept_approver_queryset = DeptApprover.objects.filter(dept_id__in=dept_id_list)
             if dept_approver_queryset:
                 archive_service_ins.archive_record_list("DeptApprover", dept_approver_queryset, operator_id)
-        return True, ""
-
-
-
-
+        return True
 
     @classmethod
-    @auto_log
-    def get_dept_tree(cls, tenant_id: int, search_value: str, parent_dept_id: int, simple: bool) -> tuple:
+    def get_dept_tree(cls, tenant_id: int, search_value: str, parent_dept_id: int, simple: bool=False) -> list:
         """
         get department tree
         :param tenant_id:
@@ -269,9 +278,9 @@ class AccountDeptService(BaseService):
 
         raw_dept_queryset = Dept.objects.filter(query_params)
 
-        flag, dept_link_list = cls.get_dept_link_list(raw_dept_queryset)
-        flag, dept_id_tree = tree_service_ins.build_tree_from_lists(dept_link_list)
-        flag, dept_id_list = tree_service_ins.get_value_list_from_tree(dept_id_tree)
+        dept_link_list = cls.get_dept_link_list(raw_dept_queryset)
+        dept_id_tree = tree_service_ins.build_tree_from_lists(dept_link_list)
+        dept_id_list = tree_service_ins.get_value_list_from_tree(dept_id_tree)
 
         dept_leader_id_list = []
         dept_approver_id_list = []
@@ -311,12 +320,13 @@ class AccountDeptService(BaseService):
             has_child_dept_id_list.append(parent_obj.parent_dept_id)
 
         flag, all_leaf_node_value_list = tree_service_ins.get_leaf_value_list_from_tree(dept_id_tree)
-        return cls.get_tree_list_from_tree_and_other(dept_id_tree, user_map, dept_info_map, has_child_dept_id_list, all_leaf_node_value_list, tenant_id, simple)
+        return cls.get_tree_list_from_tree_and_other(dept_id_tree, user_map, dept_info_map, has_child_dept_id_list,
+                                                     all_leaf_node_value_list, tenant_id, simple)
 
     @classmethod
-    @auto_log
     def get_tree_list_from_tree_and_other(cls, tree_node, user_map: dict, dept_info_map: dict,
-                                          has_child_dept_id_list: list, all_leaf_node_value_list: list, tenant_id:int, simple:bool) -> tuple:
+                                          has_child_dept_id_list: list, all_leaf_node_value_list: list, tenant_id: int,
+                                          simple: bool) -> list:
         """
         get tree list from treenode, user info, approver info. if node has leaf node,  it should be expended
         :param tree_node:
@@ -335,13 +345,15 @@ class AccountDeptService(BaseService):
             if tree_node.value:
                 current_info.update(dept_info_map.get(tree_node.value))
             else:
-                #todo: get tenant name
+                # todo: get tenant name
                 tenant_obj = Tenant.objects.get(id=tenant_id)
 
                 current_info.update(dict(id=0, name=tenant_obj.name))
             if not simple:
-                current_info["leader_info"] = user_map.get(dept_info_map.get(tree_node.value).get("leader_id")) if tree_node.value else {}
-                approver_info_list = dept_info_map.get(tree_node.value).get("approver_info_list") if tree_node.value else []
+                current_info["leader_info"] = user_map.get(
+                    dept_info_map.get(tree_node.value).get("leader_id")) if tree_node.value else {}
+                approver_info_list = dept_info_map.get(tree_node.value).get(
+                    "approver_info_list") if tree_node.value else []
 
                 new_approver_info_list = []
                 for approver_info in approver_info_list:
@@ -354,15 +366,14 @@ class AccountDeptService(BaseService):
             current_info["need_expend"] = True if tree_node.value not in all_leaf_node_value_list else False
             current_info["has_children"] = True if tree_node.value not in has_child_dept_id_list else False
             current_info["children"] = []
-
-
             for child in tree_node.children:
-                current_info["children"] = current_info["children"] + cls.get_tree_list_from_tree_and_other(child, user_map, dept_info_map,
-                                                                                      has_child_dept_id_list,
-                                                                                      all_leaf_node_value_list, tenant_id, simple)[1]
-
+                current_info["children"] = (current_info["children"] +
+                                            cls.get_tree_list_from_tree_and_other(child, user_map, dept_info_map,
+                                                                                  has_child_dept_id_list,
+                                                                                  all_leaf_node_value_list,
+                                                                                  tenant_id, simple))
             result_list.append(current_info)
-        return True, result_list
+        return result_list
 
     @classmethod
     def get_dept_link_list(cls, department_queryset: QuerySet):
@@ -382,9 +393,7 @@ class AccountDeptService(BaseService):
             current_list.reverse()
             result_list.append(current_list)
 
-        return True, result_list
-
-
+        return result_list
 
     @classmethod
     def get_query_tree(cls, department_queryset: QuerySet):
@@ -398,16 +407,11 @@ class AccountDeptService(BaseService):
         # all_list = []
         # for department_obj in department_queryset:
 
-
-
-
-
     @classmethod
-    def get_department_full_path(cls, department:Dept):
+    def get_department_full_path(cls, department: Dept):
         pass
 
-
-    def get_root_department(cls, department:Dept) -> tuple:
+    def get_root_department(cls, department: Dept) -> tuple:
         """
         get root department
         :param department:
@@ -417,7 +421,6 @@ class AccountDeptService(BaseService):
             return cls.get_root_department(department.parent_dept)
         else:
             return True, department
-
 
 
 class DepartmentTreeNode:

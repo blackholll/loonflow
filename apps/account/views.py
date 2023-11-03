@@ -1,4 +1,6 @@
 import json
+import logging
+import traceback
 from typing import List
 import jwt
 from django.http import HttpResponse
@@ -10,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from service.account.account_base_service import account_base_service_ins
 from service.account.account_dept_service import account_dept_service_ins
 from service.account.account_user_service import account_user_service_ins
+from service.exception.custom_common_exception import CustomCommonException
 from service.format_response import api_response
 from apps.loon_base_view import BaseView
 from schema import Schema, Regex, And, Or, Use, Optional
@@ -17,6 +20,7 @@ from schema import Schema, Regex, And, Or, Use, Optional
 from service.permission.user_permission import user_permission_check
 from service.common.schema_valid_service import SchemaValidService
 
+logger = logging.getLogger("django")
 
 class TenantView(BaseView):
     post_schema = Schema({
@@ -88,18 +92,19 @@ class UserView(BaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page')) if request_data.get('per_page') else 10
         page = int(request_data.get('page')) if request_data.get('page') else 1
-        department_id = int(request_data.get('department_id')) if request_data.get('department_id') else 0
-
-        flag, result = account_base_service_ins.get_user_list(search_value, department_id, page, per_page)
-        if flag is not False:
+        dept_id = int(request_data.get('dept_id')) if request_data.get('department_id') else 0
+        try:
+            result = account_user_service_ins.get_user_list(search_value, dept_id, page, per_page)
             data = dict(user_list=result.get('user_result_object_format_list'),
                         per_page=result.get('paginator_info').get('per_page'),
                         page=result.get('paginator_info').get('page'),
                         total=result.get('paginator_info').get('total'))
-            code, msg,  = 0, ''
-        else:
-            code, data, msg = -1, '', result
-        return api_response(code, msg, data)
+            return api_response(0, "", data)
+        except CustomCommonException as e:
+            return api_response(-1, {}, str(e))
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return api_response(-1, {}, "Internal Server Error")
 
     @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
@@ -127,12 +132,14 @@ class UserView(BaseView):
         lang = request_data_dict.get('lang')
         creator_id = request.META.get('HTTP_USERID')
         tenant_id = request.META.get('HTTP_TENANTID')
-        flag, result = account_base_service_ins.add_user(name, alias, email, phone, dept_id_list, role_id_list, type, status, avatar, lang, creator_id, password, tenant_id)
-        if flag is False:
-            code, msg, data = -1, result, {}
-        else:
-            code, msg, data = 0, '', result
-        return api_response(code, msg, data)
+        try:
+            user_id = account_base_service_ins.add_user(name, alias, email, phone, dept_id_list, role_id_list, type, status, avatar, lang, creator_id, password, tenant_id)
+        except CustomCommonException as e:
+            return api_response(-1, {}, str(e))
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return api_response(-1, {}, "Internal Server Error")
+        return api_response(0, "", dict(user_id=user_id))
 
     @user_permission_check("admin")
     def delete(self, request, *args, **kwargs):
@@ -179,9 +186,13 @@ class UserDetailView(BaseView):
         :param kwargs:
         :return:
         """
-        flag, result = account_base_service_ins.get_user_format_by_user_id(kwargs.get('user_id'))
-        if flag is False:
-            return api_response(-1, result, {})
+        try:
+            result = account_user_service_ins.get_user_format_by_user_id(kwargs.get('user_id'))
+        except CustomCommonException as e:
+            return api_response(-1, {}, str(e))
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return api_response(-1, {}, "Internal Server Error")
         return api_response(0, "", dict(user_info=result))
 
     @user_permission_check('admin')
@@ -355,11 +366,15 @@ class DeptTreeView(BaseView):
         search_value = request_data.get('search_value', '')
         tenant_id = request.META.get('HTTP_TENANTID')
         parent_dept_id = int(request_data.get('parent_dept_id')) if request_data.get('parent_dept_id') else 0
-        flag, result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_dept_id)
-        # flag, result = account_dept_service_ins.get_dept_tree(search_value, parent_department_id)
-        if flag is False:
-            return api_response(-1, result, {})
+        try:
+            result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_dept_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
         return api_response(0, '', dict(dept_list=result))
+
 class SimpleDeptTreeView(BaseView):
     get_schema = Schema({
         "search_value": Use(SchemaValidService.parse_str_list, error="Search_value must be None or a string"),
@@ -379,16 +394,14 @@ class SimpleDeptTreeView(BaseView):
         search_value = request_data.get('search_value', '')
         tenant_id = request.META.get('HTTP_TENANTID')
         parent_dept_id = int(request_data.get('parent_deptt_id')) if request_data.get('parent_dept_id') else 0
-        flag, result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_dept_id, True)
-        if flag is False:
-            return api_response(-1, result, {})
+        try:
+            result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_dept_id, True)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server error", {})
         return api_response(0, '', dict(dept_list=result))
-
-
-
-
-
-
 
 class DeptView(BaseView):
     post_schema = Schema({
@@ -417,11 +430,15 @@ class DeptView(BaseView):
         label = request_data_dict.get('label')
         creator_id = request.META.get('HTTP_USERID')
         tenant_id = request.META.get('HTTP_TENANTID')
+        try:
+            dept_id = account_dept_service_ins.add_dept(name, parent_dept_id, leader_id, approver_id_list, label, creator_id, tenant_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
 
-        flag, result = account_dept_service_ins.add_dept(name, parent_dept_id, leader_id, approver_id_list, label, creator_id, tenant_id)
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, "", result)
+        return api_response(0, "", dict(dept_id=dept_id))
 
     @user_permission_check("admin")
     def delete(self, request, *args, **kwargs):
@@ -436,10 +453,14 @@ class DeptView(BaseView):
         request_data_dict = json.loads(json_str)
         dept_id_list = request_data_dict.get('dept_id_list')
         operator_id = request.META.get('HTTP_USERID')
-        flag, result = account_dept_service_ins.batch_delete_dept(dept_id_list, operator_id)
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, "", result)
+        try:
+            account_dept_service_ins.batch_delete_dept(dept_id_list, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "", {})
 
 
 class DeptDetailView(BaseView):
@@ -461,9 +482,14 @@ class DeptDetailView(BaseView):
         :return:
         """
         dept_id = kwargs.get('dept_id')
-        flag, result = account_dept_service_ins.get_dept_detail_by_id(dept_id)
-        if flag is False:
-            return api_response(-1, result, {})
+        try:
+            result = account_dept_service_ins.get_dept_detail_by_id(dept_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+
         return api_response(0, "", result)
 
 
@@ -478,9 +504,12 @@ class DeptDetailView(BaseView):
         """
         dept_id = kwargs.get('dept_id')
         operator_id = request.META.get('HTTP_USERID')
-        flag, result = account_dept_service_ins.delete_dept(dept_id, operator_id)
-        if flag is False:
-            return api_response(-1, result, {})
+        try:
+            account_dept_service_ins.delete_dept(dept_id, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            return api_response(-1, "Internal Server Error", {})
         return api_response(0, '', {})
 
     @user_permission_check('admin')
@@ -502,10 +531,14 @@ class DeptDetailView(BaseView):
         leader_id = request_data_dict.get('leader_id')
         label = request_data_dict.get('label')
 
-        flag, result = account_dept_service_ins.update_dept(dept_id, name, parent_dept_id, leader_id,
-                                                            approver_id_list, label)
-        if flag is False:
-            return api_response(-1, result, {})
+        try:
+            account_dept_service_ins.update_dept(dept_id, name, parent_dept_id, leader_id, approver_id_list, label)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+
         return api_response(0, '', {})
 
 
@@ -827,7 +860,7 @@ class SimpleUserView(BaseView):
 
     def get(self, request, *args, **kwargs):
         """
-        获取用户简要信息列表
+        get simple user list
         :param request:
         :param args:
         :param kwargs:

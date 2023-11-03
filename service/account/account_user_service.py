@@ -8,9 +8,10 @@ from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
-from apps.account.models import User, UserDept, UserRole, Role
+from apps.account.models import User, UserDept, UserRole, Role, Dept
 from service.base_service import BaseService
 from service.common.log_service import auto_log
+from service.exception.custom_common_exception import CustomCommonException
 
 
 class AccountUserService(BaseService):
@@ -91,24 +92,27 @@ class AccountUserService(BaseService):
         else:
             return False, 'user_id: {} is not existed or has been deleted'.format(user_id)
 
-    @auto_log
-    def get_user_format_by_user_id(self, user_id):
+    def get_user_format_by_user_id(self, user_id) ->dict:
         """
         get user's format info
         :param user_id:
         :return:
         """
-        flag, result = self.get_user_by_user_id(user_id)
-        if flag is not False:
-            user_result = result.get_dict()
-            user_dept_list = UserDept.objects.filter(user_id=user_id)
-            user_dept_info_list = []
-            for user_dept in user_dept_list:
-                user_dept_info_list.append(
-                    dict(name=user_dept.dept.name, id=user_dept.dept.id))
-            user_result['department'] = user_dept_info_list
-            return flag, user_result
-        return flag, result
+        try:
+            user_obj = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise CustomCommonException("user is not exist or has been deleted")
+        except Exception:
+            raise
+        user_result = user_obj.get_dict()
+        user_dept_list = UserDept.objects.filter(user_id=user_id)
+        user_dept_info_list = []
+        for user_dept in user_dept_list:
+            user_dept_info_list.append(
+                dict(name=user_dept.dept.name, id=user_dept.dept.id))
+        user_result['department'] = user_dept_info_list
+        return user_result
+
 
     @classmethod
     @auto_log
@@ -280,12 +284,11 @@ class AccountUserService(BaseService):
         return True, user_dept_info
 
     @classmethod
-    @auto_log
-    def get_user_list(cls, search_value: str, department_id: int, page: int = 1, per_page: int = 10) -> tuple:
+    def get_user_list(cls, search_value: str, dept_id: int, page: int = 1, per_page: int = 10) -> dict:
         """
         get user restful info list by query params: search_value, page, per_page
         :param search_value: support user's username, and user's alias. fuzzy query
-        :param department_id:
+        :param dept_id:
         :param page:
         :param per_page:
         :return:
@@ -293,8 +296,8 @@ class AccountUserService(BaseService):
         query_params = Q()
         if search_value:
             query_params &= Q(username__contains=search_value) | Q(alias__contains=search_value)
-        if department_id:
-            query_params &= Q(dept__id__in=Dept.objects.filter(id=department_id))
+        if dept_id:
+            query_params &= Q(dept__id__in=Dept.objects.filter(id=dept_id))
         user_objects = User.objects.filter(query_params).order_by("id")
         paginator = Paginator(user_objects, per_page)
         try:
@@ -320,13 +323,12 @@ class AccountUserService(BaseService):
 
             user_result_object_format_list.append(user_result_format_dict)
 
-        return True, dict(user_result_object_format_list=user_result_object_format_list,
-                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
+        return dict(user_result_object_format_list=user_result_object_format_list,
+                    paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
-    @auto_log
     def add_user(cls, name: str, alias: str, email: str, phone: str, dept_id_list: list, role_id_list, type: str,
-                 status: str, avatar: str, lang: str, creator_id: int, password: str = '', tenant_id: int = 1) -> tuple:
+                 status: str, avatar: str, lang: str, creator_id: int, password: str = '', tenant_id: int = 1) -> int:
         """
         add user record
         :param name:
@@ -339,7 +341,7 @@ class AccountUserService(BaseService):
         :param status:
         :param avatar:
         :param lang:
-        :param creator:
+        :param creator_id:
         :param password:
         :return:
         """
@@ -356,7 +358,7 @@ class AccountUserService(BaseService):
         for role_id in role_id_list:
             queryset_list.append(UserRole(user_id=user_obj.id, role_id=role_id))
         UserDept.objects.bulk_create(queryset_list)
-        return True, dict(user_id=user_obj.id)
+        return user_obj.id
 
     @classmethod
     @auto_log
