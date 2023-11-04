@@ -345,7 +345,6 @@ class AccountDeptService(BaseService):
             if tree_node.value:
                 current_info.update(dept_info_map.get(tree_node.value))
             else:
-                # todo: get tenant name
                 tenant_obj = Tenant.objects.get(id=tenant_id)
 
                 current_info.update(dict(id=0, name=tenant_obj.name))

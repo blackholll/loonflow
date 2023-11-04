@@ -712,7 +712,6 @@ class JwtLoginView(BaseView):
         except Exception as e:
             return api_response(-1, e.__str__(), {})
         if user is not None:
-            # todo: get jwt
             flag, jwt_info = account_user_service_ins.get_user_jwt(email)
             if flag is False:
                 return api_response(-1, '', {})
@@ -868,15 +867,19 @@ class SimpleUserView(BaseView):
         """
         request_data = request.GET
         search_value = request_data.get('search_value', '')
-        per_page = int(request_data.get('per_page', 10))
-        page = int(request_data.get('page', 1))
-        flag, result = account_base_service_ins.get_user_list(search_value, page, per_page, simple=True)
-        if flag is not False:
-            data = dict(value=result.get('user_result_object_format_list'),
-                        per_page=result.get('paginator_info').get('per_page'),
-                        page=result.get('paginator_info').get('page'),
-                        total=result.get('paginator_info').get('total'))
-            code, msg, = 0, ''
-        else:
-            code, data, msg = -1, '', result
-        return api_response(code, msg, data)
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        dept_id = int(request_data.get('dept_id', 0)) if request_data.get('dept_id', 0) else 0
+        try:
+            result = account_user_service_ins.get_user_list(search_value, dept_id, page, per_page, simple=True)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+
+        data = dict(user_list=result.get('user_result_object_format_list'),
+                    per_page=result.get('paginator_info').get('per_page'),
+                    page=result.get('paginator_info').get('page'),
+                    total=result.get('paginator_info').get('total'))
+        return api_response(0, "", data)

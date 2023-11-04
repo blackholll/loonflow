@@ -110,7 +110,7 @@ class AccountUserService(BaseService):
         for user_dept in user_dept_list:
             user_dept_info_list.append(
                 dict(name=user_dept.dept.name, id=user_dept.dept.id))
-        user_result['department'] = user_dept_info_list
+        user_result['dept_list'] = user_dept_info_list
         return user_result
 
 
@@ -284,13 +284,14 @@ class AccountUserService(BaseService):
         return True, user_dept_info
 
     @classmethod
-    def get_user_list(cls, search_value: str, dept_id: int, page: int = 1, per_page: int = 10) -> dict:
+    def get_user_list(cls, search_value: str, dept_id: int, page: int = 1, per_page: int = 10, simple=False) -> dict:
         """
         get user restful info list by query params: search_value, page, per_page
         :param search_value: support user's username, and user's alias. fuzzy query
         :param dept_id:
         :param page:
         :param per_page:
+        :param simple:
         :return:
         """
         query_params = Q()
@@ -319,7 +320,11 @@ class AccountUserService(BaseService):
                 if user_result_object.id == user_dept.user_id:
                     user_dept_info_list.append(
                         dict(name=user_dept.dept.name, id=user_dept.dept.id))
-            user_result_format_dict['department'] = user_dept_info_list
+            user_result_format_dict['dept_list'] = user_dept_info_list
+            if simple:
+                need_del_field_list = ["last_login", "label", "creator_info", "created_at", "updated_at", "type", "lang", "phone", "email"]
+                for need_del_field in need_del_field_list:
+                    user_result_format_dict.pop(need_del_field)
 
             user_result_object_format_list.append(user_result_format_dict)
 

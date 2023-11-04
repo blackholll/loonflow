@@ -137,7 +137,6 @@ class AccountBaseService(BaseService):
 
         for token_result_object in token_result_object_list:
             app_list = [token_result_object.app_name for token_result_object in token_result_object_list]
-            # todo: get token permission workflow list
             from service.workflow.workflow_permission_service import workflow_permission_service_ins
             flag, result = workflow_permission_service_ins.get_record_list_by_app_list(app_list)
             permission_list = result.get('permission_query_set')

@@ -470,7 +470,6 @@ class WorkflowBaseService(BaseService):
         :param username:
         :return:
         """
-        # todo: intervene列表， 创建人，管理员
         workflow_query_obj = Workflow.objects.filter(id=workflow_id).first()
         if not workflow_query_obj:
             return False, 'workflow is not existed'

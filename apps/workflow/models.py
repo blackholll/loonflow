@@ -126,7 +126,6 @@ class CustomNotice(BaseCommonModel):
     name = models.CharField(_('name'), max_length=50)
     description = models.CharField(_('description'), max_length=100, null=True, blank=True)
     type = models.IntegerField(_('type'), choices=NOTICE_TYPE_CHOICE)
-    # todo: save config to json
 
     corp_id = models.CharField('corp_id', max_length=100, null=True, blank=True)
     corp_secret = models.CharField('corp_secret', max_length=100, null=True, blank=True)  # encrypted
