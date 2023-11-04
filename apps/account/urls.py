@@ -3,10 +3,11 @@ from apps.account.views import UserView, UserDetailView, RoleView, DeptView, App
     AppTokenDetailView, UserRoleView, RoleUserView, UserResetPasswordView, RoleDetailView, \
     DeptDetailView, \
     RoleUserDetailView, SimpleUserView, SimpleAppTokenView, SimpleDeptView, UserChangePasswordView, \
-    TenantView, DeptTreeView, SimpleDeptTreeView
+    TenantView, DeptTreeView, SimpleDeptTreeView, UserProfileView
 
 urlpatterns = [
     path('/users', UserView.as_view()),
+    path('/my_profile', UserProfileView.as_view()),
     path('/simple_users', SimpleUserView.as_view()),  # exception optimize done
     # path('/users/change_password', UserChangePasswordView.as_view()),
     # path('/simple_users', SimpleUserView.as_view()),

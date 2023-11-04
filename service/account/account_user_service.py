@@ -485,5 +485,22 @@ class AccountUserService(BaseService):
         user_obj.save()
         return True, "success"
 
+    @classmethod
+    def update_user_profile(cls, user_id: int, lang: str) -> bool:
+        """
+        update user's profile, only allow user update his lang
+        :param user_id:
+        :param lang:
+        :return:
+        """
+        try:
+            user_obj = User.objects.get(id=user_id)
+        except User.DoesNotExist as e:
+            raise CustomCommonException("user is not exist or has been deleted")
+        except Exception:
+            raise
+        User.objects.filter(id=user_id).update(**{"lang": lang})
+        return True
+
 
 account_user_service_ins = AccountUserService()

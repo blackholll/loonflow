@@ -160,6 +160,51 @@ class UserView(BaseView):
         return api_response(0, "", dict(user_info=result))
 
 
+class UserProfileView(BaseView):
+    patch_schema = Schema({
+        'lang': str,
+    })
+
+    def get(self, request, *args, **kwargs):
+        """
+        user profile
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        user_id = request.META.get('HTTP_USERID')
+        if not user_id:
+            return api_response(-1, "no user login", {})
+        try:
+            user_info = account_user_service_ins.get_user_format_by_user_id(user_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "",  {"user_info": user_info})
+
+    def patch(self, request, *args, **kwargs):
+        """
+        update profile
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        user_id = request.META.get('HTTP_USERID')
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        lang = request_data_dict.get("lang")
+        try:
+            account_user_service_ins.update_user_profile(user_id, lang)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "", {})
+
 
 class UserDetailView(BaseView):
     patch_schema = Schema({
