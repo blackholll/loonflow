@@ -29,13 +29,6 @@ class AccountBaseService(BaseService):
         app_token_obj = Application.objects.filter(app_name=app_name).first()
         return True, app_token_obj
 
-
-
-
-
-
-
-
     @classmethod
     @auto_log
     def app_workflow_permission_list(cls, app_name: str) -> tuple:

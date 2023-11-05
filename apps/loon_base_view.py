@@ -23,7 +23,7 @@ class BaseView(View):
         request_method = request.method.lower()
         meth_schema = getattr(self, request.method.lower() + '_schema', None)
         if meth_schema:
-            if request_method in ['post', 'patch', 'put']:
+            if request_method in ['post', 'patch', 'put', 'delete']:
                 json_dict = simplejson.loads(request.body)
             else:
                 json_dict = dict(request.GET)

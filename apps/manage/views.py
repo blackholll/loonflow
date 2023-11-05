@@ -39,9 +39,3 @@ class CommonConfigView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, {}, "Internal Server Error")
 
-
-
-
-
-
-

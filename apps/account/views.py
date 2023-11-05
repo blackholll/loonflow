@@ -1,16 +1,12 @@
 import json
 import logging
 import traceback
-from typing import List
-import jwt
-from django.http import HttpResponse
-from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from service.account.account_base_service import account_base_service_ins
 from service.account.account_dept_service import account_dept_service_ins
+from service.account.account_role_service import account_role_service_ins
 from service.account.account_user_service import account_user_service_ins
 from service.exception.custom_common_exception import CustomCommonException
 from service.format_response import api_response
@@ -21,43 +17,6 @@ from service.permission.user_permission import user_permission_check
 from service.common.schema_valid_service import SchemaValidService
 
 logger = logging.getLogger("django")
-
-class TenantView(BaseView):
-    post_schema = Schema({
-        "name": And(str, lambda n: n != '', error='name is needed'),
-        Optional('en_name'): str,
-        "domain": And(str, lambda n: n != '', error='domain is needed'),
-        "icon": And(str, lambda n: n != '', error='icon is needed'),
-        Optional('default_timezone'): str,
-        Optional('workflow_limit'): int,
-        Optional('ticket_limit'): int,
-    })
-
-    # @user_permission_check("admin")
-    def get(self, request, *args, **kwargs):
-        """
-        get tenant list
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        from apps.account.models import Tenant
-        loon_obj = Tenant(name="test1")
-        loon_obj.save()
-        return HttpResponse("success")
-
-    @user_permission_check("admin")
-    def post(self, request, *args, **kwargs):
-        """
-        add tenant
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        from apps.account.models import Tenant
-        pass
 
 
 class UserView(BaseView):
@@ -291,7 +250,6 @@ class UserDetailView(BaseView):
         return api_response(code, msg, data)
 
 
-@method_decorator(login_required, name='dispatch')
 class RoleView(BaseView):
     post_schema = Schema({
         'name': And(str, lambda n: n != ''),
@@ -299,10 +257,13 @@ class RoleView(BaseView):
         Optional('label'): str,
     })
 
+    delete_schema = Schema({
+        "role_id_list": list
+    })
     @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
-        用户角色列表
+        get role list
         :param request:
         :param args:
         :param kwargs:
@@ -310,24 +271,26 @@ class RoleView(BaseView):
         """
         request_data = request.GET
         search_value = request_data.get('search_value', '')
-        per_page = int(request_data.get('per_page', 10))
-        page = int(request_data.get('page', 1))
-        flag, result = account_base_service_ins.get_role_list(search_value, page, per_page)
-        if flag is not False:
-            data = dict(value=result.get('role_result_object_format_list'),
-                        per_page=result.get('paginator_info').get('per_page'),
-                        page=result.get('paginator_info').get('page'),
-                        total=result.get('paginator_info').get('total'))
-            code, msg, = 0, ''
-        else:
-            code, data = -1, ''
-        return api_response(code, msg, data)
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        try:
+            result = account_role_service_ins.get_role_list(search_value, page, per_page)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        data = dict(role_list=result.get('role_result_object_format_list'),
+                    per_page=result.get('paginator_info').get('per_page'),
+                    page=result.get('paginator_info').get('page'),
+                    total=result.get('paginator_info').get('total'))
+
+        return api_response(0, "", data)
 
     @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add role
-        新增角色
         :param request:
         :param args:
         :param kwargs:
@@ -338,16 +301,42 @@ class RoleView(BaseView):
         name = request_data_dict.get('name')
         description = request_data_dict.get('description', '')
         label = request_data_dict.get('label', '')
-        creator = request.user.username
+        tenant_id = request.META.get('HTTP_TENANTID')
+        creator_id = request.META.get('HTTP_USERID')
+        try:
+            role_id = account_role_service_ins.add_role(name=name, description=description, label=label, tenant_id=tenant_id,
+                                                         creator_id=creator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
 
-        flag, result = account_base_service_ins.add_role(name=name, description=description, label=label,
-                                                         creator=creator)
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, result, {})
+        return api_response(0, "", {"role_id": role_id})
+
+    @user_permission_check("admin")
+    def delete(self, request, *args, **kwargs):
+        """
+        batch delete role record
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        role_id_list = request_data_dict.get('role_id_list')
+        operator_id = request.META.get('HTTP_USERID')
+        try:
+            account_role_service_ins.batch_delete_role(role_id_list, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "deleted", {})
 
 
-@method_decorator(login_required, name='dispatch')
 class RoleDetailView(BaseView):
     patch_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is need'),
@@ -355,11 +344,28 @@ class RoleDetailView(BaseView):
         Optional('label'): str,
     })
 
+    @user_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get role detail
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        role_id = kwargs.get('role_id')
+        try:
+            result = account_role_service_ins.get_role_detail(role_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "", dict(role_info=result))
+
     @user_permission_check('admin')
     def patch(self, request, *args, **kwargs):
         """
-        update role
-        更新角色信息
+        update role record
         :param request:
         :param args:
         :param kwargs:
@@ -371,9 +377,13 @@ class RoleDetailView(BaseView):
         name = request_data_dict.get('name')
         description = request_data_dict.get('description')
         label = request_data_dict.get('label')
-        flag, result = account_base_service_ins.update_role(role_id, name, description, label)
-        if flag is False:
-            return api_response(-1, result, {})
+        try:
+            account_role_service_ins.update_role(role_id, name, description, label)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception as e:
+            logger.error(traceback.format_exc())
+
         return api_response(0, '', {})
 
     @user_permission_check('admin')
@@ -386,10 +396,41 @@ class RoleDetailView(BaseView):
         :return:
         """
         role_id = kwargs.get('role_id')
-        flag, result = account_base_service_ins.delete_role(role_id)
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, '', {})
+        operator_id = request.META.get('HTTP_USERID')
+        try:
+            account_role_service_ins.delete_role(role_id, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception as e:
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, 'delete successfully', {})
+
+class SimpleRoleView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get simple role list, for common user query role list
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        try:
+            result = account_role_service_ins.get_role_list(search_value, page, per_page, True)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        data = dict(role_list=result.get('role_result_object_format_list'),
+                    per_page=result.get('paginator_info').get('per_page'),
+                    page=result.get('paginator_info').get('page'),
+                    total=result.get('paginator_info').get('total'))
+
+        return api_response(0, "", data)
 
 
 class DeptTreeView(BaseView):
@@ -766,35 +807,36 @@ class JwtLoginView(BaseView):
             return api_response(-1, 'username or password is invalid', {})
 
 
-@method_decorator(login_required, name='dispatch')
 class UserRoleView(BaseView):
     @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
-        用户角色信息
+        user's role info
         """
         user_id = kwargs.get('user_id', 0)
         search_value = request.GET.get('search_value', '')
-        flag, result = account_base_service_ins.get_user_role_info_by_user_id(user_id, search_value)
-        if flag is not False:
-            data = dict(value=result.get('role_result_format_list'), per_page=result.get('paginator_info').get('per_page'),
-                        page=result.get('paginator_info').get('page'), total=result.get('paginator_info').get('total'))
-            code, msg, = 0, ''
-        else:
-            code, data = -1, ''
-        return api_response(code, msg, data)
+        try:
+            result = account_user_service_ins.get_user_role_info_by_user_id(user_id, search_value)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "", result)
 
 
-@method_decorator(login_required, name='dispatch')
 class RoleUserView(BaseView):
     post_schema = Schema({
         'user_id': And(int, error='user_id is needed and should be int')
+    })
+    delete_schema = Schema({
+        'role_user_id_list': list
     })
 
     @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
         """
-        角色的用户信息
+        role's user list
         :param request:
         :param args:
         :param kwargs:
@@ -802,24 +844,22 @@ class RoleUserView(BaseView):
         """
         role_id = kwargs.get('role_id', 0)
         request_data = request.GET
-        page = int(request_data.get('page', 1))
-        per_page = int(request_data.get('per_page', 10))
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         search_value = request.GET.get('search_value', '')
-        flag, result = account_base_service_ins.get_role_user_info_by_role_id(role_id, search_value, page, per_page)
-
-        if flag is not False:
-            data = dict(value=result.get('user_result_format_list'), per_page=result.get('paginator_info').get('per_page'),
-                        page=result.get('paginator_info').get('page'), total=result.get('paginator_info').get('total'))
-            code, msg, = 0, ''
-        else:
-            code, data = -1, ''
-        return api_response(code, msg, data)
+        try:
+            result = account_role_service_ins.get_role_user_info_by_role_id(role_id, search_value, page, per_page)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "", result)
 
     @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
         """
         add role's user
-        新增角色用户
         :param request:
         :param args:
         :param kwargs:
@@ -829,62 +869,71 @@ class RoleUserView(BaseView):
         creator = request.user.username
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
-        user_id = request_data_dict.get('user_id', 0)
+        user_id_list = request_data_dict.get('user_id_list', 0)
 
-        flag, result = account_base_service_ins.add_role_user(role_id, user_id, creator)
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, '', {})
+        try:
+            account_base_service_ins.add_role_user(role_id, user_id_list, creator)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "success", {})
 
-
-@method_decorator(login_required, name='dispatch')
-class RoleUserDetailView(BaseView):
-    @user_permission_check('admin')
+    @user_permission_check("admin")
     def delete(self, request, *args, **kwargs):
         """
-         delete role's user
-         删除角色用户
-         :param request:
-         :param args:
-         :param kwargs:
-         :return:
-         """
-        user_id = kwargs.get('user_id', 0)
-        flag, result = account_base_service_ins.delete_role_user(user_id)
-
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, '', {})
-
-
-class UserResetPasswordView(BaseView):
-
-    @user_permission_check('admin')
-    def post(self, request, *args, **kwargs):
-        """
-        重置密码
-        :param requesdt:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        user_id = kwargs.get('user_id')
-        flag, result = account_user_service_ins.reset_password(user_id=user_id)
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, result, {})
-
-
-class UserChangePasswordView(BaseView):
-    def post(self, request, *args, **kwargs):
-        """
-        修改密码
+        delete role's user list
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
-        username = request.user.username
+        operator_id = request.META.get('HTTP_USERID')
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        role_user_id_list = request_data_dict.get("role_user_id_list")
+        try:
+            account_role_service_ins.delete_role_user(role_user_id_list, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "success", {})
+
+
+class UserResetPasswordView(BaseView):
+    @user_permission_check('admin')
+    def post(self, request, *args, **kwargs):
+        """
+        reset user's password
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        user_id = kwargs.get('user_id')
+        try:
+            account_user_service_ins.reset_password(user_id=user_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "password has been updated to 123456", {})
+
+
+class UserChangePasswordView(BaseView):
+    def post(self, request, *args, **kwargs):
+        """
+         change password
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        operator_id = request.META.get('HTTP_USERID')
 
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
@@ -893,12 +942,15 @@ class UserChangePasswordView(BaseView):
         new_password_again = request_data_dict.get('new_password_again', '')
 
         if new_password != new_password_again:
-            return api_response(-1, '两次密码不一致，请重新输入', {})
-        flag, result = account_user_service_ins.change_password(username, source_password, new_password)
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, result, {})
-
+            return api_response(-1, "passwords are different between two input", {})
+        try:
+            account_user_service_ins.change_password(operator_id, source_password, new_password)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "success", {})
 
 class SimpleUserView(BaseView):
 

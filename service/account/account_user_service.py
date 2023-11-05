@@ -145,9 +145,8 @@ class AccountUserService(BaseService):
         return True, user_role_id_list
 
     @classmethod
-    @auto_log
     def get_user_role_info_by_user_id(cls, user_id: int, search_value: str = 0, page: int = 1,
-                                      per_page: int = 10) -> tuple:
+                                      per_page: int = 10) -> dict:
         """
         get user's role info list by user's id and query params: role name、page、per_page
         :param user_id:
@@ -158,7 +157,7 @@ class AccountUserService(BaseService):
         """
         user_role_queryset = UserRole.objects.filter(user_id=user_id).all()
         user_role_id_list = [user_role.role_id for user_role in user_role_queryset]
-        query_params = Q(is_deleted=False, id__in=user_role_id_list)
+        query_params = Q(id__in=user_role_id_list)
         if search_value:
             query_params &= Q(name__contains=search_value)
         role_info_queryset = Role.objects.filter(query_params).all()
@@ -173,11 +172,8 @@ class AccountUserService(BaseService):
         role_result_list = role_info_result_paginator.object_list
         role_result_format_list = []
         for role_info in role_result_list:
-            role_result_format_list.append(dict(id=role_info.id, name=role_info.name, description=role_info.description,
-                                                label=json.dumps(role_info.label) if role_info.label else {},
-                                                creator=role_info.creator, gmt_created=str(role_info.gmt_created)[:19]))
-        return True, dict(role_result_format_list=role_result_format_list,
-                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
+            role_result_format_list.append(role_info.get_dict())
+        return dict(role_list=role_result_format_list, per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
     @auto_log
@@ -435,55 +431,37 @@ class AccountUserService(BaseService):
             return False, "user_id_list can not be a blank list"
 
     @classmethod
-    @auto_log
-    def reset_password(cls, username: str = '', user_id: int = 0) -> tuple:
+    def reset_password(cls, user_id: int = 0) -> bool:
         """
-        reset user's password
-        just admin or workflow admin need login loonflow's admin,so just admin and workflow admin can rest password
-        :param username:
+        reset user's password. only admin can reset user's password
         :param user_id:
         :return:
         """
-        flag, result = False, ''
-        if username:
-            flag, result = cls.get_user_by_username(username)
-        if user_id:
-            flag, result = cls.get_user_by_user_id(user_id)
+        user_queryset = User.objects.filter(id=user_id).all()
+        if not user_queryset:
+            raise CustomCommonException('user is not exist or has been deleted')
+        password_str = make_password('123456', None, 'pbkdf2_sha256')
+        user_queryset.update(password=password_str)
+        return True
 
-        if flag:
-            user_obj = result
-            # if user_obj.type_id in (constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN, constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN):
-            password_str = make_password('123456', None, 'pbkdf2_sha256')
-            user_obj.password = password_str
-            user_obj.save()
-            return True, 'password has been reset to 123456'
-            # else:
-            #     return False, 'just admin or workflow admin can be reset password'
-        else:
-            return False, result
 
     @classmethod
-    @auto_log
-    def change_password(cls, username: str, source_password: str, new_password: str) -> tuple:
+    def change_password(cls, operator_id: int, source_password: str, new_password: str) -> bool:
         """
         change password
-        :param username:
+        :param operator_id:
         :param source_password:
         :param new_password:
         :return:
         """
-        flag, user_obj = cls.get_user_by_username(username)
-        if flag is False:
-            return False, user_obj
-
-        user = authenticate(username=username, password=source_password)
+        user_queryset = User.objects.filter(id=operator_id).all()
+        user = authenticate(email=user_queryset[0].email, password=source_password)
         if user is None:
-            return False, "source password is invalid"
-        new_password_format = make_password(new_password, None, 'pbkdf2_sha256')
+            raise CustomCommonException("source password is invalid")
 
-        user_obj.password = new_password_format
-        user_obj.save()
-        return True, "success"
+        new_password_format = make_password(new_password, None, 'pbkdf2_sha256')
+        user_queryset.update(password=new_password_format)
+        return True
 
     @classmethod
     def update_user_profile(cls, user_id: int, lang: str) -> bool:

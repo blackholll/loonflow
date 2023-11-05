@@ -197,17 +197,6 @@ class Role(BaseCommonModel):
     label = models.CharField("label", max_length=50, blank=True, default="",
                              help_text="label info,you can use set a json data include role info id in your internal system")
 
-    def get_dict(self):
-        role_dict_info = super().get_dict()
-        creator_obj = User.objects.filter(username=getattr(self, 'creator')).first()
-        if creator_obj:
-            role_dict_info['creator_info'] = dict(creator_id=creator_obj.id, creator_alias=creator_obj.alias,
-                                                  creator_username=creator_obj.username)
-        else:
-            role_dict_info['creator_info'] = dict(creator_id=0, creator_alias='',
-                                                  creator_username=getattr(self, 'creator'))
-        return role_dict_info
-
 
 class ApplicationWorkflow(BaseCommonModel):
     """application permissioned workflow list"""

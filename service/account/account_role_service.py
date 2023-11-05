@@ -1,16 +1,19 @@
+import time
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
 from apps.account.models import UserRole, User, Role
 from service.base_service import BaseService
 from service.common.log_service import auto_log
+from service.exception.custom_common_exception import CustomCommonException
+from service.util.archive_service import archive_service_ins
 
 
 class AccountRoleService(BaseService):
     @classmethod
-    @auto_log
     def get_role_user_info_by_role_id(cls, role_id: int, search_value: str = '', page: int = 1,
-                                      per_page: int = 10) -> tuple:
+                                      per_page: int = 10) -> dict:
         """
         get role's user info list by role_id
         :param role_id:
@@ -21,7 +24,7 @@ class AccountRoleService(BaseService):
         """
         user_role_queryset = UserRole.objects.filter(role_id=role_id).all()
         role_user_id_list = [user_role.user_id for user_role in user_role_queryset]
-        query_params = Q(is_deleted=False, id__in=role_user_id_list)
+        query_params = Q(id__in=role_user_id_list)
         if search_value:
             query_params &= Q(username__contains=search_value) | Q(alias__contains=search_value)
         user_info_queryset = User.objects.filter(query_params).all()
@@ -37,8 +40,7 @@ class AccountRoleService(BaseService):
         user_result_format_list = []
         for user_info in user_result_list:
             user_result_format_list.append(user_info.get_dict())
-        return True, dict(user_result_format_list=user_result_format_list,
-                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
+        return dict(user_list=user_result_format_list, per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
     @auto_log
@@ -51,17 +53,32 @@ class AccountRoleService(BaseService):
         return True, Role.objects.filter(id=role_id, is_deleted=False).first()
 
     @classmethod
-    @auto_log
-    def get_role_list(cls, search_value: str, page: int = 1, per_page: int = 10) -> tuple:
+    def get_role_detail(cls, role_id: int) -> dict:
         """
-        获取角色列表
+        get role detail
+        :param role_id:
+        :return:
+        """
+        try:
+            role_obj = Role.objects.get(id=role_id)
+        except Role.DoesNotExist as e:
+            raise CustomCommonException("role is not exist or has been deleted")
+        except Exception:
+            raise
+
+        return role_obj.get_dict()
+
+    @classmethod
+    def get_role_list(cls, search_value: str, page: int = 1, per_page: int = 10, simple:bool = False) -> dict:
+        """
+        get role list
         get role restful list by search params
         :param search_value: role name or role description Support fuzzy queries
         :param page:
         :param per_page:
         :return:
         """
-        query_params = Q(is_deleted=False)
+        query_params = Q()
         if search_value:
             query_params &= Q(name__contains=search_value) | Q(description__contains=search_value)
         user_objects = Role.objects.filter(query_params)
@@ -75,91 +92,108 @@ class AccountRoleService(BaseService):
             role_result_paginator = paginator.page(paginator.num_pages)
         role_result_object_list = role_result_paginator.object_list
         role_result_object_format_list = []
+        need_remove_field_list = ["creator_info", "created_at", "updated_at", "label", "tenant_id"]
         for role_result_object in role_result_object_list:
-            role_result_object_format_list.append(role_result_object.get_dict())
+            role_obj = role_result_object.get_dict()
+            if simple:
+                for need_remove_field in need_remove_field_list:
+                    role_obj.pop(need_remove_field)
+            role_result_object_format_list.append(role_obj)
 
-        return True, dict(role_result_object_format_list=role_result_object_format_list,
-                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
+        return dict(role_result_object_format_list=role_result_object_format_list,
+                    paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
-    @auto_log
-    def add_role(cls, name: str, description: str, label: str, creator: str) -> tuple:
+    def add_role(cls, name: str, description: str, label: str, tenant_id: int, creator_id: int) -> int:
         """
         add role
         :param name:
         :param description:
         :param label:
-        :param creator:
+        :param tenant_id:
+        :param creator_id:
         :return:
         """
-        role_obj = Role(name=name, description=description, label=label, creator=creator)
+        role_obj = Role(name=name, description=description, label=label, tenant_id=tenant_id, creator_id=creator_id)
         role_obj.save()
-        return True, dict(role_id=role_obj.id)
+        return role_obj.id
 
     @classmethod
-    @auto_log
-    def add_role_user(cls, role_id: int, user_id: int, creator: str) -> tuple:
+    def add_role_user(cls, role_id: int, user_id_list: int, creator: str) -> bool:
         """
         add role's user
         :param role_id:
-        :param user_id:
+        :param user_id_list:
         :param creator:
         :return:
         """
-        # 去重下
-        role_user_queryset = UserRole.objects.filter(user_id=user_id, role_id=role_id)
-        if role_user_queryset:
-            return False, 'user has been existed in this role'
-        role_user_obj = UserRole(user_id=user_id, role_id=role_id, creator=creator)
-        role_user_obj.save()
-        return True, dict(role_user_id=role_user_obj.id)
+        role_user_queryset = UserRole.objects.filter(role_id=role_id).all()
+        need_add_user_list = []
+        exist_user_id_list = [role_user.user_id for role_user in role_user_queryset]
+        for user_id in user_id_list:
+            if user_id not in exist_user_id_list:
+                user_role_obj = UserRole(role_id=role_id, user_id=user_id)
+                need_add_user_list.append(user_role_obj)
+                time.sleep(0.001)  # temporarily for SnowflakeIDGenerator bug
+        UserRole.objects.bulk_create(need_add_user_list)
+        return True
 
     @classmethod
-    @auto_log
-    def delete_role_user(cls, user_id: int) -> tuple:
+    def delete_role_user(cls, role_user_id_list: list, operator_id:int) -> bool:
         """
-        删除角色用户
-        :param user_id:
+        del role user
+        :param role_user_id_list:
+        :param operator_id:
         :return:
         """
-        role_user_obj = UserRole.objects.filter(user_id=user_id)
-        if not role_user_obj:
-            return False, 'record is not existed or has been deleted'
-        role_user_obj.update(is_deleted=1)
-        return True, ''
+
+        role_user_queryset = UserRole.objects.filter(id__in=role_user_id_list).all()
+        archive_service_ins.archive_record_list("UserRole", role_user_queryset, operator_id)
+        return True
 
     @classmethod
-    @auto_log
-    def update_role(cls, role_id: int, name: str, description: str, label: str) -> tuple:
+    def update_role(cls, role_id: int, name: str, description: str, label: str) -> bool:
         """
-        update role
-        更新角色
+        update role record
         :param role_id:
         :param name:
         :param description:
         :param label:
         :return:
         """
+        try:
+            Role.objects.get(id=role_id)
+        except Role.DoesNotExist as e:
+            raise CustomCommonException("role is not exist or has been deleted")
         role_queryset = Role.objects.filter(id=role_id)
-        if not role_queryset:
-            return False, 'role record is not existed'
         role_queryset.update(name=name, description=description, label=label)
-        return True, {}
+        return True
 
     @classmethod
-    @auto_log
-    def delete_role(cls, role_id: int) -> tuple:
+    def delete_role(cls, role_id: int, operator_id: int) -> bool:
         """
         delete role record
-        删除角色
         :param role_id:
+        :param operator_id:
         :return:
         """
         role_queryset = Role.objects.filter(id=role_id)
         if not role_queryset:
-            return False, 'role record is not existed'
-        role_queryset.update(is_deleted=1)
-        return True, {}
+            raise CustomCommonException("role is not exist or has been deleted")
+        archive_service_ins.archive_record("Role", role_queryset[0], operator_id)
+        return True
+
+    @classmethod
+    def batch_delete_role(cls, role_id_list: list, operator_id:int) -> bool:
+        """
+        batch delete role
+        :param role_id_list:
+        :param operator_id:
+        :return:
+        """
+        record_queryset = Role.objects.filter(id__in=role_id_list)
+        archive_service_ins.archive_record_list("Role", record_queryset, operator_id)
+        return True
 
     @classmethod
     @auto_log
