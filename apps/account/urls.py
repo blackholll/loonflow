@@ -1,7 +1,9 @@
 from django.urls import path
-from apps.account.views import UserView, UserDetailView, RoleView, DeptView, UserRoleView, RoleUserView, UserResetPasswordView, RoleDetailView, \
+from apps.account.views import UserView, UserDetailView, RoleView, DeptView, UserRoleView, RoleUserView, \
+    UserResetPasswordView, RoleDetailView, \
     DeptDetailView, SimpleUserView, UserChangePasswordView, \
-    DeptTreeView, SimpleDeptTreeView, UserProfileView, SimpleRoleView
+    DeptTreeView, SimpleDeptTreeView, UserProfileView, SimpleRoleView, ApplicationView, SimpleApplicationView, \
+    ApplicationDetailView, ApplicationWorkflowView
 
 urlpatterns = [
     path('/users', UserView.as_view()),
@@ -19,4 +21,10 @@ urlpatterns = [
     path('/depts', DeptView.as_view()),
     path('/simple_depts_tree', SimpleDeptTreeView.as_view()),
     path('/depts/<int:dept_id>', DeptDetailView.as_view()),
+    path('/applications', ApplicationView.as_view()),
+    path('/applications/<int:application_id>', ApplicationDetailView.as_view()),
+    path('/applications/<int:application_id>/workflows', ApplicationWorkflowView.as_view()),
+    path('/simple_applications', SimpleApplicationView.as_view()),
+
+
 ]

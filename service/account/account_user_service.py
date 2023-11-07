@@ -12,6 +12,7 @@ from apps.account.models import User, UserDept, UserRole, Role, Dept
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 from service.exception.custom_common_exception import CustomCommonException
+from service.util.archive_service import ArchiveService, archive_service_ins
 
 
 class AccountUserService(BaseService):
@@ -413,7 +414,7 @@ class AccountUserService(BaseService):
         :return:
         """
         user_obj = User.objects.get(id=user_id)
-        return ArchiveService.archive_record('User', user_obj, operator_id)
+        return archive_service_ins.archive_record('User', user_obj, operator_id)
 
     @classmethod
     @auto_log
@@ -426,7 +427,7 @@ class AccountUserService(BaseService):
         """
         if user_id_list:
             user_queryset = User.objects.filter(id__in=user_id_list).all()
-            return ArchiveService.archive_record_list("User", user_queryset, operator_id)
+            return archive_service_ins.archive_record_list("User", user_queryset, operator_id)
         else:
             return False, "user_id_list can not be a blank list"
 

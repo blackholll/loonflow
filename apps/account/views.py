@@ -4,6 +4,8 @@ import traceback
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+
+from service.account.account_application_service import account_application_service_ins
 from service.account.account_base_service import account_base_service_ins
 from service.account.account_dept_service import account_dept_service_ins
 from service.account.account_role_service import account_role_service_ins
@@ -737,54 +739,6 @@ class SimpleAppTokenView(BaseView):
         return api_response(code, msg, data)
 
 
-
-@method_decorator(login_required, name='dispatch')
-class AppTokenDetailView(BaseView):
-    patch_schema = Schema({
-        Optional('ticket_sn_prefix'): str,
-        Optional('workflow_ids'): str,
-    })
-
-    @user_permission_check('admin')
-    def patch(self, request, *args, **kwargs):
-        """
-        编辑token
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        app_token_id = kwargs.get('app_token_id')
-        json_str = request.body.decode('utf-8')
-        request_data_dict = json.loads(json_str)
-        ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
-        workflow_ids = request_data_dict.get('workflow_ids', '')
-        flag, msg = account_base_service_ins.update_token_record(app_token_id, ticket_sn_prefix, workflow_ids)
-        if flag is False:
-            code, data = -1, {}
-        else:
-            code, data = 0, {}
-
-        return api_response(code, msg, data)
-
-    @user_permission_check('admin')
-    def delete(self, request, *args, **kwargs):
-        """
-        删除记录
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        app_token_id = kwargs.get('app_token_id')
-        flag, msg = account_base_service_ins.del_token_record(app_token_id)
-        if flag is False:
-            code, data = -1, {}
-        else:
-            code, data = 0, {}
-        return api_response(code, msg, data)
-
-
 class JwtLoginView(BaseView):
     def post(self, request, *args, **kwargs):
         json_str = request.body.decode('utf-8')
@@ -953,7 +907,6 @@ class UserChangePasswordView(BaseView):
         return api_response(0, "success", {})
 
 class SimpleUserView(BaseView):
-
     def get(self, request, *args, **kwargs):
         """
         get simple user list
@@ -980,3 +933,184 @@ class SimpleUserView(BaseView):
                     page=result.get('paginator_info').get('page'),
                     total=result.get('paginator_info').get('total'))
         return api_response(0, "", data)
+
+
+class ApplicationView(BaseView):
+    post_schema = Schema({
+        "name": And(str, lambda n: n != "", error="name is need"),
+        "type": And(str, lambda n: n != "", error="type is need"),
+        Optional('description'): str,
+    })
+    delete_schema = Schema({
+        "application_id_list": list
+    })
+
+    @user_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get application list
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        tenant_id = request.META.get('HTTP_TENANTID')
+        search_value = request.GET.get('search_value', '')
+        request_data = request.GET
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        try:
+            result = account_application_service_ins.get_application_list(tenant_id, search_value, page, per_page)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "", result)
+
+    def post(self, request, *args, **kwargs):
+        """
+        add application record
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        name = request_data_dict.get('name', '')
+        type = request_data_dict.get('type', '')
+        description = request_data_dict.get('description', '')
+        try:
+            result = account_application_service_ins.add_application(tenant_id, operator_id, name, description, type)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "", dict(application_id=result))
+
+    def delete(self, request, *args, **kwargs):
+        """
+        batch delete application record
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        operator_id = request.META.get('HTTP_USERID')
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        application_id_list = request_data_dict.get('application_id_list', [])
+        try:
+            account_application_service_ins.batch_delete_application_list(operator_id, application_id_list)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+        return api_response(0, "deleted", {})
+
+
+class SimpleApplicationView(BaseView):
+    @user_permission_check("workflow_admin,admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get simple application list. used by select application in workflow config page
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        tenant_id = request.META.get('HTTP_TENANTID')
+        search_value = request.GET.get('search_value', '')
+        request_data = request.GET
+        page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        try:
+            result = account_application_service_ins.get_application_list(tenant_id, search_value, page, per_page, True)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "", result)
+
+
+class ApplicationDetailView(BaseView):
+    patch_schema = Schema({
+        "name": str,
+        Optional("description"): str,
+        "type": And(str, lambda n: n in ["admin", "workflow_admin"], error="type should be admin or workflow_admin")
+    })
+    @user_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get application detail
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        application_id = kwargs.get("application_id")
+        try:
+            result = account_application_service_ins.get_application_detail(application_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "", dict(application_info=result))
+
+    @user_permission_check("admin")
+    def patch(self, request, *args, **kwargs):
+        """
+        update application info
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        operator_id = request.META.get('HTTP_USERID')
+        application_id = kwargs.get("application_id")
+
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        name = request_data_dict.get('name', '')
+        description = request_data_dict.get('description', '')
+        type = request_data_dict.get('type', '')
+        try:
+            account_application_service_ins.update_application_detail(application_id, name, description, type)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "internal Server Error")
+        return api_response(0, "", {})
+
+
+class ApplicationWorkflowView(BaseView):
+    @user_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get application's authorized workflow list
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        application_id = kwargs.get("application_id")
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10))
+        page = int(request_data.get('page', 1))
+        try:
+            result = account_application_service_ins.get_application_workflow_list(application_id, search_value, page, per_page)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "", result)
+
