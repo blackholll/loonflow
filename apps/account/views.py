@@ -9,6 +9,7 @@ from service.account.account_application_service import account_application_serv
 from service.account.account_base_service import account_base_service_ins
 from service.account.account_dept_service import account_dept_service_ins
 from service.account.account_role_service import account_role_service_ins
+from service.account.account_tenant_service import account_tenant_service_ins
 from service.account.account_user_service import account_user_service_ins
 from service.exception.custom_common_exception import CustomCommonException
 from service.format_response import api_response
@@ -1113,4 +1114,25 @@ class ApplicationWorkflowView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", result)
+
+
+class TenantDetailView(BaseView):
+    @user_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get tenant detail info
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        tenant_id = kwargs.get("tenant_id")
+        try:
+            result = account_tenant_service_ins.get_tenant_detail(tenant_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Erro")
+        return api_response(0, "", dict(tenant_info=result))
 

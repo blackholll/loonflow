@@ -16,6 +16,7 @@ class CommonConfigService(BaseService):
         """
         result = dict()
         tenant_record = Tenant.objects.get(id=tenant_id)
+        result["tenant_id"] = tenant_record.id
         result["tenant_name"] = tenant_record.name
         result["tenant_icon"] = tenant_record.icon
         result["tenant_domain"] = tenant_record.domain
