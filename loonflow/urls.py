@@ -27,6 +27,6 @@ urlpatterns = [
     path('api/v1.0/accounts', include('apps.account.urls')),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
     path('api/v1.0/workflows', include('apps.workflow.urls')),
-    path('api/v1.0/configs/common', CommonConfigView.as_view()),
+    path('api/v1.0/manage', include('apps.manage.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -969,6 +969,7 @@ class ApplicationView(BaseView):
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", result)
 
+    @user_permission_check("admin")
     def post(self, request, *args, **kwargs):
         """
         add application record
@@ -993,6 +994,7 @@ class ApplicationView(BaseView):
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", dict(application_id=result))
 
+    @user_permission_check("admin")
     def delete(self, request, *args, **kwargs):
         """
         batch delete application record

@@ -193,7 +193,7 @@ class Role(BaseCommonModel):
     role
     """
     name = models.CharField("role name", max_length=50, null=False, default="")
-    description = models.CharField("role description", max_length=50, null=False, default='')
+    description = models.CharField("role description", max_length=200, null=False, default='')
     label = models.CharField("label", max_length=50, blank=True, default="",
                              help_text="label info,you can use set a json data include role info id in your internal system")
 

@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'apps.account',
     'apps.ticket',
     'apps.workflow',
-    'apps.util'
+    'apps.util',
+    'apps.manage'
 
 ]
 

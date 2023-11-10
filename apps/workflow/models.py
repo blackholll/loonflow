@@ -13,7 +13,7 @@ class Workflow(BaseCommonModel):
 
     """
     name = models.CharField(_('name'), max_length=50)
-    description = models.CharField(_('description'), max_length=50)
+    description = models.CharField(_('description'), max_length=200)
     notices = models.CharField(_('notices'), default='', blank=True, max_length=50)
     limit_expression = models.JSONField(_('limit_expression'), max_length=1000, default=dict, blank=True)
     display_form_str = models.CharField(_('display_form_str'), max_length=10000, default='[]', blank=True)
@@ -108,7 +108,7 @@ class CustomField(BaseCommonModel):
     field_name = models.CharField(_('field_name'), max_length=50)
     order_id = models.IntegerField(_('order_id'), default=0)
     default_value = models.TextField(_('default_value'), null=True, blank=True, max_length=100)
-    description = models.CharField(_('description'), max_length=100, blank=True, default='')
+    description = models.CharField(_('description'), max_length=200, blank=True, default='')
     placeholder = models.TextField(_('placeholder'), max_length=100, blank=True, default='')
     extra = models.JSONField(_('extra')) # unit, option
 
@@ -124,7 +124,7 @@ class CustomNotice(BaseCommonModel):
         ('feishu', 'feishu')
     ]
     name = models.CharField(_('name'), max_length=50)
-    description = models.CharField(_('description'), max_length=100, null=True, blank=True)
+    description = models.CharField(_('description'), max_length=200, null=True, blank=True)
     type = models.IntegerField(_('type'), choices=NOTICE_TYPE_CHOICE)
 
     corp_id = models.CharField('corp_id', max_length=100, null=True, blank=True)
