@@ -80,18 +80,16 @@ class AccountUserService(BaseService):
             return False, 'usernames: {} is not existed or has been deleted'.format(usernames)
 
     @classmethod
-    @auto_log
-    def get_user_by_user_id(cls, user_id: int) -> tuple:
+    def get_user_by_user_id(cls, user_id: int) -> User.objects:
         """
         get user by user id
         :param user_id:
         :return:
         """
         result = User.objects.filter(id=user_id).first()
-        if result:
-            return True, result
-        else:
-            return False, 'user_id: {} is not existed or has been deleted'.format(user_id)
+        if not result:
+            return CustomCommonException("user is not exist or has been deleted")
+        return result
 
     def get_user_format_by_user_id(self, user_id) ->dict:
         """

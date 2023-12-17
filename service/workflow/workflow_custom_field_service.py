@@ -1,15 +1,77 @@
 import json
+import time
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from apps.workflow.models import CustomField
 from service.base_service import BaseService
 from service.common.log_service import auto_log
+from apps.loon_base_model import SnowflakeIDGenerator
 
 
 class WorkflowCustomFieldService(BaseService):
-    def __init__(self):
-        pass
+    @classmethod
+    def add_workflow_custom_field(cls, tenant_id: int, workflow_id: int, field_info_list: list):
+        """
+        add workflow custom field
+        :param tenant_id:
+        :param workflow_id:
+        :param field_info_list:
+        :return:
+        """
+        # todo: need calculate field order
+        batch_data = cls.gen_workflow_custom_field_batch_data(tenant_id, workflow_id, 0, field_info_list)
+        CustomField.objects.bulk_create(batch_data)
+        return True
+
+    @classmethod
+    def gen_workflow_custom_field_batch_data(cls, tenant_id: int, workflow_id: int, parent_id: int, field_info_list: list) -> list:
+        """
+        generate workflow custom field batch insert data
+        :param tenant_id:
+        :param workflow_id:
+        :param workflow_id:
+        :param field_info_list:
+        :return:
+        """
+        result_list = []
+
+        for field_info in field_info_list:
+            order_id = 0
+            new_id = SnowflakeIDGenerator()()
+
+            result_0 = CustomField(tenant_id=tenant_id, workflow_id=workflow_id,
+                                   field_type=field_info.get("field_type", ""),
+                                   field_key=field_info.get("field_key", ""),
+                                   field_name=field_info.get("field_name", ""),
+                                   parent_field_id=parent_id,
+                                   order_id=order_id,
+                                   default_value=field_info.get("default_value", ""),
+                                   description=field_info.get("description", ""),
+                                   placeholder=field_info.get("placeholder", ""),
+                                   props=field_info.get("props", ""),
+                                   id=new_id
+                                   )
+            time.sleep(0.001)  # for SnowflakeIDGenerator's concurrent issue
+            order_id += 1
+            result_list.append(result_0)
+            if field_info.get("children"):
+                result_list.extend(cls.gen_workflow_custom_field_batch_data(tenant_id, workflow_id, new_id, field_info.get("children")))
+
+        return result_list
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @classmethod
     @auto_log

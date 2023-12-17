@@ -26,7 +26,8 @@ app.autodiscover_tasks()
 import json
 import requests
 from apps.ticket.models import TicketRecord
-from apps.workflow.models import Transition, Node, Workflow, CustomNotice
+from apps.workflow.models import Transition, Node, Workflow
+from apps.manage.models import Notice
 from service.account.account_user_service import account_user_service_ins
 from service.common.constant_service import constant_service_ins
 from service.ticket.ticket_base_service import TicketBaseService, ticket_base_service_ins
@@ -161,7 +162,7 @@ def send_ticket_notice(ticket_id):
                'multi_all_person': ticket_obj.multi_all_person, 'ticket_value_info': ticket_value_info,
                'last_flow_log': last_flow_log, 'participant_info_list': participant_info_list}
     for notice_id in notice_id_list:
-        notice_obj = CustomNotice.objects.filter(id=notice_id).first()
+        notice_obj = Notice.objects.filter(id=notice_id).first()
         if not notice_obj:
             continue
         hook_url = notice_obj.hook_url

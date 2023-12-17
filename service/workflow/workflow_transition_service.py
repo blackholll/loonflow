@@ -1,14 +1,77 @@
+import time
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
+from apps.loon_base_model import SnowflakeIDGenerator
 from apps.workflow.models import Transition
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 
 
 class WorkflowTransitionService(BaseService):
-    def __init__(self):
-        pass
+    def add_workflow_transition(self, tenant_id: int, workflow_id: int, operator_id: int, node_dict: dict, transition_info_list:list) -> bool:
+        """
+        add workflow transition info
+        :param tenant_id:
+        :param workflow_id:
+        :param operator_id:
+        :param node_dict:
+        :param transition_info_list:
+        :return:
+        """
+        transition_create_list = []
+        for transition_info in transition_info_list:
+            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
+            source_node_f_id = transition_info.get("source_node_f_id", "")
+            destination_node_f_id = transition_info.get("destination_node_f_id", "")
+            source_node_id = node_dict.get(source_node_f_id)
+
+            destination_node_id = node_dict.get(destination_node_f_id)
+            if not (source_node_id or destination_node_id):
+                print(111)
+            transition_id = SnowflakeIDGenerator()()
+            transition_create = Transition(id=transition_id, name=transition_info.get("name"),
+                                           tenant_id=tenant_id, creator_id=operator_id,
+                                           workflow_id=workflow_id, source_node_id=source_node_id,
+                                           destination_node_id=destination_node_id,
+                                           condition_expression=transition_info.get("condition_expression"),
+                                           transition_type=transition_info.get("transition_type"),
+                                           field_require_check=transition_info.get("field_require_check"),
+                                           alert_text=transition_info.get("alert_text"),
+                                           props=transition_info.get("props", {})
+                                           )
+            transition_create_list.append(transition_create)
+        Transition.objects.bulk_create(transition_create_list)
+        return True
+
+    def get_node_transition_list(self, node_id: int) -> list:
+        """
+        get transition list base source node
+        :param node_id:
+        :return:
+        """
+        transition_queryset = Transition.objects.filter(source_node_id=node_id).all()
+        result_list = []
+        for transition in transition_queryset:
+            result = dict(id=transition.id, name=transition.name, transition_type=transition.transition_type,
+                          field_require_check=transition.field_require_check, alert_text=transition.alert_text)
+            result_list.append(result)
+
+        return result_list
+
+
+
+
+
+
+
+
+
+
+
+
+
+########## below are waiting for update
 
     @classmethod
     @auto_log
@@ -108,21 +171,6 @@ class WorkflowTransitionService(BaseService):
             workflow_transitions_restful_list.append(result_dict)
         return True, dict(workflow_transitions_restful_list=workflow_transitions_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
-
-    @classmethod
-    @auto_log
-    def add_workflow_transition(cls, workflow_id: int, name: str, transition_type_id: int, timer: int,
-                                source_state_id: int, destination_state_id: int, condition_expression: str,
-                                attribute_type_id: int, field_require_check: int, alert_enable: int, alert_text: str,
-                                creator: str)->tuple:
-        transition_obj = Transition(workflow_id=workflow_id, name=name, transition_type_id=transition_type_id,
-                                    timer=timer, source_state_id=source_state_id,
-                                    destination_state_id=destination_state_id,
-                                    condition_expression=condition_expression,
-                                    attribute_type_id=attribute_type_id, field_require_check=field_require_check,
-                                    alert_enable=alert_enable, alert_text=alert_text, creator=creator)
-        transition_obj.save()
-        return True, dict(transition_id=transition_obj.id)
 
     @classmethod
     @auto_log

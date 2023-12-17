@@ -2,52 +2,68 @@ import json
 from django.conf import settings
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.workflow.models import Workflow, WorkflowUserPermission
+from apps.workflow.models import Workflow, WorkflowPermission
+from service.account.account_user_service import account_user_service_ins
 from service.base_service import BaseService
 from service.common.common_service import common_service_ins
 from service.common.log_service import auto_log
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
+from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
+from service.workflow.workflow_hook_service import workflow_hook_service_ins
+from service.workflow.workflow_node_service import workflow_node_service_ins
+from service.workflow.workflow_notice_service import workflow_notice_service_ins
+from service.workflow.workflow_permission_service import workflow_permission_service_ins
 from service.workflow.workflow_state_service import workflow_state_service_ins
 from service.workflow.workflow_transition_service import workflow_transition_service_ins
 
 
 class WorkflowBaseService(BaseService):
     """
-    流程服务
+    workflow service
     """
-    def __init__(self):
-        pass
-
     @classmethod
-    @auto_log
-    def get_workflow_list(cls, name: str, page: int, per_page: int, workflow_id_list: list, username: str, from_admin:int =1)->tuple:
+    def add_workflow(cls, operator_id: int, tenant_id: int, request_data: dict) -> int:
         """
-        获取工作流列表
-        get workflow list by params
-        :param name:
-        :param page:
-        :param per_page:
-        :param workflow_id_list:workflow id list
-        :param username
-        :param from_admin 管理后台
+        add workflow
+        :param operator_id:
+        :param tenant_id:
+        :param request_data:
         :return:
         """
-        query_params = Q(is_deleted=False)
-        if name:
-            query_params &= Q(name__contains=name)
+        basic_info = request_data.get("basic_info")
+        workflow_info = Workflow(name=basic_info.get('name'), description=basic_info.get("description"),
+                                 workflow_limit=basic_info.get("workflow_limit"), ticket_limit=basic_info.get("ticket_limit"))
+        workflow_info.save()
+        workflow_id = workflow_info.id
+        workflow_notice_service_ins.add_workflow_notice(operator_id, tenant_id, workflow_id, request_data.get("notice_info"))
+        workflow_custom_field_service_ins.add_workflow_custom_field(tenant_id, workflow_id, request_data.get("field_info_list"))
+        node_dict = workflow_node_service_ins.add_workflow_node(operator_id, tenant_id, workflow_id, request_data.get("node_info_list"))
+        workflow_transition_service_ins.add_workflow_transition(tenant_id, workflow_id, operator_id, node_dict, request_data.get("transition_info_list"))
+        workflow_permission_service_ins.add_workflow_permission(tenant_id, workflow_id, operator_id, request_data.get("permission_info"))
+        workflow_hook_service_ins.add_workflow_hook(tenant_id, workflow_id, operator_id, request_data.get("hook_info_list"))
+        return workflow_info.id
 
-        if from_admin:
-            # 获取有管理权限的工作流列表
-            flag, result = cls.get_workflow_manage_list(username)
-            if flag is False:
-                workflow_id_list = []
+    @classmethod
+    def get_workflow_list(cls, tenant_id: int, operator_id: int, search_value: str, page: int, per_page: int, simple=False) ->dict:
+        """
+        get workflow list
+        :param tenant_id:
+        :param operator_id:
+        :param search_value:
+        :param page:
+        :param per_page:
+        :param simple: whether return simple data, which mean only include record's id, name
+        :return:
+        """
+        query_params = Q(tenant_id=tenant_id)
+        user_obj = account_user_service_ins.get_user_by_user_id(operator_id)
+        if user_obj.type != "admin":
+            permission_workflow_id_list = workflow_permission_service_ins.get_user_permission_workflow_id_list(operator_id)
+            if permission_workflow_id_list:
+                query_params &= Q(id__in=permission_workflow_id_list)
 
-            workflow_manage_list = result.get('workflow_list')
-            workflow_manage_id_list = [workflow_manage.get('id') for workflow_manage in workflow_manage_list]
-            workflow_id_list = list(set(workflow_manage_id_list) - (set(workflow_manage_id_list) - set(workflow_id_list)))
-
-        query_params &= Q(id__in=workflow_id_list)
-
+        if search_value:
+            query_params &= Q(name__contains=search_value)
         workflow_queryset = Workflow.objects.filter(query_params).order_by('id')
         paginator = Paginator(workflow_queryset, per_page)
         try:
@@ -58,41 +74,32 @@ class WorkflowBaseService(BaseService):
             # If page is out of range (e.g. 9999), deliver last page of results
             workflow_result_paginator = paginator.page(paginator.num_pages)
         workflow_result_object_list = workflow_result_paginator.object_list
-        workflow_result_restful_list = []
-        workflow_result_id_list = []
+        workflow_info_list = []
         for workflow_result_object in workflow_result_object_list:
-            workflow_result_id_list.append(workflow_result_object.id)
-            workflow_info = dict(
-                id=workflow_result_object.id,
-                name=workflow_result_object.name,
-                description=workflow_result_object.description
-            )
-            if from_admin:
-                workflow_info.update(dict(
-                     notices=workflow_result_object.notices,
-                    view_permission_check=workflow_result_object.view_permission_check,
-                    limit_expression=workflow_result_object.limit_expression,
-                    display_form_str=workflow_result_object.display_form_str,
-                    creator=workflow_result_object.creator, gmt_created=str(workflow_result_object.gmt_created)[:19],
-                    title_template=workflow_result_object.title_template,
-                    content_template=workflow_result_object.content_template
-                ))
-            workflow_result_restful_list.append(workflow_info)
-        # 获取工作流管理员信息
-        if from_admin:
-            workflow_admin_queryset = WorkflowUserPermission.objects.filter(workflow_id__in=workflow_result_id_list, permission='admin').all()
+            workflow_simple_data = dict(id=workflow_result_object.id, name=workflow_result_object.name,
+                                        decription=workflow_result_object.description)
+            workflow_info_list.append(workflow_simple_data)
+        return dict(workflow_info_list=workflow_info_list, per_page=per_page, page=page, total=paginator.count)
 
-            for workflow_result_restful in workflow_result_restful_list:
-                workflow_admin_list = []
-                for workflow_admin_object in workflow_admin_queryset:
-                    if workflow_admin_object.workflow_id == workflow_result_restful['id']:
-                        workflow_admin_list.append(workflow_admin_object.user)
+    @classmethod
+    def get_workflow_init_node(cls, tenant_id: int, operator_id: int, workflow_id: int)->dict:
+        """
+        get workflow's init node info, it includes field info, transition list
+        :param tenant_id:
+        :param operator_id:
+        :param workflow_id:
+        :return:
+        node_info, transition_info_list,
+        """
+        # todo :
+        init_node = workflow_node_service_ins.get_init_node(workflow_id)
+        # todo : get init node's transition list
+        transition_info_list = workflow_transition_service_ins.get_node_transition_list(init_node.id)
+        return dict(node_info=init_node, transition_info_list=transition_info_list)
 
-                workflow_result_restful['workflow_admin'] = ','.join(workflow_admin_list)
 
-        return True, dict(workflow_result_restful_list=workflow_result_restful_list,
-                          paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
+############## below are waiting for update
     @classmethod
     @auto_log
     def get_workflow_manage_list(cls, username: str)->tuple:
@@ -107,7 +114,7 @@ class WorkflowBaseService(BaseService):
             workflow_queryset = Workflow.objects.filter(is_deleted=0).all()
         else:
             # 作为工作流创建人+工作流管理员的工作流
-            workflow_admin_queryset = WorkflowUserPermission.objects.filter(permission='admin', user_type='user', user=username).all()
+            workflow_admin_queryset = WorkflowPermission.objects.filter(permission='admin', user_type='user', user=username).all()
             workflow_admin_id_list = [workflow_admin.workflow_id for workflow_admin in workflow_admin_queryset]
 
             workflow_queryset = Workflow.objects.filter(
@@ -219,7 +226,7 @@ class WorkflowBaseService(BaseService):
         workflow_obj = Workflow.objects.filter(is_deleted=0, id=workflow_id).first()
 
         # 权限人
-        permission_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id).all()
+        permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id).all()
         adminer_list = []
         intervener_list = []
         viewer_username_list = []
@@ -246,63 +253,8 @@ class WorkflowBaseService(BaseService):
         workflow_info_dict['api_permission_apps'] = app_for_api_id_list
         return True, workflow_info_dict
 
-    @classmethod
-    @auto_log
-    def add_workflow(cls, name: str, description: str, notices: str, view_permission_check: int, limit_expression: str,
-                     display_form_str: str, creator: str, workflow_admin: str, title_template: str,
-                     content_template: str, intervener: str, view_depts:str, view_persons:str, api_permission_apps:str)->tuple:
-        """
-        新增工作流
-        add workflow
-        :param name:
-        :param description:
-        :param notices:
-        :param view_permission_check:
-        :param limit_expression:
-        :param display_form_str:
-        :param creator:
-        :param workflow_admin:
-        :param title_template:
-        :param content_template:
-        :return:
-        """
-        workflow_obj = Workflow(name=name, description=description, notices=notices,
-                                view_permission_check=view_permission_check, limit_expression=limit_expression,
-                                display_form_str=display_form_str, creator=creator, title_template=title_template,
-                                content_template=content_template)
-        workflow_obj.save()
 
-        intervener_list = intervener.split(',') if intervener else []
-        workflow_admin_list = workflow_admin.split(',') if workflow_admin else []
-        view_depts_list = view_depts.split(',') if view_depts else []
-        view_persons_list = view_persons.split(',') if view_persons else []
-        api_permission_app_list = api_permission_apps.split(',') if api_permission_apps else []
 
-        workflow_id = workflow_obj.id
-        need_add_permission_queryset = []
-        for need_add_intervener in intervener_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
-                workflow_id=workflow_id, permission='intervene', user_type='user', user=need_add_intervener))
-
-        for need_add_admin in workflow_admin_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
-                workflow_id=workflow_id, permission='admin', user_type='user', user=need_add_admin))
-
-        for need_add_view_depts in view_depts_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
-                workflow_id=workflow_id, permission='view', user_type='department', user=need_add_view_depts))
-
-        for need_add_view_persons in view_persons_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
-                workflow_id=workflow_id, permission='view', user_type='user', user=need_add_view_persons))
-
-        for need_add_app in api_permission_app_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
-                workflow_id=workflow_id, permission='api', user_type='app', user=need_add_app))
-
-        WorkflowUserPermission.objects.bulk_create(need_add_permission_queryset)
-
-        return True, dict(workflow_id=workflow_obj.id)
 
     @classmethod
     @auto_log
@@ -331,7 +283,7 @@ class WorkflowBaseService(BaseService):
                                 limit_expression=limit_expression, display_form_str=display_form_str,
                                 title_template=title_template, content_template=content_template)
         # 更新管理员信息
-        workflow_permission_existed_queryset = WorkflowUserPermission.objects.filter(workflow_id=workflow_id).all()
+        workflow_permission_existed_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id).all()
 
         existed_intervener,  existed_workflow_admin, existed_view_depts, existed_view_persons, \
         existed_app_permission_apps = [], [], [], [], []
@@ -366,7 +318,7 @@ class WorkflowBaseService(BaseService):
 
         flag, need_del_app_list = common_service_ins.list_subtraction(existed_app_permission_apps, api_list)
 
-        WorkflowUserPermission.objects.filter(
+        WorkflowPermission.objects.filter(
             Q(workflow_id=workflow_id, permission='intervene', user_type='user', user__in=need_del_intervener_list) |
             Q(workflow_id=workflow_id, permission='admin', user_type='user', user__in=need_del_admin_list) |
             Q(workflow_id=workflow_id, permission='view', user_type='user', user__in=need_del_view_persons_list) |
@@ -383,26 +335,26 @@ class WorkflowBaseService(BaseService):
 
         need_add_permission_queryset = []
         for need_add_intervener in need_add_intervener_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
+            need_add_permission_queryset.append(WorkflowPermission(
                 workflow_id=workflow_id, permission='intervene', user_type='user', user=need_add_intervener))
 
         for need_add_admin in need_add_admin_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
+            need_add_permission_queryset.append(WorkflowPermission(
                 workflow_id=workflow_id, permission='admin', user_type='user', user=need_add_admin))
 
         for need_add_view_depts in need_add_view_depts_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
+            need_add_permission_queryset.append(WorkflowPermission(
                 workflow_id=workflow_id, permission='view', user_type='department', user=need_add_view_depts))
 
         for need_add_view_persons in need_add_view_persons_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
+            need_add_permission_queryset.append(WorkflowPermission(
                 workflow_id=workflow_id, permission='view', user_type='user', user=need_add_view_persons))
 
         for need_add_app in need_add_app_list:
-            need_add_permission_queryset.append(WorkflowUserPermission(
+            need_add_permission_queryset.append(WorkflowPermission(
                 workflow_id=workflow_id, permission='api', user_type='app', user=need_add_app))
 
-        WorkflowUserPermission.objects.bulk_create(need_add_permission_queryset)
+        WorkflowPermission.objects.bulk_create(need_add_permission_queryset)
 
         return True, ''
 
@@ -476,7 +428,7 @@ class WorkflowBaseService(BaseService):
         if username == workflow_query_obj.creator:
             return True, True
 
-        permission_queryset = WorkflowUserPermission.objects.filter(permission__in=['admin', 'intervene'],
+        permission_queryset = WorkflowPermission.objects.filter(permission__in=['admin', 'intervene'],
                                                                     user_type='user').all()
         for permission in permission_queryset:
             if permission.user == username:

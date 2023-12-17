@@ -1,18 +1,33 @@
 import json
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.workflow.models import CustomNotice
+from apps.manage.models import Notice
+from apps.workflow.models import WorkflowNotice
 from service.base_service import BaseService
 from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
 
 
-class WorkflowCustomNoticeService(BaseService):
-    """
-    工作流通知服务
-    """
-    def __init__(self):
-        pass
+class WorkflowNoticeService(BaseService):
+
+    @classmethod
+    def add_workflow_notice(cls, operator_id: int, tenant_id: int, workflow_id:int, notice_info:dict) -> int:
+        """
+        add workflow notice
+        :param operator_id:
+        :param tenant_id:
+        :param workflow_id:
+        :param notice_info:
+        :return:
+        """
+        notice_id_list = notice_info.get("notice_id_list")
+        notice_id_str_list = [str(notice_id) for notice_id in notice_id_list]
+        notices = ",".join(notice_id_str_list)
+        workflow_notice_info = WorkflowNotice(workflow_id=workflow_id, creator_id=operator_id, tenant_id=tenant_id,
+                                              title_template=notice_info.get("title_template"), content_template=
+                                              notice_info.get("content_template"), notices=notices)
+        workflow_notice_info.save()
+        return workflow_notice_info.id
 
     @classmethod
     @auto_log
@@ -29,7 +44,7 @@ class WorkflowCustomNoticeService(BaseService):
         if query_value:
             query_params &= Q(name__contains=query_value) | Q(description__contains=query_value)
 
-        custom_notice_querset = CustomNotice.objects.filter(query_params).order_by('id')
+        custom_notice_querset = Notice.objects.filter(query_params).order_by('id')
         paginator = Paginator(custom_notice_querset, per_page)
         try:
             custom_notice_result_paginator = paginator.page(page)
@@ -70,7 +85,7 @@ class WorkflowCustomNoticeService(BaseService):
         :param creator:
         :return:
         """
-        notice_obj = CustomNotice(name=name, description=description, type_id=type_id, corpid=corpid,
+        notice_obj = Notice(name=name, description=description, type_id=type_id, corpid=corpid,
                                   corpsecret=corpsecret, appkey=appkey, appsecret=appsecret, hook_url=hook_url,
                                   hook_token=hook_token, creator=creator)
         notice_obj.save()
@@ -90,7 +105,7 @@ class WorkflowCustomNoticeService(BaseService):
         :param hook_token:
         :return:
         """
-        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id)
+        custom_notice_obj = Notice.objects.filter(id=custom_notice_id)
         if custom_notice_obj:
             custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token,
                                      type_id=type_id, corpid=corpid, corpsecret=corpsecret, appkey=appkey,
@@ -107,7 +122,7 @@ class WorkflowCustomNoticeService(BaseService):
         :id: 
         :return:
         """
-        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id)
+        custom_notice_obj = Notice.objects.filter(id=custom_notice_id)
         if custom_notice_obj:
             custom_notice_obj.update(is_deleted=True)
             return True, ''
@@ -122,7 +137,7 @@ class WorkflowCustomNoticeService(BaseService):
         :param custom_notice_id:
         :return:
         """
-        custom_notice_obj = CustomNotice.objects.filter(id=custom_notice_id).first()
+        custom_notice_obj = Notice.objects.filter(id=custom_notice_id).first()
         if custom_notice_obj:
             custom_notice_info = custom_notice_obj.get_dict()
             return True, custom_notice_info
@@ -130,5 +145,4 @@ class WorkflowCustomNoticeService(BaseService):
             return False, 'record is not exist or has been deleted'
 
 
-
-workflow_custom_notice_service_ins = WorkflowCustomNoticeService()
+workflow_notice_service_ins = WorkflowNoticeService()

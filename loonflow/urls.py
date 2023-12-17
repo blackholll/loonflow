@@ -19,6 +19,7 @@ from django.conf import settings
 from django.urls import path, include
 from apps.account.views import JwtLoginView
 from apps.manage.views import CommonConfigView
+from apps.workflow.views import WorkflowSimpleView
 
 urlpatterns = [
     path('', include('apps.manage.urls')),
@@ -27,6 +28,7 @@ urlpatterns = [
     path('api/v1.0/accounts', include('apps.account.urls')),
     path('api/v1.0/tickets', include('apps.ticket.urls')),
     path('api/v1.0/workflows', include('apps.workflow.urls')),
+    path('api/v1.0/simple_workflows', WorkflowSimpleView.as_view()),
     path('api/v1.0/manage', include('apps.manage.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
