@@ -31,4 +31,4 @@ jobs:
           file: docker_compose_deploy/loonflow-task/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: blackholll/loonflow-task:latest,blackholll/loonflow-task:${{ github.ref_name }}
+          tags: gundam1993/loonflow-task:latest,gundam1993/loonflow-task:${{ github.ref_name }}

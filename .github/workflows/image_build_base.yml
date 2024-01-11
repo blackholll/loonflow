@@ -35,4 +35,4 @@ jobs:
           file: docker_compose_deploy/loonflow-base/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: blackholll/loonflow-base:latest,blackholll/loonflow-base:${{ steps.date.outputs.today }}
+          tags: gundam1993/loonflow-base:latest,gundam1993/loonflow-base:${{ steps.date.outputs.today }}

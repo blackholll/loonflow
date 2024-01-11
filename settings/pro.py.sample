@@ -47,7 +47,9 @@ if REDIS_PASSWORD:
 else:
     CELERY_BROKER_URL = 'redis://{}:{}/{}'.format(REDIS_HOST, REDIS_PORT, REDIS_DB)
 
-HOOK_HOST_ALLOWED = []  # host list that allow used as hook url, such as ['192,168.1.12', 'www.baidu.com'], if no this setting key means allow
+# we do not need this
+# HOOK_HOST_ALLOWED = []  
+# host list that allow used as hook url, such as ['192,168.1.12', 'www.baidu.com'], if no this setting key means allow
 
 LOGGING = {
         'version': 1,
