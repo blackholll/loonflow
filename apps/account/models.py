@@ -140,7 +140,8 @@ class Dept(BaseCommonModel):
     tenant = models.ForeignKey(Tenant, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
     name = models.CharField('name', max_length=50, null=False, default="", help_text='department name')
     parent_dept = models.ForeignKey('self', db_constraint=False, null=False, default=0, on_delete=models.DO_NOTHING)
-    leader = models.ForeignKey(User, db_constraint=False, null=False, on_delete=models.DO_NOTHING, related_name="dept_leader")
+    leader = models.ForeignKey(User, db_constraint=False, null=False, on_delete=models.DO_NOTHING, related_name="dept leader")
+    approver = models.CharField('approver', max_length=1000, null=False, default="")
 
     def get_dict(self):
         dept_dict_info = super().get_dict()

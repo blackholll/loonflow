@@ -10,32 +10,58 @@ class TicketRecord(BaseCommonModel):
     """
     ticket record
     """
-    HOOK_STATUS_CHOICE = [
-        ("", "N/A"),
-        ('start', 'START'),
-        ("success", "SUCCESS"),
-        ("fail", "FAIL")
+    ACT_STATE_CHOICE = [
+        ("in_draft", "in-draft"),
+        ("on_going", "on-going"),
+        ("rejected", "rejected"),
+        ("withdrawn", "withdrawn"),
+        ("finished", "finished"),
+        ("closed", "closed")
     ]
+
     title = models.CharField(_("title"), max_length=500, blank=True, default="", help_text="ticket's title")
     workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_workflow")
     parent_ticket = models.ForeignKey("self", db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket")
     parent_ticket_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket_node")
-
-    participant_type_id = models.IntegerField('participant type id', default=0, help_text='0.none,1.personal,2.multi,3.department,4.role')
-    participant = models.CharField('当前处理人', max_length=1000, default='', blank=True, help_text='可以为空(无处理人的情况，如结束状态)、username\多个username(以,隔开)\部门id\角色id\脚本文件名等')
-    in_add_node = models.BooleanField('加签状态中', default=False, help_text='是否处于加签状态下')
-    add_node_man = models.CharField('加签人', max_length=50, default='', blank=True, help_text='加签操作的人，工单当前处理人处理完成后会回到该处理人，当处于加签状态下才有效')
-    hook_status = models.CharField("hook执行状态", max_length=50, choices=HOOK_STATUS_CHOICE)
-    act_state_id = models.IntegerField('进行状态', default=1, help_text='当前工单的进行状态,详见service.constant_service中定义')
-    multi_all_person = models.CharField('全部处理的结果', max_length=1000, default='{}', blank=True, help_text='需要当前状态处理人全部处理时实际的处理结果，json格式')
+    act_state = models.CharField("act state", choices=ACT_STATE_CHOICE)
 
 
 class TicketNode(BaseCommonModel):
+    """
+    used for save ticket node data, only node's latest info
+    """
+    HOOK_STATE_CHOICE = [
+        ("", "N/A"),
+        ('in_progress', 'IN-PROGRESS'),
+        ("success", "SUCCESS"),
+        ("failure", "FAILURE")
+    ]
+
     ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_ticket")
     node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_node")
+    in_add_node = models.BooleanField('in add node status', default=False, help_text='whether in add node status')
+    add_node_target = models.CharField('add node target', max_length=500, default='', blank=True)
+    hook_state = models.CharField("hook running state", max_length=50, choices=HOOK_STATE_CHOICE)
+    all_participant_result = models.JSONField('all participant result', blank=True)
 
 
-class TicketFlowLog(BaseCommonModel):
+class TicketNodeParticipant(BaseCommonModel):
+    """
+    ticket node's participant, only runtime info， one user has only one record for one node,
+    """
+    PARTICIPANT_TYPE_CHOICE = [
+        ('', 'none'),
+        ('person', 'person'),
+        ('hook', 'hook'),
+    ]
+
+    ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_ticket")
+    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_node")
+    participant_type = models.CharField("participant_type", max_length=50, choices=PARTICIPANT_TYPE_CHOICE)
+    participant = models.CharField("participant", max_length=50, default='', blank=True)
+
+
+class TicketFlowHistory(BaseCommonModel):
     """
     ticket;s flow log record
     """
@@ -46,6 +72,7 @@ class TicketFlowLog(BaseCommonModel):
     ]
 
     FLOW_TYPE_CHOICE = [
+        ('create', 'create'),
         ('forward', 'forward'),
         ('countersign', 'countersign'),
         ('countersign_end', 'countersign_end'),
@@ -54,8 +81,9 @@ class TicketFlowLog(BaseCommonModel):
         ('delete', 'delete'),
         ('force_close', 'force_close'),
         ('force_alter_node', 'force_alter_node'),
-        ('retreat', 'retreat'),
-        ('hook', 'hook')
+        ('withdraw', 'withdraw'),
+        ('hook', 'hook'),
+        ('other', 'other')
     ]
     ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING)
     transition = models.ForeignKey(Transition, db_constraint=False, on_delete=models.DO_NOTHING)
@@ -64,7 +92,7 @@ class TicketFlowLog(BaseCommonModel):
     participant_type = models.CharField(_('participant_type'), max_length=50, choices=PARTICIPANT_TYPE_CHOICE)
     participant = models.CharField(_('participant'), max_length=50, default='', blank=True)
     node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
-    flow_type = models.IntegerField(_('flow_type'), default=0, help_text='见service.constant_service中定义')
+    flow_type = models.CharField("flow type", max_length=50, default="", blank=True)
     ticket_data = models.JSONField(_('ticket_data'), default=dict, blank=True)
 
 
@@ -75,31 +103,34 @@ class TicketCustomField(BaseCommonModel):
     FIELD_TYPE_CHOICE = [
         ('text', 'text'),
         ('number', 'number'),
-        ('decimal', 'decimal'),
         ('date', 'date'),
         ('datetime', 'datetime'),
+        ('time', 'time'),
         ('select', 'select'),
         ('cascade', 'cascade'),
         ('user', 'user'),
         ('file', 'file'),
         ('rich_text', 'rich_text')
     ]
-    name = models.CharField("name", max_length=50)
-    field_key = models.CharField(_("field_key"), max_length=50)
+    field_key = models.CharField("field_key", max_length=50)
     ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING)
-    field_type = models.CharField(_("field_type"), max_length=50, choices=FIELD_TYPE_CHOICE)
-    common_value = models.CharField('common_value', max_length=5000, default='', blank=True) # for string, select, cascade, user, file
-    number_value = models.DecimalField('number', default=0, decimal_places=10, max_digits=20, blank=True)
-    datetime_value = models.DateTimeField('datetime_value', default=datetime.datetime.strptime('0001-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'), blank=True)
-    time_value = models.TimeField('time_value', default=datetime.datetime.strptime('00:00:01', '%H:%M:%S'), blank=True)
-    rich_text_value = models.TextField('rich_text_value', default='', blank=True)  # for richtext
+    field_type = models.CharField("field_type", max_length=50, choices=FIELD_TYPE_CHOICE)
+
+    common_value = models.CharField('common_value', max_length=2000, default='', blank=True)  # for text, select, cascade, user, file
+    number_value = models.DecimalField('number', default=0, decimal_places=10, max_digits=20)
+    date_value = models.DateField("date value", default="1970-01-01")
+    datetime_value = models.DateTimeField('datetime_value', default=datetime.datetime.strptime('0001-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'))
+    time_value = models.TimeField('time_value', default=datetime.datetime.strptime('00:00:01', '%H:%M:%S'))
+    rich_text_value = models.TextField('rich_text_value', default='')  # for richtext
 
 
 class TicketUser(BaseCommonModel):
     """
-    ticket related user
+    ticket related user, include as creator, as participant, as processor, as cc recipient
     """
     ticket = models.ForeignKey(TicketRecord, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
-    username = models.ForeignKey(User, db_constraint=False, on_delete=models.DO_NOTHING)
-    in_process = models.BooleanField('in_process', default=False)
-    processed = models.BooleanField('processed', default=False)
+    user = models.ForeignKey(User, db_constraint=False, on_delete=models.DO_NOTHING)
+    as_creator = models.BooleanField('as creator', default=False)
+    as_participant = models.BooleanField('as participant', default=False)
+    as_processor = models.BooleanField('as processor', default=False)
+    as_cc_recipient = models.BooleanField('as cc recipient', default=False)

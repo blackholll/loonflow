@@ -82,18 +82,14 @@ class WorkflowBaseService(BaseService):
         return dict(workflow_info_list=workflow_info_list, per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
-    def get_workflow_init_node(cls, tenant_id: int, operator_id: int, workflow_id: int)->dict:
+    def get_workflow_init_node_rest(cls, workflow_id: int) -> dict:
         """
         get workflow's init node info, it includes field info, transition list
-        :param tenant_id:
-        :param operator_id:
         :param workflow_id:
         :return:
         node_info, transition_info_list,
         """
-        # todo :
         init_node = workflow_node_service_ins.get_init_node(workflow_id)
-        # todo : get init node's transition list
         transition_info_list = workflow_transition_service_ins.get_node_transition_list(init_node.id)
         return dict(node_info=init_node, transition_info_list=transition_info_list)
 
@@ -124,82 +120,6 @@ class WorkflowBaseService(BaseService):
 
         return True, dict(workflow_list=workflow_restful_list)
 
-    @classmethod
-    @auto_log
-    def check_new_permission(cls, username: str, workflow_id: int)->tuple:
-        """
-        判断用户是否有新建工单的权限
-        check whether user can create ticket
-        :param username:
-        :param workflow_id:
-        :return:
-        """
-        # 获取workflow的限制表达式
-        flag, workflow_obj = cls.get_by_id(workflow_id)
-        if not workflow_obj:
-            return False, workflow_obj
-        limit_expression = workflow_obj.limit_expression
-        if not limit_expression:
-            return True, 'no limit_expression set'
-        #'限制周期({"period":24} 24小时), 限制次数({"count":1}在限制周期内只允许提交1次), 限制级别({"level":1} 针对(1单个用户 2全局)限制周期限制次数,默认特定用户);允许特定人员提交({"allow_persons":"zhangsan,lisi"}只允许张三提交工单,{"allow_depts":"1,2"}只允许部门id为1和2的用户提交工单，{"allow_roles":"1,2"}只允许角色id为1和2的用户提交工单)
-        limit_expression_dict = json.loads(limit_expression)
-        limit_period = limit_expression_dict.get('period')
-        limit_level = limit_expression_dict.get('level')
-        limit_count = limit_expression_dict.get('count')
-        limit_allow_persons = limit_expression_dict.get('allow_persons')
-        limit_allow_depts = limit_expression_dict.get('allow_depts')
-        limit_allow_roles = limit_expression_dict.get('allow_roles')
-
-        from service.ticket.ticket_base_service import ticket_base_service_ins
-
-        if limit_period:
-            if limit_level:
-                if limit_level == 1:
-                    flag, result = ticket_base_service_ins.get_ticket_count_by_args(
-                        workflow_id=workflow_id, username=username, period=limit_period)
-                    count_result = result.get('count_result')
-                elif limit_level == 2:
-                    flag, result = ticket_base_service_ins.get_ticket_count_by_args(
-                        workflow_id=workflow_id, period=limit_period)
-                    count_result = result.get('count_result')
-                else:
-                    return False, 'level in limit_expression is invalid'
-                if count_result is False:
-                    return False, result
-                if not limit_count:
-                    return False, 'count is need when level is not none'
-                if count_result >= limit_count:
-                    return False, '{} tickets can be created in {}hours when workflow_id is {}'\
-                        .format(limit_count, limit_period, workflow_id)
-
-        if limit_allow_persons:
-            if username not in limit_allow_persons.split(','):
-                return False, '{} can not create ticket base on workflow_id:{}'.format(workflow_id)
-        if limit_allow_depts:
-            # 获取用户所属部门，包含上级部门
-            flag, user_all_dept_id_list = AccountBaseService.get_user_up_dept_id_list(username)
-            if flag is False:
-                return False, user_all_dept_id_list
-            # 只要user_all_dept_id_list中的某个部门包含在允许范围内即可
-            limit_allow_dept_str_list = limit_allow_depts.split(',')
-            limit_allow_dept_id_list = [int(limit_allow_dept_str) for limit_allow_dept_str in limit_allow_dept_str_list]
-            limit_allow_dept_id_list = list(set(limit_allow_dept_id_list)) #去重
-            total_list = user_all_dept_id_list + limit_allow_dept_id_list
-            if len(total_list) == len(set(total_list)):
-                # 去重后长度相等，说明两个list完全没有重复，即用户所在部门id肯定不在允许的部门id列表内
-                return False, 'user is not in allow dept'
-        if limit_allow_roles:
-            # 获取用户所有的角色
-            flag, user_role_list = account_base_service_ins.get_user_role_id_list(username)
-            if flag is False:
-                return False, user_role_list
-            limit_allow_role_str_list = limit_allow_roles.split(',')
-            limit_allow_role_id_list = [int(limit_allow_role_str) for limit_allow_role_str in limit_allow_role_str_list]
-            limit_allow_role_id_list = list(set(limit_allow_role_id_list))
-            total_list = limit_allow_role_id_list + user_role_list
-            if len(total_list) == len(set(total_list)):
-                return False, 'user is not in allow role'
-        return True, ''
 
     @classmethod
     @auto_log
@@ -477,7 +397,7 @@ class WorkflowBaseService(BaseService):
         try:
             host_allowed_list = settings.HOOK_HOST_ALLOWED
         except Exception as e:
-            # 兼容历史版本，未设置该配置则允许所有
+            # In order to maintain compatibility with older versions, no configure means allow all
             return True, ''
         if host_allowed_list:
             from urllib.parse import urlparse

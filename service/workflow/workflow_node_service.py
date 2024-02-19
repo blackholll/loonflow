@@ -59,5 +59,37 @@ class WorkflowNodeService(BaseService):
                       node_field_str=node_obj.node_field_str)
         return result
 
+    @classmethod
+    def get_start_node_field_list(cls, workflow_id: int) ->tuple:
+        """
+        get start node field list
+        :param workflow_id:
+        :return: required field list and update_field_list
+        """
+        start_node = Node.objects.get(workflow_id=workflow_id, type="start")
+        return cls.get_node_field_list(start_node)
+
+    @classmethod
+    def get_node_field_list(cls, node: Node.objects) -> tuple:
+        """
+        get node's required field list and update field list
+        :param node:
+        :return:
+        """
+        node_field = node.node_field
+        require_field_list, update_field_list= [], []
+        # required, optional, readonly
+        for key, value in node_field:
+            if value == "required":
+                require_field_list.append(key)
+                update_field_list.append(key)
+            elif value == "optional":
+                update_field_list.append(key)
+        return require_field_list, update_field_list
+
+    @classmethod
+    def get_node_by_id(cls, node_id:int):
+        return Node.objects.get(id=node_id)
+
 
 workflow_node_service_ins = WorkflowNodeService()

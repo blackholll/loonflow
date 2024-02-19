@@ -23,6 +23,8 @@ class WorkflowNotice(BaseCommonModel):
 class Node(BaseCommonModel):
     """
     node
+    node_field: {"field1": "r", "field2":"rwr", "field3": "rwo"}
+    r: readonly, rwm: read, write, must provide, rwo: read, write, option(not required))
     """
     TYPE_CHOICE = [
         ('start', 'start'),
@@ -34,15 +36,16 @@ class Node(BaseCommonModel):
         ('timer', 'timer')
     ]
     PARTICIPANT_TYPE_CHOICE = [
-        ('', 'none'),
+        ('none', 'none'),
         ('person', 'person'),
-        ('multi-person', 'multi-person'),
+        ('multi_person', 'multi_person'),
         ('dept', 'dept'),
         ('role', 'role'),
         ('variable', 'variable'),
         ('ticket_field', 'ticket_field'),
         ('parent_ticket_field', 'parent_ticket_field'),
         ('hook', 'hook'),
+        ('timer', 'timer'),
         ('from-external', 'from-external')
     ]
     DISTRIBUTE_TYPE_CHOICE = [
@@ -51,6 +54,8 @@ class Node(BaseCommonModel):
         ('random', 'random'),
         ('whole', 'whole')
     ]
+    # node field attr: r:read, wo:write option, wr: write require
+
     name = models.CharField("name", max_length=50)
     workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
     type = models.CharField("type", max_length=50, choices=TYPE_CHOICE, default='common')
@@ -59,7 +64,7 @@ class Node(BaseCommonModel):
     participant_type = models.CharField("participant_type", max_length=100, choices=PARTICIPANT_TYPE_CHOICE)
     participant = models.CharField("participant", default='', blank=True, max_length=1000, help_text='need support sub-workflow, then you should set the participant as loonflowrobot')
     distribute_type = models.CharField("distribute_type", max_length=50, default='direct', choices=DISTRIBUTE_TYPE_CHOICE)
-    node_field_str = models.JSONField("state_field_str", default=dict)
+    node_field = models.JSONField("node_field", default=dict)
     props = models.JSONField("props")
 
 
@@ -77,7 +82,7 @@ class Transition(BaseCommonModel):
     source_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
     destination_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_destination")
     condition_expression = models.CharField("condition_expression", max_length=1000, default='')
-    transition_type = models.CharField("transition_type", choices=TRANSITION_TYPE_CHOICE)
+    type = models.CharField("transition_type", choices=TRANSITION_TYPE_CHOICE)
     field_require_check = models.BooleanField("field_require_check", default=True, help_text='will check whether all field rule is valid if this attr is true')
     alert_text = models.CharField("alert_text", max_length=200, default='', blank=True)
     props = models.JSONField("props")
@@ -138,6 +143,7 @@ class WorkflowHook(BaseCommonModel):
     hook record
     """
     HOOK_TYPE_CHOICE = [
+        ("pre_create", "pre_create"),
         ("create", "create"),
         ("force_close", "force_close"),
         ("normal_end", "normal_end"),
@@ -148,5 +154,5 @@ class WorkflowHook(BaseCommonModel):
     description = models.CharField("description", max_length=500, null=True, blank=True)
     url = models.CharField("url", max_length=500, null=True, blank=True)
     token = models.CharField("token", max_length=200, null=True, blank=True)
-    type = models.CharField("type", max_length=500, null=True, blank=True)
+    types = models.CharField("types", max_length=500, null=True, blank=True)
     workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)

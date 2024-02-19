@@ -2,6 +2,7 @@ import time
 from apps.loon_base_model import SnowflakeIDGenerator
 from apps.workflow.models import WorkflowPermission
 from service.base_service import BaseService
+from service.exception.custom_common_exception import CustomCommonException
 
 
 class WorkflowPermissionService(BaseService):
@@ -57,7 +58,7 @@ class WorkflowPermissionService(BaseService):
         return True
 
     @classmethod
-    def get_user_permission_workflow_id_list(cls, user_id:int)-> list:
+    def get_user_permission_workflow_id_list(cls, user_id: int) -> list:
         """
         get user permission workflow id list
         :param user_id:
@@ -67,6 +68,19 @@ class WorkflowPermissionService(BaseService):
         result = [permission.id for permission in permission_queryset]
         return result
 
+    @classmethod
+    def app_workflow_permission_check(cls, tenant_id: int, workflow_id: int, app_name: str) -> bool:
+        """
+        check whether app has permission for workflow
+        :param tenant_id:
+        :param workflow_id:
+        :param app_name:
+        :return:
+        """
+        permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, permission="api", target=app_name).all()
+        if permission_queryset:
+            return True
+        raise CustomCommonException("app has no permission to this workflow")
 
 
 workflow_permission_service_ins = WorkflowPermissionService()

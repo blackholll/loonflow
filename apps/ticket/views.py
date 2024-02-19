@@ -1,12 +1,19 @@
 import json
+import logging
+import traceback
+
 from django.http import HttpResponse
 from django.views import View
 from schema import Schema, Regex, And, Or, Use, Optional
 
 from apps.loon_base_view import BaseView
 from service.account.account_base_service import account_base_service_ins
+from service.exception.custom_common_exception import CustomCommonException
 from service.format_response import api_response
+from service.permission.user_permission import user_permission_check
 from service.ticket.ticket_base_service import ticket_base_service_ins
+
+logger = logging.getLogger("django")
 
 
 class TicketListView(BaseView):
@@ -18,12 +25,15 @@ class TicketListView(BaseView):
 
     def get(self, request, *args, **kwargs):
         """
-        获取工单列表
+        create new ticket
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
+        creator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+
         request_data = request.GET
         sn = request_data.get('sn', '')
         title = request_data.get('title', '')
@@ -72,30 +82,27 @@ class TicketListView(BaseView):
 
     def post(self, request, *args, **kwargs):
         """
-        新建工单，需要根据不同类型工单传的参数不一样
+        new ticket, should submit different args for different workflow
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
-        json_str = request.body.decode('utf-8')
+        operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        app_name = request.META.get('HTTP_APPNAME')
 
+        json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
 
-        app_name = request.META.get('HTTP_APPNAME')
-        request_data_dict.update(dict(username=request.META.get('HTTP_USERNAME')))
-
-        # 判断是否有创建某工单的权限
-        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, request_data_dict.get('workflow_id'))
-        if not app_permission:
-            return api_response(-1, 'APP:{} have no permission to create this workflow ticket'.format(app_name), '')
-
-        flag, result = ticket_base_service_ins.new_ticket(request_data_dict, app_name)
-        if flag:
-            code, data = 0, {'ticket_id': result.get('new_ticket_id')}
-        else:
-            code, data = -1, {}
-        return api_response(code, result, data)
+        try:
+            result = ticket_base_service_ins.new_ticket(tenant_id, app_name, operator_id, request_data_dict)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error",{})
+        return api_response(0, "", dict(ticket_id=result))
 
 
 class TicketView(BaseView):

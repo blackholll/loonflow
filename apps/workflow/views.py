@@ -94,6 +94,7 @@ class WorkflowSimpleView(BaseView):
         return api_response(0, "", dict(workflow_info_list=result.get("workflow_info_list"), page=
         result.get("page"), per_page=result.get("per_page"), total=result.get("total")))
 
+
 class WorkflowInitNodeView(BaseView):
     """
     workflow's init node info
@@ -108,12 +109,13 @@ class WorkflowInitNodeView(BaseView):
         """
         workflow_id = kwargs.get("workflow_id")
         try:
-            result = workflow_base_service_ins.get_workflow_init_node(workflow_id=workflow_id)
+            result = workflow_base_service_ins.get_workflow_init_node_rest(workflow_id=workflow_id)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
+        return api_response(0, "", result)
 
 
 

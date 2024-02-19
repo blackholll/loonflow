@@ -53,16 +53,16 @@ class AccountBaseService(BaseService):
             return False, 'appname is unauthorized'
 
     @classmethod
-    @auto_log
-    def app_workflow_permission_check(cls, app_name: str, workflow_id: int) -> tuple:
+    def app_workflow_permission_check(cls, tenant_id: int,app_name: str, workflow_id: int) -> bool:
         """
-        appname has permission for workflow check by app_name and workflow_id
+        appname has permission for workflow check by tenant_id, app_name and workflow_id
+        :param tenant_id:
         :param app_name:
         :param workflow_id:
         :return:
         """
         if app_name == 'loonflow':
-            return True, ''
+            return True
 
         from service.workflow.workflow_permission_service import workflow_permission_service_ins
         flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission('api', 'app', app_name)

@@ -226,34 +226,25 @@ class AccountUserService(BaseService):
         return True, dept_id_list
 
     @classmethod
-    @auto_log
-    def get_user_dept_approver(cls, username: str, dept_id: int = 0) -> tuple:
+    def get_user_dept_approver(cls, user_id: int, dept_id: int = 0) -> list:
         """
         get user's department approver， Preferential access to the approver, without taking tl（team leader）
-        :param username:
-        :param dept_id: 用于用户可能属于多个部门的情况
+        :param user_id:
+        :param dept_id: for the situation that user belong more than one dept
         :return:
         """
-        user_obj = User.objects.filter(username=username).first()
+        user_obj = User.objects.get(id=user_id)
         if dept_id:
-            if UserDept.objects.filter(user_id=user_obj.id, dept_id=dept_id).first():
-                loon_dept_obj = Dept.objects.filter(id=dept_id).first()
-                if loon_dept_obj.approver:
-                    return True, loon_dept_obj.approver
-                else:
-                    return True, loon_dept_obj.leader
-            else:
-                return False, 'dept_id is invalid'
+            UserDept.objects.get(user_id=user_obj.id, dept_id=dept_id) # check whether user belong to this dept
+            dept_info = Dept.objects.get(id=dept_id)
+            return dept_info.approver.split(",") if dept_info.approver else [str(dept_info.leader_id)]
         else:
-            # no dept id specified, get all user dept's approver
+            result_list = []
             user_dept_queryset = UserDept.objects.filter(user_id=user_obj.id)
-            approver_list = []
-            for user_dept in user_dept_queryset:
-                if user_dept.dept.approver:
-                    approver_list.extend(user_dept.dept.approver.split(','))
-                else:
-                    approver_list.append(user_dept.dept.leader)
-            return True, ','.join(list(set(approver_list)))
+            user_dept_id_list = [user_dept.dept_id for user_dept in user_dept_queryset]
+            dept_queryset = Dept.objects.filter(id__in=user_dept_id_list)
+            for dept in dept_queryset:
+                result_list += dept.approver.split(",") if dept.approver else [str(dept.leader_id)]
 
     @classmethod
     @auto_log
@@ -478,6 +469,16 @@ class AccountUserService(BaseService):
             raise
         User.objects.filter(id=user_id).update(**{"lang": lang})
         return True
+
+    @classmethod
+    def get_user_list_by_id_list(cls, tenant_id, user_id_list):
+        """
+        get user list by id list
+        :param tenant_id:
+        :param user_id_list:
+        :return:
+        """
+        return User.objects.filter(id__in=user_id_list, tenant_id=tenant_id)
 
 
 account_user_service_ins = AccountUserService()

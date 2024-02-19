@@ -59,9 +59,40 @@ class WorkflowTransitionService(BaseService):
 
         return result_list
 
+    @classmethod
+    def get_workflow_transition_by_id(cls, transition_id: int) -> tuple:
+        """
+        get transition object
+        get transition by id
+        :param transition_id:
+        :return:
+        """
+        return Transition.objects.get(id=transition_id)
 
+    @classmethod
+    def get_parallel_next_node_list(cls, parallel_node_id: int) -> list:
+        """
+        get parallel node's next node
+        :param parallel_node_id:
+        :return:
+        """
+        result = []
+        transition_queryset = Transition.objects.filter(source_node_id=parallel_node_id).all()
+        for transition in transition_queryset:
+            if transition.destination_node.type == "parallel_gw":
+                result.extend(cls.get_parallel_next_node_list(transition.destination_node_id))
+            else:
+                result.append(transition.destination_node)
+        return result
 
-
+    @classmethod
+    def get_transition_queryset_by_source_node_id(cls, source_node_id:int):
+        """
+        get source node id
+        :param source_node_id:
+        :return:
+        """
+        return Transition.objects.filter(source_node_id=source_node_id)
 
 
 
@@ -84,16 +115,6 @@ class WorkflowTransitionService(BaseService):
         """
         return True, Transition.objects.filter(is_deleted=0, source_state_id=state_id).all()
 
-    @classmethod
-    @auto_log
-    def get_workflow_transition_by_id(cls, transition_id: int)->tuple:
-        """
-        获取transition
-        get transition by id
-        :param transition_id:
-        :return:
-        """
-        return True, Transition.objects.filter(is_deleted=0, id=transition_id).first()
 
     @classmethod
     @auto_log
