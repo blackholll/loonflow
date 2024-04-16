@@ -1,9 +1,12 @@
 import json
 import time
-
+import logging
 from apps.loon_base_model import SnowflakeIDGenerator
 from apps.workflow.models import Node
 from service.base_service import BaseService
+from service.exception.custom_common_exception import CustomCommonException
+
+logger = logging.getLogger("django")
 
 
 class WorkflowNodeService(BaseService):
@@ -28,7 +31,6 @@ class WorkflowNodeService(BaseService):
             node_field_info_list = node_info.get("node_field_info_list")
             for node_field_info in node_field_info_list:
                 node_field_dict[node_field_info.get("field_key")] = node_field_info.get("field_attr")
-            node_field_str = json.dumps(node_field_dict)
 
             node_create = Node(id=node_id, name=node_info.get("name"),
                                workflow_id=workflow_id,
@@ -40,7 +42,7 @@ class WorkflowNodeService(BaseService):
                                participant_type=node_info.get("participant_type"),
                                participant=node_info.get("participant"),
                                distribute_type=node_info.get("distribute_type"),
-                               node_field_str=node_field_str,
+                               node_field=node_field_dict,
                                props=node_info.get("props")
                                )
             node_create_list.append(node_create)
@@ -48,16 +50,26 @@ class WorkflowNodeService(BaseService):
         return result_dict
 
     @classmethod
-    def get_init_node(cls, workflow_id: int) -> Node.objects:
+    def get_init_node_rest(cls, workflow_id: int) -> dict:
         """
-        get init node
+        get init node, only include node info
         :param workflow_id:
         :return:
         """
-        node_obj = Node.objects.get(workflow_id=workflow_id, type="start")
-        result = dict(name=node_obj.name, type=node_obj.type, allow_retreat=node_obj.allow_retreat,
-                      node_field_str=node_obj.node_field_str)
-        return result
+        try:
+            node_obj = Node.objects.get(workflow_id=workflow_id, type="start")
+        except Node.DoesNotExist as e:
+            logger.exception("init node is not exist: ")
+            raise CustomCommonException("init node is not exist")
+        result = node_obj.get_dict()
+        node_field = result["node_field"]
+        node_field_info_list = []
+        for key, value in node_field.items():
+            node_field_info_list.append(dict(field_key=key, field_value=value))
+        need_key_list = ["id", "label", "tenant_id", "name", "type", "allow_retreat", "props"]
+        new_result = {key: result[key] for key in result if key in need_key_list}
+        new_result["node_field_info_list"] = node_field_info_list
+        return new_result
 
     @classmethod
     def get_start_node_field_list(cls, workflow_id: int) ->tuple:
@@ -79,11 +91,11 @@ class WorkflowNodeService(BaseService):
         node_field = node.node_field
         require_field_list, update_field_list= [], []
         # required, optional, readonly
-        for key, value in node_field:
-            if value == "required":
+        for key, value in node_field.items():
+            if value == "rwm":
                 require_field_list.append(key)
                 update_field_list.append(key)
-            elif value == "optional":
+            elif value == "rwo":
                 update_field_list.append(key)
         return require_field_list, update_field_list
 

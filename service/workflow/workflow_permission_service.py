@@ -18,10 +18,10 @@ class WorkflowPermissionService(BaseService):
         :return:
         """
         permission_create_list = []
-        admin_id_list = permission_info.get("admin_id_list")
-        intervener_id_list = permission_info.get("intervener_id_list")
-        viewer_id_list = permission_info.get("viewer_id_list")
-        viewer_dept_id_list = permission_info.get("viewer_dept_id_list")
+        admin_id_list = permission_info.get("admin_id_list", [])
+        intervener_id_list = permission_info.get("intervener_id_list", [])
+        viewer_id_list = permission_info.get("viewer_id_list", [])
+        viewer_dept_id_list = permission_info.get("viewer_dept_id_list", [])
         for admin_id in admin_id_list:
             time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
             permission_id = SnowflakeIDGenerator()()
@@ -77,6 +77,10 @@ class WorkflowPermissionService(BaseService):
         :param app_name:
         :return:
         """
+        from service.workflow.workflow_base_service import workflow_base_service_ins
+
+        if app_name == "loonflow" and workflow_base_service_ins.get_workflow_record_by_id(tenant_id, workflow_id):
+            return True
         permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, permission="api", target=app_name).all()
         if permission_queryset:
             return True

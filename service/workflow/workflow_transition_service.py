@@ -35,7 +35,7 @@ class WorkflowTransitionService(BaseService):
                                            workflow_id=workflow_id, source_node_id=source_node_id,
                                            destination_node_id=destination_node_id,
                                            condition_expression=transition_info.get("condition_expression"),
-                                           transition_type=transition_info.get("transition_type"),
+                                           type=transition_info.get("type"),
                                            field_require_check=transition_info.get("field_require_check"),
                                            alert_text=transition_info.get("alert_text"),
                                            props=transition_info.get("props", {})
@@ -44,20 +44,32 @@ class WorkflowTransitionService(BaseService):
         Transition.objects.bulk_create(transition_create_list)
         return True
 
-    def get_node_transition_list(self, node_id: int) -> list:
+    @classmethod
+    def get_node_transition_queryset(cls, node_id: int) -> list[Transition]:
         """
         get transition list base source node
         :param node_id:
         :return:
         """
-        transition_queryset = Transition.objects.filter(source_node_id=node_id).all()
-        result_list = []
-        for transition in transition_queryset:
-            result = dict(id=transition.id, name=transition.name, transition_type=transition.transition_type,
-                          field_require_check=transition.field_require_check, alert_text=transition.alert_text)
-            result_list.append(result)
+        transition_queryset = Transition.objects.filter(source_node_id=node_id)
+        return transition_queryset
 
+    @classmethod
+    def get_node_transition_rest(cls, node_id: int) -> list:
+        """
+        get transition list base source node, return dict list
+        :param node_id:
+        :return:
+        """
+        transition_queryset = Transition.objects.filter(source_node_id=node_id)
+        result_list = []
+        need_key_list = ["id", "label", "name", "type", "alter_text", "props"]
+        for transition in transition_queryset:
+            transition_raw = transition.get_dict()
+            transition_new = {key: transition_raw[key] for key in transition_raw if key in need_key_list}
+            result_list.append(transition_new)
         return result_list
+
 
     @classmethod
     def get_workflow_transition_by_id(cls, transition_id: int) -> tuple:

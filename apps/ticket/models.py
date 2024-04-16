@@ -55,8 +55,8 @@ class TicketNodeParticipant(BaseCommonModel):
         ('hook', 'hook'),
     ]
 
-    ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_ticket")
-    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_node")
+    ticket = models.ForeignKey(TicketRecord, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_parti_ticket")
+    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_parti_node")
     participant_type = models.CharField("participant_type", max_length=50, choices=PARTICIPANT_TYPE_CHOICE)
     participant = models.CharField("participant", max_length=50, default='', blank=True)
 

@@ -29,14 +29,14 @@ class TicketNodeService(BaseService):
             ticket_node_bulk_list.append(ticket_node_bulk)
             time.sleep(0.001)  # SnowflakeIDGenerator has bug will, just workaround provisionally
 
-            if ticket_node_participant_obj.destination_participant_type in ("multi-person", "person"):
+            if ticket_node_participant_obj.get("destination_participant_type") in ("multi-person", "person"):
                 real_destination_participant_type = "person"
             else:
-                real_destination_participant_type = ticket_node_participant_obj.destination_participant_type
-            for destination_participant in ticket_node_participant_obj.destination_participant_list:
+                real_destination_participant_type = ticket_node_participant_obj.get("destination_participant_type")
+            for destination_participant in ticket_node_participant_obj.get("destination_participant_list"):
                 ticket_node_participant_bulk = TicketNodeParticipant(id=SnowflakeIDGenerator()(), tenant_id=tenant_id,
-                                                                     ticket_id=ticket_node_participant_obj.ticket_id,
-                                                                     node_id=ticket_node_participant_obj.node_id,
+                                                                     ticket_id=ticket_node_participant_obj.get("ticket_id"),
+                                                                     node_id=ticket_node_participant_obj.get("node_id"),
                                                                      participant_type=real_destination_participant_type,
                                                                      participant=destination_participant
                                                                      )
@@ -44,11 +44,11 @@ class TicketNodeService(BaseService):
                 ticket_node_participant_bulk_list.append(ticket_node_participant_bulk)
 
         # del and add new record
-        node_id_list = [ticket_node_participant_obj.id for ticket_node_participant_obj in ticket_node_participant_obj_list]
+        node_id_list = [ticket_node_participant_obj.get("id") for ticket_node_participant_obj in ticket_node_participant_obj_list]
 
-        for_archive_ticket_node_queryset = TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_node_participant_obj_list[0].ticket_id, node_id__in=node_id_list)
+        for_archive_ticket_node_queryset = TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_node_participant_obj_list[0].get("ticket_id"), node_id__in=node_id_list)
         for_archive_ticket_node_participant_queryset = TicketNodeParticipant.objects.filter(tenant_id=tenant_id,
-                                                                                            ticket_id=ticket_node_participant_obj_list[0].ticket_id, node_id__in=node_id_list)
+                                                                                            ticket_id=ticket_node_participant_obj_list[0].get("ticket_id"), node_id__in=node_id_list)
 
         archive_service_ins.archive_record_list("TicketNode", for_archive_ticket_node_queryset, 0)
         archive_service_ins.archive_record_list("TicketNodeParticipant", for_archive_ticket_node_participant_queryset, 0)

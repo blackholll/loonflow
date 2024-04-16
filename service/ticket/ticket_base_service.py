@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import CustomField, Workflow, WorkflowHook
-from apps.ticket.models import TicketRecord, TicketCustomField, TicketFlowLog, TicketUser, TicketNode
+from apps.ticket.models import TicketRecord, TicketCustomField, TicketUser, TicketNode
 from service.account.account_dept_service import account_dept_service_ins
 from service.account.account_role_service import account_role_service_ins
 from service.account.account_user_service import account_user_service_ins
@@ -249,18 +249,22 @@ class TicketBaseService(BaseService):
         """
         workflow_id = request_data_dict.get('workflow_id')
         # check whether current call source has permission to create this type ticket
-        workflow_permission_service_ins.app_workflow_permission_check(tenant_id, app_name,
-                                                                                             workflow_id)
+        workflow_permission_service_ins.app_workflow_permission_check(tenant_id, workflow_id, app_name)
         # pre_create_hook check
-        workflow_base_service_ins.pre_create_hook(tenant_id, operator_id, workflow_id, request_data_dict)
+        workflow_hook_service_ins.pre_create_hook(tenant_id, operator_id, workflow_id, request_data_dict)
 
         transition_id = request_data_dict.get('transition_id')
         parent_ticket_id = request_data_dict.get('parent_ticket_id', 0)
         parent_ticket_node_id = request_data_dict.get('parent_ticket_node_id', 0)
-        comment = request_data_dict.get('comment', '')
+        ticket_field_info_list = request_data_dict.get('ticket_field_info_list', [])
+        request_field_arg_list = [ticket_field_info.get("field_key") for ticket_field_info in ticket_field_info_list]
+        title = ""
+        ticket_field_dict = dict()
+        for ticket_field_info in ticket_field_info_list:
+            ticket_field_dict[ticket_field_info.get("field_key")] =ticket_field_info.get("field_value")
+            if ticket_field_info.get("field_key") == "title":
+                title = ticket_field_info.get("field_value")
 
-        request_field_arg_list = [key for key, value in request_data_dict.items()
-                                  if (key not in ['workflow_id', 'comment', 'transition_id'])]
         required_field_list, update_field_list = workflow_node_service_ins.get_start_node_field_list(workflow_id)
 
         # check whether all required field are provided if transition's field_require_check is enable
@@ -278,12 +282,13 @@ class TicketBaseService(BaseService):
         if len(next_node_list) == 1:
             act_state = cls.get_act_state_by_node_and_transition_type(next_node_list[0].type, req_transition_obj.type)
 
-        ticket_record = TicketRecord(title=request_data_dict.get("title"), workflow_id=workflow_id,
+        ticket_record = TicketRecord(title=title, workflow_id=workflow_id,
                                      parent_ticket_id=parent_ticket_id,
                                      parent_ticket_node_id=parent_ticket_node_id,
                                      act_state=act_state, creator_id=operator_id, tenant_id=tenant_id)
         ticket_record.save()
         ticket_id = ticket_record.id
+        print('ticket_idticket_id:',ticket_id)
 
         # add ticket cc_to user record
         ticket_user_service_ins.add_record(tenant_id, operator_id, ticket_id, True, False, False, False)
@@ -293,15 +298,16 @@ class TicketBaseService(BaseService):
 
         # add ticket flow history
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, transition_id,
-                                                                comment, "person", str(operator_id),
+                                                                "", "person", str(operator_id),
                                                                 req_transition_obj.source_node_id,
                                                                 "create", request_data_dict)
 
         # add ticket custom field
         add_custom_field_info = dict()
         for update_field in update_field_list:
-            add_custom_field_info[update_field] = request_data_dict.get(update_field)
-        ticket_custom_field_service_ins.add_record(tenant_id, operator_id, workflow_id, add_custom_field_info)
+            if update_field != "title":
+                add_custom_field_info[update_field] = ticket_field_dict.get(update_field)
+        ticket_custom_field_service_ins.add_record(tenant_id, ticket_id, operator_id, workflow_id, add_custom_field_info)
 
         # update TicketNode, TicketNodeParticipant
         ticket_node_participant_list =[]
@@ -309,8 +315,8 @@ class TicketBaseService(BaseService):
         for next_node in next_node_list:
             ticket_node_participant_obj = dict()
             next_participant_info = cls.get_ticket_node_participant_info(operator_id, next_node, 0, request_data_dict)
-            destination_participant_type = next_participant_info.get("destination_participant_type"),
-            destination_participant_list = next_participant_info.get("destination_participant_list"),
+            destination_participant_type = next_participant_info.get("destination_participant_type")
+            destination_participant_list = next_participant_info.get("destination_participant_list")
             all_participant_result = next_participant_info.get("all_participant_result")
             ticket_node_participant_obj["ticket_id"] = ticket_id
             ticket_node_participant_obj["node_id"] = next_node.id
@@ -325,15 +331,15 @@ class TicketBaseService(BaseService):
 
             if destination_participant_type in ("person", "multi_person"):
                 ticket_participant_user_list += destination_participant_list
-        ticket_node_service_ins.update_batch_record(ticket_node_participant_list)
+        ticket_node_service_ins.update_batch_record(tenant_id, ticket_node_participant_list)
 
         # update relate user for next node
         ticket_participant_user_list = list(set(ticket_participant_user_list))
-        ticket_user_service_ins.add_participant_record_list(ticket_participant_user_list)
+        ticket_user_service_ins.add_participant_record_list(tenant_id, ticket_id, ticket_participant_user_list)
 
         # send notice
         from tasks import send_ticket_notice
-        send_ticket_notice.apply_async(args=ticket_id, queue="loonflow")
+        send_ticket_notice.apply_async(args=[tenant_id, ticket_id], queue="loonflow")
 
 
         for ticket_node_participant in ticket_node_participant_list:
@@ -380,8 +386,8 @@ class TicketBaseService(BaseService):
         workflow_id = request_data_dict.get("workflow_id", 0)
 
         if not ticket_id:
-            init_node = workflow_base_service_ins.get_init_node(workflow_id)
-            source_node_id_list = [init_node.id]
+            init_node = workflow_node_service_ins.get_init_node_rest(workflow_id)
+            source_node_id_list = [init_node.get("id")]
         else:
             source_node_id_list = cls.get_ticket_current_node_list(ticket_id)
         transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(request_data_dict.get("transition_id"))
@@ -468,9 +474,10 @@ class TicketBaseService(BaseService):
             all_participant_result = {}
             ticket_value_info = ticket_req_dict
 
-        destination_participant_type, destination_participant, destination_participant_list = node_obj.type, node_obj.participant, []
-
-        if destination_participant_type == "ticket_field":
+        destination_participant_type, destination_participant, destination_participant_list = node_obj.participant_type, node_obj.participant, []
+        if destination_participant_type == "personal":
+            destination_participant_list = destination_participant.split(',')
+        elif destination_participant_type == "ticket_field":
             participant_list = destination_participant.split(",")
 
             for participant0 in participant_list:

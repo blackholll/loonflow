@@ -16,7 +16,7 @@ class TicketUserService(BaseService):
         ticket_user_queryset = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=user_id)
         update_dict = dict()
         if as_creator:
-            update_dict["update_dict"] = True
+            update_dict["as_creator"] = True
         if as_participant:
             update_dict["as_participant"] = True
         if as_processor:
@@ -27,7 +27,7 @@ class TicketUserService(BaseService):
         if ticket_user_queryset:
             ticket_user_queryset.update(**update_dict)
         else:
-            ticket_user = TicketUser(id=SnowflakeIDGenerator()(),  tenant_id=tenant_id, ticket_id=tenant_id, user_id=user_id)
+            ticket_user = TicketUser(id=SnowflakeIDGenerator()(),  tenant_id=tenant_id, ticket_id=ticket_id, user_id=user_id)
             ticket_user.save()
             TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=user_id).update(**update_dict)
 
@@ -43,7 +43,7 @@ class TicketUserService(BaseService):
         exist_queryset = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id__in=user_id_list)
         exist_queryset.update(as_participant=True)
         exist_user_id_list = [exist_record.user_id for exist_record in exist_queryset]
-        not_exist_user_id_list = [user_id for user_id in user_id_list not in exist_user_id_list]
+        not_exist_user_id_list = [user_id for user_id in user_id_list if user_id not in exist_user_id_list]
         ticket_user_batch_list = []
         for not_exist_user_id in not_exist_user_id_list:
             ticket_user_batch_list.append(TicketUser(id=SnowflakeIDGenerator()(), tenant_id=tenant_id, ticket_id=ticket_id, user_id=not_exist_user_id, as_participant=True))

@@ -8,6 +8,7 @@ from service.base_service import BaseService
 from service.common.common_service import common_service_ins
 from service.common.log_service import auto_log
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
+from service.exception.custom_common_exception import CustomCommonException
 from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
 from service.workflow.workflow_hook_service import workflow_hook_service_ins
 from service.workflow.workflow_node_service import workflow_node_service_ins
@@ -31,8 +32,7 @@ class WorkflowBaseService(BaseService):
         :return:
         """
         basic_info = request_data.get("basic_info")
-        workflow_info = Workflow(name=basic_info.get('name'), description=basic_info.get("description"),
-                                 workflow_limit=basic_info.get("workflow_limit"), ticket_limit=basic_info.get("ticket_limit"))
+        workflow_info = Workflow(name=basic_info.get('name'), description=basic_info.get("description"))
         workflow_info.save()
         workflow_id = workflow_info.id
         workflow_notice_service_ins.add_workflow_notice(operator_id, tenant_id, workflow_id, request_data.get("notice_info"))
@@ -84,14 +84,24 @@ class WorkflowBaseService(BaseService):
     @classmethod
     def get_workflow_init_node_rest(cls, workflow_id: int) -> dict:
         """
-        get workflow's init node info, it includes field info, transition list
+        get workflow's init node info, it includes init node info, init node's transition list
         :param workflow_id:
         :return:
         node_info, transition_info_list,
         """
-        init_node = workflow_node_service_ins.get_init_node(workflow_id)
-        transition_info_list = workflow_transition_service_ins.get_node_transition_list(init_node.id)
+        init_node = workflow_node_service_ins.get_init_node_rest(workflow_id)
+        transition_info_list = workflow_transition_service_ins.get_node_transition_rest(init_node.get('id'))
+
         return dict(node_info=init_node, transition_info_list=transition_info_list)
+
+    @classmethod
+    def get_workflow_record_by_id(cls, tenant_id: int, workflow_id: int) -> dict:
+        """
+        get workflow record by id
+        :param workflow_id:
+        :return:
+        """
+        return Workflow.objects.get(id=workflow_id, tenant_id=tenant_id)
 
 
 

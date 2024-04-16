@@ -8,7 +8,8 @@ class TicketCustomFieldService(BaseService):
     """
     ticket custom field service
     """
-    def get_field_value_column(self, field_type: str) -> str:
+    @classmethod
+    def get_field_value_column(cls, field_type: str) -> str:
         """
         get what the column about field's value should save to
         :param field_type:
@@ -28,10 +29,11 @@ class TicketCustomFieldService(BaseService):
             return "rich_text_value"
 
     @classmethod
-    def add_record(cls, tenant_id: int, operator_id: int, workflow_id: int, field_info_dict: dict) -> bool:
+    def add_record(cls, tenant_id: int, ticket_id:int, operator_id: int, workflow_id: int, field_info_dict: dict) -> bool:
         """
         add ticket custom field record
         :param tenant_id:
+        :param ticket_id:
         :param operator_id:
         :param workflow_id:
         :param field_info_dict:
@@ -42,9 +44,9 @@ class TicketCustomFieldService(BaseService):
         for workflow_custom_field in workflow_custom_field_queryset:
             custom_field_dict[workflow_custom_field.field_key] = workflow_custom_field.field_type
         record_list = []
-        for field_key, field_value in field_info_dict:
+        for field_key, field_value in field_info_dict.items():
             field_value_column = cls.get_field_value_column(custom_field_dict.get(field_key))
-            record_list.append(TicketCustomField(id=SnowflakeIDGenerator()(), tenant_id=tenant_id, creator_id=operator_id,
+            record_list.append(TicketCustomField(id=SnowflakeIDGenerator()(), tenant_id=tenant_id, ticket_id=ticket_id, creator_id=operator_id, field_key=field_key, field_type=custom_field_dict.get(field_key),
                                                  **{field_value_column: field_value}))
             import time
             time.sleep(0.001)  # SnowflakeIDGenerator has bug will, just workaround provisionally

@@ -81,11 +81,12 @@ class Transition(BaseCommonModel):
     workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_workflow")
     source_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
     destination_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_destination")
-    condition_expression = models.CharField("condition_expression", max_length=1000, default='')
+    condition_expression = models.JSONField("condition_expression", max_length=1000, default=dict)
     type = models.CharField("transition_type", choices=TRANSITION_TYPE_CHOICE)
     field_require_check = models.BooleanField("field_require_check", default=True, help_text='will check whether all field rule is valid if this attr is true')
     alert_text = models.CharField("alert_text", max_length=200, default='', blank=True)
     props = models.JSONField("props")
+
 
 class CustomField(BaseCommonModel):
     """CustomField"""
