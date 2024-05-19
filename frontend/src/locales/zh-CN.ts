@@ -1,22 +1,19 @@
-import component from './zh-CN/component';
-import globalHeader from './zh-CN/globalHeader';
-import menu from './zh-CN/menu';
-import pwa from './zh-CN/pwa';
-import settingDrawer from './zh-CN/settingDrawer';
-import settings from './zh-CN/settings';
-
 export default {
-  'navBar.lang': '语言',
-  'layout.user.link.help': '帮助',
-  'layout.user.link.privacy': '隐私',
-  'layout.user.link.terms': '条款',
-  'app.preview.down.block': '下载此页面到本地项目',
-  'app.welcome.link.fetch-blocks': '获取全部区块',
-  'app.welcome.link.block-list': '基于 block 开发，快速构建标准页面',
-  ...globalHeader,
-  ...menu,
-  ...settingDrawer,
-  ...settings,
-  ...pwa,
-  ...component,
-};
+    'menu.workbench': '工作台',
+    'menu.ticket.manager': '工单管理',
+    'menu.ticket.duty': '我的待办',
+    'menu.ticket.owner': '我创建的',
+    'menu.ticket.related': '我相关的',
+    'menu.ticket.view': '我的查看',
+    'menu.ticket.intervene': '我的干预',
+    'menu.ticket.all': '所有工单',
+    'menu.workflow.manager': '工作流管理',
+    'menu.organization': '组织架构',
+    'menu.organization.department_and_user': '成员与部门',
+    'menu.organization.role': '角色',
+    'menu.settings': '设置',
+    'menu.settings.tenant': '租户',
+    'menu.settings.application': '应用',
+    'menu.settings.notification': '通知',
+  };
+  

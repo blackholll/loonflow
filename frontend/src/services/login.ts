@@ -1,24 +1,20 @@
-import { request } from 'umi';
+import axios from 'axios';
 
 export interface LoginParamsType {
-  username: string;
+  email: string;
   password: string;
   mobile: string;
   captcha: string;
   type: string;
 }
 
-export async function fakeAccountLogin(params: LoginParamsType) {
-  return request<API.LoginStateType>('/api/v1.0/login', {
-    method: 'POST',
-    data: params,
+
+const instance = axios.create({
+    baseURL: '/api/v1.0',
   });
-}
-
-export async function getFakeCaptcha(mobile: string) {
-  return request(`/api/login/captcha?mobile=${mobile}`);
-}
-
-export async function outLogin() {
-  return request('/api/v1.0/logout');
+  
+export async function AccountLogin(params: LoginParamsType) {
+    const response = await instance.post('/login', params);
+    console.log('response11:', response);
+    return response.data;
 }
