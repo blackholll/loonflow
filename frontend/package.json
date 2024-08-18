@@ -13,10 +13,12 @@
     "@ant-design/pro-layout": "^7.19.0",
     "@emotion/css": "^11.11.2",
     "@types/js-cookie": "^3.0.6",
+    "@types/jwt-decode": "^3.1.0",
     "antd": "^5.16.5",
     "axios": "^1.6.8",
     "core-js": "^3.37.0",
     "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "umi": "^4.1.10"
   },
   "devDependencies": {

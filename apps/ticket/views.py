@@ -17,6 +17,27 @@ logger = logging.getLogger("django")
 
 
 class TicketListView(BaseView):
+    get_schema = Schema({
+        'category': And(str, Or('all', 'duty', 'owner', 'relation', 'worked', 'intervene', 'view')),
+        Optional('sn'): str,
+        Optional('title'): str,
+        Optional('username'): str,
+        Optional('create_start'): str,
+        Optional('create_end'): str,
+        Optional('workflow_ids'): str,
+        Optional('stage_ids'): str,
+        Optional('ticket_ids'): str,
+        Optional('node_ids'): str,
+        Optional('act_state'): And(str, Or('in_draft', 'in_process', 'refused', 'revoked', 'end', 'closed')),
+        Optional('reverse', default=1): And(Use(int), lambda n: n in [0, 1]),
+        Optional('creator_id'): And(Use(int), lambda n: n > 0, error='parent_ticket_id should be int and greater than 0'),
+        Optional('parent_ticket_id'): And(Use(int), lambda n: n > 0, error='parent_ticket_id should be int and greater than 0'),
+        Optional('parent_ticket_node_id'): And(Use(int), lambda n: n > 0, error='parent_ticket_node_id should be int and greater than 0'),
+        Optional('page', default=1): And(Use(int), lambda n: n > 0, error='page should be int and greater than 0'),
+        Optional('per_page', default=10): And(Use(int), lambda n: n > 0, error='per_page should be int and greater than 0'),
+        Optional('act_state', default=10): And(Use(int), lambda n: n > 0, error='per_page should be int and greater than 0'),
+    })
+
     post_schema = Schema({
         'workflow_id': And(int, lambda n: n != 0, error='workflow_id is needed and type should be int'),
         'transition_id': And(int, lambda n: n != 0, error='transition_id is needed and type should be int'),
@@ -37,15 +58,14 @@ class TicketListView(BaseView):
         request_data = request.GET
         sn = request_data.get('sn', '')
         title = request_data.get('title', '')
-        # username = request_data.get('username', '')
         username = request.META.get('HTTP_USERNAME')
         create_start = request_data.get('create_start', '')
         create_end = request_data.get('create_end', '')
         workflow_ids = request_data.get('workflow_ids', '')
-        state_ids = request_data.get('state_ids', '')
+        node_ids = request_data.get('node_ids', '')
         ticket_ids = request_data.get('ticket_ids', '')
-        reverse = int(request_data.get('reverse', 1))
-        per_page = int(request_data.get('per_page', 10))
+        reverse = int(request_data.get('reverse', 1)) if request_data.get('reverse', 1) else 1
+        per_page = int(request_data.get('per_page')) if request_data.get('per_page') else 10
         page = int(request_data.get('page', 1))
         act_state_id = request_data.get('act_state_id', '')
         from_admin = request_data.get('from_admin', '')
@@ -68,7 +88,7 @@ class TicketListView(BaseView):
 
         flag, result = ticket_base_service_ins.get_ticket_list(
             sn=sn, title=title, username=username, create_start=create_start, create_end=create_end,
-            workflow_ids=workflow_ids, state_ids=state_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
+            workflow_ids=workflow_ids, node_ids=node_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
             per_page=per_page, page=page, app_name=app_name, act_state_id=act_state_id, from_admin=from_admin,
             creator=creator, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id)
         if flag is not False:

@@ -26,13 +26,19 @@ class BaseView(View):
             if request_method in ['post', 'patch', 'put', 'delete']:
                 json_dict = simplejson.loads(request.body)
             else:
-                json_dict = dict(request.GET)
+                request_data_dict = dict(request.GET)
+                json_dict = dict()
+                for key, value in request_data_dict.items():
+                    json_dict[key] = ','.join(value)
+
             try:
                 meth_schema.validate(json_dict)
             except SchemaError as Se:
+                logger.error('111111')
                 logger.error(Se)
                 return api_response(-1, 'Request data is invalid:{}'.format(str(Se)), {})
             except Exception as e:
+                logger.error('2222')
                 logger.error(e)
                 return api_response(-1, 'Internal Server Error', {})
         return handler(request, *args, **kwargs)

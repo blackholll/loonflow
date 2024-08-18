@@ -6,6 +6,7 @@ import { ProLayout } from '@ant-design/pro-layout';
 import { Link, Outlet, useAppData, useLocation } from 'umi';
 import Footer from '@/components/Footer';
 import Login from '@/pages/User/Login';
+import { jwtDecode } from 'jwt-decode';
 
 export default function Layout() {
   const { clientRoutes } = useAppData();
@@ -19,7 +20,27 @@ export default function Layout() {
     message.success('Logout successfully');
     history.push('/user/login');
   };
+  
+  let jwtExpired = false;
+  const existedJwt = Cookies.get('jwt');
+  if (existedJwt) {
+    try {
+      const decodeResult:any = jwtDecode(existedJwt);
+      if (decodeResult.exp * 1000 < Date.now()) {
+        console.log('jwt expired');
+        jwtExpired = true;
+      }
+    } catch (error) {
+      console.error('Error decoding JWT:', error);
+      jwtExpired = true;
+    }
+  }
 
+  
+
+  if ((!existedJwt || jwtExpired)&& location.pathname !== '/user/login') {
+    history.push('/user/login');
+  }
 
   return isLoginPage? (
       <Login/>

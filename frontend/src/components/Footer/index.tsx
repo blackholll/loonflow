@@ -5,7 +5,6 @@ export default () => (
   <DefaultFooter
     copyright="2018-2024 loonflow 3.0.0"
     links={[
-
       {
         key: 'github',
         title: <GithubOutlined />,
