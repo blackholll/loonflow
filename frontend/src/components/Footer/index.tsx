@@ -4,7 +4,7 @@ import { DefaultFooter } from '@ant-design/pro-layout';
 
 export default () => (
   <DefaultFooter
-    copyright="2018-2023 loonflow 2.0.19"
+    copyright="2018-2023 loonflow 2.0.20"
     links={[
 
       {

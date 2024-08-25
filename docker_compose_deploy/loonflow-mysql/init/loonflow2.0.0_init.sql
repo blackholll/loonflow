@@ -156,10 +156,9 @@ VALUES
 	(10,'pbkdf2_sha256$150000$i9YkFw57LRVg$zJiYWU6YU8BzHqTpZa2AZmAGe1ROrz41xnCnUcepnn4=',NULL,'test1111','haha','sss@111.com','',0,'admin','2020-07-21 06:54:03.944318','2020-07-21 06:54:03.944392',0,1),
 	(11,'pbkdf2_sha256$150000$IMpPp4THtW7n$QLv4QH89daAWF+D1XUNNJNm9PdyQuRmmBqjtwSJeyXE=',NULL,'fdsfds','fdsfs','fsdfsfsf@13.com','',1,'admin','2020-09-21 07:25:49.543211','2020-09-21 07:25:49.543231',0,0),
 	(12,'pbkdf2_sha256$150000$uhhAEFyioVD2$c2WHSiLpGS8HBivopq0zphvgek+Wnuak1dwyi2S+iyM=',NULL,'23424','3242342','dfsdf@121.com','',1,'admin','2020-09-21 07:26:19.688074','2020-09-21 07:26:19.688095',0,0),
-	(13,'!uce2gIID0ESM0uf6MVcdauuhadTH460pWWYHvgpl',NULL,'c\'x\'z','z\'x\'c\'z','ssss','sdfds',0,'admin','2020-09-27 07:16:53.923734','2020-09-27 07:16:53.924260',0,0),
-	(15,'!CbDPN3BTa6NrPHyYaoQoBaB5SGho9sUNFCEdZk3R',NULL,'d','sd','sd','sd',0,'admin','2020-09-28 07:05:57.676251','2020-09-28 07:05:57.676582',0,1),
-	(16,'!YUKXMECfKP2otWhQD3NQpCYD0cCBfAs35stuA1Sh',NULL,'fewf','fwd','fewf','dwf',1,'admin','2020-09-28 07:08:34.885110','2020-09-28 07:08:34.885428',0,1),
-	(17,'!AZoAGIvCwPtUJU1yzXfNDwSCrBjTKbTnZSAF2CMX',NULL,'fdsfwe','fes','dfsd','21222',1,'admin','2020-09-29 07:41:14.245816','2020-09-29 07:41:14.246100',0,1);
+	(13,'pbkdf2_sha256$150000$nex53BPJ3f0T$jsJjWHmpVp11aIt7F8eyKVK2l+YjH8k0GP4oOQf8Jw4=',NULL,'zhangsan','zhangsan','zhangsan@121.com','',1,'admin','2020-09-21 07:26:19.688074','2020-09-21 07:26:19.688095',0,0),
+	(14,'pbkdf2_sha256$150000$nex53BPJ3f0T$jsJjWHmpVp11aIt7F8eyKVK2l+YjH8k0GP4oOQf8Jw4=',NULL,'lisi','lisi','lisi@121.com','',1,'admin','2020-09-21 07:26:19.688074','2020-09-21 07:26:19.688095',0,0),
+	(15,'pbkdf2_sha256$150000$nex53BPJ3f0T$jsJjWHmpVp11aIt7F8eyKVK2l+YjH8k0GP4oOQf8Jw4=',NULL,'wangwu','wangwu','wangwu@121.com','',1,'admin','2020-09-21 07:26:19.688074','2020-09-21 07:26:19.688095',0,0);
 
 /*!40000 ALTER TABLE `account_loonuser` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -1193,7 +1192,7 @@ LOCK TABLES `workflow_customfield` WRITE;
 
 INSERT INTO `workflow_customfield` (`id`, `workflow_id`, `field_type_id`, `field_key`, `field_name`, `order_id`, `default_value`, `description`, `field_template`, `boolean_field_display`, `creator`, `gmt_created`, `gmt_modified`, `is_deleted`, `field_choice`, `label`, `placeholder`)
 VALUES
-	(1,1,30,'leave_start12','开始时间',20,'','','','{}','admin','2018-04-23 20:56:25.940486','2018-05-11 07:31:11.133782',0,'{}','{}',''),
+	(1,1,30,'leave_start','开始时间',20,'','','','{}','admin','2018-04-23 20:56:25.940486','2018-05-11 07:31:11.133782',0,'{}','{}',''),
 	(2,1,30,'leave_end','结束时间',25,NULL,'','','{}','admin','2018-05-10 07:41:03.717540','2018-05-11 07:31:19.923554',0,'{}','{}',''),
 	(4,1,60,'leave_proxy','代理人',35,NULL,'请假期间的代理人','','{}','admin','2018-05-11 07:31:01.068850','2018-05-11 07:31:35.323117',0,'{}','',''),
 	(5,1,35,'leave_type','请假类型',40,NULL,'','','{}','admin','2018-05-11 07:34:29.608579','2018-05-23 22:38:57.324916',0,'{\"1\": \"年假\", \"2\": \"调休\", \"3\": \"病假\", \"4\": \"婚假\"}','{}',''),
@@ -1390,7 +1389,7 @@ LOCK TABLES `workflow_workflow` WRITE;
 
 INSERT INTO `workflow_workflow` (`id`, `name`, `description`, `display_form_str`, `creator`, `gmt_created`, `gmt_modified`, `is_deleted`, `view_permission_check`, `limit_expression`, `notices`, `title_template`, `content_template`)
 VALUES
-	(1,'请假申请','请假申请','[\"sn\", \"title\", \"leave_start\", \"leave_end\", \"leave_days\", \"leave_proxy\",  \"leave_type\", \"creator\", \"gmt_created\", \"leave_reason\"]','admin','2018-04-23 20:49:32.229386','2018-10-22 08:05:15.574860',0,1,'{}','1,2','你有一个待办工单:{title22}','标题:{title}, 创建时间:{gmt_created222'),
+	(1,'请假申请','请假申请','[\"sn\", \"title\", \"leave_start\", \"leave_end\", \"leave_days\", \"leave_proxy\",  \"leave_type\", \"creator\", \"gmt_created\", \"leave_reason\"]','admin','2018-04-23 20:49:32.229386','2018-10-22 08:05:15.574860',0,1,'{}','1,2','你有一个待办工单:{title}','标题:{title}, 创建时间:{gmt_created}'),
 	(2,'vpn申请','vpn权限申请','[\"sn\", \"title\", \"model\", \"gmt_created\",\"participant.participant_alias\",\"vpn_reason\"]','admin','2018-05-06 12:32:36.690665','2018-11-05 23:32:57.667206',0,1,'{}','','','');
 
 /*!40000 ALTER TABLE `workflow_workflow` ENABLE KEYS */;
