@@ -901,7 +901,7 @@ class TicketDetail extends Component<TicketDetailProps, TicketDetailState> {
 
     }
 
-    if (this.state.ticketDetailInfoData !== []) {
+    if (this.props.ticketId) {
       buttonItems.push(
         <Button type="dashed"  onClick={this.showCommentModal}>
           留言

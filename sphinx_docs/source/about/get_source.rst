@@ -6,10 +6,10 @@
 ::
 
   # loonflow
-  git clone git@github.com:blackholll/loonflow.git
-  git checkout vx.x.x  #(具体的版本号，如v0.3.15）拉取代码
+  https://github.com/blackholll/loonflow/releases 中下载最新版本
+  loonflow自带react版本前端，支持创建，处理工单，支持配置工作流等功能
 
-  # howflow-open: vue.js版本前端+django后端的调用方，基于钉钉生态，移动端审批
+  # howflow-open: vue.js版本前端+django后端的调用方demo，基于钉钉生态，移动端审批
   https://gitee.com/shihow/howflow-open
 
   # shutongflow: vue.js版本前端+django后端的调用方demo
