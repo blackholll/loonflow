@@ -1729,6 +1729,10 @@ class TicketBaseService(BaseService):
                                     participant=username, state_id=ticket_obj.state_id, creator=username,
                                     ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
+
+        from tasks import send_ticket_notice
+        send_ticket_notice.apply_async(args=[ticket_id], queue='loonflow')
+
         return True, ''
 
     @classmethod
@@ -1766,6 +1770,8 @@ class TicketBaseService(BaseService):
                                     participant=username, state_id=ticket_obj.state_id, creator=username,
                                     ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
+        from tasks import send_ticket_notice
+        send_ticket_notice.apply_async(args=[ticket_id], queue='loonflow')
         return True, ''
 
     @classmethod
@@ -1804,6 +1810,9 @@ class TicketBaseService(BaseService):
                                     participant=username, state_id=ticket_obj.state_id, creator=username,
                                     ticket_data=all_ticket_data_json)
         cls.add_ticket_flow_log(ticket_flow_log_dict)
+
+        from tasks import send_ticket_notice
+        send_ticket_notice.apply_async(args=[ticket_id], queue='loonflow')
         return True, ''
 
     @classmethod
