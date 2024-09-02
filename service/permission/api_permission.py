@@ -1,3 +1,4 @@
+import base64
 import json
 import jwt
 from django.conf import settings
@@ -57,6 +58,10 @@ class ApiPermissionCheck(MiddlewareMixin):
         signature = request.META.get('HTTP_SIGNATURE')
         timestamp = request.META.get('HTTP_TIMESTAMP')
         app_name = request.META.get('HTTP_APPNAME')
+        if request.META.get('HTTP_ENCODED') == 'base64':
+            username = request.META.get('HTTP_USERNAME')
+            username = base64.b64decode(username).decode('utf8')
+            request.META.update(dict(HTTP_USERNAME=username))
 
         if not app_name:
             return False, 'appname is not provide in request header'
