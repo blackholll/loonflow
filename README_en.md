@@ -1,55 +1,58 @@
+# 这是3.0版本，还在开发中，请勿使用
+
 # loonflow
 a workflow engine base on django
 
-English | [简体中文](./README.md)
-Thanks for [Arefyekkalam](https://github.com/Arefyekkalam) 's translation
+README in English: 
 
-Django-based workflow engine system(Called through the http interface，Can be used as a unified workflow engine within the enterprise，provide permission applications such as、resource request、Post application、Ask for leave、to reimburse、Services for all workflow scenarios such as it service),If you have a certain development ability, it is recommended to only use the back-end engine function，The front end can be customized and developed according to the scene and can be dispersed in various internal background management systems(such as personnel、Operation and maintenance、monitor、cmdb and so on). Since version 1.1.x, loonflow comes with a front-end interface for creating and processing work orders, which can be used directly.
+[English](./README_en.md) | 简体中文
 
-see official version[release](https://github.com/blackholll/loonflow/releases)middle,It is recommended to use the latest version In order to facilitate everyone to download, the compressed package will be uploaded to the qq group file after each release of a new version(QQ group:558788490), You can also use the git command to download the corresponding code directly
+基于django的工作流引擎系统(通过http接口调用，可以作为企业内部统一的工作流引擎，提供诸如权限申请、资源申请、发布申请、请假、报销、it服务等所有工作流场景的服务),如果有一定的开发能力建议只使用后端引擎功能，前端根据场景定制开发可分散于各个内部后台管理系统(如人事、运维、监控、cmdb等等)。从1.1.x版本开始loonflow自带工单新建及处理的前端界面，可以直接使用。
+
+正式版本见[release](https://github.com/blackholll/loonflow/releases)中,建议使用最新版本， , 为了方便大家下载会在每次发布新版本后将压缩包上传到qq群文件(qq群:558788490), 你也可以使用git命令直接下载对应代码
 
 ```
 git clone git@github.com:blackholll/loonflow.git
-git checkout rx.x.x  #(specific version number，such as r1.1.0）拉取代码
+git checkout rx.x.x  #(具体的版本号，如r1.1.0）拉取代码
 
 ```
 
 
-## foreword
-I started working with workflow in 2011，In 2013 began to develop the first version of the workflow，There have been several versions so far.The current open source version is dedicated to providing a unified workflow engine solution for enterprises
+## 前言
+本人2011年开始接触工作流，2013年开始开发工作流第一版本，至今经历了多个版本。当前开源版本致力于提供企业统一工作流引擎方案
 
-Welcome to join the QQ group to exchange workflow related technologies: 558788490
-The purpose of the QQ group:
-- For everyone to communicate
-- Some loonflow development dynamics and synchronization of development plans
+欢迎加入qq群一起交流工作流相关技术: 558788490
+qq群的目的:
+- 供大家自行交流
+- 一些loonflow的开发动态、开发计划的同步
 
-Before use, please[Documentation](http://loonflow.readthedocs.io/)Read it twice.Problems encountered during use or any suggestions，Please check first[github issue](https://github.com/blackholll/loonflow/issues)See if there is an answer. If you can't find it, you can submit a new issue. You can also ask questions and communicate in the QQ group (there will be enthusiastic classmates in the group to answer, do not @group owner, the group owner generally only responds to issues due to energy)
-
-
-A paid service has been launched, and if you donate over 300 yuan (see the Alipay payment code at the end of this document), you can enjoy the VIP service. The benefits include
-- Add WeChat friends, if you have any questions, you can directly consult WeChat
-- Support WeChat voice Q&A
-- Reasonable and general new requirements put forward will be supported in the new version first.
+使用前请先将[文档](http://loonflow.readthedocs.io/)阅读两遍。使用过程中遇到问题或者有什么建议，请先查看[github issue](https://github.com/blackholll/loonflow/issues)看是否有答案。如果没找到可以提交新的issue。你也可以在qq群内提问交流(群内会有热心的同学解答，不要@群主，群主因为精力的原因一般只回复issue)
 
 
-## Basic Architecture
-LOONFLOW divided into two parts:
-- front-end interface(react + ant design pro): Including work order creation, processing, management, workflow management configuration, statistics, etc.
-- Provide http api for back-end calls of various systems (if oa, cmdb, operation and maintenance system, customer service system) to complete the customized work order requirements of their respective systems
+现已推出付费服务，捐助满399元(见本文档末尾支付宝付款码)，即可享受VIP服务，权益包括
+- 280分钟定制开发视频教程
+- 加微信好友，微信答疑
+- 两次线上会议（半小时内）答疑
+- 提出的合理通用新需求，优先支持
 
-## Related items
-In the period of loonflow 0.x.x and 1.0.x versions, the user-side interface for creating and processing work orders is not provided. Thanks to the providers of the following call-side demo projects. If you use vue or bootstrap to write your front-end to integrate various internal systems that need to use work orders, the following items are for reference
+## 基本架构
+LOONFLOW 分为两部分:
+- 前端界面(react + ant design pro): 包括工单新建、处理、管理、工作流的管理配置、统计等等
+- 提供http api供各个系统(如果oa、cmdb、运维系统、客服系统)的后端调用以完成各自系统定制化的工单需求
+
+## 相关项目
+在loonflow0.x.x及1.0.x版本时期，未提供用户侧的创建及处理工单界面。感谢以下调用端demo项目的提供者。如果你使用vue或者bootstrap写你的前端来整合内部各种需要用到工单的系统，以下项目可供参考
  
-Technology Stack | Project Address | Author Contact | Description
-
+技术栈 | 项目地址 | 作者联系方式 | 说明
 ---|---|---|---
-vue.js + django | https://github.com/youshutong2080/shutongFlow | In the QQ group, QQ number: 343306138 | Supports the use in PC browsers, the function is relatively simple, the actual use needs to be modified according to your own needs, welcome to submit pr
-bootstrap + django | https://github.com/jimmy201602/workflowdemo |In the QQ group, QQ number: 313484953|Supports the use in PC browsers, the function is relatively simple, the actual use needs to be modified according to your own needs, welcome to submit pr
-vue.js + django |https://gitee.com/shihow/howflow-open | In the QQ group, QQ number: 39188043 | Support for use in DingTalk, during iteration, welcome to submit pr
+vue.js + django | https://github.com/youshutong2080/shutongFlow | qq群中,qq号: 343306138 |支持PC端浏览器中使用, 功能比较简单,实际使用需要根据自己的需求做适当改造,欢迎提交pr
+bootstrap + django | https://github.com/jimmy201602/workflowdemo | qq群中,qq号: 313484953|支持PC端浏览器中使用, 功能比较简单,实际使用需要根据自己的需求做适当改造,欢迎提交pr
+vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043 | 支持在钉钉中使用，迭代中，欢迎提交pr
 
 
-## Renderings
-Yes, you can no longer use workflowdemo, shutongflow and howflow-open. Of course, you can also refer to these three projects to write your own caller system
+## 效果图
+
+是的，你可以不再需要使用workflowdemo、shutongflow及howflow-open。 当然你还可以参考这三个项目写自己的调用方系统
 
 ![user_manage](/static/images/2.0.x/login.png)
 ![user_manage](/static/images/2.0.x/workbench.png)
@@ -65,16 +68,16 @@ Yes, you can no longer use workflowdemo, shutongflow and howflow-open. Of course
 ![user_manage](/static/images/2.0.x/statistics.png)
 
 
-## Working with documentation
-[Working with documentation](https://loonflow.readthedocs.io)
+## 使用文档
+[使用文档](https://loonflow.readthedocs.io)
 
-## thanks
+## 鸣谢
 
-Special thanks to [JetBrains](https://www.jetbrains.com/?from=mirai) Free for this open source project [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=loonflow)    Authorize
+特别感谢 [JetBrains](https://www.jetbrains.com/?from=mirai) 为本开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=loonflow)  授权  
 
 [<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com/?from=loonflow)
 
-# Donations welcome
-Your support is my biggest motivation, welcome to donate by Alipay scan code
+# 欢迎捐助
+您的支持是我最大的动力,欢迎支付宝扫码捐助
 
 ![donation_code](/static/images/donation_code.png)
