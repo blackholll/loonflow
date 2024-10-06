@@ -1,0 +1,34 @@
+{
+    "signIn": {
+      "title": "Loonflow",
+      "description": "Focused on delivering unified workflow solutions",
+      "emailLabel": "Email Address",
+      "passwordLabel": "Password",
+      "rememberMe": "Remember me",
+      "signInButton": "Sign In",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account? Sign Up",
+      "welcomeBack": "Welcome back! Please sign in to continue.",
+      "welcomeMessage": "Welcome to our app!"
+    },
+    "welcomeMessage": "Welcome to our app333 d!",
+    "menu": {
+      "workbench": "Workbench",
+      "ticketManagement": "Ticket Management",
+      "ticketDuty": "My Duty",
+      "ticketOwner": "My Owner",
+      "ticketRelation": "My Relation",
+      "ticketView": "My View",
+      "ticketIntervene": "My Intervene",
+      "ticketAll": "All tickets",
+      "workflowManagement": "Workflow Management",
+      "organization": "organization",
+      "userAndDept": "User&Dept",
+      "role": "role",
+      "settings": "Settings",
+      "tenant": "tenant",
+      "app": "app",
+      "notice": "notice",
+      "signin": "signin"
+    } 
+  }
