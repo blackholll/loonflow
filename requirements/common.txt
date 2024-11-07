@@ -27,7 +27,7 @@ requests==2.28.1
 schema==0.7.5
 simplejson==3.17.6
 six==1.16.0
-sqlparse==0.4.2
+sqlparse==0.4.4
 urllib3==1.26.11
 vine==5.0.0
 wcwidth==0.2.5
