@@ -126,5 +126,5 @@ if platform.system() == 'Windows':
 else:
     HOMEPATH = os.environ['HOME']
 
-JWT_SALT = 'aUApFqfQjyYVAPo8'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

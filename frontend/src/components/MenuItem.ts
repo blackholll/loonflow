@@ -2,6 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import Home from './home/HomePage';
 import Home2 from './home2/HomePage';
+import DutyTicket from './Ticket/DutyTicket';
 import SignIn from '../SignIn';
 import { Home as HomeIcon, AccountTree as AccountTreeIcon, Assignment as AssignmentIcon, Schema as SchemaIcon, Settings as SettingsIcon } from '@mui/icons-material';
 
@@ -28,7 +29,7 @@ const useMenuItems=():IMenuItem[] => {
       icon: AssignmentIcon,
       isVisibleInMenu: true,
       children: [
-        { text: t('menu.ticketDuty'), path: '/ticket/duty', component: Home },
+        { text: t('menu.ticketDuty'), path: '/ticket/duty', component: DutyTicket },
         { text: t('menu.ticketOwner'), path: '/ticket/owner', component: Home2 },
         { text: t('menu.ticketRelation'), path: '/ticket/relation', component: Home },
         { text: t('menu.ticketView'), path: '/ticket/view', component: Home },
@@ -54,14 +55,14 @@ const useMenuItems=():IMenuItem[] => {
       ],
     },
     {
-      text: t('menu.settings'),
-      path: '/settings',
+      text: t('menu.setting'),
+      path: '/setting',
       icon: SettingsIcon,
       isVisibleInMenu: true,
       children: [
-        { text: t('menu.tenant'), path: '/settings/tenant', component: Home },
-        { text: t('menu.app'), path: '/settings/app', component: Home },
-        { text: t('menu.notice'), path: '/settings/notice', component: Home },
+        { text: t('menu.tenant'), path: '/setting/tenant', component: Home },
+        { text: t('menu.application'), path: '/setting/application', component: Home },
+        { text: t('menu.notification'), path: '/setting/notification', component: Home },
       ]
     },
     { text: t('menu.signin'), path: 'signin', component: SignIn, isSingleLayout: true, isVisibleInMenu: false },

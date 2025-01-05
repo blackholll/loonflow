@@ -1,13 +1,18 @@
 import json
 import jwt
+import traceback
+from celery.worker.consumer.mingle import exception
 from django.conf import settings
 from django.contrib.auth import login
 
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
+
+from service.account.account_application_service import account_application_service_ins
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
-from service.account.account_user_service import AccountUserService
+from service.account.account_user_service import AccountUserService, account_user_service_ins
 from service.common.common_service import CommonService, common_service_ins
+from service.exception.custom_common_exception import CustomCommonException
 
 
 class AppPermissionCheck(MiddlewareMixin):
@@ -19,26 +24,27 @@ class AppPermissionCheck(MiddlewareMixin):
             # for jwt login
             return
         if request.path.startswith('/api/'):
-            if request.COOKIES.get('jwt'):
+            auth_header = request.META.get('HTTP_AUTHORIZATION')
+            if auth_header:
                 # for jwt check
-                flag, msg = self.jwt_permission_check(request)
-                if flag is False:
-                    return HttpResponse(json.dumps(dict(code=-1, msg=msg, data={})))
-                else:
+                user_info = self.jwt_permission_check(auth_header)
+                if not request.META.get('HTTP_APPNAME'):
                     request.META.update(dict(HTTP_APPNAME='loonflow'))
-                    request.META.update(dict(HTTP_EMAIL=msg.email))
-                    request.META.update(dict(HTTP_USERID=msg.id))
-                    request.META.update(dict(HTTP_TENANTID=msg.tenant_id))
-                    request.META.update(dict(HTTP_TENANNAME=msg.tenant.name))
+                request.META.update(dict(HTTP_EMAIL=user_info.email))
+                request.META.update(dict(HTTP_USERID=user_info.id))
+                request.META.update(dict(HTTP_TENANTID=user_info.tenant_id))
                 return
             elif request.path == '/api/v1.0/configs/common':
-                request.META.update(dict(HTTP_TENANTID=1))
-                request.META.update(dict(HTTP_USERID=0))
+                request.META.update(dict(HTTP_TENANTID='00000000-0000-0000-0000-000000000001'))
+                request.META.update(dict(HTTP_USERID='00000000-0000-0000-0000-000000000000'))
                 return
             # for app call token check
-            flag, msg = self.token_permission_check(request)
-            if not flag:
-                return HttpResponse(json.dumps(dict(code=-1, msg='permission check fail：{}'.format(msg), data={})))
+            try:
+                # todo: whether need update userid to header?
+                self.token_permission_check(request)
+                return
+            except Exception as e:
+                return HttpResponse(json.dumps(dict(code=-1, msg='permission check fail：{}'.format(e.__str__()), data={})), status=401)
 
     def token_permission_check(self, request):
         """
@@ -46,45 +52,45 @@ class AppPermissionCheck(MiddlewareMixin):
         :param request:
         :return:
         """
-
         signature = request.META.get('HTTP_SIGNATURE')
         timestamp = request.META.get('HTTP_TIMESTAMP')
         app_name = request.META.get('HTTP_APPNAME')
-
+        email = request.META.get('HTTP_EMAIL')
+        tenant_id = request.META.get('HTTP_TENANTID')
         if not app_name:
-            return False, 'appname is not provide in request header'
+            raise CustomCommonException('appname is not provide in request header')
+        try:
+            app_record = account_application_service_ins.get_token_by_app_name(tenant_id, app_name)
+            user_record = account_user_service_ins.get_user_by_email(email)
+            request.META.update(dict(HTTP_USERID=user_record.id))
+        except CustomCommonException:
+                raise
+        except Exception as e:
+            raise CustomCommonException('Appname:{} in request header is unauthorized, please contact administrator to add ' \
+                          'authorization for appname:{} in loonflow'.format(app_name, app_name))
+        return common_service_ins.signature_check(timestamp, signature, app_record.token)
 
-        flag, result = account_base_service_ins.get_token_by_app_name(app_name)
-        if flag is False:
-            return False, result
-        if not result:
-            return False, 'Appname:{} in request header is unauthorized, please contact administrator to add ' \
-                          'authorization for appname:{} in loonflow'.format(app_name, app_name)
-
-        return common_service_ins.signature_check(timestamp, signature, result.token)
-
-    def jwt_permission_check(self, request):
+    def jwt_permission_check(self, auth_header:str):
         """
         jwt check, user existed check, user status check
-        :param request:
+        :param auth_header:
         :return:
         """
-        jwt_info = request.COOKIES.get('jwt')
         jwt_salt = settings.JWT_SALT
-
+        if auth_header.startswith('Bearer '):
+            jwt_info = auth_header.split(' ')[1]
+        else:
+            raise CustomCommonException('Authorization header is not valid')
         try:
             jwt_data = jwt.decode(jwt_info, jwt_salt, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            return False, 'Token expired'
+            raise CustomCommonException('Token expired')
 
         except jwt.InvalidTokenError:
-            return False, 'Invalid token'
+            raise CustomCommonException('Invalid token')
         except Exception as e:
-            return False, e.__str__()
+            # logger.error(traceback.format_exc)
+            raise CustomCommonException('Internal Server Error')
         #  check user status
-        flag, user_info = AccountUserService.get_user_by_email(jwt_data.get("data").get('email'))
-        if flag is False:
-            return False, "user is not existed or has been deleted"
-        if user_info.status == "resigned":
-            return False, "resigned staff can not login"
-        return True, user_info
+        user_info = AccountUserService.get_user_by_email(jwt_data.get("data").get('email'))
+        return user_info

@@ -28,7 +28,7 @@
       "settings": "系统设置",
       "tenant": "租户管理",
       "app": "应用管理",
-      "notice": "通知管理",
+      "notification": "通知管理",
       "signin": "登录"
     } 
   }

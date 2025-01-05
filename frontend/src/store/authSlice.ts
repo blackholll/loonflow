@@ -3,14 +3,15 @@ import {jwtDecode} from 'jwt-decode';
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: null | { name: string}
+  user: null | User
 }
 
 interface User {
   name: string,
   alias: string,
   email: string,
-  type: string
+  type: string,
+  tenant_id: string,
 }
 
 interface IjwtDecode {

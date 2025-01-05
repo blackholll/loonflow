@@ -13,11 +13,12 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 // import { login } from './store/authSlice';
 import { login } from './services/authService';
-import { setCookie } from './utils/cookie';
+import { setCookie, getCookie } from './utils/cookie';
 import { getJwtExpiration } from './utils/jwt';
 import { loginState, RootState } from './store'
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { clockNumberClasses } from '@mui/x-date-pickers';
 
 
 function Copyright(props: any) {
@@ -52,14 +53,12 @@ export default function SignIn() {
       const token = responseData.data.jwt;
       console.log('tokentokentokentoken:', token);
       const expiration = getJwtExpiration(token);
-      
-      
+      console.log('expirationexpiration:', expiration);
       setCookie('jwtToken', token, {
-        httpOnly: false,
-        secure: false, 
         sameSite: 'strict',
         expires: expiration,
       });
+      
       dispatch(loginState(token));
       // todo: redirect to the previous page
       // window.location.href = '/';

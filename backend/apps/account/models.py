@@ -14,6 +14,7 @@ class Tenant(BaseModel):
         ("zh-cn", "simple chinese"),
         ("en", "English")
     ]
+    parent_tenant = models.ForeignKey("self", db_constraint=False, null=True, default='', on_delete=models.DO_NOTHING)
     name = models.CharField("name", max_length=100, null=False, default="", help_text="tenant's name")
     domain = models.CharField("domain", max_length=100, null=False, default="", help_text="the domain of the tenant, such as xxx.com")
     icon = models.CharField("icon", max_length=100, null=False, default="", help_text="the icon name of the tenant, such as xxx.jpg")
@@ -61,7 +62,7 @@ class UserManager(BaseUserManager):
             Tenant.objects.filter(domain="loonapp.com").update(id=1)
         user = self.model(email=self.normalize_email(email))
         user.set_password(password)
-        user.tenant_id = 1
+        user.tenant_id = '00000000-0000-0000-0000-000000000001'
         user.type = "admin"
         user.save(using=self._db)
         return user
@@ -87,7 +88,6 @@ class User(AbstractBaseUser, BaseCommonModel):
     USERNAME_FIELD = "email"
     name = models.CharField("name", max_length=50, null=False, default='')
     alias = models.CharField("alias", max_length=50, null=False, default='')
-    tenant = models.ForeignKey(Tenant, db_constraint=False, null=False, on_delete=models.DO_NOTHING)
     dept = models.ManyToManyField("Dept", through=UserDept)
     role = models.ManyToManyField("Role", through=UserRole)
 

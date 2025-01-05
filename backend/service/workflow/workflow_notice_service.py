@@ -1,7 +1,7 @@
 import json
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.manage.models import Notice
+from apps.manage.models import Notification
 from apps.workflow.models import WorkflowNotice
 from service.base_service import BaseService
 from service.common.constant_service import constant_service_ins

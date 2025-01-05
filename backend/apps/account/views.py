@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
+from loonflow.wsgi import application
 from service.account.account_application_service import account_application_service_ins
 from service.account.account_base_service import account_base_service_ins
 from service.account.account_dept_service import account_dept_service_ins
@@ -1004,11 +1005,12 @@ class ApplicationView(BaseView):
         :return:
         """
         operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
         application_id_list = request_data_dict.get('application_id_list', [])
         try:
-            account_application_service_ins.batch_delete_application_list(operator_id, application_id_list)
+            account_application_service_ins.batch_delete_application_list(tenant_id, operator_id, application_id_list)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
@@ -1017,7 +1019,7 @@ class ApplicationView(BaseView):
 
 
 class SimpleApplicationView(BaseView):
-    @user_permission_check("workflow_admin,admin")
+    @user_permission_check("workflow_admin")
     def get(self, request, *args, **kwargs):
         """
         get simple application list. used by select application in workflow config page
@@ -1057,8 +1059,9 @@ class ApplicationDetailView(BaseView):
         :return:
         """
         application_id = kwargs.get("application_id")
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            result = account_application_service_ins.get_application_detail(application_id)
+            result = account_application_service_ins.get_application_detail(tenant_id, application_id)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
@@ -1077,6 +1080,7 @@ class ApplicationDetailView(BaseView):
         """
         operator_id = request.META.get('HTTP_USERID')
         application_id = kwargs.get("application_id")
+        tenant_id = request.META.get('HTTP_TENANTID')
 
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
@@ -1084,7 +1088,24 @@ class ApplicationDetailView(BaseView):
         description = request_data_dict.get('description', '')
         type = request_data_dict.get('type', '')
         try:
-            account_application_service_ins.update_application_detail(application_id, name, description, type)
+            account_application_service_ins.update_application_detail(tenant_id, application_id, name, description, type)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "internal Server Error")
+        return api_response(0, "", {})
+
+    @user_permission_check("admin")
+    def delete(self, request, *args, **kwargs):
+        """
+        delete app
+        """
+        operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        application_id = kwargs.get("application_id")
+        try:
+            account_application_service_ins.batch_delete_application_list(tenant_id, operator_id, [application_id])
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:

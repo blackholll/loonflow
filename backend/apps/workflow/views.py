@@ -4,6 +4,8 @@ import traceback
 
 from django.views import View
 from schema import Schema, Regex, And, Or, Use, Optional
+from urllib3 import request
+
 from apps.loon_base_view import BaseView
 from service.account.account_base_service import account_base_service_ins
 from service.exception.custom_common_exception import CustomCommonException
@@ -19,7 +21,7 @@ logger = logging.getLogger("django")
 
 
 class WorkflowView(BaseView):
-    @user_permission_check("admin,workflow_admin")
+    @user_permission_check("workflow_admin")
     def get(self, request, *args, **kwargs):
         """
         get workflow list api
@@ -44,7 +46,7 @@ class WorkflowView(BaseView):
         return api_response(0, "", dict(workflow_info_list=result.get("workflow_info_list"), page=
                                         result.get("page"), per_page=result.get("per_page"), total=result.get("total")))
 
-    @user_permission_check('admin, workflow_admin')
+    @user_permission_check('workflow_admin')
     def post(self, request, *args, **kwargs):
         """
         new workflow. include all workflow info
@@ -67,7 +69,6 @@ class WorkflowView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", dict(workflow_id=workflow_id))
-
 
 class WorkflowSimpleView(BaseView):
     def get(self, request, *args, **kwargs):
@@ -118,6 +119,10 @@ class WorkflowInitNodeView(BaseView):
         return api_response(0, "", result)
 
 
+class WorkflowDetailView(BaseView):
+    @user_permission_check("workflow_admin", )
+    def get(self, request, *args, **kwargs):
+        return 'test'
 
 
 

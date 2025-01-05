@@ -31,7 +31,7 @@ import json
 import requests
 from apps.ticket.models import TicketRecord
 from apps.workflow.models import Transition, Node, Workflow, WorkflowNotice
-from apps.manage.models import Notice
+from apps.manage.models import Notification
 from service.account.account_user_service import account_user_service_ins
 from service.common.constant_service import constant_service_ins
 from service.ticket.ticket_base_service import TicketBaseService, ticket_base_service_ins

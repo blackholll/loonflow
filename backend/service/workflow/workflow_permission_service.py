@@ -86,5 +86,30 @@ class WorkflowPermissionService(BaseService):
             return True
         raise CustomCommonException("app has no permission to this workflow")
 
+    @classmethod
+    def get_workflow_id_list_by_permission(cls, permission:str, user_type:str, user:str):
+        if user_type not in ['app', 'user', 'department']:
+            return False, 'user type is invalid'
+
+        if not user:
+            if user_type == 'app':
+                return False, 'app_name is not provided'
+            if user_type == 'user':
+                return False, 'user is not provided'
+            if user_type == 'department':
+                return False, 'department is not provided'
+
+        if user == 'loonflow':
+            from apps.workflow.models import Workflow
+            workflow_query_set = Workflow.objects.all()
+            workflow_id_list = []
+            for workflow_obj in workflow_query_set:
+                workflow_id_list.append(workflow_obj.id)
+            return True, dict(workflow_id_list=workflow_id_list)
+        result_queryset = WorkflowPermission.objects.filter(permission=permission, user_type=user_type,
+                                                                user__in=user.split(',')).all()
+        workflow_id_list = [result.workflow_id for result in result_queryset]
+        workflow_id_list = list(set(workflow_id_list))
+        return True, dict(workflow_id_list=workflow_id_list)
 
 workflow_permission_service_ins = WorkflowPermissionService()

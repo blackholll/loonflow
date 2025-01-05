@@ -19,15 +19,14 @@ class AccountBaseService(BaseService):
     """
 
     @classmethod
-    @auto_log
-    def get_token_by_app_name(cls, app_name: str) -> tuple:
+    def get_token_by_app_name(cls, tenant_id: str, app_name: str) -> tuple:
         """
         get app's call token by app_name
+        :param tenant_id:
         :param app_name:
         :return:
         """
-        app_token_obj = Application.objects.filter(app_name=app_name).first()
-        return True, app_token_obj
+        return Application.objects.filter(tenant_id=tenant_id, app_name=app_name).first()
 
     @classmethod
     @auto_log

@@ -22,10 +22,10 @@ urlpatterns = [
     path('/simple_depts_tree', SimpleDeptTreeView.as_view()),
     path('/depts/<int:dept_id>', DeptDetailView.as_view()),
     path('/applications', ApplicationView.as_view()),
-    path('/applications/<int:application_id>', ApplicationDetailView.as_view()),
+    path('/applications/<str:application_id>', ApplicationDetailView.as_view()),
     path('/applications/<int:application_id>/workflows', ApplicationWorkflowView.as_view()),
     path('/simple_applications', SimpleApplicationView.as_view()),
-    path('/tenants/<int:tenant_id>', TenantDetailView.as_view()),
+    path('/tenants/<str:tenant_id>', TenantDetailView.as_view()),
 
 
 

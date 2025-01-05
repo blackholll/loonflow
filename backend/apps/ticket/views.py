@@ -58,7 +58,7 @@ class TicketListView(BaseView):
         request_data = request.GET
         sn = request_data.get('sn', '')
         title = request_data.get('title', '')
-        username = request.META.get('HTTP_USERNAME')
+        user_id = request.META.get('HTTP_USER_ID')
         create_start = request_data.get('create_start', '')
         create_end = request_data.get('create_end', '')
         workflow_ids = request_data.get('workflow_ids', '')
@@ -87,7 +87,7 @@ class TicketListView(BaseView):
             create_end = str(end_time)[:19]
 
         flag, result = ticket_base_service_ins.get_ticket_list(
-            sn=sn, title=title, username=username, create_start=create_start, create_end=create_end,
+            sn=sn, title=title, user_id=user_id, create_start=create_start, create_end=create_end,
             workflow_ids=workflow_ids, node_ids=node_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
             per_page=per_page, page=page, app_name=app_name, act_state_id=act_state_id, from_admin=from_admin,
             creator=creator, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id)

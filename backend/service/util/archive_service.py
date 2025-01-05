@@ -38,8 +38,7 @@ class ArchiveService(BaseService):
         """
         archive_list = []
         for record in record_queryset:
-            data = json.dumps(model_to_dict(record))
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
+            data = json.dumps(record.get_dict())
             archive_list.append(Archive(data=data, model_name=model_name, creator_id=operator_id, id=SnowflakeIDGenerator().__call__()))
         Archive.objects.bulk_create(archive_list)
 

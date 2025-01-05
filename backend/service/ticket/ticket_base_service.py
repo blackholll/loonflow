@@ -48,33 +48,33 @@ class TicketBaseService(BaseService):
 
     @classmethod
     @auto_log
-    def get_ticket_list(cls, sn: str='', title: str='', username: str='', create_start: str='', create_end: str='',
-                        workflow_ids: str='', state_ids: str='', ticket_ids: str='', category: str='', reverse: int=1,
+    def get_ticket_list(cls, tenant_id:str='', title: str='', user_id: str='', create_start: str='', create_end: str='',
+                        workflow_ids: str='', node_ids: str='', ticket_ids: str='', category: str='', reverse: int=1,
                         per_page: int=10, page: int=1, app_name: str='', **kwargs):
         """
-        工单列表
-        :param sn:
+        ticket list
+        :param tenant_id:
         :param title:
-        :param username:
-        :param create_start: 创建时间起
-        :param create_end: 创建时间止
-        :param workflow_ids: 工作流id,str,逗号隔开
-        :param state_ids: 状态id,str,逗号隔开
-        :param ticket_ids: 工单id,str,逗号隔开
-        :param category: 查询类别(创建的，待办的，关联的:包括创建的、处理过的、曾经需要处理但是没有处理的, 我处理过的)
-        :param reverse: 按照创建时间倒序
+        :param user_id:
+        :param create_start:
+        :param create_end:
+        :param workflow_ids: workflow ids, join with ','
+        :param node_ids: node_ids, join with ','
+        :param ticket_ids: ticket id, join with ','
+        :param category:
+        :param reverse:  order by create time
         :param per_page:
         :param page:
         :param app_name:
-        act_state_id: int=0 进行状态, 0 草稿中、1.进行中 2.被退回 3.被撤回 4.已完成 5.已关闭
+        act_state: in_draft,in_process,refused,revoked,end,closed
         :return:
         """
         category_list = ['all', 'owner', 'duty', 'relation', 'worked', 'view', 'intervene']
         if category not in category_list:
             return False, 'category value is invalid, it should be in all, owner, duty, relation'
-        query_params = Q(is_deleted=False)
+        query_params = Q()
 
-        # 获取调用方app_name 有权限的workflow_id_list
+        # get granted workflow_id_list base by app_name
 
         from service.workflow.workflow_permission_service import workflow_permission_service_ins
         flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission('api', 'app', app_name)
@@ -85,18 +85,9 @@ class TicketBaseService(BaseService):
             app_workflow_id_list = result.get('workflow_id_list')
             # query_params &= Q(workflow_id__in=result.get('workflow_id_list'))
 
-        if kwargs.get('act_state_id') != '':
-            query_params &= Q(act_state_id=int(kwargs.get('act_state_id')))
+        if kwargs.get('act_state') != '':
+            query_params &= Q(act_state=kwargs.get('act_state'))
 
-        if kwargs.get('from_admin') != '':
-            # 管理员查看， 获取其有权限的工作流列表
-            flag, result = workflow_base_service_ins.get_workflow_manage_list(username
-                                                                              )
-            if flag is False:
-                return False, result
-            workflow_list = result.get('workflow_list')
-            workflow_admin_id_list = [workflow['id'] for workflow in workflow_list]
-            # query_params &= Q(workflow_id__in=workflow_admin_id_list)
 
         if kwargs.get('creator') != '':
             query_params &= Q(creator=kwargs.get('creator'))
@@ -105,14 +96,13 @@ class TicketBaseService(BaseService):
         if kwargs.get('parent_ticket_state_id'):
             query_params &= Q(parent_ticket_state_id=kwargs.get('parent_ticket_state_id'))
 
-        if sn:
-            query_params &= Q(sn__startswith=sn)
+
         if title:
             query_params &= Q(title__contains=title)
         if create_start:
-            query_params &= Q(gmt_created__gte=create_start)
+            query_params &= Q(created_at__gte=create_start)
         if create_end:
-            query_params &= Q(gmt_created__lte=create_end)
+            query_params &= Q(created_at__lte=create_end)
         if workflow_ids:
             workflow_id_str_list = workflow_ids.split(',')
             query_workflow_id_list = [int(workflow_id_str) for workflow_id_str in workflow_id_str_list]
@@ -120,10 +110,9 @@ class TicketBaseService(BaseService):
             query_workflow_id_list = []
 
             # query_params &= Q(workflow_id__in=workflow_id_list)
-        if state_ids:
-            state_id_str_list = state_ids.split(',')
-            state_id_list = [int(state_id_str) for state_id_str in state_id_str_list]
-            query_params &= Q(state_id__in=state_id_list)
+        if node_ids:
+            node_id_list = node_ids.split(',')
+            query_params &= Q(node_id__in=node_id_list)
         if ticket_ids:
             ticket_id_str_list = ticket_ids.split(',')
             ticket_id_list = [int(ticket_id_str) for ticket_id_str in ticket_id_str_list]
@@ -152,14 +141,8 @@ class TicketBaseService(BaseService):
             query_params &= Q(creator=username)
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category == 'duty':
-            # 为了加快查询速度，该结果从ticket_usr表中获取。 对于部门、角色、这种处理人类型的，工单流转后 修改了部门或角色对应的人员会存在这些人无法在待办列表中查询到工单
-            duty_query_expression = Q(ticketuser__in_process=True, ticketuser__username=username)
+            duty_query_expression = Q(ticketuser__as_participant=True, ticketuser__user_id=user_id)
             query_params &= duty_query_expression
-            act_state_expression = ~Q(act_state_id__in=[
-                constant_service_ins.TICKET_ACT_STATE_FINISH,
-                constant_service_ins.TICKET_ACT_STATE_CLOSED
-            ])
-            query_params &= act_state_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category == 'relation':
             relation_query_expression = Q(ticketuser__username=username)

@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+    "@/*": ["./src/*"],
+    },
     "target": "es5",
     "lib": [
       "dom",
@@ -23,5 +27,6 @@
   "include": [
     "src",
     "**/*.json"
-  ]
+  ],
+  
 }

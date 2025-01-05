@@ -42,4 +42,5 @@ else:
     CELERY_BROKER_URL = 'redis://{}:{}/{}'.format(REDIS_HOST, REDIS_PORT, REDIS_DB)
 
 FIXTURE_DIRS = ('tests/fixtures/',)
-MACHINE_ID = 0
+
+ENCRYPTION_KEY = '2VLMQOroSgJUC68n30X9VzFkUPzN0oYpprGlwy/ffmk='   # you can generate your key, refer to document

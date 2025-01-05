@@ -44,3 +44,6 @@ else:
 FIXTURE_DIRS = ('tests/fixtures/',)
 
 HOOK_HOST_ALLOWED = []  # host list that allow used as hook url, such as ['192,168.1.12', 'www.baidu.com'], if no this setting key means allow
+
+JWT_SALT = 'aUApFqfQjyYVAPo8'
+ENCRYPTION_KEY = '2VLMQOroSgJUC68n30X9VzFkUPzN0oYpprGlwy/ffmk='   # you can generate your key, refer to document

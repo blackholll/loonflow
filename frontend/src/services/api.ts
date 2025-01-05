@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getCookie, removeCookie } from '../utils/cookie';
 
 
-const apiClient = axios.create({
+ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
@@ -13,7 +13,7 @@ apiClient.interceptors.request.use(
     const token = getCookie('jwtToken');
     // todo: jwt expire validation
     
-    if (token) {
+    if (token && !config.url?.includes('/api/v1.0/login')) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

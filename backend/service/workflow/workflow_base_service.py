@@ -56,7 +56,7 @@ class WorkflowBaseService(BaseService):
         :return:
         """
         query_params = Q(tenant_id=tenant_id)
-        user_obj = account_user_service_ins.get_user_by_user_id(operator_id)
+        user_obj = account_user_service_ins.get_user_by_user_id(tenant_id, operator_id)
         if user_obj.type != "admin":
             permission_workflow_id_list = workflow_permission_service_ins.get_user_permission_workflow_id_list(operator_id)
             if permission_workflow_id_list:
@@ -108,10 +108,10 @@ class WorkflowBaseService(BaseService):
 ############## below are waiting for update
     @classmethod
     @auto_log
-    def get_workflow_manage_list(cls, username: str)->tuple:
+    def get_workflow_manage_list(cls, user_id: str)->tuple:
         """
         获取有管理权限的工作流列表
-        :param username:
+        :param user_id:
         :return:
         """
         # 如果是超级管理员,拥有所有工作流的权限

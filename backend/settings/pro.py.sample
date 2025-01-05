@@ -50,6 +50,9 @@ else:
 
 HOOK_HOST_FORBIDDEN = []  # host list that not allowed be used as hook url(include state hook and notice hook), such as ['192,168.1.12', '*.baidu.com'], if no this setting key means allow all
 
+JWT_SALT = 'aUApFqfQjyYVAPo8'
+ENCRYPTION_KEY = '2VLMQOroSgJUC68n30X9VzFkUPzN0oYpprGlwy/ffmk='   # you can generate your key, refer to document
+
 LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,

@@ -19,26 +19,25 @@ class AccountUserService(BaseService):
 
     @classmethod
     @auto_log
-    def user_type_check(cls, email: str = "", user_id: int = 0, types: str = "") -> tuple:
+    def user_type_check(cls, email: str = "", user_id: str = 0, tenant_id: str = "", types: str = "") -> bool:
         """
         user type check
         :param email:
         :param user_id:
+        :param tenant_id:
         :param types:
         :return:
         """
         if email:
-            flag, result = cls.get_user_by_email(email)
+            result = cls.get_user_by_email(email)
         elif user_id:
-            flag, result = cls.get_user_by_user_id(user_id)
+            result = cls.get_user_by_user_id(tenant_id, user_id)
         else:
-            return False, 'username or user_id is needed'
-        if flag is False:
-            return False, result
+            raise CustomCommonException("username or user_id is required")
         if result.type in (types.split(',')):
-            return True, 'user type matched'
+            return True
         else:
-            return False, 'user type is not match'
+            raise CustomCommonException("user type is not allowed")
 
     @classmethod
     @auto_log
@@ -54,17 +53,16 @@ class AccountUserService(BaseService):
             return False, 'username: {} is not existed or has been deleted'.format(username)
 
     @classmethod
-    @auto_log
     def get_user_by_email(cls, email: str) -> tuple:
         """
         get user info by email
         :return:
         """
-        result = User.objects.filter(email=email).first()
-        if result:
-            return True, result
-        else:
-            return False, 'user: {} is not existed or has been deleted'.format(email)
+        try:
+            return User.objects.get(email=email)
+        except Exception as e:
+            raise Exception(f'user: {email} is not existed or has been deleted')
+
 
     @classmethod
     @auto_log
@@ -80,7 +78,7 @@ class AccountUserService(BaseService):
             return False, 'usernames: {} is not existed or has been deleted'.format(usernames)
 
     @classmethod
-    def get_user_by_user_id(cls, user_id: int) -> User.objects:
+    def get_user_by_user_id(cls, tenant_id:str, user_id: str) -> User.objects:
         """
         get user by user id
         :param user_id:
@@ -182,9 +180,7 @@ class AccountUserService(BaseService):
         :param email:
         :return:
         """
-        flag, user_obj = cls.get_user_by_email(email)
-        if flag is False:
-            return False, user_obj
+        user_obj = cls.get_user_by_email(email)
         user_info = user_obj.get_dict()
         user_info.pop('last_login')
         user_info.pop('created_at')
@@ -193,7 +189,7 @@ class AccountUserService(BaseService):
         jwt_salt = settings.JWT_SALT
         jwt_info = jwt.encode(
             {
-                'exp': int(time.time()) + 24 * 60 * 30,
+                'exp': int(time.time()) + 24 * 60 * 60 *30, # todo: change to 1 day
                 'iat': int(time.time()),
                 'data': user_info}, jwt_salt, algorithm='HS256')
         return True, jwt_info

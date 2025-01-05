@@ -1,7 +1,11 @@
 import time
 import hashlib
+
+from django.db.models import BooleanField
+
 from service.base_service import BaseService
 from service.common.log_service import auto_log
+from service.exception.custom_common_exception import CustomCommonException
 
 
 class CommonService(BaseService):
@@ -10,7 +14,7 @@ class CommonService(BaseService):
 
     @classmethod
     @auto_log
-    def signature_check(cls, timestamp: str, signature: str, md5_key: str)->tuple:
+    def signature_check(cls, timestamp: str, signature: str, md5_key: str)->bool:
         """
         signature check
         :param timestamp:
@@ -25,12 +29,11 @@ class CommonService(BaseService):
             time_now_int = int(time.time())
             if abs(time_now_int - int(timestamp)) <= 120:
                 # if abs(time_now_int - int(timestamp)) <= 12000000000000000:
-                return True, ''
+                return True
             else:
-                msg = 'The signature you provide in request header is expire, please ensure in 120s'
+                raise CustomCommonException('The signature you provide in request header is expire, please ensure in 120s')
         else:
-            msg = 'The signature you provide in request header is invalid'
-        return False, msg
+            raise CustomCommonException('The signature you provide in request header is invalid')
 
     @classmethod
     @auto_log

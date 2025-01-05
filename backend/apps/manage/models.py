@@ -2,9 +2,9 @@ from django.db import models
 from apps.loon_base_model import BaseCommonModel
 
 
-class Notice(BaseCommonModel):
+class Notification(BaseCommonModel):
     """
-    notice config
+    notice config, need encrypt
     """
     NOTICE_TYPE_CHOICE = [
         ("dingtalk", "dingtalk"),
