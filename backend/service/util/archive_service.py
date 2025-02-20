@@ -21,7 +21,7 @@ class ArchiveService(BaseService):
         :param operator_id:
         :return:
         """
-        data = json.dumps(model_to_dict(record))
+        data = json.dumps(record.get_dict())
         archived_obj = Archive(data=data, model_name=model_name, creator_id=operator_id)
         archived_obj.save()
         record.delete()

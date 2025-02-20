@@ -35,3 +35,4 @@ class EncryptService(BaseService):
         return data.decode()
 
 
+encrypt_service_ins = EncryptService()

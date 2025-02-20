@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getCookie, removeCookie } from '../utils/cookie';
 
 
- const apiClient = axios.create({
+const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },

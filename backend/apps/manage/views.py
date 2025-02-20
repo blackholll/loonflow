@@ -94,11 +94,10 @@ class NotificationView(BaseView):
         type = request_data_dict.get('type', '')
         extra = request_data_dict.get('extra', '')
         try:
-            result = notification_service_ins.add_notice(tenant_id, operator_id, name, description, type, extra)
+            result = notification_service_ins.add_notification(tenant_id, operator_id, name, description, type, extra)
         except Exception as e:
-            return api_response(-1, str(e), {})
-        except Exception:
-            return api_response(0, "Internal Server Error")
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
         return api_response(0, "", dict(notice_id=result))
 
 class SimpleNotificationView(BaseView):
@@ -136,21 +135,22 @@ class NotificationDetailView(BaseView):
     @user_permission_check("admin")
     def get(self, request, *args, **kwargs):
         """
-        get notice list
+        get notification detail
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
-        notice_id = kwargs.get('notice_id')
+        notification_id = kwargs.get('notification_id')
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            result = notification_service_ins.get_notice_detail(notice_id)
+            result = notification_service_ins.get_notification_detail(tenant_id, notification_id)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
-        return api_response(0, "", dict(notice_info=result))
+        return api_response(0, "", dict(notification_info=result))
 
     @user_permission_check("admin")
     def patch(self, request, *args, **kwargs):
@@ -161,7 +161,8 @@ class NotificationDetailView(BaseView):
         :param kwargs:
         :return:
         """
-        notice_id = kwargs.get('notice_id')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        notification_id = kwargs.get('notification_id')
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name', '')
@@ -169,7 +170,7 @@ class NotificationDetailView(BaseView):
         type = request_data_dict.get('type', '')
         extra = request_data_dict.get('extra', '')
         try:
-            notification_service_ins.update_notice(notice_id, name, description, type, extra)
+            notification_service_ins.update_notification(tenant_id, notification_id, name, description, type, extra)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except:
@@ -186,10 +187,11 @@ class NotificationDetailView(BaseView):
         :param kwargs:
         :return:
         """
-        notice_id = kwargs.get('notice_id')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        notification_id = kwargs.get('notification_id')
         operator_id = request.META.get('HTTP_USERID')
         try:
-            notification_service_ins.delete_notice(operator_id, notice_id)
+            notification_service_ins.delete_notification(tenant_id, operator_id, notification_id)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
