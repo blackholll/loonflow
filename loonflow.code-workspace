@@ -1,0 +1,23 @@
+{
+    "folders": [
+      {
+        "name": "loonflow-Frontend",
+        "path": "frontend"
+      },
+      {
+        "name": "loonflow-Backend",
+        "path": "backend"
+      }
+    ],
+    "settings": {
+      "files.exclude": {
+        "**/__pycache__": true,
+        "**/*.pyc": true
+      },
+      "search.exclude": {
+        "**/node_modules": true,
+        "**/dist": true,
+        "**/*.map": true
+      }
+    }
+  }
