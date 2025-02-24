@@ -7,12 +7,18 @@
       {
         "name": "loonflow-Backend",
         "path": "backend"
+      },
+      {
+        "name": "loonflow-Root",
+        "path": "."
       }
     ],
     "settings": {
       "files.exclude": {
         "**/__pycache__": true,
-        "**/*.pyc": true
+        "**/*.pyc": true,
+        "**/.idea": true,
+        "**/.vscode": true
       },
       "search.exclude": {
         "**/node_modules": true,

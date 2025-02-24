@@ -20,7 +20,8 @@
       "hook": "Hook",
       "dingtalk": "DingTalk",
       "wecom": "Wecom",
-      "feishu": "Feishu"
+      "feishu": "Feishu",
+      "logout": "Logout"
     },
     "signIn": {
       "title": "Loonflow",
@@ -43,56 +44,6 @@
       "ticketRelation": "My Relation",
       "ticketView": "My View",
       "ticketIntervene": "My Intervene",
-      "ticketAll": "All tickets",
-      "workflowManagement": "Workflow Management",
-      "organization": "Organization",
-      "userAndDept": "User&Dept",
-      "role": "Role",
-      "setting": "Setting",
-      "tenant": "Tenant",
-      "application": "Application",
-      "notification": "Notification",
-      "signin": "signin"
-    },
-    "ticketList": {
-      "searchWithKeyword": "Search with keyword",
-      "searchWithCreator": "Search with creator",
-      "searchWithTimeRange": "Search with time range",
-      "ticketType": "Ticket Type",
-      "ticketStatus": "Ticket Status",
-      "ticketTitle": "Ticket Title",
-      "ticketCreator": "Ticket Creator",
-      "ticketCreateTime": "Ticket Create Time",
-      "allTickets": "All Tickets",
-      "owerTickets": "Owner Tickets",
-      "viewTickets": "View Tickets",
-      "dutyTickets": "Duty Tickets",
-      "relationTickets": "Relation Tickets",
-      "interveneTickets": "Intervene Tickets"
-    },
-    "setting": {
-      "tenant": {
-        "name": "Name",
-        "domain": "Domain",
-        "workflow_limit": "Workflow Limit",
-        "ticket_limit": "Ticket Limit",
-        "un_limited": "un limited"
-        
-      },
-      "application": {
-        "applicationList": "Application List",
-        "searchWithKeyword": "Search with keyword",
-        "applicationDetial": "Application Detial",
-        "newApplication": "New Application",
-        "tokenCopied": "Token copied",
-        "appTypeDescription": "admin can all api, workflow Admin can only call workflow which granted related api"
-      },
-      "notification": {
-        "notificationList": "Notification List",
-        "notificationDetial": "Notification Detial",
-        "newNotification": "New Notification",
-        "notificationTypeDescription": ""
-        
-      }
+      "ticketAll": "All tickets"
     }
-  }
+}
