@@ -1,8 +1,11 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import PrivateRoute from './utils/PrivateRoute';
 import SnackbarProvider from './components/commonComponents/Snackbar/SnackbarProvider';
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+import { getTenantByDomain } from './services/tenant';
+import { setTenantBasicInfo } from './store';
 
 import Layout from './components/layout';
 import useMenuItems from './components/MenuItem';
@@ -20,8 +23,31 @@ import Tenant from './components/Setting/Tenant';
 import {ApplicationList} from './components/Setting/Application';
 import { NotificationList } from './components/Setting/Notification';
 
-
 const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchTenantInfo = async () => {
+      try {
+        const domain = window.location.hostname;
+        const response = await getTenantByDomain(domain);
+        if (response.code === 0) {
+          dispatch(setTenantBasicInfo(response.data.tenant_info));
+          console.log('获取租户信息成功:', response.data);
+        }
+      } catch (error) {
+        console.error('获取租户信息失败:', error);
+      }
+    };
+    fetchTenantInfo();
+
+    // 设置定时刷新租户信息，每30分钟刷新一次
+    const intervalId = setInterval(fetchTenantInfo, 30 * 60 * 1000);
+
+    // 组件卸载时清除定时器
+    return () => clearInterval(intervalId);
+  }, [dispatch]);
+
   const routes: ReactNode[] = [
     <Route
       key={'signin'}
@@ -105,14 +131,6 @@ const App = () => {
     />
     </Route>  
   ];
-
-
-
-  console.log('生成的路由配置:', routes); // 打印最终生成的路由
-  routes.map((child: any) => {
-    console.log('childelement:', child.props.element);
-  })
-
 
   return (
   <SnackbarProvider>

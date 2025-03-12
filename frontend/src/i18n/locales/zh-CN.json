@@ -1,0 +1,103 @@
+{
+  "layout": {
+    "userInfo": "用户信息",
+    "updateProfileSuccess": "更新用户信息成功",
+    "updateProfileFail": "更新用户信息失败",
+    "name": "姓名"
+  },
+  "actions": "操作",
+  "common": {
+    "userInfo": "用户信息",
+    "cancel": "取消",
+    "close": "关闭",
+    "save": "保存",
+    "actions": "操作",
+    "name": "名称",
+    "description": "描述",
+    "new": "新建",
+    "type": "类型",
+    "admin": "管理员",
+    "workflowAdmin": "工作流管理员",
+    "workflowPermission": "工作流权限",
+    "addRecordSuccess": "添加记录成功",
+    "wantDeleteRecord": "确定要删除这条记录吗？",
+    "confirm": "确认",
+    "hook": "钩子",
+    "dingtalk": "钉钉",
+    "wecom": "企业微信",
+    "feishu": "飞书",
+    "logout": "退出登录",
+    "alias": "别名",
+    "email": "邮箱"
+  },
+  "signIn": {
+    "title": "Loonflow",
+    "description": "致力于为企业提供统一的工作流解决方案.",
+    "emailLabel": "电子邮件地址",
+    "passwordLabel": "密码",
+    "rememberMe": "记住我",
+    "signInButton": "登录",
+    "forgotPassword": "忘记密码？",
+    "noAccount": "还没有账号？注册",
+    "welcomeBack": "欢迎回来！请登录继续。",
+    "welcomeMessage": "欢迎!"
+  },
+  "welcomeMessage": "欢迎使用loonflow",
+  "menu": {
+    "workbench": "工作台",
+    "ticketManagement": "工单管理",
+    "ticketDuty": "我的待办",
+    "ticketOwner": "我的申请",
+    "ticketRelation": "我的关联",
+    "ticketView": "工单查看",
+    "ticketIntervene": "工单干预",
+    "ticketAll": "所有工单",
+    "workflowManagement": "工作流管理",
+    "organization": "组织架构",
+    "userAndDept": "用户及部门",
+    "role": "角色",
+    "setting": "系统设置",
+    "tenant": "租户管理",
+    "application": "应用管理",
+    "notification": "通知管理",
+    "signin": "登录"
+  },
+  "ticketList": {
+    "searchWithKeyword": "关键字搜索",
+    "searchWithCreator": "创建人搜索",
+    "searchWithTimeRange": "时间范围搜索",
+    "ticketType": "工单类型",
+    "ticketStatus": "工单状态",
+    "ticketTitle": "工单标题",
+    "ticketCreator": "工单创建人",
+    "ticketCreateTime": "工单创建时间",
+    "allTickets": "所有工单",
+    "owerTickets": "我的工单",
+    "viewTickets": "查看工单",
+    "dutyTickets": "待办工单",
+    "relationTickets": "关联工单",
+    "interveneTickets": "干预工单"
+  },
+  "setting": {
+    "tenant": {
+      "name": "名称",
+      "domain": "域名",
+      "workflowLimit": "工作流限制",
+      "ticketLimit": "工单限制",
+      "unLimited": "无限制"
+    },
+    "application": {
+      "applicationList": "应用列表",
+      "searchWithKeyword": "关键字搜索",
+      "applicationDetial": "应用详情",
+      "newApplication": "新建应用",
+      "tokenCopied": "Token已复制"
+    },
+    "notification": {
+      "notificationList": "通知列表",
+      "notificationDetial": "通知详情",
+      "newNotification": "新建通知",
+      "notificationTypeDescription": "通知类型说明"
+    }
+  }
+}

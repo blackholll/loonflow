@@ -1,0 +1,103 @@
+{
+  "layout": {
+    "userInfo": "User Info",
+    "updateProfileSuccess": "Update Profile Success",
+    "updateProfileFail": "Update Profile Fail",
+    "name": "Name"
+  },
+  "actions": "Actions",
+  "common": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "actions": "Actions",
+    "name": "Name",
+    "description": "Description",
+    "new": "New",
+    "type": "Type",
+    "admin": "Admin",
+    "workflowAdmin": "Workflow Admin",
+    "workflowPermission": "Workflow Permission",
+    "addRecordSuccess": "Add Record Success",
+    "wantDeleteRecord": "Do you really want to delete this record?",
+    "confirm": "Confirm",
+    "hook": "Hook",
+    "dingtalk": "DingTalk",
+    "wecom": "Wecom",
+    "feishu": "Feishu",
+    "logout": "Logout",
+    "userInfo": "User Info",
+    "alias": "Alias",
+    "email": "Email"
+  },
+  "signIn": {
+    "title": "Loonflow",
+    "description": "Focused on delivering unified workflow solutions",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "rememberMe": "Remember me",
+    "signInButton": "Sign In",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account? Sign Up",
+    "welcomeBack": "Welcome back! Please sign in to continue.",
+    "welcomeMessage": "Welcome to our app!"
+  },
+  "welcomeMessage": "Welcome to our app333 d!",
+  "menu": {
+    "workbench": "Workbench",
+    "ticketManagement": "Ticket Management",
+    "ticketDuty": "My Duty",
+    "ticketOwner": "My Owner",
+    "ticketRelation": "My Relation",
+    "ticketView": "My View",
+    "ticketIntervene": "My Intervene",
+    "ticketAll": "All tickets",
+    "workflowManagement": "Workflow Management",
+    "organization": "Organization",
+    "userAndDept": "User & Dept",
+    "role": "Role",
+    "setting": "Setting",
+    "tenant": "Tenant",
+    "application": "Application",
+    "notification": "Notification",
+    "signin": "Sign In"
+  },
+  "ticketList": {
+    "searchWithKeyword": "Search With Keyword",
+    "searchWithCreator": "Search",
+    "searchWithTimeRange": "Search with Time Range",
+    "ticketType": "Ticekt Type",
+    "ticketStatus": "Ticket Status",
+    "ticketTitle": "Ticket Title",
+    "ticketCreator": "Ticket Creator",
+    "ticketCreateTime": "Ticket Create Time",
+    "allTickets": "All Tickets",
+    "owerTickets": "Owner Tickets",
+    "viewTickets": "View Tickets",
+    "dutyTickets": "Duty Tickets",
+    "relationTickets": "Relation Tickets",
+    "interveneTickets": "Intervene Tickets"
+  },
+  "setting": {
+    "tenant": {
+      "name": "Name",
+      "domain": "Domain",
+      "workflowLimit": "Workflow Limit",
+      "ticketLimit": "Ticket Limit",
+      "unLimited": "Unlimited"
+    },
+    "application": {
+      "applicationList": "Application List",
+      "searchWithKeyword": "Search With Keyword",
+      "applicationDetial": "Application",
+      "newApplication": "New Application",
+      "tokenCopied": "Token Copied"
+    },
+    "notification": {
+      "notificationList": "Notification",
+      "notificationDetial": "Notification Detail",
+      "newNotification": "New Notification",
+      "notificationTypeDescription": "Notification Type Description"
+    }
+  }
+}

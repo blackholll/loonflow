@@ -9,3 +9,14 @@ export const getTenantDetail = async (tenantId: string): Promise<ITenantDetailRe
     throw error;
   }
 }
+
+export const getTenantByDomain = async (domain: string): Promise<ITenantDetailRes> => {
+  try {
+    const response = await apiClient.get('/api/v1.0/accounts/tenants/by_domain', {
+      params: { domain }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

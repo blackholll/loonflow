@@ -17,8 +17,7 @@ class Tenant(BaseModel):
     parent_tenant = models.ForeignKey("self", db_constraint=False, null=True, default='', on_delete=models.DO_NOTHING)
     name = models.CharField("name", max_length=100, null=False, default="", help_text="tenant's name")
     domain = models.CharField("domain", max_length=100, null=False, default="", help_text="the domain of the tenant, such as xxx.com")
-    icon = models.CharField("icon", max_length=100, null=False, default="", help_text="the icon name of the tenant, such as xxx.jpg")
-    lang = models.CharField("lang", choices=LANG_CHOICE, default="zh-cn", null=False, max_length=100)
+    logo_path = models.CharField("logo_path", max_length=100, null=False, default="", help_text="the logo image of the tenant to be displayed on website, such as logo.jpg")
     workflow_limit = models.BigIntegerField("workflow_limit", null=False, default=0)
     ticket_limit = models.BigIntegerField("ticket_limit", null=False, default=0)
 

@@ -9,16 +9,14 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-// import { useDispatch } from 'react-redux';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-// import { login } from './store/authSlice';
 import { login } from './services/authService';
-import { setCookie, getCookie } from './utils/cookie';
+import { setCookie } from './utils/cookie';
 import { getJwtExpiration } from './utils/jwt';
-import { loginState, RootState } from './store'
+import { loginState } from './store'
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { clockNumberClasses } from '@mui/x-date-pickers';
+import { getMyProfile } from './services/user';
 
 
 function Copyright(props: any) {
@@ -34,37 +32,44 @@ function Copyright(props: any) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
+
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // const dispatch = useDispatch(); 
-  const handleSubmit = async() => {
-    console.log('eeeeeeeeeeeeeeee');
+  const handleSubmit = async () => {
     try {
       const responseData = await login(email, password);
-      console.log('responseData:', responseData);
       const token = responseData.data.jwt;
-      console.log('tokentokentokentoken:', token);
       const expiration = getJwtExpiration(token);
-      console.log('expirationexpiration:', expiration);
       setCookie('jwtToken', token, {
         sameSite: 'strict',
         expires: expiration,
       });
-      
+
       dispatch(loginState(token));
-      // todo: redirect to the previous page
-      // window.location.href = '/';
+      try {
+        const userProfileResponse = await getMyProfile();
+        if (userProfileResponse.code === 0 && userProfileResponse.data.my_profile.lang) {
+          const userLang = userProfileResponse.data.my_profile.lang;
+          const localStorageLang = localStorage.getItem('i18nextLng');
+
+          if (localStorageLang !== userLang) {
+            i18n.changeLanguage(userLang);
+          }
+        }
+      } catch (profileError) {
+        console.error('get userprofile fail:', profileError);
+      }
+
       navigate('/');
     } catch (error) {
-      console.error('登录失败:', error);
+      console.error('login fail:', error);
     }
   };
 
@@ -94,7 +99,7 @@ export default function SignIn() {
               {t('signIn.title')}
             </Typography>
           </Box>
-          <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, maxWidth:'100%' }}>
+          <Typography variant="body2" sx={{ textAlign: 'center', mt: 2, maxWidth: '100%' }}>
             {t('signIn.description')}
           </Typography>
           <Box component="form" noValidate sx={{ mt: 1 }}>
@@ -121,7 +126,7 @@ export default function SignIn() {
               onChange={(e) => setPassword(e.target.value)}
             />
             <Button
-              // type="submit"
+
               fullWidth
               onClick={handleSubmit}
               variant="contained"

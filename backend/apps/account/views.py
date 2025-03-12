@@ -145,11 +145,20 @@ class UserProfileView(BaseView):
             return api_response(-1, str(e), {})
         except:
             return api_response(-1, "Internal Server Error", {})
-        return api_response(0, "",  {"user_info": user_info})
+        my_profile = {
+            "name": user_info.get('name'),
+            "alias": user_info.get('alias'),
+            "email": user_info.get('email'),
+            "phone": user_info.get('phone'),
+            "avatar": user_info.get('avatar'),
+            "lang": user_info.get('lang'),
+            "dept_list": user_info.get('dept_list'),
+        }
+        return api_response(0, "",  {"my_profile": my_profile})
 
     def patch(self, request, *args, **kwargs):
         """
-        update profile
+        update profile, only support change lang for now
         :param request:
         :param args:
         :param kwargs:
@@ -1156,6 +1165,28 @@ class TenantDetailView(BaseView):
             return api_response(-1, str(e), {})
         except Exception:
             logger.error(traceback.format_exc())
-            return api_response(-1, "Internal Server Erro")
+            return api_response(-1, "Internal Server Error")
+        return api_response(0, "", dict(tenant_info=result))
+
+
+class TenantDomainView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get tenant detail info by domain, only return basic info, id, icon, name
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        domain = request.GET.get('domain')
+        if not domain:
+            return api_response(-1, "domain is required", {})
+        try:
+            result = account_tenant_service_ins.get_tenant_by_domain(domain)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
         return api_response(0, "", dict(tenant_info=result))
 

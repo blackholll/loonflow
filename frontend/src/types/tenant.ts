@@ -13,8 +13,22 @@ export interface ITenantDetailResEntity {
   ticket_limit: number;
 }
 
+export interface ITenantBasicInfo {
+  id: string;
+  name: string;
+  domain: string;
+  icon: string
+}
+
 export interface ITenantDetailResData {
   tenant_info: ITenantDetailResEntity
 }
 
+export interface ITenantBasicInfoResData {
+  tenant_info: ITenantBasicInfo
+}
+
+
 export interface ITenantDetailRes extends IApiResponse<ITenantDetailResData> {}
+
+export interface ITenantBasicInfoRes extends IApiResponse<ITenantBasicInfoResData> {}

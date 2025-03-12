@@ -23,6 +23,8 @@ class AppPermissionCheck(MiddlewareMixin):
         if request.path == '/api/v1.0/login':
             # for jwt login
             return
+        if request.path.startswith('/api/v1.0/accounts/tenants/by_domain'):
+            return
         if request.path.startswith('/api/'):
             auth_header = request.META.get('HTTP_AUTHORIZATION')
             if auth_header:
