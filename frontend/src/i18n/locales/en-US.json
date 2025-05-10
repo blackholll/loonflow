@@ -28,7 +28,10 @@
     "logout": "Logout",
     "userInfo": "User Info",
     "alias": "Alias",
-    "email": "Email"
+    "email": "Email",
+    "user": "User",
+    "users": "Users",
+    "department": "Department"
   },
   "signIn": {
     "title": "Loonflow",

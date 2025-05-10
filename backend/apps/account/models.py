@@ -14,7 +14,7 @@ class Tenant(BaseModel):
         ("zh-cn", "simple chinese"),
         ("en", "English")
     ]
-    parent_tenant = models.ForeignKey("self", db_constraint=False, null=True, default='', on_delete=models.DO_NOTHING)
+    parent_tenant = models.ForeignKey("self", db_constraint=False, null=False, default='00000000-0000-0000-0000-000000000000', on_delete=models.DO_NOTHING)
     name = models.CharField("name", max_length=100, null=False, default="", help_text="tenant's name")
     domain = models.CharField("domain", max_length=100, null=False, default="", help_text="the domain of the tenant, such as xxx.com")
     logo_path = models.CharField("logo_path", max_length=100, null=False, default="", help_text="the logo image of the tenant to be displayed on website, such as logo.jpg")
@@ -138,19 +138,21 @@ class Dept(BaseCommonModel):
     """
     tenant = models.ForeignKey(Tenant, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
     name = models.CharField('name', max_length=50, null=False, default="", help_text='department name')
-    parent_dept = models.ForeignKey('self', db_constraint=False, null=False, default=0, on_delete=models.DO_NOTHING)
+    parent_dept = models.ForeignKey('self', db_constraint=False, null=False, default='00000000-0000-0000-0000-000000000000', on_delete=models.DO_NOTHING, help_text='default value 00000000-0000-0000-0000-000000000000 means no parent department')
     leader = models.ForeignKey(User, db_constraint=False, null=False, on_delete=models.DO_NOTHING, related_name="dept_leader")
-    approver = models.CharField('approver', max_length=1000, null=False, default="")
 
     def get_dict(self):
         dept_dict_info = super().get_dict()
+        # Convert UUID fields to string for JSON serialization
+        if 'parent_dept_id' in dept_dict_info:
+            dept_dict_info['parent_dept_id'] = str(dept_dict_info['parent_dept_id'])
 
-        if self.parent_dept_id:
+        if self.parent_dept_id and str(self.parent_dept_id) != '00000000-0000-0000-0000-000000000000':
             parent_dept_obj = Dept.objects.filter(id=self.parent_dept_id).first()
             if parent_dept_obj:
-                parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name=parent_dept_obj.name)
+                parent_dept_info = dict(id=str(self.parent_dept_id), name=parent_dept_obj.name)
             else:
-                parent_dept_info = dict(parent_dept_id=self.parent_dept_id, parent_dept_name='未知')
+                parent_dept_info = dict(id=str(self.parent_dept_id), name='未知')
         else:
             parent_dept_info = None
         dept_dict_info['parent_dept_info'] = parent_dept_info
@@ -161,26 +163,26 @@ class Dept(BaseCommonModel):
                 dept_dict_info['leader_info'] = {
                     'name': leader_obj.name,
                     'alias': leader_obj.alias,
-                    'id': leader_obj.id,
+                    'id': str(leader_obj.id),
                 }
             else:
                 dept_dict_info['leader_info'] = {
                     'name': "",
                     'alias': "",
-                    'id': self.leader_id,
+                    'id': str(self.leader_id),
                 }
         else:
             dept_dict_info['leader_info'] = {
             }
 
-        dept_approver_queryset = DeptApprover.objects.filter(dept_id=self.id).all()
+        dept_approver_queryset = DeptApprover.objects.filter(dept_id=self.id, tenant_id=self.tenant_id).all()
         approver_id_list = [dept_approver.user_id for dept_approver in dept_approver_queryset]
         approver_list = []
         if approver_id_list:
             approver_queryset = User.objects.filter(id__in=approver_id_list).all()
             for approver_obj in approver_queryset:
                 approver_dict = dict()
-                approver_dict["id"] = approver_obj.id
+                approver_dict["id"] = str(approver_obj.id)
                 approver_dict["name"] = approver_obj.name
                 approver_dict["alias"] = approver_obj.alias
                 approver_list.append(approver_dict)

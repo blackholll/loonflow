@@ -28,7 +28,10 @@
     "feishu": "飞书",
     "logout": "退出登录",
     "alias": "别名",
-    "email": "邮箱"
+    "email": "邮箱",
+    "user": "用户",
+    "users": "用户",
+    "dept": "部门"
   },
   "signIn": {
     "title": "Loonflow",

@@ -9,12 +9,6 @@ export interface IApiErrResponse {
   msg: string;
 }
 
-export interface ISimpleUser {
-  id: string,
-  name: string,
-  alias: string
-}
-
 export interface ISimpleEntity {
   id: string,
   name: string

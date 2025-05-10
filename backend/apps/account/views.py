@@ -55,10 +55,10 @@ class UserView(BaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page')) if request_data.get('per_page') else 10
         page = int(request_data.get('page')) if request_data.get('page') else 1
-        dept_id = int(request_data.get('dept_id')) if request_data.get('department_id') else 0
+        dept_id = request_data.get('dept_id') if request_data.get('dept_id') else '00000000-0000-0000-0000-000000000000'
         try:
             result = account_user_service_ins.get_user_list(search_value, dept_id, page, per_page)
-            data = dict(user_list=result.get('user_result_object_format_list'),
+            data = dict(user_info_list=result.get('user_result_object_format_list'),
                         per_page=result.get('paginator_info').get('per_page'),
                         page=result.get('paginator_info').get('page'),
                         total=result.get('paginator_info').get('total'))
@@ -447,11 +447,6 @@ class SimpleRoleView(BaseView):
 
 
 class DeptTreeView(BaseView):
-    get_schema = Schema({
-        "search_value": Use(SchemaValidService.parse_str_list, error="Search_value must be None or a string"),
-        "parent_dept_id": Use(SchemaValidService.parse_integer_list, error="parent_department_id must be None or a int")
-    })
-
     @user_permission_check("admin")
     def get(self, request, *args, **kwargs):
         """
@@ -462,52 +457,60 @@ class DeptTreeView(BaseView):
         :return:
         """
         request_data = request.GET
-        search_value = request_data.get('search_value', '')
         tenant_id = request.META.get('HTTP_TENANTID')
-        parent_dept_id = int(request_data.get('parent_dept_id')) if request_data.get('parent_dept_id') else 0
+        is_simple = True if request_data.get('is_simple') == 'true' else False
         try:
-            result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_dept_id)
+            result = account_dept_service_ins.get_dept_tree(tenant_id)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", {})
+        
         return api_response(0, '', dict(dept_list=result))
 
-class SimpleDeptTreeView(BaseView):
-    get_schema = Schema({
-        "search_value": Use(SchemaValidService.parse_str_list, error="Search_value must be None or a string"),
-        "parent_dept_id": Use(SchemaValidService.parse_integer_list, error="parent_dept_id must be None or a int")
-    })
-
-    @user_permission_check("admin")
+class DeptPathView(BaseView):
     def get(self, request, *args, **kwargs):
         """
-        get simple department tree, without leader info and approver info
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
+        get department link list, eg."technical department-infrastructure"
+        """
+        request_data = request.GET
+        dept_id = kwargs.get('dept_id', 0)
+        tenant_id = request.META.get('HTTP_TENANTID')
+        try:
+            result = account_dept_service_ins.get_dept_path(tenant_id, dept_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc()) 
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, '', dict(dept_path=result))
+
+class DeptPathsView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get department link list, eg."technical department-infrastructure"
         """
         request_data = request.GET
         search_value = request_data.get('search_value', '')
         tenant_id = request.META.get('HTTP_TENANTID')
-        parent_dept_id = int(request_data.get('parent_deptt_id')) if request_data.get('parent_dept_id') else 0
         try:
-            result = account_dept_service_ins.get_dept_tree(tenant_id, search_value, parent_dept_id, True)
+            result = account_dept_service_ins.get_dept_path_list(tenant_id, search_value)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
-            logger.error(traceback.format_exc())
-            return api_response(-1, "Internal Server error", {})
-        return api_response(0, '', dict(dept_list=result))
+            logger.error(traceback.format_exc()) 
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, '', dict(dept_path_list=result))
+
+
 
 class DeptView(BaseView):
     post_schema = Schema({
         'name': And(str, lambda n: n != ''),
-        Optional('parent_dept_id'): int,
-        Optional('leader_id'): int,
-        Optional('approver_id_list'): list,
+        Optional('parent_dept_id'): str,
+        Optional('leader_id'): str,
+        Optional('approver_id_list'): [str],
         Optional('label'): str,
     })
 
@@ -526,11 +529,11 @@ class DeptView(BaseView):
         parent_dept_id = request_data_dict.get('parent_dept_id')
         leader_id = request_data_dict.get('leader_id')
         approver_id_list = request_data_dict.get('approver_id_list')
-        label = request_data_dict.get('label')
+        label = request_data_dict.get('label', {})
         creator_id = request.META.get('HTTP_USERID')
         tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            dept_id = account_dept_service_ins.add_dept(name, parent_dept_id, leader_id, approver_id_list, label, creator_id, tenant_id)
+            dept_id = account_dept_service_ins.add_dept(name, parent_dept_id, leader_id, approver_id_list, creator_id, tenant_id, label)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception as e:
@@ -565,10 +568,10 @@ class DeptView(BaseView):
 class DeptDetailView(BaseView):
     patch_schema = Schema({
         'name': And(str, lambda n: n != '', error='name is need'),
-        Optional('parent_dept_id'): int,
-        Optional('leader_id'): int,
+        Optional('parent_dept_id'): str,
+        Optional('leader_id'): str,
         Optional('approver_id_list'): list,
-        Optional('label'): str,
+        Optional('label'): dict,
     })
 
     @user_permission_check('admin')
@@ -588,8 +591,8 @@ class DeptDetailView(BaseView):
         except:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", {})
-
-        return api_response(0, "", result)
+        
+        return api_response(0, "", dict(dept_info=result))
 
 
     @user_permission_check('admin')
@@ -620,18 +623,41 @@ class DeptDetailView(BaseView):
         :param kwargs:
         :return:
         """
+        tenant_id = request.META.get('HTTP_TENANTID')
         dept_id = kwargs.get('dept_id')
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
-        parent_dept_id = int(request_data_dict.get('parent_dept_id')) if request_data_dict.get('parent_dept_id') else 0
+        parent_dept_id = request_data_dict.get('parent_dept_id') if request_data_dict.get('parent_dept_id') else ''
         leader = request_data_dict.get('leader')
         approver_id_list = request_data_dict.get('approver_id_list')
         leader_id = request_data_dict.get('leader_id')
-        label = request_data_dict.get('label')
+        label = request_data_dict.get('label', {})
 
         try:
-            account_dept_service_ins.update_dept(dept_id, name, parent_dept_id, leader_id, approver_id_list, label)
+            account_dept_service_ins.update_dept(tenant_id, dept_id, name, parent_dept_id, leader_id, approver_id_list, label)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+
+        return api_response(0, '', {})
+
+
+class DeptParentDeptView(BaseView):
+    patch_schema = Schema({
+        'parent_dept_id': str,
+    })
+    def patch(self, request, *args, **kwargs):
+        tenant_id = request.META.get('HTTP_TENANTID')
+        dept_id = kwargs.get('dept_id')
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        parent_dept_id = request_data_dict.get('parent_dept_id') if request_data_dict.get('parent_dept_id') else ''
+
+        try:
+            account_dept_service_ins.update_dept_parent_dept(tenant_id, dept_id, parent_dept_id)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except:

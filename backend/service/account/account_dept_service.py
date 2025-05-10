@@ -101,7 +101,7 @@ class AccountDeptService(BaseService):
         return True, Dept.objects.filter(id=dept_id).first()
 
     @classmethod
-    def get_dept_detail_by_id(cls, dept_id: int) -> dict:
+    def get_dept_detail_by_id(cls, dept_id: str) -> dict:
         """
         get dept detail for api
         :param dept_id:
@@ -165,8 +165,8 @@ class AccountDeptService(BaseService):
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
-    def add_dept(cls, name: str, parent_dept_id: int, leader_id: int, approver_id_list: list, label: str,
-                 creator_id: int, tenant_id: int) -> int:
+    def add_dept(cls, name: str, parent_dept_id: str, leader_id: str, approver_id_list: list,
+                 creator_id: str, tenant_id: str, label: dict={}) -> int:
         """
         add department record
         :param name:
@@ -178,25 +178,25 @@ class AccountDeptService(BaseService):
         :param tenant_id:
         :return:
         """
+        if not parent_dept_id:
+            parent_dept_id = '00000000-0000-0000-0000-000000000000'
         dept_obj = Dept(name=name, parent_dept_id=parent_dept_id, leader_id=leader_id, label=label,
                         creator_id=creator_id, tenant_id=tenant_id)
         dept_obj.save()
         dept_approver_list = []
         for approver_id in approver_id_list:
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
             dept_approver_list.append(
-                DeptApprover(dept_id=dept_obj.id, user_id=approver_id, id=SnowflakeIDGenerator()(),
+                DeptApprover(dept_id=dept_obj.id, user_id=approver_id,
                              tenant_id=tenant_id))
-            SnowflakeIDGenerator().__call__()
 
         if dept_approver_list:
             DeptApprover.objects.bulk_create(dept_approver_list)
-        return dept_obj.id
+        return str(dept_obj.id)
 
     @classmethod
     @auto_log
-    def update_dept(cls, dept_id: int, name: str, parent_dept_id: int, leader_id: int, approver_id_list: list,
-                    label: str) -> bool:
+    def update_dept(cls, tenant_id:str, dept_id: str, name: str, parent_dept_id: str, leader_id: str, approver_id_list: list,
+                    label: dict) -> bool:
         """
         update department record
         :param dept_id:
@@ -207,7 +207,7 @@ class AccountDeptService(BaseService):
         :param label:
         :return:
         """
-        dept_queryset = Dept.objects.filter(id=dept_id)
+        dept_queryset = Dept.objects.filter(id=dept_id, tenant_id=tenant_id).all()
         if not dept_queryset:
             raise CustomCommonException("dept is not existed or has been deleted")
 
@@ -226,6 +226,26 @@ class AccountDeptService(BaseService):
         if need_del_approver_id_list:
             DeptApprover.objects.filter(dept_id=dept_id, user_id__in=need_del_approver_id_list).delete()
         return True
+
+
+    @classmethod
+    @auto_log
+    def update_dept_parent_dept(cls, tenant_id:str, dept_id: str, parent_dept_id: str) -> bool:
+        """
+        update department's parent_dept_id
+        :param tenant_id:
+        :param dept_id:
+        :param parent_dept_id:
+        :return:
+        """
+        dept_queryset = Dept.objects.filter(id=dept_id, tenant_id=tenant_id).all()
+        if not dept_queryset:
+            raise CustomCommonException("dept is not existed or has been deleted")
+        if not parent_dept_id:
+            parent_dept_id = '00000000-0000-0000-0000-000000000000'
+        dept_queryset.update(parent_dept_id=parent_dept_id)
+        return True
+
 
     @classmethod
     @auto_log
@@ -267,25 +287,14 @@ class AccountDeptService(BaseService):
         return True
 
     @classmethod
-    def get_dept_tree(cls, tenant_id: int, search_value: str, parent_dept_id: int, simple: bool=False) -> list:
+    def get_dept_tree(cls, tenant_id: str) -> list:
         """
-        get department tree
+        get department tree, it's difficult to use mui tree view for lazy loading, so just return all dept info here
         :param tenant_id:
-        :param search_value:
-        :param parent_dept_id:
-        :param simple:
+        :param is_simple:
         :return:
         """
-        query_params = Q()
-        query_params &= Q(tenant_id=tenant_id)
-        if parent_dept_id:
-            query_params &= Q(parent_dept_id=parent_dept_id)
-        if search_value:
-            query_params &= Q(name__contains=search_value)
-        if not (parent_dept_id or search_value):
-            # no parent_department_id and search_value ,only return root department
-            query_params &= Q(parent_dept_id=0)
-
+        query_params = Q(tenant_id=tenant_id)
         raw_dept_queryset = Dept.objects.filter(query_params)
 
         dept_link_list = cls.get_dept_link_list(raw_dept_queryset)
@@ -296,114 +305,201 @@ class AccountDeptService(BaseService):
         dept_approver_id_list = []
         dept_approver_map = dict()
         dept_info_map = dict()
+        
         related_dept_queryset = Dept.objects.filter(id__in=dept_id_list)
-
         for dept_obj in related_dept_queryset:
             dept_id_list.append(dept_obj.id)
             dept_leader_id_list.append(dept_obj.leader_id)
-            dept_approver_queryset = DeptApprover.objects.filter(dept_id=dept_obj.id).all()
-            approver_list = []
-            for approver_obj in dept_approver_queryset:
-                dept_approver_id_list.append(approver_obj.user_id)
-                approver_list.append({"id": approver_obj.user_id})
-            dept_approver_map[dept_obj.id] = approver_list
 
-            dept_info = dict(id=dept_obj.id, name=dept_obj.name, leader_id=dept_obj.leader_id,
-                             approver_info_list=dept_approver_map.get(dept_obj.id))  # 缺少审批人的详细信息
-            dept_info_map[dept_obj.id] = dept_info
+            dept_info = dict(id=str(dept_obj.id), name=dept_obj.name)
+            dept_info_map[str(dept_obj.id)] = dept_info
 
         related_user_id_list = dept_leader_id_list + dept_approver_id_list
         related_user_id_list = list(set(related_user_id_list))
-        user_map = dict()
-        related_user_queryset = User.objects.filter(id__in=related_user_id_list)
-        for related_user in related_user_queryset:
-            related_user_detail = related_user.get_dict()
-            user_map[related_user.id] = dict(id=related_user_detail.get("id"), name=related_user_detail.get("name"),
-                                             alias=related_user_detail.get("alias"))
+        
 
-        # related dept id which has children, 将所有parent_id不为0的找出来， 然后将这些数据的parent_id找出来。
         has_child_dept_id_list = []
-
-        parent_query_params = ~Q(parent_dept_id=0) & Q(tenant_id=tenant_id) & Q(parent_dept_id__in=dept_id_list)
-        parent_queryset = Dept.objects.filter(parent_query_params)
+        has_parent_query_params = ~Q(parent_dept_id='00000000-0000-0000-0000-000000000000') & Q(tenant_id=tenant_id) & Q(parent_dept_id__in=dept_id_list)
+        parent_queryset = Dept.objects.filter(has_parent_query_params)
         for parent_obj in parent_queryset:
-            has_child_dept_id_list.append(parent_obj.parent_dept_id)
+            has_child_dept_id_list.append(str(parent_obj.parent_dept_id))
 
         flag, all_leaf_node_value_list = tree_service_ins.get_leaf_value_list_from_tree(dept_id_tree)
-        return cls.get_tree_list_from_tree_and_other(dept_id_tree, user_map, dept_info_map, has_child_dept_id_list,
-                                                     all_leaf_node_value_list, tenant_id, simple)
+        return cls.get_tree_list_from_tree_and_other(dept_id_tree, dept_info_map, has_child_dept_id_list,
+                                                     all_leaf_node_value_list, tenant_id)
 
     @classmethod
-    def get_tree_list_from_tree_and_other(cls, tree_node, user_map: dict, dept_info_map: dict,
-                                          has_child_dept_id_list: list, all_leaf_node_value_list: list, tenant_id: int,
-                                          simple: bool) -> list:
+    def get_tree_list_from_tree_and_other(cls, tree_node, dept_info_map: dict,
+                                          has_child_dept_id_list: list, all_leaf_node_value_list: list, tenant_id: str) -> list:
         """
-        get tree list from treenode, user info, approver info. if node has leaf node,  it should be expended
+        get tree list from treenode
         :param tree_node:
         :param user_map:
         :param dept_info_map:
         :param has_child_dept_id_list:
         :param all_leaf_node_value_list:
-        :param simple:
         :return:
         """
 
         result_list = []
         # if tree_node and tree_node.value:
         if tree_node:
+            # 跳过默认UUID值的节点
+            if tree_node.value and str(tree_node.value) == '00000000-0000-0000-0000-000000000000':
+                # 直接处理子节点
+                for child in tree_node.children:
+                    child_result = cls.get_tree_list_from_tree_and_other(child, dept_info_map,
+                                                                      has_child_dept_id_list,
+                                                                      all_leaf_node_value_list,
+                                                                      tenant_id)
+                    result_list.extend(child_result)
+                return result_list
+                
             current_info = dict()
             if tree_node.value:
-                current_info.update(dept_info_map.get(tree_node.value))
+                dept_info = dept_info_map.get(tree_node.value, {})
+                if dept_info:
+                    # 确保id是字符串类型
+                    if 'id' in dept_info and dept_info['id'] is not None:
+                        dept_info['id'] = str(dept_info['id'])
+                    current_info.update(dept_info)
+                else:
+                    # 如果dept_info为空，设置默认值，确保id是字符串类型
+                    current_info.update(dict(id=str(tree_node.value), name=""))
             else:
                 tenant_obj = Tenant.objects.get(id=tenant_id)
 
-                current_info.update(dict(id=0, name=tenant_obj.name))
-            if not simple:
-                current_info["leader_info"] = user_map.get(
-                    dept_info_map.get(tree_node.value).get("leader_id")) if tree_node.value else {}
-                approver_info_list = dept_info_map.get(tree_node.value).get(
-                    "approver_info_list") if tree_node.value else []
-
-                new_approver_info_list = []
-                for approver_info in approver_info_list:
-                    new_approver_info = user_map.get(approver_info.get("id"))
-                    new_approver_info_list.append(new_approver_info)
-                current_info["approver_info_list"] = new_approver_info_list
-            else:
-                if current_info.get("approver_info_list"):
-                    current_info.pop('approver_info_list')
-            current_info["need_expend"] = True if tree_node.value not in all_leaf_node_value_list else False
-            current_info["has_children"] = True if tree_node.value not in has_child_dept_id_list else False
+                current_info.update(dict(id="00000000-0000-0000-0000-000000000000", name=tenant_obj.name))
+            # 确保all_leaf_node_value_list和has_child_dept_id_list不为None
+            leaf_node_list = all_leaf_node_value_list or []
+            child_dept_list = has_child_dept_id_list or []
             current_info["children"] = []
             for child in tree_node.children:
-                current_info["children"] = (current_info["children"] +
-                                            cls.get_tree_list_from_tree_and_other(child, user_map, dept_info_map,
-                                                                                  has_child_dept_id_list,
-                                                                                  all_leaf_node_value_list,
-                                                                                  tenant_id, simple))
+                # 确保子节点的值是字符串类型，以便在dept_info_map中正确查找
+                if child.value is not None:
+                    if not isinstance(child.value, str):
+                        child.value = str(child.value)
+                    if child.value not in dept_info_map:
+                        try:
+                            dept_obj = Dept.objects.get(id=child.value)
+                            if is_simple:
+                                dept_info = dict(id=str(dept_obj.id), name=dept_obj.name)
+                            else:
+                                dept_info = dict(id=str(dept_obj.id), name=dept_obj.name, leader_id=str(dept_obj.leader_id) if dept_obj.leader_id else None)
+                            dept_info_map[child.value] = dept_info
+                        except Exception as e:
+                            pass
+                child_result = cls.get_tree_list_from_tree_and_other(child, dept_info_map,
+                                                                   has_child_dept_id_list,
+                                                                   all_leaf_node_value_list,
+                                                                   tenant_id)
+                current_info["children"] = current_info["children"] + child_result
             result_list.append(current_info)
         return result_list
 
     @classmethod
     def get_dept_link_list(cls, department_queryset: QuerySet):
         """
-        get department link list. [[1,2,3], [1,2,4], [1,4,7], [1,4,8]]
+        get department link list. [['1','2','3'], ['1','2','4'], ['1','4','7'], ['1','4','8']]
         :param department_queryset:
         :return:
         """
         result_list = []
         for department_obj in department_queryset:
             current_list = []
-            current_list.append(department_obj.id)
+            current_list.append(str(department_obj.id))
             current_dept = department_obj
-            while current_dept.parent_dept_id:
-                current_list.append(current_dept.parent_dept_id)
-                current_dept = Dept.objects.get(id=current_dept.parent_dept_id)
+            while current_dept.parent_dept_id and current_dept.parent_dept_id != '00000000-0000-0000-0000-000000000000':
+                try:
+                    current_list.append(str(current_dept.parent_dept_id))
+                    current_dept = Dept.objects.get(id=current_dept.parent_dept_id)
+                except Dept.DoesNotExist:
+                    break
+            # 过滤掉默认UUID值
+            # current_list = [str(dept_id) for dept_id in current_list if str(dept_id) != '00000000-0000-0000-0000-000000000000']
             current_list.reverse()
-            result_list.append(current_list)
+            if current_list:
+                result_list.append(current_list)
 
         return result_list
 
+    @classmethod
+    def get_dept_path_list(cls, tenant_id: str, search_value:str) -> list:
+        """
+        get department path list, eg. [{'id':1, 'path':'技术部-基础设施部'}]
+        :param search_value: department name
+        :return: list of dict with dept id and full path
+        """
+        result_list = []
+        # 获取所有匹配的部门
+        department_queryset = Dept.objects.filter(name__contains=search_value, tenant_id=tenant_id).all()
+        
+        # 收集所有需要查询的部门ID
+        dept_ids = set()
+        for dept in department_queryset:
+            dept_ids.add(dept.id)
+            current_dept = dept
+            while current_dept and current_dept.parent_dept_id != '00000000-0000-0000-0000-000000000000':
+                dept_ids.add(current_dept.parent_dept_id)
+                current_dept = Dept.objects.filter(id=current_dept.parent_dept_id).first()
+        
+        # 一次性查询所有需要的部门信息
+        dept_map = {str(dept.id): dept for dept in Dept.objects.filter(id__in=dept_ids).all()}
+        
+        for dept in department_queryset:
+            path_list = []
+            current_dept = dept
+            
+            # 获取所有父部门
+            while current_dept:
+                path_list.append(current_dept.name)
+                if current_dept.parent_dept_id == '00000000-0000-0000-0000-000000000000':
+                    break
+                current_dept = dept_map.get(str(current_dept.parent_dept_id))
+            
+            # 反转路径顺序并构建字符串
+            path_list.reverse()
+            path_str = '-'.join(path_list)
+            
+            result_list.append({
+                'id': str(dept.id),
+                'path': path_str,
+                'name': dept.name
+            })
+            
+        return result_list
+        
+
+    @classmethod
+    def get_dept_path(cls, tenant_id: str, dept_id:str)->dict:
+        """
+        get department path, eg. {'id':1, 'path':'技术部-基础设施部'}
+        :param dept_id: department id
+        """
+        department_obj = Dept.objects.filter(id=dept_id, tenant_id=tenant_id).first()
+        
+        dept_ids = []
+        current_dept = department_obj
+        dept_ids.append(str(department_obj.id))
+        while current_dept and current_dept.parent_dept_id != '00000000-0000-0000-0000-000000000000':
+            dept_ids.append(str(current_dept.parent_dept_id))
+            current_dept = Dept.objects.filter(id=current_dept.parent_dept_id).first()
+
+        
+        dept_map = {str(dept.id): dept for dept in Dept.objects.filter(id__in=dept_ids).all()}
+        path_list = []
+        for dept_id in dept_ids:
+            if dept_id != '00000000-0000-0000-0000-000000000000':
+                path_list.append(dept_map[dept_id].name)
+        path_list.reverse()
+        path_str = '-'.join(path_list)
+        result = {
+            'id': dept_id,
+            'path': path_str,
+            'name': department_obj.name
+        }
+        return result
+        
     @classmethod
     def get_query_tree(cls, department_queryset: QuerySet):
         """

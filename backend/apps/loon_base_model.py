@@ -85,7 +85,7 @@ class BaseModel(models.Model):
     basic tenant' model
     """
     id = models.UUIDField( primary_key=True, default=uuid.uuid4, editable=False)
-    label = models.CharField('label', max_length=5000, blank=True, default='')
+    label = models.JSONField('label', blank=True, default=dict)
     creator_id = models.CharField("creator_id", default='', max_length=40, null=False, blank=True)
     created_at = models.DateTimeField("created_at", auto_now_add=True)
     updated_at = models.DateTimeField("updated_at", auto_now=True)

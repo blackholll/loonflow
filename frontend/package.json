@@ -8,6 +8,7 @@
     "@mui/icons-material": "^6.0.1",
     "@mui/material": "^6.0.1",
     "@mui/x-date-pickers": "^7.19.0",
+    "@mui/x-tree-view": "^7.26.0",
     "@reduxjs/toolkit": "^2.2.7",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -60,5 +61,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://127.0.0.1:8000"
+  "proxy": "http://127.0.0.1:8000",
+  "devDependencies": {
+    "@types/lodash": "^4.17.16"
+  }
 }

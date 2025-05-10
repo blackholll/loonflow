@@ -266,7 +266,7 @@ class AccountUserService(BaseService):
         return True, user_dept_info
 
     @classmethod
-    def get_user_list(cls, search_value: str, dept_id: int, page: int = 1, per_page: int = 10, simple=False) -> dict:
+    def get_user_list(cls, search_value: str, dept_id: str, page: int = 1, per_page: int = 10, simple=False) -> dict:
         """
         get user restful info list by query params: search_value, page, per_page
         :param search_value: support user's username, and user's alias. fuzzy query
@@ -278,8 +278,8 @@ class AccountUserService(BaseService):
         """
         query_params = Q()
         if search_value:
-            query_params &= Q(username__contains=search_value) | Q(alias__contains=search_value)
-        if dept_id:
+            query_params &= Q(name__contains=search_value) | Q(alias__contains=search_value) | Q(email__contains=search_value)
+        if dept_id and dept_id != '0' and dept_id!='00000000-0000-0000-0000-000000000000':
             query_params &= Q(dept__id__in=Dept.objects.filter(id=dept_id))
         user_objects = User.objects.filter(query_params).order_by("id")
         paginator = Paginator(user_objects, per_page)
@@ -302,7 +302,7 @@ class AccountUserService(BaseService):
                 if user_result_object.id == user_dept.user_id:
                     user_dept_info_list.append(
                         dict(name=user_dept.dept.name, id=user_dept.dept.id))
-            user_result_format_dict['dept_list'] = user_dept_info_list
+            user_result_format_dict['dept_info_list'] = user_dept_info_list
             if simple:
                 need_del_field_list = ["last_login", "label", "creator_info", "created_at", "updated_at", "type", "lang", "phone", "email"]
                 for need_del_field in need_del_field_list:

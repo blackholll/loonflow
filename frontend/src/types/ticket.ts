@@ -1,4 +1,5 @@
-import { IApiResponse, IApiErrResponse, ISimpleUser, ISimpleEntity } from './common';
+import { IApiResponse, IApiErrResponse, ISimpleEntity } from './common';
+import { ISimpleUser } from './user';
 
 
 export interface ITicketListQueryParam {
@@ -79,4 +80,4 @@ export interface ITicketListResData {
   ticket_list: ITicketListResEntity[]
 }
 
-export interface ITicketListRes extends IApiResponse<ITicketListResData> {}
+export interface ITicketListRes extends IApiResponse<ITicketListResData> { }

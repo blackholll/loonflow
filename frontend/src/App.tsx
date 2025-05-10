@@ -20,8 +20,10 @@ import ViewTicket from './components/Ticket/ViewTicket';
 import InterveneTicket from './components/Ticket/InterveneTicket';
 import AllTicket from './components/Ticket/AllTicket';
 import Tenant from './components/Setting/Tenant';
-import {ApplicationList} from './components/Setting/Application';
+import { ApplicationList } from './components/Setting/Application';
 import { NotificationList } from './components/Setting/Notification';
+import UserDept from './components/Organization/UserDept/Index';
+
 
 const App = () => {
   const dispatch = useDispatch();
@@ -106,7 +108,7 @@ const App = () => {
     >
       <Route key={'userAndDept'}
         path={'/organization/userdept'}
-        element={<PrivateRoute element={<Layout children={<Home />} />} />}
+        element={<PrivateRoute element={<Layout children={<UserDept />} />} />}
       />
       <Route key={'role'}
         path={'/organization/role'}
@@ -114,33 +116,33 @@ const App = () => {
       />
     </Route>,
     <Route
-    key={'setting'}
-    path={'/setting'}
-   >
-    <Route key={'tenant'}
-      path={'/setting/tenant'}
-      element={<PrivateRoute element={<Layout children={<Tenant />} />} />}
-    />
-    <Route key={'application'}
-      path={'/setting/application'}
-      element={<PrivateRoute element={<Layout children={<ApplicationList />} />} />}
-    />
-    <Route key={'notification'}
-      path={'/setting/notification'}
-      element={<PrivateRoute element={<Layout children={<NotificationList />} />} />}
-    />
-    </Route>  
+      key={'setting'}
+      path={'/setting'}
+    >
+      <Route key={'tenant'}
+        path={'/setting/tenant'}
+        element={<PrivateRoute element={<Layout children={<Tenant />} />} />}
+      />
+      <Route key={'application'}
+        path={'/setting/application'}
+        element={<PrivateRoute element={<Layout children={<ApplicationList />} />} />}
+      />
+      <Route key={'notification'}
+        path={'/setting/notification'}
+        element={<PrivateRoute element={<Layout children={<NotificationList />} />} />}
+      />
+    </Route>
   ];
 
   return (
-  <SnackbarProvider>
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          {routes}
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <SnackbarProvider>
+      <div className="App">
+        <BrowserRouter>
+          <Routes>
+            {routes}
+          </Routes>
+        </BrowserRouter>
+      </div>
     </SnackbarProvider>
   );
 };
