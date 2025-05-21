@@ -16,7 +16,7 @@ export interface ISimpleEntity {
 
 export interface ISimpleQueryParam {
   page?: number;
-  per_page?: number;
-  search_key?: string
+  perPage?: number;
+  searchKey?: string
 
 }

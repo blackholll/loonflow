@@ -34,7 +34,7 @@ const App = () => {
         const domain = window.location.hostname;
         const response = await getTenantByDomain(domain);
         if (response.code === 0) {
-          dispatch(setTenantBasicInfo(response.data.tenant_info));
+          dispatch(setTenantBasicInfo(response.data.tenantInfo));
           console.log('获取租户信息成功:', response.data);
         }
       } catch (error) {

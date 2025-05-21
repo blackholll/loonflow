@@ -11,7 +11,7 @@ const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
   description: Yup.string().required('Description is required'),
   type: Yup.string().required('Type is required'),
-  hookUrl: Yup.string().test('is-hook-url-required', 'Hook URL is required', function(value) {
+  hookUrl: Yup.string().test('is-hook-url-required', 'Hook URL is required', function (value) {
     const { type } = this.parent;
     if (type === 'hook') {
       console.log('1111111111');
@@ -19,7 +19,7 @@ const validationSchema = Yup.object({
     }
     return true;
   }),
-  hookToken: Yup.string().test('is-hook-token-required', 'Hook Token is required', function(value) {
+  hookToken: Yup.string().test('is-hook-token-required', 'Hook Token is required', function (value) {
     const { type } = this.parent;
     if (type === 'hook') {
       console.log('2222222');
@@ -32,11 +32,11 @@ const validationSchema = Yup.object({
 
 interface NotificationDetailProps {
   open: boolean
-  onClose: () => void 
+  onClose: () => void
   notificationId?: string
 }
 
-const NotificationDialog = ({open, onClose, notificationId}: NotificationDetailProps) => {
+const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetailProps) => {
   const { t } = useTranslation();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const initialFormData = {
@@ -53,12 +53,12 @@ const NotificationDialog = ({open, onClose, notificationId}: NotificationDetailP
     hookToken: ''
   };
   const [formData, setFormData] = useState(initialFormData);
-  const [ loading, setLoading ] = useState(false);
-  const [ hookTokenEdit, setHookTokenEdit ] = useState(false);
-  const [ feishuAppSecretEdit, setFeishuAppSecretEdit] = useState(false);
-  const [ wecomCorpSecretEdit, setWecomCorpSecretEdit] = useState(false);
-  const [ dingtalkAppSecretEdit, setDingtalkAppSecretEdit] = useState(false);
-  
+  const [loading, setLoading] = useState(false);
+  const [hookTokenEdit, setHookTokenEdit] = useState(false);
+  const [feishuAppSecretEdit, setFeishuAppSecretEdit] = useState(false);
+  const [wecomCorpSecretEdit, setWecomCorpSecretEdit] = useState(false);
+  const [dingtalkAppSecretEdit, setDingtalkAppSecretEdit] = useState(false);
+
   const { showMessage } = useSnackbar();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,44 +68,44 @@ const NotificationDialog = ({open, onClose, notificationId}: NotificationDetailP
 
 
 
-  const getNotificationDetailR = useCallback(async() =>{
-    if (notificationId){
+  const getNotificationDetailR = useCallback(async () => {
+    if (notificationId) {
       try {
         const result = await getNotificationDetail(notificationId);
-        if (result.code === -1){
+        if (result.code === -1) {
           showMessage(`fail to get notification detail: ${result.message}`, 'error');
         } else {
-          const notificationType = result.data.notification_info.type;
+          const notificationType = result.data.notificationInfo.type;
           const notificationDetail: any = {
-            name: result.data.notification_info.name,
-            description: result.data.notification_info.description,
+            name: result.data.notificationInfo.name,
+            description: result.data.notificationInfo.description,
             type: notificationType,
           }
-          if (notificationType === 'hook'){
-            notificationDetail.hookUrl = result.data.notification_info.extra.hook_url;
-            notificationDetail.hookToken = result.data.notification_info.extra.hook_token;
-          } else if (notificationType === 'dingtalk'){
-            notificationDetail.dtAppKey = result.data.notification_info.extra.dt_app_key;
-            notificationDetail.dtAppSecret = result.data.notification_info.extra.dt_app_secret;
-          } else if (notificationType === 'wecom'){
-            notificationDetail.wcCorpId = result.data.notification_info.extra.wc_corp_id;
-            notificationDetail.wcCorpSecret = result.data.notification_info.extra.wc_corp_secret;
-          } else if (notificationType === 'feishu'){
-            notificationDetail.fsAppId = result.data.notification_info.extra.fs_app_id;
-            notificationDetail.fsAppSecret = result.data.notification_info.extra.fs_app_secret
+          if (notificationType === 'hook') {
+            notificationDetail.hookUrl = result.data.notificationInfo.extra.hookUrl;
+            notificationDetail.hookToken = result.data.notificationInfo.extra.hookToken;
+          } else if (notificationType === 'dingtalk') {
+            notificationDetail.dtAppKey = result.data.notificationInfo.extra.dtAppKey;
+            notificationDetail.dtAppSecret = result.data.notificationInfo.extra.dtAppSecret;
+          } else if (notificationType === 'wecom') {
+            notificationDetail.wcCorpId = result.data.notificationInfo.extra.wcCorpId;
+            notificationDetail.wcCorpSecret = result.data.notificationInfo.extra.wcCorpSecret;
+          } else if (notificationType === 'feishu') {
+            notificationDetail.fsAppId = result.data.notificationInfo.extra.fsAppId;
+            notificationDetail.fsAppSecret = result.data.notificationInfo.extra.fsAppSecret
           }
-          setFormData({...formData, ...notificationDetail})
+          setFormData({ ...formData, ...notificationDetail })
         }
       } catch (error: any) {
         showMessage(`fail to get notification detail: ${error.message}`, 'error');
       }
     }
   }, [notificationId])
-  
+
   useEffect(() => {
     getNotificationDetailR();
   }, [notificationId, getNotificationDetailR]);
-  
+
   useEffect(() => {
     const validate = async () => {
       try {
@@ -115,8 +115,8 @@ const NotificationDialog = ({open, onClose, notificationId}: NotificationDetailP
         if (err instanceof Yup.ValidationError) {
           const newErrors: { [key: string]: string } = {};
           err.inner.forEach((error) => {
-            if (error.path){
-              newErrors[error.path] = error.message;            
+            if (error.path) {
+              newErrors[error.path] = error.message;
             }
           });
           setErrors(newErrors);
@@ -124,63 +124,67 @@ const NotificationDialog = ({open, onClose, notificationId}: NotificationDetailP
       }
     };
     validate();
-  }, [formData]); 
+  }, [formData]);
 
-  const clearExtra =()=>{
+  const clearExtra = () => {
     setFormData(initialFormData);
-  } 
-  const handelSubmit = async() =>{    
-    if (Object.keys(errors).length === 0) {
-    try {
-      setLoading(true);
-      const requestData:any = {}
-      requestData.name = formData.name;
-      formData.description && (requestData.description = formData.description);
-      requestData.type = formData.type;
-      if (formData.type === 'hook'){
-        requestData.extra = {
-          hook_url: formData.hookUrl,
-          hook_token: formData.hookToken
-          }}
-      if (formData.type === 'dingtalk'){
-        requestData.extra = {
-          dt_app_key: formData.dtAppKey,
-          dt_app_secret: formData.dtAppSecret
-        }}
-      if (formData.type === 'wecom'){
-        requestData.extra = {
-          wc_corp_id: formData.wcCorpId,
-          wc_corp_secret: formData.wcCorpSecret
-        }}
-      if (formData.type === 'feishu'){
-        requestData.extra = { 
-          fs_app_id: formData.fsAppId,
-          fs_app_secret: formData.fsAppSecret
-        }}
-      let result:any = {};
-      if (notificationId) {
-        result = await updateNotification(notificationId, requestData);
-      } else {
-        result = await addNotification(requestData);
-      }
-      if (result.code === -1){
-        showMessage(result.msg, 'error');
-      } else{
-        showMessage(t('common.addRecordSuccess'), 'success');
-        setFormData(initialFormData);
-        onClose();
-      }
-    } catch (error: any) {
-      showMessage('Internel Server Error', 'error');
-    } finally {
-      setLoading(false);
-    }
   }
+  const handelSubmit = async () => {
+    if (Object.keys(errors).length === 0) {
+      try {
+        setLoading(true);
+        const requestData: any = {}
+        requestData.name = formData.name;
+        formData.description && (requestData.description = formData.description);
+        requestData.type = formData.type;
+        if (formData.type === 'hook') {
+          requestData.extra = {
+            hookUrl: formData.hookUrl,
+            hookToken: formData.hookToken
+          }
+        }
+        if (formData.type === 'dingtalk') {
+          requestData.extra = {
+            dtAppKey: formData.dtAppKey,
+            dtAppSecret: formData.dtAppSecret
+          }
+        }
+        if (formData.type === 'wecom') {
+          requestData.extra = {
+            wcCorpId: formData.wcCorpId,
+            wcCorpSecret: formData.wcCorpSecret
+          }
+        }
+        if (formData.type === 'feishu') {
+          requestData.extra = {
+            fsAppId: formData.fsAppId,
+            fsAppSecret: formData.fsAppSecret
+          }
+        }
+        let result: any = {};
+        if (notificationId) {
+          result = await updateNotification(notificationId, requestData);
+        } else {
+          result = await addNotification(requestData);
+        }
+        if (result.code === -1) {
+          showMessage(result.msg, 'error');
+        } else {
+          showMessage(t('common.addRecordSuccess'), 'success');
+          setFormData(initialFormData);
+          onClose();
+        }
+      } catch (error: any) {
+        showMessage('Internel Server Error', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
   }
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{notificationId? t('setting.notification.notificationDetial'): t('setting.notification.newNotification')}</DialogTitle>
+      <DialogTitle>{notificationId ? t('setting.notification.notificationDetial') : t('setting.notification.newNotification')}</DialogTitle>
       <DialogContent>
         <TextField
           label="Name"
@@ -203,13 +207,13 @@ const NotificationDialog = ({open, onClose, notificationId}: NotificationDetailP
           error={!!errors.description}
           helperText={errors.description}
         />
-      
+
         <FormControl component="fieldset" error={!!errors.radio} required margin="normal">
           <FormLabel component="legend" sx={{ display: 'flex', alignItems: 'center' }}>
             <Box display="flex" alignItems="center" justifyContent="center">
-            {t('common.type')}
+              {t('common.type')}
             </Box>
-            </FormLabel>
+          </FormLabel>
           <RadioGroup
             aria-label="option"
             name="type"
@@ -225,93 +229,93 @@ const NotificationDialog = ({open, onClose, notificationId}: NotificationDetailP
             <FormControlLabel value="wecom" control={<Radio />} label={t('common.wecom')} />
             <FormControlLabel value="feishu" control={<Radio />} label={t('common.feishu')} />
           </RadioGroup>
-          {errors.type && <FormHelperText style={{"color":"red"}}>{errors.type}</FormHelperText>}
+          {errors.type && <FormHelperText style={{ "color": "red" }}>{errors.type}</FormHelperText>}
         </FormControl>
-        {formData.type === 'hook'?
-        <React.Fragment>
-        <TextField
-        label="hook url"
-        name="hookUrl"
-        value={formData.hookUrl}
-        required
-        fullWidth
-        error={!!errors.hookUrl}
-        helperText={errors.hookUrl}
-        margin="normal"
-        onChange={handleChange}
-      /><TextField
-      label="hook token"
-      name="hookToken"
-      value={formData.hookToken}
-      required
-      fullWidth
-      margin="normal"
-      onChange={handleChange}
-    /></React.Fragment>: null}
-    {formData.type === 'dingtalk'?
-        <React.Fragment>
-        <TextField
-        label="app Key"
-        name="appKey"
-        value={formData.dtAppKey}
-        required
-        fullWidth
-        margin="normal"
-        onChange={handleChange}
-      /><TextField
-      label="app secret"
-      name="dtAppSecret"
-      value={formData.dtAppSecret}
-      required
-      fullWidth
-      margin="normal"
-      onChange={handleChange}
-    /></React.Fragment>: null}
-    {formData.type === 'wecom'?
-        <React.Fragment>
-        <TextField
-        label="corp id"
-        name="wcCorpId"
-        value={formData.wcCorpId}
-        required
-        fullWidth
-        margin="normal"
-        onChange={handleChange}
-      /><TextField
-      label="corp secret"
-      name="wcCorpSecret"
-      value={formData.wcCorpSecret}
-      required
-      fullWidth
-      margin="normal"
-      onChange={handleChange}
-    /></React.Fragment>: null}
-    {formData.type === 'feishu'?
-        <React.Fragment>
-        <TextField
-        label="app id"
-        name="fsAppId"
-        value={formData.fsAppId}
-        required
-        fullWidth
-        margin="normal"
-        onChange={handleChange}
-      /><TextField
-      label="app secret"
-      name="fsAppSecret"
-      value={formData.fsAppSecret}
-      required
-      fullWidth
-      margin="normal"
-      onChange={handleChange}
-    /></React.Fragment>: null}
+        {formData.type === 'hook' ?
+          <React.Fragment>
+            <TextField
+              label="hook url"
+              name="hookUrl"
+              value={formData.hookUrl}
+              required
+              fullWidth
+              error={!!errors.hookUrl}
+              helperText={errors.hookUrl}
+              margin="normal"
+              onChange={handleChange}
+            /><TextField
+              label="hook token"
+              name="hookToken"
+              value={formData.hookToken}
+              required
+              fullWidth
+              margin="normal"
+              onChange={handleChange}
+            /></React.Fragment> : null}
+        {formData.type === 'dingtalk' ?
+          <React.Fragment>
+            <TextField
+              label="app Key"
+              name="appKey"
+              value={formData.dtAppKey}
+              required
+              fullWidth
+              margin="normal"
+              onChange={handleChange}
+            /><TextField
+              label="app secret"
+              name="dtAppSecret"
+              value={formData.dtAppSecret}
+              required
+              fullWidth
+              margin="normal"
+              onChange={handleChange}
+            /></React.Fragment> : null}
+        {formData.type === 'wecom' ?
+          <React.Fragment>
+            <TextField
+              label="corp id"
+              name="wcCorpId"
+              value={formData.wcCorpId}
+              required
+              fullWidth
+              margin="normal"
+              onChange={handleChange}
+            /><TextField
+              label="corp secret"
+              name="wcCorpSecret"
+              value={formData.wcCorpSecret}
+              required
+              fullWidth
+              margin="normal"
+              onChange={handleChange}
+            /></React.Fragment> : null}
+        {formData.type === 'feishu' ?
+          <React.Fragment>
+            <TextField
+              label="app id"
+              name="fsAppId"
+              value={formData.fsAppId}
+              required
+              fullWidth
+              margin="normal"
+              onChange={handleChange}
+            /><TextField
+              label="app secret"
+              name="fsAppSecret"
+              value={formData.fsAppSecret}
+              required
+              fullWidth
+              margin="normal"
+              onChange={handleChange}
+            /></React.Fragment> : null}
       </DialogContent>
       <DialogActions>
         <Button autoFocus onClick={onClose}>
           {t('common.cancel')}
         </Button>
-        <Button onClick={()=>handelSubmit()} disabled={loading || Object.keys(errors).length > 0}>{t('common.save')}</Button>
-        </DialogActions>
+        <Button onClick={() => handelSubmit()} disabled={loading || Object.keys(errors).length > 0}>{t('common.save')}</Button>
+      </DialogActions>
     </Dialog>
   )
 }

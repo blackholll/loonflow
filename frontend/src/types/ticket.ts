@@ -68,16 +68,16 @@ export interface ITicketListResEntity {
   node: ISimpleEntity,
   workflow: ISimpleEntity;
   creator: ISimpleUser;
-  creator_display_name: string;
-  create_time: string;
-  update_time: string;
+  creatorDisplayName: string;
+  createTime: string;
+  updateTime: string;
 }
 
 export interface ITicketListResData {
   page: number;
-  per_page: number;
+  perPage: number;
   total: number;
-  ticket_list: ITicketListResEntity[]
+  ticketList: ITicketListResEntity[]
 }
 
 export interface ITicketListRes extends IApiResponse<ITicketListResData> { }

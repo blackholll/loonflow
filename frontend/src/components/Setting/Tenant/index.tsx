@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 function Tenant() {
   const [tenantDetail, setTenantDetail] = useState<ITenantDetailResEntity | null>(null);
   const { showMessage } = useSnackbar();
-  const tenantId = useSelector((state: RootState) => state.auth.user?.tenant_id ?? '');
+  const tenantId = useSelector((state: RootState) => state.auth.user?.tenantId ?? '');
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -20,7 +20,7 @@ function Tenant() {
 
         const res = await getTenantDetail(tenantId);
         if (res.code === 0) {
-          setTenantDetail(res.data.tenant_info);
+          setTenantDetail(res.data.tenantInfo);
         } else {
           showMessage(res.msg, 'error');
         }
@@ -48,11 +48,11 @@ function Tenant() {
           </Grid>
           <Grid sx={{ marginBottom: 2 }}>
             <Typography sx={{ color: 'gray' }}>{t('setting.tenant.workflowLimit')}:</Typography>
-            <Typography>{tenantDetail?.workflow_limit === 0 ? t('setting.tenant.unLimited') : tenantDetail?.workflow_limit}</Typography>
+            <Typography>{tenantDetail?.workflowLimit === 0 ? t('setting.tenant.unLimited') : tenantDetail?.workflowLimit}</Typography>
           </Grid>
           <Grid sx={{ marginBottom: 2 }}>
             <Typography sx={{ color: 'gray' }}>{t('setting.tenant.ticketLimit')}:</Typography>
-            <Typography>{tenantDetail?.ticket_limit === 0 ? t('setting.tenant.unLimited') : tenantDetail?.ticket_limit}</Typography>
+            <Typography>{tenantDetail?.ticketLimit === 0 ? t('setting.tenant.unLimited') : tenantDetail?.ticketLimit}</Typography>
           </Grid>
 
         </Grid>

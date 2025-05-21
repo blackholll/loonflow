@@ -9,9 +9,9 @@ interface Department {
     id: string;
     name: string;
     label: string;
-    leader_info: basicUser;
+    leaderInfo: basicUser;
     children?: Department[];
-    has_children?: boolean;
+    hasChildren?: boolean;
 }
 
 interface basicUser {

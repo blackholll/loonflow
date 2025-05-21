@@ -10,41 +10,41 @@ import ApplicationDialog from './ApplicationDialog';
 
 export function ApplicationList() {
   const { t } = useTranslation();
-  const [ applicationDatas, setApplicationDatas ] = useState<IApplicationResEntity[]>([]);
-  const [ applicationListLoading, setApplicationListLoading ] = useState<Boolean>(false);
-  const [ searchKey, setSearchKey ] = useState('');
-  const [ page, setPage ] = useState(1);
-  const [ perPage, setPerPage ] = useState(10);
-  const [ total, setTotal ] = useState(0);
-  const [ openApp, setOpenApp ] = useState(false);
-  const [ openDeleteConfirm, setOpenDeleteConfirm ] = useState(false);
-  const [ openedAppId, setOpenedAppId ] = useState('');
-  const [ delAppId, setDelAppId] = useState('');
+  const [applicationDatas, setApplicationDatas] = useState<IApplicationResEntity[]>([]);
+  const [applicationListLoading, setApplicationListLoading] = useState<Boolean>(false);
+  const [searchKey, setSearchKey] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [openApp, setOpenApp] = useState(false);
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [openedAppId, setOpenedAppId] = useState('');
+  const [delAppId, setDelAppId] = useState('');
   const { showMessage } = useSnackbar();
-  
-  const fetchApplicationList = useCallback(async()=>{
-    try{
+
+  const fetchApplicationList = useCallback(async () => {
+    try {
       setApplicationListLoading(true);
       const res = await getApplicationList(searchKey, page, perPage);
-      if (res.code === 0){
-        setApplicationDatas(res.data.application_list);
+      if (res.code === 0) {
+        setApplicationDatas(res.data.applicationList);
         setTotal(res.data.total);
       } else {
         showMessage(res.msg, 'error');
       }
-    } catch (error:any) {
+    } catch (error: any) {
       showMessage(error.message, 'error');
       console.log(error);
     } finally {
       setApplicationListLoading(false);
     }
   }, [searchKey, page, perPage, showMessage]);
-  
+
   useEffect(() => {
-      fetchApplicationList();
+    fetchApplicationList();
   }, [searchKey, page, perPage, fetchApplicationList]);
 
-  const handleConfirmDelete = async(applicationId:string) => {
+  const handleConfirmDelete = async (applicationId: string) => {
     const result = await delApplicationDetail(applicationId);
     if (result.code === 0) {
       fetchApplicationList();
@@ -58,12 +58,12 @@ export function ApplicationList() {
   const handleConfirmClose = () => {
     setOpenDeleteConfirm(false);
   }
-  const handleDeleteClick = (applicationId:string) => {
+  const handleDeleteClick = (applicationId: string) => {
     setOpenDeleteConfirm(true);
     setDelAppId(applicationId);
   }
-  
-  const handleChangePage = (_event:any, newPage:number) => {
+
+  const handleChangePage = (_event: any, newPage: number) => {
     setPage(newPage);
   }
   const handleChangeKeyword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,11 +74,11 @@ export function ApplicationList() {
     setPage(0);
     fetchApplicationList()
   };
-  
+
   const handleOpenNewApp = () => {
     setOpenApp(true);
   }
-  const handleOpenApp = (applicationId:string) => {
+  const handleOpenApp = (applicationId: string) => {
     console.log('applicationIdapplicationId:', applicationId);
     setOpenedAppId(applicationId)
     setOpenApp(true);
@@ -88,43 +88,43 @@ export function ApplicationList() {
     setOpenApp(false);
     setOpenedAppId('');
   }
-  
+
   return (
     <Card>
-      <CardHeader title={t('setting.application.applicationList')}/>
-        <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{'marginLeft': '10px'}}>
-          <Grid size={{xs:12, sm:6, md:3}}>
-            <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={handleChangeKeyword}/>
-          </Grid>
-          <Grid size={{xs:12, sm:6, md:3}}>
-            <Button variant="outlined" size={'large'} sx={{width:'150px'}} onClick={handleOpenNewApp}>{t('common.new')}</Button>
-          </Grid>
+      <CardHeader title={t('setting.application.applicationList')} />
+      <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{ 'marginLeft': '10px' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={handleChangeKeyword} />
         </Grid>
-      
-        <TableContainer component={Paper} sx={{ marginTop: '10px' }}>
-        {applicationListLoading?(<div><CircularProgress/></div>) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('common.name')}</TableCell>
-              <TableCell>{t('common.description')}</TableCell>
-              <TableCell>{t('common.type')}</TableCell>
-              <TableCell>{t('common.actions')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {applicationDatas?applicationDatas.map((application) => (
-              <TableRow key={application.id}>
-                <TableCell>{application.name}</TableCell>
-                <TableCell>{application.description}</TableCell>
-                <TableCell>{t(`common.${application.type}`)}</TableCell>
-                <TableCell>
-                  <div><Button onClick={()=>handleOpenApp(application.id)}>edit</Button><Button onClick={()=>handleDeleteClick(application.id)}>delete</Button>{application.type === 'workflowAdmin'?<Button >{t('common.workflowPermission')}</Button>:null}</div>
-                  </TableCell>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={handleOpenNewApp}>{t('common.new')}</Button>
+        </Grid>
+      </Grid>
+
+      <TableContainer component={Paper} sx={{ marginTop: '10px' }}>
+        {applicationListLoading ? (<div><CircularProgress /></div>) : (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{t('common.name')}</TableCell>
+                <TableCell>{t('common.description')}</TableCell>
+                <TableCell>{t('common.type')}</TableCell>
+                <TableCell>{t('common.actions')}</TableCell>
               </TableRow>
-            )):null}
-          </TableBody>
-        </Table>)}
+            </TableHead>
+            <TableBody>
+              {applicationDatas ? applicationDatas.map((application) => (
+                <TableRow key={application.id}>
+                  <TableCell>{application.name}</TableCell>
+                  <TableCell>{application.description}</TableCell>
+                  <TableCell>{t(`common.${application.type}`)}</TableCell>
+                  <TableCell>
+                    <div><Button onClick={() => handleOpenApp(application.id)}>edit</Button><Button onClick={() => handleDeleteClick(application.id)}>delete</Button>{application.type === 'workflowAdmin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div>
+                  </TableCell>
+                </TableRow>
+              )) : null}
+            </TableBody>
+          </Table>)}
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
@@ -135,7 +135,7 @@ export function ApplicationList() {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <ApplicationDialog open={openApp} applicationId={openedAppId} onClose={()=>closeDialog()}/>
+      <ApplicationDialog open={openApp} applicationId={openedAppId} onClose={() => closeDialog()} />
       <Dialog open={openDeleteConfirm} onClose={handleConfirmClose}>
         <DialogTitle>{t('common.confirm')}</DialogTitle>
         <DialogContent>
@@ -145,13 +145,13 @@ export function ApplicationList() {
           <Button onClick={handleConfirmClose} color="primary">
             {t('common.cancel')}
           </Button>
-          <Button onClick={()=> handleConfirmDelete(delAppId)} color="error">
-          {t('common.confirm')}
+          <Button onClick={() => handleConfirmDelete(delAppId)} color="error">
+            {t('common.confirm')}
           </Button>
         </DialogActions>
 
       </Dialog>
-      </Card>
+    </Card>
   )
 
 }

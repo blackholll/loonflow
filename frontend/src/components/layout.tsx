@@ -70,9 +70,9 @@ const Layout = ({ children }: LayoutProps) => {
     const fetchUserLanguage = async () => {
       try {
         const response = await getMyProfile();
-        if (response.code === 0 && response.data.my_profile.language) {
-          setLanguage(response.data.my_profile.language);
-          i18n.changeLanguage(response.data.my_profile.language);
+        if (response.code === 0 && response.data.myProfile.language) {
+          setLanguage(response.data.myProfile.language);
+          i18n.changeLanguage(response.data.myProfile.language);
         }
       } catch (error) {
         console.error('Failed to fetch user language setting:', error);
@@ -86,9 +86,9 @@ const Layout = ({ children }: LayoutProps) => {
       <CssBaseline />
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, backgroundColor: 'white', boxShadow: 'none', borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
-          {tenant?.tenantInfo?.logo_path ? (
+          {tenant?.tenantInfo?.logoPath ? (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <img src={tenant.tenantInfo.logo_path} alt="Logo" style={{ height: '40px', marginRight: '10px' }} />
+              <img src={tenant.tenantInfo.logoPath} alt="Logo" style={{ height: '40px', marginRight: '10px' }} />
             </Box>
           ) : (
             <Typography variant="h6" noWrap component="div" sx={{ color: 'gray' }}>

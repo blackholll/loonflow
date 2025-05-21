@@ -47,7 +47,6 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
 
   const [selectedApprovers, setSelectedApprovers] = useState<User[]>([]);
 
-  // 部门负责人搜索函数
   const fetchSimpleUserList = useCallback(async (keyword: string, purpose: string) => {
     if (keyword.length < 2) {
       return;
@@ -63,9 +62,9 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
       const result = await getSimpleUser(keyword);
       if (result.code === 0) {
         if (purpose === 'leader') {
-          setLeaderUserList(result.data.user_list);
+          setLeaderUserList(result.data.userList);
         } else {
-          setApproverUserList(result.data.user_list);
+          setApproverUserList(result.data.userList);
         }
 
       } else {
@@ -131,12 +130,12 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
           setLoading(true);
           const result = await getDeptDetail(deptId);
           if (result.code === 0) {
-            setName(result.data.dept_info.name);
-            setEditDeptParentId(result.data.dept_info.parent_dept_info?.id || '');
-            setEditDeptParentName(result.data.dept_info.parent_dept_info?.name || '');
-            setDeptLeaderId(result.data.dept_info.leader_info.id);
-            setSelectedLeader(result.data.dept_info.leader_info);
-            setSelectedApprovers(result.data.dept_info.approver_info_list);
+            setName(result.data.deptInfo.name);
+            setEditDeptParentId(result.data.deptInfo.parentDeptInfo?.id || '');
+            setEditDeptParentName(result.data.deptInfo.parentDeptInfo?.name || '');
+            setDeptLeaderId(result.data.deptInfo.leaderInfo.id);
+            setSelectedLeader(result.data.deptInfo.leaderInfo);
+            setSelectedApprovers(result.data.deptInfo.approverInfoList);
           }
           setLoading(false);
         } catch (error: any) {

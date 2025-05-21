@@ -29,11 +29,12 @@ class UserView(BaseView):
         Optional('alias'): str,
         'email': And(str, lambda n: n != '', error='alias is needed'),
         Optional('password'): str,
+        Optional('password1'): str,
         Optional('phone'): str,
         Optional('dept_id_list'): list,
         Optional('role_id_list'): list,
-        'type': And(str, lambda n: n in ["admin", "workflow_admin", "common"], error="type should be admin, workflow_admin, common"),
-        'status': And(str, lambda n: n in ["in_post", "resigned"], error="type should be in_post, resigned"),
+        'type': And(str, lambda n: n in ["admin", "workflow_admin", "normal"], error="type should be admin, workflow_admin, normal"),
+        'is_active': bool,
         Optional('avatar'): str,
         Optional('lang'): str,
     })
@@ -86,17 +87,19 @@ class UserView(BaseView):
         alias = request_data_dict.get('alias')
         email = request_data_dict.get('email')
         password = request_data_dict.get('password')
+        password1 = request_data_dict.get('password1')
         phone = request_data_dict.get('phone')
         dept_id_list = request_data_dict.get('dept_id_list')
-        role_id_list = request_data_dict.get('role_id_list')
         type = request_data_dict.get('type')
-        status = request_data_dict.get('status')
-        avatar = request_data_dict.get('avatar')
-        lang = request_data_dict.get('lang')
+        is_active = request_data_dict.get('is_active')
+        avatar = request_data_dict.get('avatar','')
+        lang = request_data_dict.get('lang', 'zh-CN')
         creator_id = request.META.get('HTTP_USERID')
         tenant_id = request.META.get('HTTP_TENANTID')
+        if password!= password1:
+            return api_response(-1, 'password is not same', {})
         try:
-            user_id = account_base_service_ins.add_user(name, alias, email, phone, dept_id_list, role_id_list, type, status, avatar, lang, creator_id, password, tenant_id)
+            user_id = account_user_service_ins.add_user(name, alias, email, phone, dept_id_list, [], type, is_active, avatar, lang, creator_id, password, tenant_id)
         except CustomCommonException as e:
             return api_response(-1, {}, str(e))
         except Exception as e:
@@ -117,7 +120,7 @@ class UserView(BaseView):
         request_data_dict = json.loads(json_str)
         user_id_list = request_data_dict.get('user_id_list', [])
         operator_id = request.META.get('HTTP_USERID')
-        flag, result = account_base_service_ins.delete_user_list(user_id_list, operator_id)
+        flag, result = account_user_service_ins.delete_user_list(user_id_list, operator_id)
         if flag is False:
             return api_response(-1, result, {})
         return api_response(0, "", dict(user_info=result))
@@ -137,10 +140,11 @@ class UserProfileView(BaseView):
         :return:
         """
         user_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
         if not user_id:
             return api_response(-1, "no user login", {})
         try:
-            user_info = account_user_service_ins.get_user_format_by_user_id(user_id)
+            user_info = account_user_service_ins.get_user_format_by_user_id(tenant_id, user_id)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except:
@@ -152,7 +156,7 @@ class UserProfileView(BaseView):
             "phone": user_info.get('phone'),
             "avatar": user_info.get('avatar'),
             "lang": user_info.get('lang'),
-            "dept_list": user_info.get('dept_list'),
+            "dept_info_list": user_info.get('dept_info_list'),
         }
         return api_response(0, "",  {"my_profile": my_profile})
 
@@ -187,9 +191,9 @@ class UserDetailView(BaseView):
         Optional('phone'): str,
         Optional('dept_id_list'): list,
         Optional('role_id_list'): list,
-        'type': And(str, lambda n: n in ["admin", "workflow_admin", "common"],
+        'type': And(str, lambda n: n in ["admin", "workflow_admin", "nomal"],
                     error="type should be admin, workflow_admin, common"),
-        'status': And(str, lambda n: n in ["in_post", "resigned"], error="type should be in_post, resigned"),
+        'is_active': bool,
         Optional('avatar'): str,
         Optional('lang'): str,
     })
@@ -203,8 +207,9 @@ class UserDetailView(BaseView):
         :param kwargs:
         :return:
         """
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            result = account_user_service_ins.get_user_format_by_user_id(kwargs.get('user_id'))
+            result = account_user_service_ins.get_user_format_by_user_id(tenant_id, kwargs.get('user_id'))
         except CustomCommonException as e:
             return api_response(-1, {}, str(e))
         except Exception as e:
@@ -225,19 +230,19 @@ class UserDetailView(BaseView):
         user_id = kwargs.get('user_id')
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
-        alias = request_data_dict.get('alias')
+        alias = request_data_dict.get('alias', '')
         email = request_data_dict.get('email')
-        phone = request_data_dict.get('phone')
-        dept_id_list = request_data_dict.get('dept_id_list')
-        role_id_list = request_data_dict.get('role_id_list')
+        phone = request_data_dict.get('phone', '')
+        dept_id_list = request_data_dict.get('dept_id_list', [])
+        role_id_list = request_data_dict.get('role_id_list', [])
         type = request_data_dict.get('type')
-        status = request_data_dict.get('status')
-        avatar = request_data_dict.get('avatar')
-        lang = request_data_dict.get('lang')
+        is_active = request_data_dict.get('is_active', False)
+        avatar = request_data_dict.get('avatar', '')
+        lang = request_data_dict.get('lang', 'zh-CN')
         creator_id = request.META.get('HTTP_USERID')
         tenant_id = request.META.get('HTTP_TENANTID')
 
-        flag, result = account_base_service_ins.edit_user(user_id, name, alias, email, phone, dept_id_list, role_id_list, type, status, avatar, lang, creator_id, tenant_id)
+        flag, result = account_user_service_ins.edit_user(user_id, name, alias, email, phone, dept_id_list, role_id_list, type, is_active, avatar, lang, creator_id, tenant_id)
         if flag is not False:
             code, msg, data = 0, '', {}
         else:
@@ -255,7 +260,7 @@ class UserDetailView(BaseView):
         """
         user_id = kwargs.get('user_id')
         operator_id = request.META.get('HTTP_USERID')
-        flag, result = account_base_service_ins.delete_user(user_id, operator_id)
+        flag, result = account_user_service_ins.delete_user(user_id, operator_id)
         if flag:
             code, msg, data = 0, '', {}
             return api_response(code, msg, data)

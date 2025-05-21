@@ -4,17 +4,17 @@ import { IApiResponse } from './common';
 export interface IApplicationResEntity {
   id: string;
   label: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
   name: string;
   description: string;
   type: string;
   token: string;
-  tenant_id: string;
+  tenantId: string;
 }
 
 export interface IApplicationListResData {
-  application_info_list: IApplicationResEntity[]
+  applicationInfoList: IApplicationResEntity[]
 }
 
-export interface IApplicationListRes extends IApiResponse<IApplicationListResData> {}
+export interface IApplicationListRes extends IApiResponse<IApplicationListResData> { }

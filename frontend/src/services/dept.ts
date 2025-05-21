@@ -4,7 +4,7 @@ export interface DepartmentResponse {
     code: number;
     msg: string;
     data: {
-        dept_list: any[];
+        deptList: any[];
     };
 }
 

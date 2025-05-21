@@ -34,7 +34,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
             setLoading(true);
             const result = await getDeptPaths(keyword);
             if (result.code === 0) {
-                setDeptPathList(result.data.dept_path_list);
+                setDeptPathList(result.data.deptPathList);
             } else {
                 showMessage(result.msg, 'error');
             }
@@ -68,7 +68,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
         if (parentDeptId) {
             setLoading(true);
             getDeptPath(parentDeptId).then((res) => {
-                setDeptPath(res.data.dept_path);
+                setDeptPath(res.data.deptPath);
                 setLoading(false);
             }).catch((err) => {
                 showMessage('error', err.message);

@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {jwtDecode} from 'jwt-decode';
+import camelcaseKeys from 'camelcase-keys';
+import { jwtDecode } from 'jwt-decode';
+
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -11,7 +13,7 @@ interface User {
   alias: string,
   email: string,
   type: string,
-  tenant_id: string,
+  tenantId: string,
 }
 
 interface IjwtDecode {
@@ -32,8 +34,8 @@ export const authSlice = createSlice({
     loginState: (state, action: PayloadAction<string>) => {
       console.log('Before:', state);
       state.isAuthenticated = true;
-      const decoded: IjwtDecode = jwtDecode(action.payload);
-      state.user = decoded.data;
+      const decoded: any = jwtDecode(action.payload);
+      state.user = camelcaseKeys(decoded.data, { deep: true }) as User;
       console.log('state111111:', state);
       console.log('statestatestatestatestatestate');
       console.log('After:', state); // 打印状态

@@ -24,10 +24,11 @@ class Tenant(BaseModel):
 
 class UserDept(BaseCommonModel):
     """
-    user's dept
+    user's dept, if user belong to multiple dept, must have one primary dept
     """
     user = models.ForeignKey("User", to_field="id", db_constraint=False, on_delete=models.DO_NOTHING)
     dept = models.ForeignKey("Dept", to_field="id", db_constraint=False, on_delete=models.DO_NOTHING)
+    is_primary = models.BooleanField("is_primary", null=False, default=True)
 
 
 class UserRole(BaseCommonModel):
@@ -74,14 +75,10 @@ class User(AbstractBaseUser, BaseCommonModel):
     TYPE_CHOICE = [
         ("admin", "admin"),
         ("workflow_admin", "workflow_admin"),
-        ("common", "common")
-    ]
-    STATUS_CHOICE = [
-        ("in_post", "in_post"),
-        ("resigned", "resigned"),
+        ("normal", "normal")
     ]
     LANG_CHOICE = [
-        ("zh-cn", "simple chinese"),
+        ("zh-cn", "Simple Chinese"),
         ("en", "English")
     ]
     USERNAME_FIELD = "email"
@@ -92,7 +89,7 @@ class User(AbstractBaseUser, BaseCommonModel):
 
     email = models.EmailField("email", max_length=255, null=False, unique=True)
     phone = models.CharField("phone", max_length=50, null=False, default='')
-    status = models.CharField("status", max_length=50, null=False, choices=STATUS_CHOICE)
+    is_active = models.BooleanField("is_active", null=False, default=True)
     type = models.CharField("type", max_length=50, null=False, choices=TYPE_CHOICE)
     avatar = models.CharField("avatar", max_length=500, null=False, default="")
     lang = models.CharField("lang", choices=LANG_CHOICE, null=False, default="zh-cn", max_length=100)

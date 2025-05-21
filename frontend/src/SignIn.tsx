@@ -55,8 +55,8 @@ export default function SignIn() {
       dispatch(loginState(token));
       try {
         const userProfileResponse = await getMyProfile();
-        if (userProfileResponse.code === 0 && userProfileResponse.data.my_profile.lang) {
-          const userLang = userProfileResponse.data.my_profile.lang;
+        if (userProfileResponse.code === 0 && userProfileResponse.data.myProfile.lang) {
+          const userLang = userProfileResponse.data.myProfile.lang;
           const localStorageLang = localStorage.getItem('i18nextLng');
 
           if (localStorageLang !== userLang) {

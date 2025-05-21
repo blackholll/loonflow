@@ -9,50 +9,50 @@ import { getApplicationDetail } from '../../../services/application';
 
 interface ApplicationDetailProps {
   open: boolean
-  onClose: () => void 
+  onClose: () => void
   applicationId?: string
 }
 
-const ApplicationDialog = ({open, onClose, applicationId}: ApplicationDetailProps) => {
+const ApplicationDialog = ({ open, onClose, applicationId }: ApplicationDetailProps) => {
   const { t } = useTranslation();
-  const [ name, setName ] = useState('');
-  const [ description, setDescription ] = useState('');
-  const [ type, setType ] = useState('');
-  const [ token, setToken ] = useState('');
-  const [ loading, setLoading ] = useState(false);
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [type, setType] = useState('');
+  const [token, setToken] = useState('');
+  const [loading, setLoading] = useState(false);
   const { showMessage } = useSnackbar();
 
 
-  const getAppDetail = useCallback(async() =>{
-    if (applicationId){
+  const getAppDetail = useCallback(async () => {
+    if (applicationId) {
       try {
         const result = await getApplicationDetail(applicationId);
-        if (result.code === -1){
+        if (result.code === -1) {
           showMessage(`fail to get application detail: ${result.message}`, 'error');
         } else {
-          setName(result.data.application_info.name);
-          setDescription(result.data.application_info.description);
-          setToken(result.data.application_info.token);
-          setType(result.data.application_info.type);
+          setName(result.data.applicationInfo.name);
+          setDescription(result.data.applicationInfo.description);
+          setToken(result.data.applicationInfo.token);
+          setType(result.data.applicationInfo.type);
         }
       } catch (error: any) {
         showMessage(`fail to get application detail: ${error.message}`, 'error');
       }
     }
   }, [applicationId])
-  
+
   useEffect(() => {
     getAppDetail();
   }, [applicationId, getAppDetail]);
-  
-  const handelSubmit = async() =>{
+
+  const handelSubmit = async () => {
     console.log('submit');
     try {
       setLoading(true);
       const result = await addApplication(name, description, type);
-      if (result.code === -1){
+      if (result.code === -1) {
         showMessage(result.msg, 'error');
-      } else{
+      } else {
         showMessage(t('common.addRecordSuccess'), 'success');
         setName('');
         setDescription('');
@@ -68,7 +68,7 @@ const ApplicationDialog = ({open, onClose, applicationId}: ApplicationDetailProp
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{applicationId? t('settings.application.applicationDetial'): t('settings.application.newApplication')}</DialogTitle>
+      <DialogTitle>{applicationId ? t('settings.application.applicationDetial') : t('settings.application.newApplication')}</DialogTitle>
       <DialogContent>
         <TextField
           label="Name"
@@ -79,7 +79,7 @@ const ApplicationDialog = ({open, onClose, applicationId}: ApplicationDetailProp
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setName(event.target.value);
           }}
-        
+
         />
         <TextField
           label="Description"
@@ -90,7 +90,7 @@ const ApplicationDialog = ({open, onClose, applicationId}: ApplicationDetailProp
             setDescription(event.target.value);
           }}
         />
-        {applicationId? <TextField
+        {applicationId ? <TextField
           label="token"
           type="password"
           disabled
@@ -99,22 +99,24 @@ const ApplicationDialog = ({open, onClose, applicationId}: ApplicationDetailProp
           margin="normal"
           slotProps={{
             input: {
-              endAdornment: <InputAdornment position="end"><Button onClick={()=> {navigator.clipboard.writeText(token).then(() => {
-                showMessage(t('settings.application.tokenCopied'), 'success');
-              });}}>COPY</Button></InputAdornment>,
+              endAdornment: <InputAdornment position="end"><Button onClick={() => {
+                navigator.clipboard.writeText(token).then(() => {
+                  showMessage(t('settings.application.tokenCopied'), 'success');
+                });
+              }}>COPY</Button></InputAdornment>,
             },
           }}
-        />: null}
-        
+        /> : null}
+
         {/* <Button variant="contained" color="primary">
         Copy
       </Button> */}
         <FormControl component="fieldset" required margin="normal">
           <FormLabel component="legend" sx={{ display: 'flex', alignItems: 'center' }}>
             <Box display="flex" alignItems="center" justifyContent="center">
-            {t('common.type')}<Tooltip title={t('setting.application.appTypeDescription')}><HelpOutlineIcon/></Tooltip>
+              {t('common.type')}<Tooltip title={t('setting.application.appTypeDescription')}><HelpOutlineIcon /></Tooltip>
             </Box>
-            </FormLabel>
+          </FormLabel>
           <RadioGroup
             aria-label="option"
             name="option"
@@ -123,8 +125,8 @@ const ApplicationDialog = ({open, onClose, applicationId}: ApplicationDetailProp
             onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
               setType(event.target.value);
             }}
-            // value={formData.option}
-            // onChange={handleRadioChange}
+          // value={formData.option}
+          // onChange={handleRadioChange}
           >
             <FormControlLabel value="admin" control={<Radio />} label={t('common.admin')} />
             <FormControlLabel value="workflowAdmin" control={<Radio />} label={t('common.workflowAdmin')} />
@@ -135,8 +137,8 @@ const ApplicationDialog = ({open, onClose, applicationId}: ApplicationDetailProp
         <Button autoFocus onClick={onClose}>
           {t('common.cancel')}
         </Button>
-        <Button onClick={()=>handelSubmit()} disabled={loading}>{t('common.save')}</Button>
-        </DialogActions>
+        <Button onClick={() => handelSubmit()} disabled={loading}>{t('common.save')}</Button>
+      </DialogActions>
     </Dialog>
   )
 }

@@ -15,11 +15,11 @@ export interface IDept {
     id: string;
     name: string;
     label: any;
-    creator_info: ISimpleUser,
-    leader_info: ISimpleUser,
-    approver_info_list: ISimpleUser[],
+    creatorInfo: ISimpleUser,
+    leaderInfo: ISimpleUser,
+    approverInfoList: ISimpleUser[],
     children: IDept,
-    parent_dept_info: ISimpleParentDept,
+    parentDeptInfo: ISimpleParentDept,
 }
 
 

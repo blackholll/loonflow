@@ -4,13 +4,13 @@ import { IApiResponse } from './common';
 export interface ITenantDetailResEntity {
   id: string;
   label: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
   name: string;
   domain: string;
   icon: string;
-  workflow_limit: number;
-  ticket_limit: number;
+  workflowLimit: number;
+  ticketLimit: number;
 }
 
 export interface ITenantBasicInfo {
@@ -21,14 +21,14 @@ export interface ITenantBasicInfo {
 }
 
 export interface ITenantDetailResData {
-  tenant_info: ITenantDetailResEntity
+  tenantInfo: ITenantDetailResEntity
 }
 
 export interface ITenantBasicInfoResData {
-  tenant_info: ITenantBasicInfo
+  tenantInfo: ITenantBasicInfo
 }
 
 
-export interface ITenantDetailRes extends IApiResponse<ITenantDetailResData> {}
+export interface ITenantDetailRes extends IApiResponse<ITenantDetailResData> { }
 
-export interface ITenantBasicInfoRes extends IApiResponse<ITenantBasicInfoResData> {}
+export interface ITenantBasicInfoRes extends IApiResponse<ITenantBasicInfoResData> { }

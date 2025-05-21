@@ -6,19 +6,19 @@ export interface IUser {
     name: string;
     alias: string;
     email: string;
-    tenant_id: string;
+    tenantId: string;
     phone: string;
-    avatar: string;
-    lang: string;
-    status: string;
-    dept_info_list: ISimpleDept[];
+    avatar?: string;
+    lang?: string;
+    isActive: boolean;
+    deptInfoList: ISimpleDept[];
 }
 
 export interface IUserListResData {
     page: number;
-    per_page: number;
+    perPage: number;
     total: number;
-    user_info_list: IUser[]
+    userInfoList: IUser[]
 }
 
 export interface ISimpleUser {

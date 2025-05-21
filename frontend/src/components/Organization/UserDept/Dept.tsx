@@ -22,9 +22,9 @@ interface Department {
     id: string;
     name: string;
     label: string;
-    leader_info: basicUser;
+    leaderInfo: basicUser;
     children?: Department[];
-    has_children?: boolean;
+    hasChildren?: boolean;
 }
 
 interface basicUser {
@@ -98,7 +98,6 @@ function Dept() {
         return {
             id: dept.id,
             label: dept.name,
-            expandable: dept.has_children || false,
             children: dept.children?.map(child => renderTreeItem(child)) || []
         };
     };
@@ -133,7 +132,7 @@ function Dept() {
             setLoading(true);
             const response = await getDeptTree(true);
             if (response.code === 0) {
-                const transformedData = transformDeptData(response.data.dept_list);
+                const transformedData = transformDeptData(response.data.deptList);
                 setDepartments(transformedData);
             } else {
                 showMessage(response.msg || '获取部门树失败', 'error');
@@ -150,8 +149,8 @@ function Dept() {
             id: dept.id.toString(),
             name: dept.name,
             label: dept.name,
-            leader_info: dept.leader_info,
-            has_children: dept.has_children || false,
+            leaderInfo: dept.leaderInfo,
+            hasChildren: dept.hasChildren || false,
             children: dept.children ? transformDeptData(dept.children) : undefined
         }));
     };
@@ -172,8 +171,8 @@ function Dept() {
             setDeptLoading(true);
             const response = await getDeptDetail(selectedDeptId ?? '');
             if (response.code === 0) {
-                setDeptList([response.data.dept_info])
-                setSelectedDeptName(response.data.dept_info.name)
+                setDeptList([response.data.deptInfo])
+                setSelectedDeptName(response.data.deptInfo.name)
             }
             setDeptLoading(false);
         } catch (error: any) {
@@ -210,14 +209,14 @@ function Dept() {
         // 对于每个新展开的节点，如果它有子节点标记但没有加载子节点，则加载其子节点
         for (const nodeId of newExpandedIds) {
             const dept = findDepartmentById(departments, nodeId);
-            if (dept && dept.has_children && (!dept.children || dept.children.length === 0)) {
+            if (dept && dept.hasChildren && (!dept.children || dept.children.length === 0)) {
                 try {
                     setLoading(true);
                     // 调用API获取子节点
                     const response = await getDeptTree(true);
                     if (response.code === 0) {
                         // 将获取到的子节点数据转换并添加到当前节点
-                        const childrenData = transformDeptData(response.data.dept_list);
+                        const childrenData = transformDeptData(response.data.deptList);
                         // 更新departments状态，将子节点添加到对应的父节点
                         setDepartments(prevDepts => updateDepartmentChildren(prevDepts, nodeId, childrenData));
                     } else {
@@ -276,11 +275,11 @@ function Dept() {
                             {deptList.map((dept: IDept) => (
                                 <TableRow key={dept.id}>
                                     <TableCell>{dept.name}</TableCell>
-                                    <TableCell>{dept.leader_info.alias}</TableCell>
+                                    <TableCell>{dept.leaderInfo.alias}</TableCell>
                                     <TableCell>
                                         <Box sx={{ display: 'flex', gap: 1 }}>
                                             <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenDeptEdit(dept.id)}>编辑</Button>
-                                            <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenParentDeptEdit(dept.id, dept.parent_dept_info?.id ?? '')}>修改父部门</Button>
+                                            <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenParentDeptEdit(dept.id, dept.parentDeptInfo?.id ?? '')}>修改父部门</Button>
                                             <Button size="small" startIcon={<DeleteIcon />} onClick={() => handleConfirmDelete(dept.id)} color="error">删除</Button>
                                         </Box>
                                     </TableCell>

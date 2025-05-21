@@ -10,9 +10,9 @@ export interface ISimpleWorkflowEntity {
 
 export interface ISimpleWorkflowListResData {
   page: number;
-  per_page: number;
+  perPage: number;
   total: number;
-  workflow_info_list: ISimpleWorkflowEntity[]
+  workflowInfoList: ISimpleWorkflowEntity[]
 }
 
-export interface ISimpleWorkflowListRes extends IApiResponse<ISimpleWorkflowListResData> {}
+export interface ISimpleWorkflowListRes extends IApiResponse<ISimpleWorkflowListResData> { }

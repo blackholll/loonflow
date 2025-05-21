@@ -89,7 +89,7 @@ class AccountUserService(BaseService):
             return CustomCommonException("user is not exist or has been deleted")
         return result
 
-    def get_user_format_by_user_id(self, user_id) ->dict:
+    def get_user_format_by_user_id(self, tenant_id, user_id) ->dict:
         """
         get user's format info
         :param user_id:
@@ -102,12 +102,15 @@ class AccountUserService(BaseService):
         except Exception:
             raise
         user_result = user_obj.get_dict()
-        user_dept_list = UserDept.objects.filter(user_id=user_id)
+        user_dept_list = UserDept.objects.filter(user_id=user_id).order_by("-is_primary").all()
         user_dept_info_list = []
+        from service.account.account_dept_service import account_dept_service_ins
+        
         for user_dept in user_dept_list:
+            dept_path_info = account_dept_service_ins.get_dept_path(tenant_id, user_dept.dept.id)
             user_dept_info_list.append(
-                dict(name=user_dept.dept.name, id=user_dept.dept.id))
-        user_result['dept_list'] = user_dept_info_list
+                dict(name=user_dept.dept.name, path=dept_path_info.get('path'), id=str(user_dept.dept.id), is_primary=user_dept.is_primary))
+        user_result['dept_info_list'] = user_dept_info_list
         return user_result
 
 
@@ -301,7 +304,7 @@ class AccountUserService(BaseService):
             for user_dept in user_dept_list:
                 if user_result_object.id == user_dept.user_id:
                     user_dept_info_list.append(
-                        dict(name=user_dept.dept.name, id=user_dept.dept.id))
+                        dict(name=user_dept.dept.name, id=str(user_dept.dept.id), is_primary=user_dept.is_primary))
             user_result_format_dict['dept_info_list'] = user_dept_info_list
             if simple:
                 need_del_field_list = ["last_login", "label", "creator_info", "created_at", "updated_at", "type", "lang", "phone", "email"]
@@ -315,7 +318,7 @@ class AccountUserService(BaseService):
 
     @classmethod
     def add_user(cls, name: str, alias: str, email: str, phone: str, dept_id_list: list, role_id_list, type: str,
-                 status: str, avatar: str, lang: str, creator_id: int, password: str = '', tenant_id: int = 1) -> int:
+                 is_active: bool, avatar: str, lang: str, creator_id: int, password: str = '', tenant_id: str = '') -> str:
         """
         add user record
         :param name:
@@ -334,24 +337,24 @@ class AccountUserService(BaseService):
         """
         password_str = make_password(password, None, 'pbkdf2_sha256')
         user_obj = User(name=name, alias=alias, email=email, phone=phone,
-                        status=status, type=type, avatar=avatar, lang=lang,
+                        is_active=is_active, type=type, avatar=avatar, lang=lang,
                         creator_id=creator_id, password=password_str, tenant_id=tenant_id)
         user_obj.save()
 
-        queryset_list = []
+        user_dept_queryset_list, user_role_queryset_list = [], []
         for dept_id in dept_id_list:
-            queryset_list.append(UserDept(user_id=user_obj.id, dept_id=dept_id))
-        UserDept.objects.bulk_create(queryset_list)
+            user_dept_queryset_list.append(UserDept(user_id=user_obj.id, dept_id=dept_id))
+        UserDept.objects.bulk_create(user_dept_queryset_list)
         for role_id in role_id_list:
-            queryset_list.append(UserRole(user_id=user_obj.id, role_id=role_id))
-        UserDept.objects.bulk_create(queryset_list)
-        return user_obj.id
+            user_role_queryset_list.append(UserRole(user_id=user_obj.id, role_id=role_id))
+        UserRole.objects.bulk_create(user_role_queryset_list)
+        return str(user_obj.id)
 
     @classmethod
     @auto_log
     def edit_user(cls, user_id: int, name: str, alias: str, email: str, phone: str, dept_id_list: list, role_id_list,
                   type: str,
-                  status: str, avatar: str, lang: str, creator_id: int, tenant_id: int = 1) -> tuple:
+                  is_active: bool, avatar: str, lang: str, creator_id: int, tenant_id: int = 1) -> tuple:
         """
         update user
         :param user_id:
@@ -371,13 +374,13 @@ class AccountUserService(BaseService):
         """
         user_obj = User.objects.filter(id=user_id)
         user_obj.update(name=name, alias=alias, email=email, phone=phone,
-                        status=status, type=type, avatar=avatar, lang=lang,
+                        is_active=is_active, type=type, avatar=avatar, lang=lang,
                         creator_id=creator_id, tenant_id=tenant_id)
         # update dept info
-
         user_id = user_obj.first().id
         user_dept_queryset = UserDept.objects.filter(user_id=user_id).all()
-        user_dept_id_exist = [user_dept.dept_id for user_dept in user_dept_queryset]
+        user_dept_id_exist = [str(user_dept.dept_id) for user_dept in user_dept_queryset]
+        
 
         need_add_list = [dept_id_int for dept_id_int in dept_id_list if dept_id_int not in user_dept_id_exist]
         need_delete_list = [user_dept_id for user_dept_id in user_dept_id_exist if user_dept_id not in dept_id_list]
@@ -385,8 +388,15 @@ class AccountUserService(BaseService):
         for need_add in need_add_list:
             add_queryset.append(UserDept(user_id=user_id, dept_id=need_add))
         UserDept.objects.bulk_create(add_queryset)
-        UserDept.objects.filter(user_id=user_id, dept_id__in=need_delete_list).update(is_deleted=1)
 
+        need_delete_queryset = UserDept.objects.filter(user_id=user_id, dept_id__in=need_delete_list)
+        archive_service_ins.archive_record_list('UserDept', need_delete_queryset, creator_id)
+        UserDept.objects.filter(user_id=user_id, dept_id__in=need_delete_list).delete()
+
+        if len(dept_id_list) > 1:
+            primary_dept_id = dept_id_list[0]
+            UserDept.objects.filter(user_id=user_id, dept_id__in=dept_id_list[1:]).update(is_primary=False)
+            UserDept.objects.filter(user_id=user_id, dept_id=primary_dept_id).update(is_primary=True)
         return True, {}
 
     @classmethod
