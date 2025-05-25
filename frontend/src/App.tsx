@@ -23,6 +23,7 @@ import Tenant from './components/Setting/Tenant';
 import { ApplicationList } from './components/Setting/Application';
 import { NotificationList } from './components/Setting/Notification';
 import UserDept from './components/Organization/UserDept/Index';
+import Role from './components/Organization/Role';
 
 
 const App = () => {
@@ -112,7 +113,7 @@ const App = () => {
       />
       <Route key={'role'}
         path={'/organization/role'}
-        element={<PrivateRoute element={<Layout children={<Home />} />} />}
+        element={<PrivateRoute element={<Layout children={<Role />} />} />}
       />
     </Route>,
     <Route

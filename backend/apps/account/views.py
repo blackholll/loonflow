@@ -394,9 +394,10 @@ class RoleDetailView(BaseView):
         request_data_dict = json.loads(json_str)
         name = request_data_dict.get('name')
         description = request_data_dict.get('description')
-        label = request_data_dict.get('label')
+        label = request_data_dict.get('label', {})
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            account_role_service_ins.update_role(role_id, name, description, label)
+            account_role_service_ins.update_role(tenant_id, role_id, name, description, label)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception as e:

@@ -104,7 +104,7 @@ class AccountRoleService(BaseService):
                     paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
-    def add_role(cls, name: str, description: str, label: str, tenant_id: int, creator_id: int) -> int:
+    def add_role(cls, name: str, description: str, label: str, tenant_id: int, creator_id: int) -> str:
         """
         add role
         :param name:
@@ -116,7 +116,7 @@ class AccountRoleService(BaseService):
         """
         role_obj = Role(name=name, description=description, label=label, tenant_id=tenant_id, creator_id=creator_id)
         role_obj.save()
-        return role_obj.id
+        return str(role_obj.id)
 
     @classmethod
     def add_role_user(cls, role_id: int, user_id_list: int, creator: str) -> bool:
@@ -152,7 +152,7 @@ class AccountRoleService(BaseService):
         return True
 
     @classmethod
-    def update_role(cls, role_id: int, name: str, description: str, label: str) -> bool:
+    def update_role(cls, tenant_id: str, role_id: str, name: str, description: str, label: dict) -> bool:
         """
         update role record
         :param role_id:

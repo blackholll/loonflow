@@ -69,6 +69,19 @@
     "normal": "普通用户",
     "userDeptHelpText": "用户所属部门,支持设置多个部门，其中第一个部门将作为用户的主要部门，审批时将以主要部门作为用户部门来获取部门审批人"
   },
+  "role": {
+    "roleList": "角色列表",
+    "addRoleSuccess": "添加角色成功",
+    "addRoleFail": "添加角色失败",
+    "updateRoleSuccess": "更新角色成功",
+    "updateRoleFail": "更新角色失败",
+    "deleteRoleSuccess": "删除角色成功",
+    "deleteRoleFail": "删除角色失败",
+    "roleName": "角色名称",
+    "roleDescription": "角色描述",
+    "rolePermission": "角色权限",
+    "roleMember": "角色成员"
+  },
   "signIn": {
     "title": "Loonflow",
     "description": "致力于为企业提供统一的工作流解决方案.",
