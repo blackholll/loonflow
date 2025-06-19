@@ -53,7 +53,13 @@
     "actionFail": "操作失败",
     "searching": "搜索中...",
     "confirmDeletion": "确认删除",
-    "confirmDeleteMsg": "确认删除后无法恢复，请谨慎操作"
+    "confirmDeleteMsg": "确认删除后无法恢复，请谨慎操作",
+    "lastSavedTime": "最后保存",
+    "second": "秒",
+    "minute": "分",
+    "hour": "小时",
+    "day": "天",
+    "ago": "前"
   },
   "user": {
     "passwordNotMatch": "两次输入的密码不一致",
@@ -129,6 +135,9 @@
     "dutyTickets": "待办工单",
     "relationTickets": "关联工单",
     "interveneTickets": "干预工单"
+  },
+  "workflow": {
+    "workflowList": "流程列表"
   },
   "setting": {
     "tenant": {

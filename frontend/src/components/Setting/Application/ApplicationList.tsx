@@ -79,7 +79,6 @@ export function ApplicationList() {
     setOpenApp(true);
   }
   const handleOpenApp = (applicationId: string) => {
-    console.log('applicationIdapplicationId:', applicationId);
     setOpenedAppId(applicationId)
     setOpenApp(true);
   }

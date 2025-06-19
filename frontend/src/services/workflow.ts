@@ -1,7 +1,7 @@
 
 import apiClient from './api';
-import { ISimpleWorkflowListRes } from '../types/workflow';
-import { IApiErrResponse } from '@/types/common';
+import { ISimpleWorkflowListRes, IWorkflowListRes } from '../types/workflow';
+import { IApiErrResponse, } from '@/types/common';
 
 
 
@@ -87,22 +87,61 @@ import { IApiErrResponse } from '@/types/common';
 // }
 
 
-export const getSimpleWorkflowList = async(search_value:string, page:number, per_page:number): Promise<ISimpleWorkflowListRes|IApiErrResponse> => {
+export const getSimpleWorkflowList = async (search_value: string, page: number, per_page: number): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
   try {
-    const response = await apiClient.get('/api/v1.0/simple_workflows', {params: {search_value, page, per_page}});
-    console.log('responseresponseresponse:', response);
+    const response = await apiClient.get('/api/v1.0/simple_workflows', { params: { search_value, page, per_page } });
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-// export async function getWorkflowList(params: WorkflowParamsType) {
-//   return request<API.WorkflowListData>('/api/v1.0/workflows', {
-//     method: 'get',
-//     params: params
-//   })
-// }
+export const getWorkflowList = async (search_value: string, page: number, per_page: number): Promise<IWorkflowListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.get('/api/v1.0/workflows', { params: { search_value, page, per_page } });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getWorkflowDetail = async (workflowId: number): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const addWorkflow = async (params: any): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.post('/api/v1.0/workflows', params);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateWorkflow = async (workflowId: number, params: any): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.patch(`/api/v1.0/workflows/${workflowId}`, params);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteWorkflow = async (workflowId: number): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.delete(`/api/v1.0/workflows/${workflowId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+
 
 // export async function getWorkflowDetail(workflowId: Number) {
 //   return request<API.CommonResponse>(`/api/v1.0/workflows/${workflowId}`, {

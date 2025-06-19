@@ -24,6 +24,8 @@ import { ApplicationList } from './components/Setting/Application';
 import { NotificationList } from './components/Setting/Notification';
 import UserDept from './components/Organization/UserDept/Index';
 import Role from './components/Organization/Role';
+import { WorkflowList } from './components/Workflow/WorkflowList';
+import WorkflowDetail from './components/Workflow/WorkflowDetail';
 
 
 const App = () => {
@@ -101,7 +103,12 @@ const App = () => {
     <Route
       key={'workflow'}
       path={'/workflow'}
-      element={<PrivateRoute element={<Layout children={<Home />} />} />}
+      element={<PrivateRoute element={<Layout children={<WorkflowList />} />} />}
+    />,
+    <Route
+      key={'workflowDetail'}
+      path={'/workflow/:workflowId'}
+      element={< WorkflowDetail />}
     />,
     <Route
       key={'organization'}

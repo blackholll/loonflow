@@ -21,7 +21,7 @@ logger = logging.getLogger("django")
 
 
 class WorkflowView(BaseView):
-    @user_permission_check("workflow_admin")
+    @user_permission_check("admin, workflow_admin")
     def get(self, request, *args, **kwargs):
         """
         get workflow list api
