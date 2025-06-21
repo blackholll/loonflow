@@ -47,6 +47,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <TextFieldsIcon />,
         defaultProps: {
             label: '文本输入',
+            description: '',
+            fieldKey: '',
             placeholder: '请输入文本',
             width: 'half'
         }
@@ -57,6 +59,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <TextFieldsIcon />,
         defaultProps: {
             label: '多行文本',
+            description: '',
+            fieldKey: '',
             placeholder: '请输入多行文本',
             width: 'half'
         }
@@ -67,6 +71,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <NumberIcon />,
         defaultProps: {
             label: '数字',
+            description: '',
+            fieldKey: '',
             placeholder: '请输入数字',
             width: 'half'
         }
@@ -77,7 +83,14 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <SelectIcon />,
         defaultProps: {
             label: '下拉选择',
+            description: '',
+            fieldKey: '',
             options: ['选项1', '选项2', '选项3'],
+            optionsWithKeys: [
+                { id: '1', label: '选项1', key: 'custom_field_option_abcde' },
+                { id: '2', label: '选项2', key: 'custom_field_option_fghij' },
+                { id: '3', label: '选项3', key: 'custom_field_option_klmno' }
+            ],
             width: 'half'
         }
     },
@@ -87,7 +100,14 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <RadioButtonIcon />,
         defaultProps: {
             label: '单选框',
+            description: '',
+            fieldKey: '',
             options: ['选项1', '选项2', '选项3'],
+            optionsWithKeys: [
+                { id: '1', label: '选项1', key: 'custom_field_option_pqrst' },
+                { id: '2', label: '选项2', key: 'custom_field_option_uvwxy' },
+                { id: '3', label: '选项3', key: 'custom_field_option_zabcd' }
+            ],
             width: 'half'
         }
     },
@@ -97,7 +117,14 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <CheckBoxIcon />,
         defaultProps: {
             label: '复选框',
+            description: '',
+            fieldKey: '',
             options: ['选项1', '选项2', '选项3'],
+            optionsWithKeys: [
+                { id: '1', label: '选项1', key: 'custom_field_option_efghi' },
+                { id: '2', label: '选项2', key: 'custom_field_option_jklmn' },
+                { id: '3', label: '选项3', key: 'custom_field_option_opqrs' }
+            ],
             width: 'half'
         }
     },
@@ -107,6 +134,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <DateIcon />,
         defaultProps: {
             label: '日期选择',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     }, {
@@ -115,6 +144,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <DateRangeIcon />,
         defaultProps: {
             label: '日期区间',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     },
@@ -124,6 +155,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <FileIcon />,
         defaultProps: {
             label: '附件',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     },
@@ -133,6 +166,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <UserIcon />,
         defaultProps: {
             label: '用户',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     },
@@ -142,6 +177,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <GroupsIcon />,
         defaultProps: {
             label: '部门',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     },
@@ -151,6 +188,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <Link />,
         defaultProps: {
             label: '链接',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     },
@@ -160,6 +199,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <EditNote />,
         defaultProps: {
             label: '富文本',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     },
@@ -169,6 +210,8 @@ const basicComponentTemplates: ComponentTemplate[] = [
         icon: <DateIcon />,
         defaultProps: {
             label: '外部数据源',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     }
@@ -182,6 +225,8 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         icon: <SelectIcon />,
         defaultProps: {
             label: '创建人',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     }, {
@@ -190,6 +235,8 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         icon: <SelectIcon />,
         defaultProps: {
             label: '创建时间',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     }, {
@@ -197,7 +244,9 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         label: '工单状态',
         icon: <SelectIcon />,
         defaultProps: {
-            label: '创建时间',
+            label: '工单状态',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     }, {
@@ -206,6 +255,8 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         icon: <SelectIcon />,
         defaultProps: {
             label: '审批状态',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     }, {
@@ -214,6 +265,8 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         icon: <SelectIcon />,
         defaultProps: {
             label: '工单类型',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     }, {
@@ -222,6 +275,8 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         icon: <SelectIcon />,
         defaultProps: {
             label: '当前处理人',
+            description: '',
+            fieldKey: '',
             width: 'half'
         }
     }

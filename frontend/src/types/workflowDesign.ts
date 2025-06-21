@@ -1,11 +1,13 @@
-
 export interface IFormField {
     id: string;
     type: string;
     label: string;
+    description?: string;
+    fieldKey?: string;
     width: 'full' | 'half';
     placeholder?: string;
     options?: string[];
+    optionsWithKeys?: FormOption[];
     validation?: string;
     position: { x: number; y: number };
 }
@@ -27,13 +29,23 @@ export interface LayoutConfig {
     span?: number; // 组件在行中的跨度 (3=1/4, 4=1/3, 6=1/2, 12=全宽)
 }
 
+// 定义选项接口
+export interface FormOption {
+    id: string;
+    label: string;
+    key: string;
+}
+
 // 定义组件接口
 export interface FormComponent {
     id: string;
     type: string;
     label?: string;
+    description?: string;
+    fieldKey?: string;
     placeholder?: string;
     options?: string[];
+    optionsWithKeys?: FormOption[];
     layout: LayoutConfig;
     [key: string]: any;
 }

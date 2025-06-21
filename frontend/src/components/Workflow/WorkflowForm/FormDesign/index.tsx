@@ -5,15 +5,17 @@ import {
     Typography,
     Button,
     IconButton,
+    Tooltip
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 import {
     Delete as DeleteIcon,
     DragIndicator as DragIcon,
-    Add as AddIcon
+    Add as AddIcon,
+    HelpOutline as HelpIcon
 } from '@mui/icons-material';
-import { FormStructure, FormComponent, RowContainer, ComponentTemplate } from '../../../../types/workflowDesign';
+import { FormStructure, FormComponent, RowContainer, ComponentTemplate, FormOption } from '../../../../types/workflowDesign';
 import useSnackbar from '../../../../hooks/useSnackbar';
 
 interface FormDesignProps {
@@ -30,6 +32,8 @@ interface FormDesignProps {
     onIsMovingChange: (moving: boolean) => void;
     onMovingComponentChange: (componentId: string | null) => void;
     generateId: () => string;
+    generateUniqueFieldKey: (existingComponents: (RowContainer | FormComponent)[]) => string;
+    generateUniqueOptionKey: (existingComponents: (RowContainer | FormComponent)[]) => string;
     renderFieldComponent: (component: FormComponent) => React.ReactNode;
 }
 
@@ -46,6 +50,8 @@ function FormDesign(props: FormDesignProps) {
         onIsMovingChange,
         onMovingComponentChange,
         generateId,
+        generateUniqueFieldKey,
+        generateUniqueOptionKey,
         renderFieldComponent
     } = props;
 
@@ -75,12 +81,26 @@ function FormDesign(props: FormDesignProps) {
             }
 
             const template: ComponentTemplate = parsedData;
+
+            // 为有选项的组件生成选项标识
+            let optionsWithKeys: FormOption[] | undefined;
+            if (template.defaultProps.options && template.defaultProps.options.length > 0) {
+                optionsWithKeys = template.defaultProps.options.map((option: string) => ({
+                    id: generateId(),
+                    label: option,
+                    key: generateUniqueOptionKey(formStructure.components)
+                }));
+            }
+
             const newComponent: FormComponent = {
                 id: generateId(),
                 type: template.type,
                 label: template.defaultProps.label || '新字段',
+                description: template.defaultProps.description || '',
+                fieldKey: generateUniqueFieldKey(formStructure.components),
                 placeholder: template.defaultProps.placeholder || '',
                 options: template.defaultProps.options || [],
+                optionsWithKeys: optionsWithKeys,
                 layout: { type: 'horizontal', span: 6 }
             };
 
@@ -354,12 +374,26 @@ function FormDesign(props: FormDesignProps) {
 
             // 原有的从组件库拖拽逻辑
             const template: ComponentTemplate = parsedData;
+
+            // 为有选项的组件生成选项标识
+            let optionsWithKeys: FormOption[] | undefined;
+            if (template.defaultProps.options && template.defaultProps.options.length > 0) {
+                optionsWithKeys = template.defaultProps.options.map((option: string) => ({
+                    id: generateId(),
+                    label: option,
+                    key: generateUniqueOptionKey(formStructure.components)
+                }));
+            }
+
             const newComponent: FormComponent = {
                 id: generateId(),
                 type: template.type,
                 label: template.defaultProps.label || '新字段',
+                description: template.defaultProps.description || '',
+                fieldKey: generateUniqueFieldKey(formStructure.components),
                 placeholder: template.defaultProps.placeholder || '',
                 options: template.defaultProps.options || [],
+                optionsWithKeys: optionsWithKeys,
                 layout: { type: 'horizontal', span: 6 }
             };
             onFormStructureChange({
@@ -498,15 +532,33 @@ function FormDesign(props: FormDesignProps) {
                                                 onDragEnd={handleComponentDragEnd}
                                             >
                                                 <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            minWidth: '80px',
-                                                            fontWeight: 'normal',
-                                                        }}
-                                                    >
-                                                        {fieldComponent.label}
-                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                minWidth: '80px',
+                                                                fontWeight: 'normal',
+                                                            }}
+                                                        >
+                                                            {fieldComponent.label}{fieldComponent.description && (
+                                                                <Tooltip
+                                                                    title={fieldComponent.description}
+                                                                    placement="top"
+                                                                    arrow
+                                                                >
+                                                                    <HelpIcon
+                                                                        sx={{
+                                                                            fontSize: 16,
+                                                                            color: 'text.secondary',
+                                                                            cursor: 'help',
+                                                                            ml: 0.25
+                                                                        }}
+                                                                    />
+                                                                </Tooltip>
+                                                            )}
+                                                        </Typography>
+
+                                                    </Box>
                                                     <Box sx={{ flex: 1 }}>
                                                         {renderFieldComponent(fieldComponent)}
                                                     </Box>

@@ -47,6 +47,92 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
     const [activeTab, setActiveTab] = useState(0); // 0: 设计, 1: 预览
     const generateId = () => `component_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+    // 生成5位随机英文字母
+    const generateRandomLetters = () => {
+        const letters = 'abcdefghijklmnopqrstuvwxyz';
+        let result = '';
+        for (let i = 0; i < 5; i++) {
+            result += letters.charAt(Math.floor(Math.random() * letters.length));
+        }
+        return result;
+    };
+
+    // 生成唯一的字段标识
+    const generateUniqueFieldKey = (existingComponents: (RowContainer | FormComponent)[]) => {
+        const getAllFieldKeys = (components: (RowContainer | FormComponent)[]): string[] => {
+            const keys: string[] = [];
+            components.forEach(comp => {
+                if (comp.type === 'row') {
+                    (comp as RowContainer).components.forEach((fieldComp: FormComponent) => {
+                        if (fieldComp.fieldKey) {
+                            keys.push(fieldComp.fieldKey);
+                        }
+                    });
+                } else if ((comp as FormComponent).fieldKey) {
+                    keys.push((comp as FormComponent).fieldKey!);
+                }
+            });
+            return keys;
+        };
+
+        const existingKeys = getAllFieldKeys(existingComponents);
+        let newKey: string;
+        let attempts = 0;
+        const maxAttempts = 100; // 防止无限循环
+
+        do {
+            newKey = `custom_field_${generateRandomLetters()}`;
+            attempts++;
+            if (attempts > maxAttempts) {
+                // 如果尝试次数过多，使用时间戳作为后缀
+                newKey = `custom_field_${generateRandomLetters()}_${Date.now()}`;
+                break;
+            }
+        } while (existingKeys.includes(newKey));
+
+        return newKey;
+    };
+
+    // 生成唯一的选项标识
+    const generateUniqueOptionKey = (existingComponents: (RowContainer | FormComponent)[]) => {
+        const getAllOptionKeys = (components: (RowContainer | FormComponent)[]): string[] => {
+            const keys: string[] = [];
+            components.forEach(comp => {
+                if (comp.type === 'row') {
+                    (comp as RowContainer).components.forEach((fieldComp: FormComponent) => {
+                        if (fieldComp.optionsWithKeys) {
+                            fieldComp.optionsWithKeys.forEach(option => {
+                                keys.push(option.key);
+                            });
+                        }
+                    });
+                } else if ((comp as FormComponent).optionsWithKeys) {
+                    (comp as FormComponent).optionsWithKeys!.forEach(option => {
+                        keys.push(option.key);
+                    });
+                }
+            });
+            return keys;
+        };
+
+        const existingKeys = getAllOptionKeys(existingComponents);
+        let newKey: string;
+        let attempts = 0;
+        const maxAttempts = 100; // 防止无限循环
+
+        do {
+            newKey = `custom_field_option_${generateRandomLetters()}`;
+            attempts++;
+            if (attempts > maxAttempts) {
+                // 如果尝试次数过多，使用时间戳作为后缀
+                newKey = `custom_field_option_${generateRandomLetters()}_${Date.now()}`;
+                break;
+            }
+        } while (existingKeys.includes(newKey));
+
+        return newKey;
+    };
+
     const handleDragStart = (e: React.DragEvent, template: ComponentTemplate) => {
         setIsDragging(true);
         e.dataTransfer.setData('application/json', JSON.stringify(template));
@@ -196,6 +282,8 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
                         onIsMovingChange={setIsMoving}
                         onMovingComponentChange={setMovingComponent}
                         generateId={generateId}
+                        generateUniqueFieldKey={generateUniqueFieldKey}
+                        generateUniqueOptionKey={generateUniqueOptionKey}
                         renderFieldComponent={renderFieldComponent}
                     />
                 ) : (

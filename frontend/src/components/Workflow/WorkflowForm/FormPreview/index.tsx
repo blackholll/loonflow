@@ -1,6 +1,7 @@
 import React from 'react';
-import { Paper, Typography, Divider, Box } from '@mui/material';
+import { Paper, Typography, Divider, Box, Tooltip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { HelpOutline as HelpIcon } from '@mui/icons-material';
 import { FormStructure, FormComponent, RowContainer } from '../../../../types/workflowDesign';
 
 interface FormPreviewProps {
@@ -31,9 +32,33 @@ function FormPreview({ formStructure, renderFieldComponent }: FormPreviewProps) 
                                         size={fieldComponent.layout.span || 12}
                                     >
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Typography variant="body2" fontWeight="medium" sx={{ minWidth: 80 }}>
-                                                {fieldComponent.label}
-                                            </Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Typography
+                                                    variant="body2"
+                                                    fontWeight="medium"
+                                                    sx={{
+                                                        minWidth: 80,
+                                                    }}
+                                                >
+                                                    {fieldComponent.label}{fieldComponent.description && (
+                                                        <Tooltip
+                                                            title={fieldComponent.description}
+                                                            placement="top"
+                                                            arrow
+                                                        >
+                                                            <HelpIcon
+                                                                sx={{
+                                                                    fontSize: 16,
+                                                                    color: 'text.secondary',
+                                                                    cursor: 'help',
+                                                                    ml: 0.25
+                                                                }}
+                                                            />
+                                                        </Tooltip>
+                                                    )}
+                                                </Typography>
+
+                                            </Box>
                                             <Box sx={{ flex: 1 }}>
                                                 {renderFieldComponent(fieldComponent)}
                                             </Box>
