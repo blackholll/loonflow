@@ -20,6 +20,8 @@ import {
     DialogActions
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { ComponentTemplate, IFormField } from '../../../../types/workflowDesign';
+
 import {
     TextFields as TextFieldsIcon,
     CheckBox as CheckBoxIcon,
@@ -37,31 +39,6 @@ import {
     Link, EditNote
 } from '@mui/icons-material';
 
-interface IFormField {
-    id: string;
-    type: string;
-    label: string;
-    width: 'full' | 'half';
-    placeholder?: string;
-    options?: string[];
-    validation?: string;
-    position: { x: number; y: number };
-}
-
-
-interface ComponentTemplate {
-    type: string;
-    label: string;
-    icon: React.ReactNode;
-    defaultProps: Partial<IFormField>;
-}
-
-interface ComponentTemplate {
-    type: string;
-    label: string;
-    icon: React.ReactNode;
-    defaultProps: Partial<IFormField>;
-}
 
 const basicComponentTemplates: ComponentTemplate[] = [
     {
@@ -263,5 +240,4 @@ const componentCategories = {
     }
 };
 
-export { componentCategories };
-export type { IFormField };
+export default componentCategories;
