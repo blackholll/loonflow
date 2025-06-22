@@ -1,26 +1,6 @@
-import React, { useState, useRef } from 'react';
-import {
-    Box,
-    Paper,
-    Typography,
-    Card,
-    CardContent,
-    TextField,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    Button,
-    Divider,
-    IconButton,
-    Tooltip,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions
-} from '@mui/material';
-import Grid from '@mui/material/Grid2';
-import { ComponentTemplate, IFormField } from '../../../../types/workflowDesign';
+import React from 'react';
+
+import { ComponentTemplate } from '../../../../types/workflowDesign';
 
 import {
     TextFields as TextFieldsIcon,
@@ -29,9 +9,6 @@ import {
     ExpandMore as SelectIcon,
     Schedule as DateIcon,
     AttachFile as FileIcon,
-    Delete as DeleteIcon,
-    Settings as SettingsIcon,
-    DragIndicator as DragIcon,
     Pin as NumberIcon,
     DateRange as DateRangeIcon,
     Person as UserIcon,
@@ -85,7 +62,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '下拉选择',
             description: '',
             fieldKey: '',
-            options: ['选项1', '选项2', '选项3'],
+            multiple: false,
             optionsWithKeys: [
                 { id: '1', label: '选项1', key: 'custom_field_option_abcde' },
                 { id: '2', label: '选项2', key: 'custom_field_option_fghij' },
@@ -102,7 +79,6 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '单选框',
             description: '',
             fieldKey: '',
-            options: ['选项1', '选项2', '选项3'],
             optionsWithKeys: [
                 { id: '1', label: '选项1', key: 'custom_field_option_pqrst' },
                 { id: '2', label: '选项2', key: 'custom_field_option_uvwxy' },
@@ -119,7 +95,6 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '复选框',
             description: '',
             fieldKey: '',
-            options: ['选项1', '选项2', '选项3'],
             optionsWithKeys: [
                 { id: '1', label: '选项1', key: 'custom_field_option_efghi' },
                 { id: '2', label: '选项2', key: 'custom_field_option_jklmn' },

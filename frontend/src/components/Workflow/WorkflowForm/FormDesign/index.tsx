@@ -84,10 +84,10 @@ function FormDesign(props: FormDesignProps) {
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
-            if (template.defaultProps.options && template.defaultProps.options.length > 0) {
-                optionsWithKeys = template.defaultProps.options.map((option: string) => ({
+            if (template.defaultProps.optionsWithKeys && template.defaultProps.optionsWithKeys.length > 0) {
+                optionsWithKeys = template.defaultProps.optionsWithKeys.map((option: FormOption) => ({
                     id: generateId(),
-                    label: option,
+                    label: option.label,
                     key: generateUniqueOptionKey(formStructure.components)
                 }));
             }
@@ -99,8 +99,9 @@ function FormDesign(props: FormDesignProps) {
                 description: template.defaultProps.description || '',
                 fieldKey: generateUniqueFieldKey(formStructure.components),
                 placeholder: template.defaultProps.placeholder || '',
-                options: template.defaultProps.options || [],
+                multiple: template.defaultProps.multiple || false,
                 optionsWithKeys: optionsWithKeys,
+                value: template.defaultProps.multiple ? [] : null,
                 layout: { type: 'horizontal', span: 6 }
             };
 
@@ -377,10 +378,10 @@ function FormDesign(props: FormDesignProps) {
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
-            if (template.defaultProps.options && template.defaultProps.options.length > 0) {
-                optionsWithKeys = template.defaultProps.options.map((option: string) => ({
+            if (template.defaultProps.optionsWithKeys && template.defaultProps.optionsWithKeys.length > 0) {
+                optionsWithKeys = template.defaultProps.optionsWithKeys.map((option: FormOption) => ({
                     id: generateId(),
-                    label: option,
+                    label: option.label,
                     key: generateUniqueOptionKey(formStructure.components)
                 }));
             }
@@ -392,8 +393,9 @@ function FormDesign(props: FormDesignProps) {
                 description: template.defaultProps.description || '',
                 fieldKey: generateUniqueFieldKey(formStructure.components),
                 placeholder: template.defaultProps.placeholder || '',
-                options: template.defaultProps.options || [],
+                multiple: template.defaultProps.multiple || false,
                 optionsWithKeys: optionsWithKeys,
+                value: template.defaultProps.multiple ? [] : null,
                 layout: { type: 'horizontal', span: 6 }
             };
             onFormStructureChange({

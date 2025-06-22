@@ -6,10 +6,6 @@ import {
     Card,
     CardContent,
     TextField,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
     Button,
     Divider,
     IconButton,
@@ -19,7 +15,15 @@ import {
     DialogContent,
     DialogActions,
     Tabs,
-    Tab
+    Tab,
+    RadioGroup,
+    Radio,
+    FormControlLabel,
+    Checkbox,
+    FormGroup,
+    Chip,
+    ListItemText,
+    Autocomplete
 } from '@mui/material';
 import {
     Visibility as PreviewIcon,
@@ -168,21 +172,88 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
             placeholder: component.placeholder,
         };
 
+        // 获取选项数据，只使用optionsWithKeys
+        const getOptions = () => {
+            return component.optionsWithKeys?.map(option => option.label) || [];
+        };
+
+        const options = getOptions();
+
         switch (component.type) {
             case 'text':
                 return <TextField {...commonProps} />;
             case 'textarea':
                 return <TextField {...commonProps} multiline rows={3} />;
+            case 'number':
+                return <TextField type="number" {...commonProps} />;
             case 'select':
                 return (
-                    <FormControl fullWidth size="small">
-                        <Select placeholder={component.placeholder}>
-                            {component.options?.map((option, index) => (
-                                <MenuItem key={index} value={option}>{option}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <Autocomplete
+                        options={options}
+                        multiple={component.multiple || false}
+                        size="small"
+                        value={component.value || (component.multiple ? [] : null)}
+                        onChange={(_, newValue) => {
+                            // 更新组件值
+                            const updatedComponent = {
+                                ...component,
+                                value: newValue
+                            };
+                            handleComponentUpdate(updatedComponent);
+                        }}
+                        freeSolo={false}
+                        disableClearable={false}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                placeholder={component.placeholder}
+                                variant="outlined"
+                                size="small"
+                            />
+                        )}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip
+                                    variant="outlined"
+                                    label={option}
+                                    size="small"
+                                    {...getTagProps({ index })}
+                                />
+                            ))
+                        }
+                        renderOption={(props, option) => (
+                            <li {...props}>
+                                <ListItemText primary={option} />
+                            </li>
+                        )}
+                        filterOptions={(options, { inputValue }) => {
+                            const filtered = options.filter(option =>
+                                option.toLowerCase().includes(inputValue.toLowerCase())
+                            );
+                            return filtered;
+                        }}
+                        noOptionsText="未找到匹配的选项"
+                        clearOnBlur={false}
+                        selectOnFocus
+                        clearOnEscape
+                        isOptionEqualToValue={(option, value) => option === value}
+                    />
                 );
+            case 'radio':
+                return (
+                    <RadioGroup row>
+                        {options.map((option, index) => (
+                            <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
+                        ))}
+                    </RadioGroup>)
+            case 'checkbox':
+                return (
+                    <FormGroup row>
+                        {options.map((option, index) => (
+                            <FormControlLabel key={index} value={option} control={<Checkbox />} label={option} />
+                        ))}
+                    </FormGroup>
+                )
             case 'date':
                 return <TextField {...commonProps} type="date" InputLabelProps={{ shrink: true }} />;
             case 'file':

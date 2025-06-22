@@ -20,7 +20,9 @@ import {
     DialogActions,
     Tabs,
     Alert,
-    Tab
+    Tab,
+    FormControlLabel,
+    Checkbox
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import {
@@ -75,53 +77,33 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
         if (component.type === 'row') return;
 
         const formComponent = component as FormComponent;
-        if (formComponent.optionsWithKeys) {
-            const newOptionsWithKeys = [...formComponent.optionsWithKeys];
-            newOptionsWithKeys[index] = {
-                ...newOptionsWithKeys[index],
-                label: value
-            };
-            handleChange('optionsWithKeys', newOptionsWithKeys);
-        } else {
-            const newOptions = [...(formComponent.options || [])];
-            newOptions[index] = value;
-            handleChange('options', newOptions);
-        }
+        const newOptionsWithKeys = [...(formComponent.optionsWithKeys || [])];
+        newOptionsWithKeys[index] = {
+            ...newOptionsWithKeys[index],
+            label: value
+        };
+        handleChange('optionsWithKeys', newOptionsWithKeys);
     };
 
     const addOption = () => {
         if (component.type === 'row') return;
 
         const formComponent = component as FormComponent;
-        if (formComponent.optionsWithKeys) {
-            const newOption: FormOption = {
-                id: `option_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                label: `选项${formComponent.optionsWithKeys.length + 1}`,
-                key: `custom_field_option_${Math.random().toString(36).substr(2, 5)}`
-            };
-            const newOptionsWithKeys = [...formComponent.optionsWithKeys, newOption];
-            handleChange('optionsWithKeys', newOptionsWithKeys);
-        } else {
-            const newOption: FormOption = {
-                id: `option_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                label: `选项1`,
-                key: `custom_field_option_${Math.random().toString(36).substr(2, 5)}`
-            };
-            handleChange('optionsWithKeys', [newOption]);
-        }
+        const newOption: FormOption = {
+            id: `option_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            label: `选项${(formComponent.optionsWithKeys?.length || 0) + 1}`,
+            key: `custom_field_option_${Math.random().toString(36).substr(2, 5)}`
+        };
+        const newOptionsWithKeys = [...(formComponent.optionsWithKeys || []), newOption];
+        handleChange('optionsWithKeys', newOptionsWithKeys);
     };
 
     const removeOption = (index: number) => {
         if (component.type === 'row') return;
 
         const formComponent = component as FormComponent;
-        if (formComponent.optionsWithKeys) {
-            const newOptionsWithKeys = formComponent.optionsWithKeys.filter((_: FormOption, i: number) => i !== index);
-            handleChange('optionsWithKeys', newOptionsWithKeys);
-        } else {
-            const newOptions = formComponent.options?.filter((_: string, i: number) => i !== index) || [];
-            handleChange('options', newOptions);
-        }
+        const newOptionsWithKeys = (formComponent.optionsWithKeys || []).filter((_: FormOption, i: number) => i !== index);
+        handleChange('optionsWithKeys', newOptionsWithKeys);
     };
 
     const toggleOptionKeysVisibility = () => {
@@ -172,6 +154,19 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
                 />
             )}
 
+            {component.type === 'select' && (
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={(component as FormComponent).multiple || false}
+                            onChange={(e) => handleChange('multiple', e.target.checked)}
+                            size="small"
+                        />
+                    }
+                    label="支持多选"
+                />
+            )}
+
             <FormControl fullWidth size="small">
                 <InputLabel>宽度</InputLabel>
                 <Select
@@ -215,45 +210,24 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
 
                     {showOptionKeys && <Alert severity="info">选项标识可用于API调用的参数</Alert>}
 
-                    {(component as FormComponent).optionsWithKeys ? (
-                        (component as FormComponent).optionsWithKeys?.map((option: FormOption, index: number) => (
-                            <Box key={option.id} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                                <TextField
-                                    value={showOptionKeys ? `${option.label} (${option.key})` : option.label}
-                                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                                    size="small"
-                                    sx={{ flex: 1 }}
-                                    disabled={showOptionKeys}
-                                />
-                                {showOptionKeys ? null : <IconButton
-                                    size="small"
-                                    color="error"
-                                    onClick={() => removeOption(index)}
-                                >
-                                    <DeleteIcon fontSize="small" />
-                                </IconButton>}
-
-                            </Box>
-                        ))
-                    ) : (
-                        (component as FormComponent).options?.map((option: string, index: number) => (
-                            <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1 }}>
-                                <TextField
-                                    value={option}
-                                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                                    size="small"
-                                    sx={{ flex: 1 }}
-                                />
-                                <IconButton
-                                    size="small"
-                                    color="error"
-                                    onClick={() => removeOption(index)}
-                                >
-                                    <DeleteIcon fontSize="small" />
-                                </IconButton>
-                            </Box>
-                        ))
-                    )}
+                    {(component as FormComponent).optionsWithKeys?.map((option: FormOption, index: number) => (
+                        <Box key={option.id} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                            <TextField
+                                value={showOptionKeys ? `${option.label} (${option.key})` : option.label}
+                                onChange={(e) => handleOptionChange(index, e.target.value)}
+                                size="small"
+                                sx={{ flex: 1 }}
+                                disabled={showOptionKeys}
+                            />
+                            {showOptionKeys ? null : <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => removeOption(index)}
+                            >
+                                <DeleteIcon fontSize="small" />
+                            </IconButton>}
+                        </Box>
+                    ))}
                 </Box>
             )}
         </Box>

@@ -6,7 +6,7 @@ export interface IFormField {
     fieldKey?: string;
     width: 'full' | 'half';
     placeholder?: string;
-    options?: string[];
+    multiple?: boolean;
     optionsWithKeys?: FormOption[];
     validation?: string;
     position: { x: number; y: number };
@@ -44,8 +44,9 @@ export interface FormComponent {
     description?: string;
     fieldKey?: string;
     placeholder?: string;
-    options?: string[];
+    multiple?: boolean;
     optionsWithKeys?: FormOption[];
+    value?: any;
     layout: LayoutConfig;
     [key: string]: any;
 }
