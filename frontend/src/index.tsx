@@ -7,6 +7,8 @@ import reportWebVitals from './reportWebVitals';
 import './i18n/index';
 import { store, persistor } from './store';
 import { PersistGate } from 'redux-persist/integration/react';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 
 const root = ReactDOM.createRoot(
@@ -16,7 +18,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <App/>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <App />
+        </LocalizationProvider>
       </PersistGate>
 
     </Provider>

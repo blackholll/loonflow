@@ -13,7 +13,7 @@ import {
     DateRange as DateRangeIcon,
     Person as UserIcon,
     Groups as GroupsIcon,
-    Link, EditNote
+    Link, EditNote, Schedule, CalendarMonth
 } from '@mui/icons-material';
 
 
@@ -27,7 +27,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             description: '',
             fieldKey: '',
             placeholder: '请输入文本',
-            width: 'half'
+            layout: { span: 6 }
         }
     },
     {
@@ -39,7 +39,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             description: '',
             fieldKey: '',
             placeholder: '请输入多行文本',
-            width: 'half'
+            layout: { span: 6 }
         }
     },
     {
@@ -51,7 +51,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             description: '',
             fieldKey: '',
             placeholder: '请输入数字',
-            width: 'half'
+            layout: { span: 6 }
         }
     },
     {
@@ -62,13 +62,15 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '下拉选择',
             description: '',
             fieldKey: '',
-            multiple: false,
-            optionsWithKeys: [
-                { id: '1', label: '选项1', key: 'custom_field_option_abcde' },
-                { id: '2', label: '选项2', key: 'custom_field_option_fghij' },
-                { id: '3', label: '选项3', key: 'custom_field_option_klmno' }
-            ],
-            width: 'half'
+            extendedProps: {
+                multiple: false,
+                optionsWithKeys: [
+                    { id: '1', label: '选项1', key: 'custom_field_option_abcde' },
+                    { id: '2', label: '选项2', key: 'custom_field_option_fghij' },
+                    { id: '3', label: '选项3', key: 'custom_field_option_klmno' }
+                ]
+            },
+            layout: { span: 6 }
         }
     },
     {
@@ -79,12 +81,14 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '单选框',
             description: '',
             fieldKey: '',
-            optionsWithKeys: [
-                { id: '1', label: '选项1', key: 'custom_field_option_pqrst' },
-                { id: '2', label: '选项2', key: 'custom_field_option_uvwxy' },
-                { id: '3', label: '选项3', key: 'custom_field_option_zabcd' }
-            ],
-            width: 'half'
+            extendedProps: {
+                optionsWithKeys: [
+                    { id: '1', label: '选项1', key: 'custom_field_option_pqrst' },
+                    { id: '2', label: '选项2', key: 'custom_field_option_uvwxy' },
+                    { id: '3', label: '选项3', key: 'custom_field_option_zabcd' }
+                ]
+            },
+            layout: { span: 6 }
         }
     },
     {
@@ -95,33 +99,42 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '复选框',
             description: '',
             fieldKey: '',
-            optionsWithKeys: [
-                { id: '1', label: '选项1', key: 'custom_field_option_efghi' },
-                { id: '2', label: '选项2', key: 'custom_field_option_jklmn' },
-                { id: '3', label: '选项3', key: 'custom_field_option_opqrs' }
-            ],
-            width: 'half'
+            extendedProps: {
+                optionsWithKeys: [
+                    { id: '1', label: '选项1', key: 'custom_field_option_efghi' },
+                    { id: '2', label: '选项2', key: 'custom_field_option_jklmn' },
+                    { id: '3', label: '选项3', key: 'custom_field_option_opqrs' }
+                ]
+            },
+            layout: { span: 6 }
+        }
+    },
+    {
+        type: 'time',
+        label: '时间选择',
+        icon: <Schedule />,
+        defaultProps: {
+            label: '时间选择',
+            description: '',
+            fieldKey: '',
+            layout: { span: 6 },
+            extendedProps: {
+                format: 'hh:mm:ss'
+            }
         }
     },
     {
         type: 'date',
         label: '日期选择',
-        icon: <DateIcon />,
+        icon: <CalendarMonth />,
         defaultProps: {
             label: '日期选择',
             description: '',
             fieldKey: '',
-            width: 'half'
-        }
-    }, {
-        type: 'dateRange',
-        label: '日期区间',
-        icon: <DateRangeIcon />,
-        defaultProps: {
-            label: '日期区间',
-            description: '',
-            fieldKey: '',
-            width: 'half'
+            layout: { span: 6 },
+            extendedProps: {
+                format: 'yyyy-mm-dd hh:mm:ss'
+            }
         }
     },
     {
@@ -132,7 +145,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '附件',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     },
     {
@@ -143,7 +156,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '用户',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     },
     {
@@ -154,7 +167,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '部门',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     },
     {
@@ -165,7 +178,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '链接',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     },
     {
@@ -176,7 +189,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '富文本',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     },
     {
@@ -187,7 +200,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
             label: '外部数据源',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     }
 ];
@@ -202,7 +215,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
             label: '创建人',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     }, {
         type: 'customCreatedAt',
@@ -212,7 +225,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
             label: '创建时间',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     }, {
         type: 'ticketStatus',
@@ -222,7 +235,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
             label: '工单状态',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     }, {
         type: 'approvalStatus',
@@ -232,7 +245,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
             label: '审批状态',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     }, {
         type: 'ticketType',
@@ -242,7 +255,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
             label: '工单类型',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     }, {
         type: 'currentHandler',
@@ -252,7 +265,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
             label: '当前处理人',
             description: '',
             fieldKey: '',
-            width: 'half'
+            layout: { span: 6 }
         }
     }
 ]

@@ -2,11 +2,11 @@ import React from 'react';
 import { Paper, Typography, Divider, Box, Tooltip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
-import { FormStructure, FormComponent, RowContainer } from '../../../../types/workflowDesign';
+import { FormStructure, IFormField, RowContainer } from '../../../../types/workflowDesign';
 
 interface FormPreviewProps {
     formStructure: FormStructure;
-    renderFieldComponent: (component: FormComponent) => React.ReactNode;
+    renderFieldComponent: (component: IFormField) => React.ReactNode;
 }
 
 function FormPreview({ formStructure, renderFieldComponent }: FormPreviewProps) {
@@ -26,7 +26,7 @@ function FormPreview({ formStructure, renderFieldComponent }: FormPreviewProps) 
                     if (component.type === 'row') {
                         return (
                             <Grid container spacing={2} key={component.id}>
-                                {component.components.map((fieldComponent: FormComponent) => (
+                                {(component as RowContainer).components.map((fieldComponent: IFormField) => (
                                     <Grid
                                         key={fieldComponent.id}
                                         size={fieldComponent.layout.span || 12}

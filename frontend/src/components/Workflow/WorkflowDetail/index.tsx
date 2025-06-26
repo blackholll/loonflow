@@ -184,7 +184,7 @@ function WorkflowDetail() {
             </Box>
             <Box>
                 {activeTab === 'basicInfo' && <WorkflowBasic onBasicChange={onBasicChange} basicInfo={workflowDetailInfo.basicInfo} />}
-                {activeTab === 'formDesign' && <WorkflowForm fieldInfoList={workflowDetailInfo.fieldInfoList} />}
+                {activeTab === 'formDesign' && <WorkflowForm />}
                 {activeTab === 'workflowDesign' && <div>workflowDesign</div>}
                 {activeTab === 'advancedSetting' && <div>advancedSetting - noticeInfo: {JSON.stringify(workflowDetailInfo.noticeInfo)}</div>}
             </Box>

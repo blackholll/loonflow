@@ -1,16 +1,30 @@
+export interface ILayout {
+    span: number;
+    orderId?: number; //行容器之间 或者行容器内组件的顺序
+}
+
+export interface IExtendedProps {
+    optionsWithKeys?: FormOption[];
+    multiple?: boolean;
+    format?: string;
+    timeFormat?: string;
+    dateFormat?: string;
+    timeZone?: string;
+    timeZoneName?: string;
+}
+
 export interface IFormField {
     id: string;
     type: string;
     label: string;
     description?: string;
     fieldKey?: string;
-    width: 'full' | 'half';
+    value?: any;
     placeholder?: string;
-    multiple?: boolean;
-    optionsWithKeys?: FormOption[];
-    validation?: string;
-    position: { x: number; y: number };
+    layout: ILayout;
+    extendedProps?: IExtendedProps;
 }
+
 
 export interface ComponentTemplate {
     type: string;
@@ -19,15 +33,12 @@ export interface ComponentTemplate {
     defaultProps: Partial<IFormField>;
 }
 
-// 将 IFormField 重命名为 FormField 以保持兼容性
-type FormField = IFormField;
-
 // 定义布局类型
-export interface LayoutConfig {
-    type: 'vertical' | 'horizontal';
-    gutter?: number;
-    span?: number; // 组件在行中的跨度 (3=1/4, 4=1/3, 6=1/2, 12=全宽)
-}
+// export interface LayoutConfig {
+//     type: 'vertical' | 'horizontal';
+//     gutter?: number;
+//     span?: number; // 组件在行中的跨度 (3=1/4, 4=1/3, 6=1/2, 12=全宽)
+// }
 
 // 定义选项接口
 export interface FormOption {
@@ -36,42 +47,34 @@ export interface FormOption {
     key: string;
 }
 
-// 定义组件接口
-export interface FormComponent {
-    id: string;
-    type: string;
-    label?: string;
-    description?: string;
-    fieldKey?: string;
-    placeholder?: string;
-    multiple?: boolean;
-    optionsWithKeys?: FormOption[];
-    value?: any;
-    layout: LayoutConfig;
-    [key: string]: any;
-}
+// // 定义组件接口
+// export interface FormComponent {
+//     id: string;
+//     type: string;
+//     label?: string;
+//     description?: string;
+//     fieldKey?: string;
+//     placeholder?: string;
+//     multiple?: boolean;
+//     optionsWithKeys?: FormOption[];
+//     value?: any;
+//     layout: LayoutConfig;
+//     [key: string]: any;
+// }
 
 // 定义行容器接口
 export interface RowContainer {
     id: string;
     type: 'row';
-    layout: LayoutConfig;
-    components: FormComponent[];
-    label?: string; // 添加可选的 label 属性
+    layout: ILayout;
+    components: IFormField[];
 }
 
 // 定义表单结构接口
 export interface FormStructure {
     type: 'form';
-    layout: LayoutConfig;
-    components: (RowContainer | FormComponent)[];
-}
-
-export interface ComponentTemplate {
-    type: string;
-    label: string;
-    icon: React.ReactNode;
-    defaultProps: Partial<FormField>;
+    layout: ILayout;
+    components: (RowContainer | IFormField)[];
 }
 
 export interface FormDesignProps {

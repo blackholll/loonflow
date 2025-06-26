@@ -43,13 +43,13 @@ import {
     VisibilityOff as VisibilityOffIcon
 } from '@mui/icons-material';
 import useSnackbar from '../../../../hooks/useSnackbar';
-import { FormStructure, FormComponent, RowContainer, ComponentTemplate, FormDesignProps, FormOption } from '../../../../types/workflowDesign';
+import { RowContainer, FormOption, IFormField, FormStructure } from '../../../../types/workflowDesign';
 
 
 
 interface ComponentPropertiesProps {
-    component: FormComponent | RowContainer;
-    onUpdate: (component: FormComponent | RowContainer) => void;
+    component: IFormField | RowContainer;
+    onUpdate: (component: IFormField | RowContainer) => void;
 }
 
 function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) {
@@ -57,6 +57,16 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
     const { showMessage } = useSnackbar();
 
     const handleChange = (key: string, value: any) => {
+        if (['multiple'].indexOf(key) !== -1) {
+            onUpdate({
+                ...component,
+                extendedProps: {
+                    ...(component as IFormField).extendedProps,
+                    [key]: value
+                }
+            });
+            return;
+        }
         onUpdate({
             ...component,
             [key]: value
@@ -76,8 +86,8 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
     const handleOptionChange = (index: number, value: string) => {
         if (component.type === 'row') return;
 
-        const formComponent = component as FormComponent;
-        const newOptionsWithKeys = [...(formComponent.optionsWithKeys || [])];
+        const formComponent = component as IFormField;
+        const newOptionsWithKeys = [...(formComponent.extendedProps?.optionsWithKeys || [])];
         newOptionsWithKeys[index] = {
             ...newOptionsWithKeys[index],
             label: value
@@ -88,21 +98,21 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
     const addOption = () => {
         if (component.type === 'row') return;
 
-        const formComponent = component as FormComponent;
+        const formComponent = component as IFormField;
         const newOption: FormOption = {
             id: `option_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            label: `选项${(formComponent.optionsWithKeys?.length || 0) + 1}`,
+            label: `选项${(formComponent.extendedProps?.optionsWithKeys?.length || 0) + 1}`,
             key: `custom_field_option_${Math.random().toString(36).substr(2, 5)}`
         };
-        const newOptionsWithKeys = [...(formComponent.optionsWithKeys || []), newOption];
+        const newOptionsWithKeys = [...(formComponent.extendedProps?.optionsWithKeys || []), newOption];
         handleChange('optionsWithKeys', newOptionsWithKeys);
     };
 
     const removeOption = (index: number) => {
         if (component.type === 'row') return;
 
-        const formComponent = component as FormComponent;
-        const newOptionsWithKeys = (formComponent.optionsWithKeys || []).filter((_: FormOption, i: number) => i !== index);
+        const formComponent = component as IFormField;
+        const newOptionsWithKeys = (formComponent.extendedProps?.optionsWithKeys || []).filter((_: FormOption, i: number) => i !== index);
         handleChange('optionsWithKeys', newOptionsWithKeys);
     };
 
@@ -118,7 +128,7 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
                 label="字段标识"
-                value={(component as FormComponent).fieldKey || ''}
+                value={(component as IFormField).fieldKey || ''}
                 fullWidth
                 size="small"
                 disabled
@@ -127,7 +137,7 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
 
             <TextField
                 label="字段标签"
-                value={(component as FormComponent).label || ''}
+                value={(component as IFormField).label || ''}
                 onChange={(e) => handleChange('label', e.target.value)}
                 fullWidth
                 size="small"
@@ -135,7 +145,7 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
 
             <TextField
                 label="描述"
-                value={(component as FormComponent).description || ''}
+                value={(component as IFormField).description || ''}
                 onChange={(e) => handleChange('description', e.target.value)}
                 fullWidth
                 size="small"
@@ -147,18 +157,18 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
             {(component.type === 'text' || component.type === 'textarea') && (
                 <TextField
                     label="占位符"
-                    value={(component as FormComponent).placeholder || ''}
+                    value={(component as IFormField).placeholder || ''}
                     onChange={(e) => handleChange('placeholder', e.target.value)}
                     fullWidth
                     size="small"
                 />
             )}
 
-            {component.type === 'select' && (
+            {['select', 'user', 'department'].indexOf(component.type) !== -1 && (
                 <FormControlLabel
                     control={
                         <Checkbox
-                            checked={(component as FormComponent).multiple || false}
+                            checked={(component as IFormField).extendedProps?.multiple || false}
                             onChange={(e) => handleChange('multiple', e.target.checked)}
                             size="small"
                         />
@@ -170,7 +180,7 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
             <FormControl fullWidth size="small">
                 <InputLabel>宽度</InputLabel>
                 <Select
-                    value={(component as FormComponent).layout.span || 12}
+                    value={(component as IFormField).layout.span || 12}
                     label="宽度"
                     onChange={(e) => handleLayoutChange('span', Number(e.target.value))}
                 >
@@ -180,6 +190,18 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
                     <MenuItem value={12}>全宽</MenuItem>
                 </Select>
             </FormControl>
+            {component.type === 'time' ? (<FormControl fullWidth size="small">
+                <InputLabel>时间格式</InputLabel>
+                <Select
+                    value={(component as IFormField).layout.span || 12}
+                    label="格式"
+                    onChange={(e) => handleLayoutChange('format', e.target.value)}
+                >
+                    <MenuItem value={"hh:mm:ss a"}>时:分:秒 上午/下午</MenuItem>
+                    <MenuItem value={"hh aa"}>时 上午/下午</MenuItem>
+                    <MenuItem value={"mm:ss"}>分:秒</MenuItem>
+                </Select>
+            </FormControl>) : null}
 
             {(component.type === 'select' || component.type === 'radio' || component.type === 'checkbox') && (
                 <Box>
@@ -210,7 +232,7 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
 
                     {showOptionKeys && <Alert severity="info">选项标识可用于API调用的参数</Alert>}
 
-                    {(component as FormComponent).optionsWithKeys?.map((option: FormOption, index: number) => (
+                    {(component as IFormField).extendedProps?.optionsWithKeys?.map((option: FormOption, index: number) => (
                         <Box key={option.id} sx={{ display: 'flex', gap: 1, mb: 1 }}>
                             <TextField
                                 value={showOptionKeys ? `${option.label} (${option.key})` : option.label}

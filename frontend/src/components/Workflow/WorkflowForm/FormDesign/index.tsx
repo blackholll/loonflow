@@ -15,26 +15,26 @@ import {
     Add as AddIcon,
     HelpOutline as HelpIcon
 } from '@mui/icons-material';
-import { FormStructure, FormComponent, RowContainer, ComponentTemplate, FormOption } from '../../../../types/workflowDesign';
+import { FormStructure, IFormField, RowContainer, ComponentTemplate, FormOption } from '../../../../types/workflowDesign';
 import useSnackbar from '../../../../hooks/useSnackbar';
 
 interface FormDesignProps {
     formStructure: FormStructure;
-    selectedComponent: FormComponent | RowContainer | null;
+    selectedComponent: IFormField | RowContainer | null;
     isDragging: boolean;
     dragOver: boolean;
     isMoving: boolean;
     movingComponent: string | null;
     onFormStructureChange: (structure: FormStructure) => void;
-    onSelectedComponentChange: (component: FormComponent | RowContainer | null) => void;
+    onSelectedComponentChange: (component: IFormField | RowContainer | null) => void;
     onIsDraggingChange: (dragging: boolean) => void;
     onDragOverChange: (dragOver: boolean) => void;
     onIsMovingChange: (moving: boolean) => void;
     onMovingComponentChange: (componentId: string | null) => void;
     generateId: () => string;
-    generateUniqueFieldKey: (existingComponents: (RowContainer | FormComponent)[]) => string;
-    generateUniqueOptionKey: (existingComponents: (RowContainer | FormComponent)[]) => string;
-    renderFieldComponent: (component: FormComponent) => React.ReactNode;
+    generateUniqueFieldKey: (existingComponents: (RowContainer | IFormField)[]) => string;
+    generateUniqueOptionKey: (existingComponents: (RowContainer | IFormField)[]) => string;
+    renderFieldComponent: (component: IFormField) => React.ReactNode;
 }
 
 function FormDesign(props: FormDesignProps) {
@@ -84,25 +84,26 @@ function FormDesign(props: FormDesignProps) {
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
-            if (template.defaultProps.optionsWithKeys && template.defaultProps.optionsWithKeys.length > 0) {
-                optionsWithKeys = template.defaultProps.optionsWithKeys.map((option: FormOption) => ({
+            if (template.defaultProps.extendedProps?.optionsWithKeys && template.defaultProps.extendedProps.optionsWithKeys.length > 0) {
+                optionsWithKeys = template.defaultProps.extendedProps.optionsWithKeys.map((option: FormOption) => ({
                     id: generateId(),
                     label: option.label,
                     key: generateUniqueOptionKey(formStructure.components)
                 }));
             }
 
-            const newComponent: FormComponent = {
+            const newComponent: IFormField = {
                 id: generateId(),
                 type: template.type,
                 label: template.defaultProps.label || '新字段',
                 description: template.defaultProps.description || '',
                 fieldKey: generateUniqueFieldKey(formStructure.components),
                 placeholder: template.defaultProps.placeholder || '',
-                multiple: template.defaultProps.multiple || false,
-                optionsWithKeys: optionsWithKeys,
-                value: template.defaultProps.multiple ? [] : null,
-                layout: { type: 'horizontal', span: 6 }
+                extendedProps: {
+                    multiple: template.defaultProps.extendedProps?.multiple || false,
+                    optionsWithKeys: optionsWithKeys,
+                },
+                layout: { span: 6 }
             };
 
             // 查找最后一个行容器，如果不存在或已满，创建新行
@@ -110,7 +111,7 @@ function FormDesign(props: FormDesignProps) {
 
             if (lastRow && lastRow.type === 'row' && lastRow.components.length < 4) {
                 // 检查当前行是否有足够空间
-                const currentRowWidth = lastRow.components.reduce((sum: number, comp: FormComponent) => sum + (comp.layout.span || 12), 0);
+                const currentRowWidth = lastRow.components.reduce((sum: number, comp: IFormField) => sum + (comp.layout.span || 12), 0);
                 const componentSpan = newComponent.layout.span || 12;
                 if (currentRowWidth + componentSpan <= 12) {
                     // 添加到现有行
@@ -120,7 +121,7 @@ function FormDesign(props: FormDesignProps) {
                             if (comp.id === lastRow.id) {
                                 return {
                                     ...comp,
-                                    components: [...comp.components, newComponent]
+                                    components: [...(comp as RowContainer).components, newComponent]
                                 };
                             }
                             return comp;
@@ -134,7 +135,7 @@ function FormDesign(props: FormDesignProps) {
             const newRow: RowContainer = {
                 id: generateId(),
                 type: 'row',
-                layout: { type: 'horizontal', gutter: 8 },
+                layout: { span: 6 },
                 components: [newComponent]
             };
 
@@ -147,7 +148,7 @@ function FormDesign(props: FormDesignProps) {
         }
     };
 
-    const handleComponentClick = (component: FormComponent | RowContainer) => {
+    const handleComponentClick = (component: IFormField | RowContainer) => {
         onSelectedComponentChange(component);
     };
 
@@ -165,7 +166,7 @@ function FormDesign(props: FormDesignProps) {
         const newRow: RowContainer = {
             id: generateId(),
             type: 'row',
-            layout: { type: 'horizontal', gutter: 4 },
+            layout: { span: 12 },
             components: []
         };
 
@@ -178,17 +179,17 @@ function FormDesign(props: FormDesignProps) {
     const removeComponentFromRow = (rowId: string, componentId: string) => {
         onFormStructureChange({
             ...formStructure,
-            components: formStructure.components.map((comp: RowContainer | FormComponent) => {
+            components: formStructure.components.map((comp: RowContainer | IFormField) => {
                 if (comp.id === rowId && comp.type === 'row') {
                     return {
                         ...comp,
-                        components: comp.components.filter((c: FormComponent) => c.id !== componentId)
+                        components: (comp as RowContainer).components.filter((c: IFormField) => c.id !== componentId)
                     };
                 }
                 return comp;
-            }).filter((comp: RowContainer | FormComponent) => {
+            }).filter((comp: RowContainer | IFormField) => {
                 // 如果行中没有组件了，删除整行
-                if (comp.type === 'row' && comp.components.length === 0) {
+                if (comp.type === 'row' && (comp as RowContainer).components.length === 0) {
                     return false;
                 }
                 return true;
@@ -196,7 +197,7 @@ function FormDesign(props: FormDesignProps) {
         });
     };
 
-    const handleComponentDragStart = (e: React.DragEvent, component: FormComponent | RowContainer) => {
+    const handleComponentDragStart = (e: React.DragEvent, component: IFormField | RowContainer) => {
         e.stopPropagation();
         e.dataTransfer.setData('application/json', JSON.stringify({
             type: 'move',
@@ -229,17 +230,17 @@ function FormDesign(props: FormDesignProps) {
 
         if (data.type === 'move' && data.componentId !== targetComponentId) {
             // 找到源组件和目标组件的位置
-            let sourceComponent: FormComponent | null = null;
+            let sourceComponent: IFormField | null = null;
             let sourceRowId: string | null = null;
             let sourceIndex: number = -1;
             let targetIndex: number = -1;
 
             // 查找源组件
-            formStructure.components.forEach((row: RowContainer | FormComponent) => {
+            formStructure.components.forEach((row: RowContainer | IFormField) => {
                 if (row.type === 'row') {
-                    const index = row.components.findIndex((comp: FormComponent) => comp.id === data.componentId);
+                    const index = (row as RowContainer).components.findIndex((comp: IFormField) => comp.id === data.componentId);
                     if (index !== -1) {
-                        sourceComponent = row.components[index];
+                        sourceComponent = (row as RowContainer).components[index];
                         sourceRowId = row.id;
                         sourceIndex = index;
                     }
@@ -247,24 +248,24 @@ function FormDesign(props: FormDesignProps) {
             });
 
             // 查找目标组件
-            const targetRow = formStructure.components.find((row: RowContainer | FormComponent) => row.id === targetRowId);
+            const targetRow = formStructure.components.find((row: RowContainer | IFormField) => row.id === targetRowId);
             if (targetRow && targetRow.type === 'row') {
-                targetIndex = targetRow.components.findIndex((comp: FormComponent) => comp.id === targetComponentId);
+                targetIndex = (targetRow as RowContainer).components.findIndex((comp: IFormField) => comp.id === targetComponentId);
             }
 
             if (sourceComponent && sourceRowId && sourceIndex !== -1 && targetIndex !== -1) {
                 // 检查目标行的span总和是否超过12
-                const targetRowData = formStructure.components.find((row: RowContainer | FormComponent) => row.id === targetRowId);
+                const targetRowData = formStructure.components.find((row: RowContainer | IFormField) => row.id === targetRowId);
                 if (targetRowData && targetRowData.type === 'row') {
-                    const currentSpanSum = targetRowData.components.reduce((sum: number, comp: FormComponent) => {
+                    const currentSpanSum = (targetRowData as RowContainer).components.reduce((sum: number, comp: IFormField) => {
                         // 如果是同一个组件，不计算其span
-                        if (comp.id === (sourceComponent as FormComponent).id) {
+                        if (comp.id === (sourceComponent as IFormField).id) {
                             return sum;
                         }
                         return sum + (comp.layout.span || 12);
                     }, 0);
 
-                    const newSpanSum = currentSpanSum + ((sourceComponent as FormComponent).layout.span || 12);
+                    const newSpanSum = currentSpanSum + ((sourceComponent as IFormField).layout.span || 12);
                     if (newSpanSum > 12) {
                         console.log('行内组件span总和不能超过12');
                         showMessage('行内组件宽度不得超过1', 'error');
@@ -279,19 +280,24 @@ function FormDesign(props: FormDesignProps) {
                 // 从源行移除组件
                 const sourceRowIndex = newComponents.findIndex(row => row.id === sourceRowId);
                 if (sourceRowIndex !== -1) {
-                    const sourceRow = { ...newComponents[sourceRowIndex] };
-                    sourceRow.components = [...sourceRow.components];
-                    sourceRow.components.splice(sourceIndex, 1);
+                    const sourceRow = newComponents[sourceRowIndex];
+                    if (sourceRow.type === 'row') {
+                        const newSourceRow = { ...sourceRow, components: [...(sourceRow as RowContainer).components] };
+                        newSourceRow.components.splice(sourceIndex, 1);
+                        newComponents[sourceRowIndex] = newSourceRow;
+                    }
                     newComponents[sourceRowIndex] = sourceRow;
                 }
 
                 // 添加到目标行
                 const targetRowIndex = newComponents.findIndex(row => row.id === targetRowId);
                 if (targetRowIndex !== -1) {
-                    const targetRow = { ...newComponents[targetRowIndex] };
-                    targetRow.components = [...targetRow.components];
-                    targetRow.components.splice(targetIndex, 0, sourceComponent!);
-                    newComponents[targetRowIndex] = targetRow;
+                    const targetRow = newComponents[targetRowIndex];
+                    if (targetRow.type === 'row') {
+                        const newTargetRow = { ...targetRow, components: [...(targetRow as RowContainer).components] };
+                        newTargetRow.components.splice(targetIndex, 0, sourceComponent!);
+                        newComponents[targetRowIndex] = newTargetRow;
+                    }
                 }
 
                 onFormStructureChange({ ...formStructure, components: newComponents });
@@ -314,15 +320,15 @@ function FormDesign(props: FormDesignProps) {
             // 如果是组件移动操作
             if (parsedData.type === 'move') {
                 // 找到源组件
-                let sourceComponent: FormComponent | null = null;
+                let sourceComponent: IFormField | null = null;
                 let sourceRowId: string | null = null;
                 let sourceIndex: number = -1;
 
-                formStructure.components.forEach((row: RowContainer | FormComponent) => {
+                formStructure.components.forEach((row: RowContainer | IFormField) => {
                     if (row.type === 'row') {
-                        const index = row.components.findIndex((comp: FormComponent) => comp.id === parsedData.componentId);
+                        const index = (row as RowContainer).components.findIndex((comp: IFormField) => comp.id === parsedData.componentId);
                         if (index !== -1) {
-                            sourceComponent = row.components[index];
+                            sourceComponent = (row as RowContainer).components[index];
                             sourceRowId = row.id;
                             sourceIndex = index;
                         }
@@ -332,13 +338,13 @@ function FormDesign(props: FormDesignProps) {
                 // 如果找到源组件且不是同一个行
                 if (sourceComponent && sourceRowId && sourceRowId !== rowId) {
                     // 检查目标行的span总和是否超过12
-                    const targetRowData = formStructure.components.find((row: RowContainer | FormComponent) => row.id === rowId);
+                    const targetRowData = formStructure.components.find((row: RowContainer | IFormField) => row.id === rowId);
                     if (targetRowData && targetRowData.type === 'row') {
-                        const currentSpanSum = targetRowData.components.reduce((sum: number, comp: FormComponent) => {
+                        const currentSpanSum = (targetRowData as RowContainer).components.reduce((sum: number, comp: IFormField) => {
                             return sum + (comp.layout.span || 12);
                         }, 0);
 
-                        const newSpanSum = currentSpanSum + ((sourceComponent as FormComponent).layout?.span || 12);
+                        const newSpanSum = currentSpanSum + ((sourceComponent as IFormField).layout?.span || 12);
                         console.log('newSpanSum', newSpanSum);
                         if (newSpanSum > 12) {
                             console.log('行内组件span总和不能超过12');
@@ -354,18 +360,20 @@ function FormDesign(props: FormDesignProps) {
                     const sourceRowIndex = newComponents.findIndex(row => row.id === sourceRowId);
                     if (sourceRowIndex !== -1) {
                         const sourceRow = { ...newComponents[sourceRowIndex] };
-                        sourceRow.components = [...sourceRow.components];
-                        sourceRow.components.splice(sourceIndex, 1);
+                        (sourceRow as RowContainer).components = [...(sourceRow as RowContainer).components];
+                        (sourceRow as RowContainer).components.splice(sourceIndex, 1);
                         newComponents[sourceRowIndex] = sourceRow;
                     }
 
                     // 添加到目标行
                     const targetRowIndex = newComponents.findIndex(row => row.id === rowId);
                     if (targetRowIndex !== -1) {
-                        const targetRow = { ...newComponents[targetRowIndex] };
-                        targetRow.components = [...targetRow.components];
-                        targetRow.components.push(sourceComponent!);
-                        newComponents[targetRowIndex] = targetRow;
+                        const targetRow = newComponents[targetRowIndex];
+                        if (targetRow.type === 'row') {
+                            const newTargetRow = { ...targetRow, components: [...(targetRow as RowContainer).components] };
+                            newTargetRow.components.push(sourceComponent!);
+                            newComponents[targetRowIndex] = newTargetRow;
+                        }
                     }
 
                     onFormStructureChange({ ...formStructure, components: newComponents });
@@ -378,37 +386,38 @@ function FormDesign(props: FormDesignProps) {
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
-            if (template.defaultProps.optionsWithKeys && template.defaultProps.optionsWithKeys.length > 0) {
-                optionsWithKeys = template.defaultProps.optionsWithKeys.map((option: FormOption) => ({
+            if (template.defaultProps.extendedProps?.optionsWithKeys && template.defaultProps.extendedProps.optionsWithKeys.length > 0) {
+                optionsWithKeys = template.defaultProps.extendedProps.optionsWithKeys.map((option: FormOption) => ({
                     id: generateId(),
                     label: option.label,
                     key: generateUniqueOptionKey(formStructure.components)
                 }));
             }
 
-            const newComponent: FormComponent = {
+            const newComponent: IFormField = {
                 id: generateId(),
                 type: template.type,
                 label: template.defaultProps.label || '新字段',
                 description: template.defaultProps.description || '',
                 fieldKey: generateUniqueFieldKey(formStructure.components),
                 placeholder: template.defaultProps.placeholder || '',
-                multiple: template.defaultProps.multiple || false,
-                optionsWithKeys: optionsWithKeys,
-                value: template.defaultProps.multiple ? [] : null,
-                layout: { type: 'horizontal', span: 6 }
+                extendedProps: {
+                    multiple: template.defaultProps.extendedProps?.multiple || false,
+                    optionsWithKeys: optionsWithKeys,
+                },
+                layout: { span: 6 }
             };
             onFormStructureChange({
                 ...formStructure,
                 components: formStructure.components.map(comp => {
                     if (comp.id === rowId && comp.type === 'row') {
                         // 检查行内宽度
-                        const currentRowWidth = comp.components.reduce((sum: number, c: FormComponent) => sum + (c.layout.span || 12), 0);
+                        const currentRowWidth = (comp as RowContainer).components.reduce((sum: number, c: IFormField) => sum + (c.layout.span || 12), 0);
                         const componentSpan = newComponent.layout.span || 12;
                         if (currentRowWidth + componentSpan <= 12) {
                             return {
                                 ...comp,
-                                components: [...comp.components, newComponent]
+                                components: [...(comp as RowContainer).components, newComponent]
                             };
                         } else {
                             showMessage('行内组件宽度不得超过1', 'error');
@@ -497,7 +506,7 @@ function FormDesign(props: FormDesignProps) {
                                 </Box>
 
                                 <Grid container spacing={1}>
-                                    {component.components.map((fieldComponent: FormComponent) => (
+                                    {(component as RowContainer).components.map((fieldComponent: IFormField) => (
                                         <Grid
                                             key={fieldComponent.id}
                                             size={fieldComponent.layout.span || 12}
@@ -596,7 +605,7 @@ function FormDesign(props: FormDesignProps) {
                                     ))}
                                 </Grid>
 
-                                {component.components.length === 0 && (
+                                {(component as RowContainer).components.length === 0 && (
                                     <Box
                                         sx={{
                                             display: 'flex',

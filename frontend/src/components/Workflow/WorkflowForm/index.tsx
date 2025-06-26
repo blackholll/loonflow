@@ -30,20 +30,22 @@ import {
     Edit as EditIcon
 } from '@mui/icons-material';
 import useSnackbar from '../../../hooks/useSnackbar';
-import { FormStructure, FormComponent, RowContainer, ComponentTemplate, FormDesignProps } from '../../../types/workflowDesign';
+import { FormStructure, IFormField, RowContainer, ComponentTemplate, FormDesignProps } from '../../../types/workflowDesign';
 import componentCategories from './ComponentCategories';
 import ComponentProperties from './ComponentProperties';
 import FormDesign from './FormDesign';
 import FormPreview from './FormPreview';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 
-function WorkflowForm({ fieldInfoList }: FormDesignProps) {
+function WorkflowForm() {
     const [formStructure, setFormStructure] = useState<FormStructure>({
         type: 'form',
-        layout: { type: 'vertical', gutter: 16 },
+        layout: { span: 12 },
         components: []
     });
-    const [selectedComponent, setSelectedComponent] = useState<FormComponent | RowContainer | null>(null);
+    const [selectedComponent, setSelectedComponent] = useState<IFormField | RowContainer | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [dragOver, setDragOver] = useState(false);
     const [isMoving, setIsMoving] = useState(false);
@@ -62,18 +64,18 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
     };
 
     // 生成唯一的字段标识
-    const generateUniqueFieldKey = (existingComponents: (RowContainer | FormComponent)[]) => {
-        const getAllFieldKeys = (components: (RowContainer | FormComponent)[]): string[] => {
+    const generateUniqueFieldKey = (existingComponents: (RowContainer | IFormField)[]) => {
+        const getAllFieldKeys = (components: (RowContainer | IFormField)[]): string[] => {
             const keys: string[] = [];
             components.forEach(comp => {
                 if (comp.type === 'row') {
-                    (comp as RowContainer).components.forEach((fieldComp: FormComponent) => {
+                    (comp as RowContainer).components.forEach((fieldComp: IFormField) => {
                         if (fieldComp.fieldKey) {
                             keys.push(fieldComp.fieldKey);
                         }
                     });
-                } else if ((comp as FormComponent).fieldKey) {
-                    keys.push((comp as FormComponent).fieldKey!);
+                } else if ((comp as IFormField).fieldKey) {
+                    keys.push((comp as IFormField).fieldKey!);
                 }
             });
             return keys;
@@ -98,20 +100,20 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
     };
 
     // 生成唯一的选项标识
-    const generateUniqueOptionKey = (existingComponents: (RowContainer | FormComponent)[]) => {
-        const getAllOptionKeys = (components: (RowContainer | FormComponent)[]): string[] => {
+    const generateUniqueOptionKey = (existingComponents: (RowContainer | IFormField)[]) => {
+        const getAllOptionKeys = (components: (RowContainer | IFormField)[]): string[] => {
             const keys: string[] = [];
             components.forEach(comp => {
                 if (comp.type === 'row') {
-                    (comp as RowContainer).components.forEach((fieldComp: FormComponent) => {
-                        if (fieldComp.optionsWithKeys) {
-                            fieldComp.optionsWithKeys.forEach(option => {
+                    (comp as RowContainer).components.forEach((fieldComp: IFormField) => {
+                        if ((fieldComp as IFormField).extendedProps?.optionsWithKeys) {
+                            (fieldComp as IFormField).extendedProps?.optionsWithKeys?.forEach(option => {
                                 keys.push(option.key);
                             });
                         }
                     });
-                } else if ((comp as FormComponent).optionsWithKeys) {
-                    (comp as FormComponent).optionsWithKeys!.forEach(option => {
+                } else if ((comp as IFormField).extendedProps?.optionsWithKeys) {
+                    (comp as IFormField).extendedProps?.optionsWithKeys!.forEach(option => {
                         keys.push(option.key);
                     });
                 }
@@ -142,16 +144,18 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
         e.dataTransfer.setData('application/json', JSON.stringify(template));
     };
 
-    const handleComponentUpdate = (updatedComponent: FormComponent | RowContainer) => {
-        function updateInList(list: (FormComponent | RowContainer)[]): (FormComponent | RowContainer)[] {
+    const handleComponentUpdate = (updatedComponent: IFormField | RowContainer) => {
+        function updateInList(list: (IFormField | RowContainer)[]): (IFormField | RowContainer)[] {
             return list.map(comp => {
                 if (comp.id === updatedComponent.id) {
                     return updatedComponent;
                 }
-                if (comp.type === 'row' && Array.isArray(comp.components)) {
+                if (comp.type === 'row' && Array.isArray((comp as RowContainer).components)) {
                     return {
                         ...comp,
-                        components: updateInList(comp.components)
+                        components: (comp as RowContainer).components.map(field =>
+                            field.id === updatedComponent.id ? updatedComponent as IFormField : field
+                        )
                     };
                 }
                 return comp;
@@ -164,7 +168,7 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
         setSelectedComponent(updatedComponent);
     };
 
-    const renderFieldComponent = (component: FormComponent) => {
+    const renderFieldComponent = (component: IFormField) => {
         const commonProps = {
             fullWidth: true,
             size: 'small' as const,
@@ -174,7 +178,7 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
 
         // 获取选项数据，只使用optionsWithKeys
         const getOptions = () => {
-            return component.optionsWithKeys?.map(option => option.label) || [];
+            return component.extendedProps?.optionsWithKeys?.map(option => option.label) || [];
         };
 
         const options = getOptions();
@@ -190,9 +194,9 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
                 return (
                     <Autocomplete
                         options={options}
-                        multiple={component.multiple || false}
+                        multiple={component.extendedProps?.multiple || false}
                         size="small"
-                        value={component.value || (component.multiple ? [] : null)}
+                        value={component.value || (component.extendedProps?.multiple ? [] : null)}
                         onChange={(_, newValue) => {
                             // 更新组件值
                             const updatedComponent = {
@@ -254,8 +258,120 @@ function WorkflowForm({ fieldInfoList }: FormDesignProps) {
                         ))}
                     </FormGroup>
                 )
+            case 'time':
+                return <TimePicker format="hh:mm::ss aa" slotProps={{
+                    textField: { fullWidth: true }
+                }} />
             case 'date':
-                return <TextField {...commonProps} type="date" InputLabelProps={{ shrink: true }} />;
+                return <DateTimePicker slotProps={{
+                    textField: { fullWidth: true }
+                }} />
+            case 'user':
+                return (
+                    <Autocomplete
+                        options={['张三', '李四']}
+                        multiple={component.extendedProps?.multiple || false}
+                        size="small"
+                        value={component.value || (component.extendedProps?.multiple ? [] : null)}
+                        onChange={(_, newValue) => {
+                            // 更新组件值
+                            const updatedComponent = {
+                                ...component,
+                                value: newValue
+                            };
+                            handleComponentUpdate(updatedComponent);
+                        }}
+                        freeSolo={false}
+                        disableClearable={false}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                placeholder={component.placeholder}
+                                variant="outlined"
+                                size="small"
+                            />
+                        )}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip
+                                    variant="outlined"
+                                    label={option}
+                                    size="small"
+                                    {...getTagProps({ index })}
+                                />
+                            ))
+                        }
+                        renderOption={(props, option) => (
+                            <li {...props}>
+                                <ListItemText primary={option} />
+                            </li>
+                        )}
+                        filterOptions={(options, { inputValue }) => {
+                            const filtered = options.filter(option =>
+                                option.toLowerCase().includes(inputValue.toLowerCase())
+                            );
+                            return filtered;
+                        }}
+                        noOptionsText="未找到匹配的选项"
+                        clearOnBlur={false}
+                        selectOnFocus
+                        clearOnEscape
+                        isOptionEqualToValue={(option, value) => option === value}
+                    />
+                );
+            case 'department':
+                return (
+                    <Autocomplete
+                        options={['行政部', '财务部']}
+                        multiple={component.extendedProps?.multiple || false}
+                        size="small"
+                        value={component.value || (component.extendedProps?.multiple ? [] : null)}
+                        onChange={(_, newValue) => {
+                            // 更新组件值
+                            const updatedComponent = {
+                                ...component,
+                                value: newValue
+                            };
+                            handleComponentUpdate(updatedComponent);
+                        }}
+                        freeSolo={false}
+                        disableClearable={false}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                placeholder={component.placeholder}
+                                variant="outlined"
+                                size="small"
+                            />
+                        )}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip
+                                    variant="outlined"
+                                    label={option}
+                                    size="small"
+                                    {...getTagProps({ index })}
+                                />
+                            ))
+                        }
+                        renderOption={(props, option) => (
+                            <li {...props}>
+                                <ListItemText primary={option} />
+                            </li>
+                        )}
+                        filterOptions={(options, { inputValue }) => {
+                            const filtered = options.filter(option =>
+                                option.toLowerCase().includes(inputValue.toLowerCase())
+                            );
+                            return filtered;
+                        }}
+                        noOptionsText="未找到匹配的选项"
+                        clearOnBlur={false}
+                        selectOnFocus
+                        clearOnEscape
+                        isOptionEqualToValue={(option, value) => option === value}
+                    />
+                );
             case 'file':
                 return <TextField {...commonProps} type="file" InputLabelProps={{ shrink: true }} />;
             default:
