@@ -9,6 +9,7 @@ import {
     CallSplit as ExclusiveIcon,
 } from '@mui/icons-material';
 import zIndex from '@mui/material/styles/zIndex';
+import { transform } from 'lodash';
 
 type NodeShape = 'rectangle' | 'ellipse' | 'diamond';
 
@@ -71,57 +72,19 @@ const CustomNode = ({ data, selected }: NodeProps) => {
     };
 
 
-    // 判断是否为菱形节点
     const isDiamond = nodeType === 'exclusive' || nodeType === 'parallel';
 
-    // 普通矩形节点 Handle 居中样式
     const rectHandleCommon = {
         opacity: showHandles ? 1 : 0,
         transition: 'opacity 0.2s',
+        width: 3,
+        height: 3,
+        backgroundColor: '#1976d2',
+        borderRadius: '50%',
+        margin: '-1px',
+        minWidth: '3px',
+        minHeight: '3px'
     };
-
-    const reactHandleLeftSource = {
-        ...rectHandleCommon,
-        backgroundColor: 'green',
-        top: 'calc(50% - 5px)',
-    }
-
-    const reactHandleLeftTarget = {
-        ...rectHandleCommon,
-        backgroundColor: 'red',
-        top: 'calc(50% + 5px)',
-    }
-    const reactHandleRightSource = {
-        ...rectHandleCommon,
-        backgroundColor: 'green',
-        top: 'calc(50% - 5px)',
-    }
-    const reactHandleRightTarget = {
-        ...rectHandleCommon,
-        backgroundColor: 'red',
-        top: 'calc(50% + 5px)',
-    }
-
-    const reactHandleTopSource = {
-        ...rectHandleCommon,
-        backgroundColor: 'green',
-        left: 'calc(50% - 5px)',
-    }
-    const reactHandleTopTarget = {
-        ...rectHandleCommon,
-        backgroundColor: 'red',
-        left: 'calc(50% + 5px)',
-    }
-    const reactHandleBottomSource = {
-        ...rectHandleCommon,
-        backgroundColor: 'green',
-        left: 'calc(50% - 5px)',
-    }
-    const reactHandleBottomTarget = {
-        ...rectHandleCommon,
-        backgroundColor: 'red',
-        left: 'calc(50% + 5px)',
-    }
 
 
 
@@ -146,12 +109,16 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                     sx={{
                         width: 28, // 80 * 0.707 ≈ 56 (考虑旋转后的视觉效果)
                         height: 28,
-                        border: selected ? '3px solid #1976d2' : '2px solid #ccc',
+                        border: selected ? '2px solid #1976d2' : '2px solid #ccc',
                         backgroundColor: 'transparent',
                         transform: 'rotate(45deg)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        '&:hover': {
+                            elevation: 4,
+                            border: '2px solid #1976d2',
+                        },
                     }}
                 >
                     {/* 图标（反向旋转保持正向） */}
@@ -159,16 +126,10 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                         {getNodeIcon(nodeType)}
                     </Box>
                 </Box>
-
-                {/* Handle 位置基于原始矩形边界 */}
-                <Handle id="top" type="source" position={Position.Top} style={{ ...reactHandleTopSource }} />
-                <Handle id="top" type="target" position={Position.Top} style={{ ...reactHandleTopTarget }} />
-                <Handle id="bottom" type="source" position={Position.Bottom} style={{ ...reactHandleBottomSource }} />
-                <Handle id="bottom" type="target" position={Position.Bottom} style={{ ...reactHandleBottomTarget }} />
-                <Handle id="left" type="source" position={Position.Left} style={{ ...reactHandleLeftSource }} />
-                <Handle id="left" type="target" position={Position.Left} style={{ ...reactHandleLeftTarget }} />
-                <Handle id="right" type="source" position={Position.Right} style={{ ...reactHandleRightSource }} />
-                <Handle id="right" type="target" position={Position.Right} style={{ ...reactHandleRightTarget }} />
+                <Handle id="top" type="source" position={Position.Top} style={{ ...rectHandleCommon }} />
+                <Handle id="bottom" type="source" position={Position.Bottom} style={{ ...rectHandleCommon }} />
+                <Handle id="left" type="source" position={Position.Left} style={{ ...rectHandleCommon }} />
+                <Handle id="right" type="source" position={Position.Right} style={{ ...rectHandleCommon }} />
             </Box>
         ) : (
             // 普通矩形节点
@@ -192,41 +153,11 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                 onMouseEnter={() => setShowHandles(true)}
                 onMouseLeave={() => setShowHandles(false)}
             >
-                {/* 顶部连接点 */}
-
-                <Handle id="top" type="source" position={Position.Top} style={{ ...reactHandleTopSource }} />
-                <Handle
-                    id="top"
-                    type="target"
-                    position={Position.Top}
-                    style={{ ...reactHandleTopTarget }}
-                />
-                {/* 底部连接点 */}
-                <Handle id="bottom" type="source" position={Position.Bottom} style={{ ...reactHandleBottomSource }} />
-                <Handle
-                    id="bottom"
-                    type="target"
-                    position={Position.Bottom}
-                    style={{ ...reactHandleBottomTarget }}
-                />
-                {/* 左侧连接点 */}
-                <Handle id="left" type="source" position={Position.Left} style={{ ...reactHandleLeftSource }} />
-                <Handle
-                    id="left"
-                    type="target"
-                    position={Position.Left}
-                    style={{ ...reactHandleLeftTarget }}
-                />
+                <Handle id="top" type="source" position={Position.Top} style={{ ...rectHandleCommon }} />
+                <Handle id="bottom" type="source" position={Position.Bottom} style={{ ...rectHandleCommon }} />
+                <Handle id="left" type="source" position={Position.Left} style={{ ...rectHandleCommon }} />
                 {/* 右侧连接点 */}
-                <Handle id="right" type="source" position={Position.Right} style={{ ...reactHandleRightSource }} />
-                <Handle
-                    id="right"
-                    type="target"
-                    position={Position.Right}
-                    style={{ ...reactHandleRightTarget }}
-                />
-
-                {/* 左侧图标区域 */}
+                <Handle id="right" type="source" position={Position.Right} style={{ ...rectHandleCommon }} />
                 <Box
                     sx={{
                         width: 30,
@@ -240,7 +171,6 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                     {getNodeIcon(nodeType)}
                 </Box>
 
-                {/* 右侧名称区域 */}
                 <Box
                     sx={{
                         flex: 1,

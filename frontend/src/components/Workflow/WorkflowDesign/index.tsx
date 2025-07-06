@@ -273,6 +273,7 @@ const WorkflowDesign: React.FC = () => {
                             onPaneClick={onPaneClick}
                             nodeTypes={nodeTypes}
                             edgeTypes={edgeTypes}
+                            connectionMode={ConnectionMode.Loose}
                             // isValidConnection={isValidConnection}
                             fitView
                             attributionPosition="bottom-left"
