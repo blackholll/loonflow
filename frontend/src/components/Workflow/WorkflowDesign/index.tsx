@@ -151,6 +151,24 @@ const WorkflowDesign: React.FC = () => {
         setPropertyPanelOpen(true);
     }, []);
 
+    // 监听连线标签点击事件
+    React.useEffect(() => {
+        const handleEdgeLabelClick = (event: CustomEvent) => {
+            const edgeId = event.detail.edgeId;
+            const edge = edges.find(e => e.id === edgeId);
+            if (edge) {
+                setSelectedElement(edge);
+                setPropertyPanelOpen(true);
+            }
+        };
+
+        document.addEventListener('edgeLabelClick', handleEdgeLabelClick as EventListener);
+
+        return () => {
+            document.removeEventListener('edgeLabelClick', handleEdgeLabelClick as EventListener);
+        };
+    }, [edges]);
+
     // 画布点击处理
     const onPaneClick = useCallback(() => {
         setSelectedElement(null);
