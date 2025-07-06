@@ -7,6 +7,8 @@ import {
     Stop as EndIcon,
     AccountTree as ParallelIcon,
     CallSplit as ExclusiveIcon,
+    Timer as TimerIcon,
+    Webhook as WebhookIcon
 } from '@mui/icons-material';
 import zIndex from '@mui/material/styles/zIndex';
 import { transform } from 'lodash';
@@ -31,18 +33,23 @@ const CustomNode = ({ data, selected }: NodeProps) => {
     const [editName, setEditName] = useState((data as any)?.label || '节点');
     const [showHandles, setShowHandles] = useState(false);
 
-    const getNodeIcon = (nodeType: string) => {
+    const getNodeIcon = (nodeType: string, isIconOnlyNode: boolean = false) => {
+        const fontSize = isIconOnlyNode ? 18 : 12;
         switch (nodeType) {
             case 'start':
-                return <StartIcon sx={{ fontSize: 12, color: '#4caf50' }} />;
+                return <StartIcon sx={{ fontSize, color: '#4caf50' }} />;
             case 'end':
-                return <EndIcon sx={{ fontSize: 12, color: '#f44336' }} />;
+                return <EndIcon sx={{ fontSize, color: '#f44336' }} />;
             case 'parallel':
-                return <ParallelIcon sx={{ fontSize: 12, color: '#ff9800' }} />;
+                return <ParallelIcon sx={{ fontSize, color: '#ff9800' }} />;
             case 'exclusive':
-                return <ExclusiveIcon sx={{ fontSize: 12, color: '#9c27b0' }} />;
+                return <ExclusiveIcon sx={{ fontSize, color: '#9c27b0' }} />;
+            case 'timer':
+                return <TimerIcon sx={{ fontSize, color: '#2196f3' }} />;
+            case 'hook':
+                return <WebhookIcon sx={{ fontSize, color: '#2196f3' }} />;
             default:
-                return <NormalIcon sx={{ fontSize: 12, color: '#2196f3' }} />;
+                return <NormalIcon sx={{ fontSize, color: '#2196f3' }} />;
         }
     };
 
@@ -73,6 +80,7 @@ const CustomNode = ({ data, selected }: NodeProps) => {
 
 
     const isDiamond = nodeType === 'exclusive' || nodeType === 'parallel';
+    const isIconOnly = nodeType === 'timer' || nodeType === 'hook';
 
     const rectHandleCommon = {
         opacity: showHandles ? 1 : 0,
@@ -89,7 +97,46 @@ const CustomNode = ({ data, selected }: NodeProps) => {
 
 
     return (
-        isDiamond ? (
+        isIconOnly ? (
+            // 纯图标节点（定时器和钩子）
+            <Box
+                sx={{
+                    width: 40,
+                    height: 40,
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'transparent',
+                }}
+                onClick={handleNodeClick}
+                onMouseEnter={() => setShowHandles(true)}
+                onMouseLeave={() => setShowHandles(false)}
+            >
+                <Box
+                    sx={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        backgroundColor: selected ? '#e3f2fd' : '#f5f5f5',
+                        border: selected ? '2px solid #1976d2' : '2px solid #ccc',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        '&:hover': {
+                            backgroundColor: '#e3f2fd',
+                            border: '2px solid #1976d2',
+                        },
+                    }}
+                >
+                    {getNodeIcon(nodeType, true)}
+                </Box>
+                <Handle id="top" type="source" position={Position.Top} style={{ ...rectHandleCommon }} />
+                <Handle id="bottom" type="source" position={Position.Bottom} style={{ ...rectHandleCommon }} />
+                <Handle id="left" type="source" position={Position.Left} style={{ ...rectHandleCommon }} />
+                <Handle id="right" type="source" position={Position.Right} style={{ ...rectHandleCommon }} />
+            </Box>
+        ) : isDiamond ? (
             <Box
                 sx={{
                     width: 40,

@@ -76,6 +76,8 @@ const WorkflowDesign: React.FC = () => {
         endNode: (props: any) => <CustomNode {...props} />,
         parallelGateway: (props: any) => <CustomNode {...props} />,
         exclusiveGateway: (props: any) => <CustomNode {...props} />,
+        timerNode: (props: any) => <CustomNode {...props} />,
+        hookNode: (props: any) => <CustomNode {...props} />,
     };
 
     // 连接处理

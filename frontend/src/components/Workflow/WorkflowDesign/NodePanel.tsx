@@ -16,6 +16,8 @@ import {
     Stop as EndIcon,
     AccountTree as ParallelIcon,
     CallSplit as ExclusiveIcon,
+    Timer as TimerIcon,
+    Webhook as WebhookIcon
 } from '@mui/icons-material';
 
 interface NodePanelProps {
@@ -87,6 +89,31 @@ const nodeConfigs = {
             }
         },
     ],
+
+    advancedNodes: [
+        {
+            type: 'timerNode',
+            icon: TimerIcon,
+            label: '定时器节点',
+            color: '#9c27b0',
+            properties: {
+                nodeType: 'timer',
+                canConnect: true,
+                canDisconnect: true,
+            }
+        },
+        {
+            type: 'hookNode',
+            icon: WebhookIcon,
+            label: '钩子节点',
+            color: '#9c27b0',
+            properties: {
+                nodeType: 'hook',
+                canConnect: true,
+                canDisconnect: true,
+            }
+        }
+    ]
 };
 
 const NodePanel: React.FC<NodePanelProps> = ({ onAddNode }) => {
@@ -146,6 +173,35 @@ const NodePanel: React.FC<NodePanelProps> = ({ onAddNode }) => {
                 <Paper variant="outlined">
                     <List dense>
                         {nodeConfigs.gatewayNodes.map((nodeConfig) => (
+                            <ListItem key={nodeConfig.type} disablePadding>
+                                <ListItemButton
+                                    onClick={() => handleNodeDrag(nodeConfig)}
+                                    sx={{
+                                        '&:hover': {
+                                            backgroundColor: 'action.hover',
+                                        },
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <nodeConfig.icon sx={{ color: nodeConfig.color }} />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={nodeConfig.label}
+                                        primaryTypographyProps={{ variant: 'body2' }}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                </Paper>
+
+                {/* 高级节点 */}
+                <Typography variant="subtitle2" sx={{ px: 1, py: 1, fontWeight: 'bold' }}>
+                    高级节点
+                </Typography>
+                <Paper variant="outlined">
+                    <List dense>
+                        {nodeConfigs.advancedNodes.map((nodeConfig) => (
                             <ListItem key={nodeConfig.type} disablePadding>
                                 <ListItemButton
                                     onClick={() => handleNodeDrag(nodeConfig)}
