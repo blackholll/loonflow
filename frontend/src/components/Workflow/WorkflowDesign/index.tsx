@@ -12,7 +12,9 @@ import {
     NodeTypes,
     EdgeTypes,
     ReactFlowProvider,
-    ConnectionMode
+    ConnectionMode,
+    NodeChange,
+    EdgeChange
 } from '@xyflow/react';
 import { Box, Paper, Drawer, IconButton, Tooltip, Divider, Snackbar, Alert } from '@mui/material';
 import {
@@ -68,6 +70,33 @@ const WorkflowDesign: React.FC = () => {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'warning' | 'info' | 'success'>('error');
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
+
+    // 撤销重做历史记录
+    const [history, setHistory] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([
+        { nodes: initialNodes, edges: initialEdges }
+    ]);
+    const [historyIndex, setHistoryIndex] = useState(0);
+
+    // 保存历史记录
+    const saveToHistory = useCallback((newNodes: Node[], newEdges: Edge[]) => {
+        const newHistoryEntry = { nodes: newNodes, edges: newEdges };
+        setHistory(prev => {
+            // 移除当前位置之后的历史记录
+            const newHistory = prev.slice(0, historyIndex + 1);
+            // 添加新的历史记录
+            newHistory.push(newHistoryEntry);
+            // 限制历史记录数量，避免内存泄漏
+            if (newHistory.length > 50) {
+                newHistory.shift();
+            }
+            return newHistory;
+        });
+        setHistoryIndex(prev => prev + 1);
+    }, [historyIndex]);
+
+
+
+
 
     // 节点类型定义
     const nodeTypes: NodeTypes = {
@@ -133,9 +162,13 @@ const WorkflowDesign: React.FC = () => {
             };
 
             console.log('创建新连线:', newEdge);
-            setEdges((eds) => addEdge(newEdge, eds));
+            setEdges((eds) => {
+                const newEdges = addEdge(newEdge, eds);
+                saveToHistory(nodes, newEdges);
+                return newEdges;
+            });
         },
-        [setEdges, nodes]
+        [setEdges, nodes, saveToHistory]
     );
 
 
@@ -192,13 +225,17 @@ const WorkflowDesign: React.FC = () => {
                 }
             },
         };
-        setNodes((nds) => [...nds, newNode]);
-    }, [setNodes]);
+        setNodes((nds) => {
+            const newNodes = [...nds, newNode];
+            saveToHistory(newNodes, edges);
+            return newNodes;
+        });
+    }, [setNodes, edges, saveToHistory]);
 
     // 更新节点属性
     const onUpdateNodeProperties = useCallback((nodeId: string, properties: any) => {
-        setNodes((nds) =>
-            nds.map((node) =>
+        setNodes((nds) => {
+            const newNodes = nds.map((node) =>
                 node.id === nodeId
                     ? {
                         ...node,
@@ -210,20 +247,24 @@ const WorkflowDesign: React.FC = () => {
                         }
                     }
                     : node
-            )
-        );
-    }, [setNodes]);
+            );
+            saveToHistory(newNodes, edges);
+            return newNodes;
+        });
+    }, [setNodes, edges, saveToHistory]);
 
     // 更新边属性
     const onUpdateEdgeProperties = useCallback((edgeId: string, properties: any) => {
-        setEdges((eds) =>
-            eds.map((edge) =>
+        setEdges((eds) => {
+            const newEdges = eds.map((edge) =>
                 edge.id === edgeId
                     ? { ...edge, data: { ...edge.data, properties } }
                     : edge
-            )
-        );
-    }, [setEdges]);
+            );
+            saveToHistory(nodes, newEdges);
+            return newEdges;
+        });
+    }, [setEdges, nodes, saveToHistory]);
 
     // 工具栏操作
     const handleClear = useCallback(() => {
@@ -234,39 +275,107 @@ const WorkflowDesign: React.FC = () => {
     }, [setNodes, setEdges]);
 
     const handleUndo = useCallback(() => {
-        // 实现撤销功能
-        console.log('撤销');
-    }, []);
+        if (historyIndex > 0) {
+            const newIndex = historyIndex - 1;
+            const historyEntry = history[newIndex];
+            setNodes(historyEntry.nodes);
+            setEdges(historyEntry.edges);
+            setHistoryIndex(newIndex);
+            setSelectedElement(null);
+            setPropertyPanelOpen(false);
+        }
+    }, [historyIndex, history, setNodes, setEdges]);
 
     const handleRedo = useCallback(() => {
-        // 实现重做功能
-        console.log('重做');
-    }, []);
+        if (historyIndex < history.length - 1) {
+            const newIndex = historyIndex + 1;
+            const historyEntry = history[newIndex];
+            setNodes(historyEntry.nodes);
+            setEdges(historyEntry.edges);
+            setHistoryIndex(newIndex);
+            setSelectedElement(null);
+            setPropertyPanelOpen(false);
+        }
+    }, [historyIndex, history, setNodes, setEdges]);
 
     const handleDelete = useCallback(() => {
         if (selectedElement) {
             if ('source' in selectedElement) {
                 // 删除边
-                setEdges((eds) => eds.filter((edge) => edge.id !== selectedElement.id));
+                setEdges((eds) => {
+                    const newEdges = eds.filter((edge) => edge.id !== selectedElement.id);
+                    saveToHistory(nodes, newEdges);
+                    return newEdges;
+                });
             } else {
-                // 删除节点
-                setNodes((nds) => nds.filter((node) => node.id !== selectedElement.id));
-                // 同时删除相关的边
-                setEdges((eds) => eds.filter((edge) =>
-                    edge.source !== selectedElement.id && edge.target !== selectedElement.id
-                ));
+                // 删除节点和相关的边
+                const nodeId = selectedElement.id;
+                setNodes((nds) => {
+                    const newNodes = nds.filter((node) => node.id !== nodeId);
+                    setEdges((eds) => {
+                        const newEdges = eds.filter((edge) =>
+                            edge.source !== nodeId && edge.target !== nodeId
+                        );
+                        saveToHistory(newNodes, newEdges);
+                        return newEdges;
+                    });
+                    return newNodes;
+                });
             }
             setSelectedElement(null);
             setPropertyPanelOpen(false);
         }
-    }, [selectedElement, setNodes, setEdges]);
+    }, [selectedElement, setNodes, setEdges, nodes, saveToHistory]);
 
     const handleCopy = useCallback(() => {
         if (selectedElement) {
-            // 实现复制功能
-            console.log('复制', selectedElement);
+            if ('source' in selectedElement) {
+                // 复制边
+                const newEdge: Edge = {
+                    ...selectedElement,
+                    id: `edge-${Date.now()}`,
+                    source: selectedElement.source,
+                    target: selectedElement.target,
+                    data: {
+                        ...selectedElement.data,
+                        properties: {
+                            ...(selectedElement.data?.properties || {}),
+                            name: `${(selectedElement.data?.properties as any)?.name || '连线'} (副本)`,
+                        }
+                    }
+                };
+                setEdges((eds) => {
+                    const newEdges = [...eds, newEdge];
+                    saveToHistory(nodes, newEdges);
+                    return newEdges;
+                });
+            } else {
+                // 复制节点
+                const newNode: Node = {
+                    ...selectedElement,
+                    id: `${selectedElement.type}-${Date.now()}`,
+                    position: {
+                        x: selectedElement.position.x + 50,
+                        y: selectedElement.position.y + 50,
+                    },
+                    data: {
+                        ...selectedElement.data,
+                        properties: {
+                            ...(selectedElement.data?.properties || {}),
+                            name: `${(selectedElement.data?.properties as any)?.name || '节点'} (副本)`,
+                        }
+                    }
+                };
+                setNodes((nds) => {
+                    const newNodes = [...nds, newNode];
+                    saveToHistory(newNodes, edges);
+                    return newNodes;
+                });
+            }
+            setSelectedElement(null);
+            setPropertyPanelOpen(false);
         }
-    }, [selectedElement]);
+    }, [selectedElement, setNodes, setEdges, nodes, edges, saveToHistory]);
 
     return (
         <ReactFlowProvider>
@@ -287,6 +396,8 @@ const WorkflowDesign: React.FC = () => {
                         onCopy={handleCopy}
                         canDelete={!!selectedElement}
                         canCopy={!!selectedElement}
+                        canUndo={historyIndex > 0}
+                        canRedo={historyIndex < history.length - 1}
                     />
 
                     {/* 流程图画布 */}

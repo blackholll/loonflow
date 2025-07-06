@@ -86,6 +86,8 @@ const CustomNode = ({ data, selected }: NodeProps) => {
 
     const isDiamond = nodeType === 'exclusive' || nodeType === 'parallel';
     const isIconOnly = nodeType === 'timer' || nodeType === 'hook';
+    const isStart = nodeType === 'start';
+    const isEnd = nodeType === 'end';
 
     const rectHandleCommon = {
         opacity: showHandles ? 1 : 0,

@@ -23,6 +23,8 @@ interface ToolbarProps {
     onCopy: () => void;
     canDelete: boolean;
     canCopy: boolean;
+    canUndo: boolean;
+    canRedo: boolean;
 }
 
 const Toolbar: React.FC<ToolbarProps> = ({
@@ -33,6 +35,8 @@ const Toolbar: React.FC<ToolbarProps> = ({
     onCopy,
     canDelete,
     canCopy,
+    canUndo,
+    canRedo,
 }) => {
     return (
         <MuiToolbar
@@ -57,7 +61,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                         <IconButton
                             onClick={onUndo}
                             size="small"
-                            disabled={false} // 可以根据历史记录状态来控制
+                            disabled={!canUndo}
                         >
                             <UndoIcon />
                         </IconButton>
@@ -69,7 +73,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                         <IconButton
                             onClick={onRedo}
                             size="small"
-                            disabled={false} // 可以根据历史记录状态来控制
+                            disabled={!canRedo}
                         >
                             <RedoIcon />
                         </IconButton>
