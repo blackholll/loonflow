@@ -26,6 +26,7 @@ import UserDept from './components/Organization/UserDept/Index';
 import Role from './components/Organization/Role';
 import { WorkflowList } from './components/Workflow/WorkflowList';
 import WorkflowDetail from './components/Workflow/WorkflowDetail';
+import FlowEditorDemo from './components/Workflow/WorkflowDesign/FlowEditorDemo';
 
 
 const App = () => {
@@ -109,6 +110,11 @@ const App = () => {
       key={'workflowDetail'}
       path={'/workflow/:workflowId'}
       element={< WorkflowDetail />}
+    />,
+    <Route
+      key={'flowEditor'}
+      path={'/flow-editor'}
+      element={<PrivateRoute element={<FlowEditorDemo />} />}
     />,
     <Route
       key={'organization'}

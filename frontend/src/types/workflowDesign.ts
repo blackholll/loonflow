@@ -80,3 +80,25 @@ export interface FormStructure {
 export interface FormDesignProps {
     fieldInfoList?: any[];
 }
+
+// React Flow 节点数据类型定义
+export interface WorkflowNodeData {
+    label: string;
+    nodeType: string;
+    properties?: {
+        name: string;
+        description: string;
+        assignee: string;
+        timeout: number;
+        [key: string]: any;
+    };
+}
+
+// React Flow 边数据类型定义
+export interface WorkflowEdgeData {
+    label?: string;
+    properties?: {
+        condition?: string;
+        [key: string]: any;
+    };
+}

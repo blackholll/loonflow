@@ -14,6 +14,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import WorkflowBasic from '../WorkflowBasic';
 import WorkflowForm from '../WorkflowForm';
+import WorkflowDesigon from '../WorkflowDesign';
 
 
 interface WorkflowDetailInfo {
@@ -170,7 +171,7 @@ function WorkflowDetail() {
                     >
                         <Tab label="基本信息" value="basicInfo" />
                         <Tab label="表单设计" value="formDesign" />
-                        <Tab label="流程设计" value="worflowDesign" />
+                        <Tab label="流程设计" value="workflowDesign" />
                         <Tab label="高级设置" value="advancedSetting" />
                     </Tabs>
                 </Box>
@@ -185,7 +186,7 @@ function WorkflowDetail() {
             <Box>
                 {activeTab === 'basicInfo' && <WorkflowBasic onBasicChange={onBasicChange} basicInfo={workflowDetailInfo.basicInfo} />}
                 {activeTab === 'formDesign' && <WorkflowForm />}
-                {activeTab === 'workflowDesign' && <div>workflowDesign</div>}
+                {activeTab === 'workflowDesign' && <WorkflowDesigon />}
                 {activeTab === 'advancedSetting' && <div>advancedSetting - noticeInfo: {JSON.stringify(workflowDetailInfo.noticeInfo)}</div>}
             </Box>
 
