@@ -35,7 +35,12 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                 setProperties(element.data?.properties || {});
             } else {
                 // 节点属性
-                setProperties(element.data?.properties || {});
+                const nodeProperties = { ...(element.data?.properties || {}) } as any;
+                // 如果 properties.name 为空但 data.label 有值，使用 label 作为 name
+                if (!nodeProperties.name && element.data?.label) {
+                    nodeProperties.name = element.data.label;
+                }
+                setProperties(nodeProperties);
             }
         }
     }, [element]);
@@ -52,6 +57,19 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                 // 更新节点属性
                 onUpdateNodeProperties(element.id, newProperties);
             }
+        }
+    };
+
+    // 特殊处理节点名称修改，同时更新节点的 label
+    const handleNodeNameChange = (value: string) => {
+        const newProperties = { ...properties, name: value };
+        setProperties(newProperties);
+
+        if (element && !('source' in element)) {
+            // 更新节点属性
+            onUpdateNodeProperties(element.id, newProperties);
+            // 同时更新节点的 label
+            onUpdateNodeProperties(element.id, { ...newProperties, label: value });
         }
     };
 
@@ -94,6 +112,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                         onChange={(e) => handlePropertyChange('name', e.target.value)}
                         size="small"
                         fullWidth
+                        placeholder="输入连线名称"
                     />
 
                     <TextField
@@ -138,7 +157,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                     <TextField
                         label="节点名称"
                         value={properties.name || ''}
-                        onChange={(e) => handlePropertyChange('name', e.target.value)}
+                        onChange={(e) => handleNodeNameChange(e.target.value)}
                         size="small"
                         fullWidth
                     />

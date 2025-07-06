@@ -119,8 +119,9 @@ const WorkflowDesign: React.FC = () => {
                 id: `edge-${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}-${Date.now()}`,
                 type: 'custom',
                 data: {
-                    label: '连线',
+                    label: '',
                     properties: {
+                        name: '',
                         condition: '',
                         description: '',
                     }
@@ -181,7 +182,15 @@ const WorkflowDesign: React.FC = () => {
         setNodes((nds) =>
             nds.map((node) =>
                 node.id === nodeId
-                    ? { ...node, data: { ...node.data, properties } }
+                    ? {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            properties,
+                            // 如果修改了 name 属性，同时更新 label
+                            ...(properties.name && { label: properties.name })
+                        }
+                    }
                     : node
             )
         );
@@ -290,6 +299,7 @@ const WorkflowDesign: React.FC = () => {
                         >
                             <Controls />
                             <Background color="#aaa" gap={16} />
+
                         </ReactFlow>
                     </Box>
                 </Box>

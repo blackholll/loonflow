@@ -1,6 +1,15 @@
 import React from 'react';
-import { EdgeProps, getSmoothStepPath, getBezierPath, getStraightPath } from '@xyflow/react';
-import { Box } from '@mui/material';
+import { EdgeProps, getSmoothStepPath, getBezierPath, getStraightPath, EdgeLabelRenderer } from '@xyflow/react';
+import { Box, Typography } from '@mui/material';
+
+interface EdgeData {
+    properties?: {
+        name?: string;
+        description?: string;
+        condition?: string;
+        [key: string]: any;
+    };
+}
 
 const CustomEdge: React.FC<EdgeProps> = ({
     id,
@@ -55,7 +64,34 @@ const CustomEdge: React.FC<EdgeProps> = ({
                 markerEnd={`url(#${arrowMarkerId})`}
             />
 
-            {/* 其他代码保持不变 */}
+            {/* 连线标签 */}
+            {(data as EdgeData)?.properties?.name && (
+                <EdgeLabelRenderer>
+                    <Typography
+                        variant="caption"
+                        sx={{
+                            position: 'absolute',
+                            left: labelX,
+                            top: labelY,
+                            transform: 'translate(-50%, -50%)',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold',
+                            color: selected ? '#1976d2' : '#333',
+                            lineHeight: 1.2,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '100px',
+                            pointerEvents: 'none',
+                            zIndex: 10,
+                            textAlign: 'center',
+                            textShadow: '0 0 2px rgba(255, 255, 255, 0.8)',
+                        }}
+                    >
+                        {(data as EdgeData).properties!.name}
+                    </Typography>
+                </EdgeLabelRenderer>
+            )}
         </>
     );
 };

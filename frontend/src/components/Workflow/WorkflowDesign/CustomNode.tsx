@@ -33,6 +33,11 @@ const CustomNode = ({ data, selected }: NodeProps) => {
     const [editName, setEditName] = useState((data as any)?.label || '节点');
     const [showHandles, setShowHandles] = useState(false);
 
+    // 当 data.label 变化时，更新 editName
+    React.useEffect(() => {
+        setEditName((data as any)?.label || '节点');
+    }, [(data as any)?.label]);
+
     const getNodeIcon = (nodeType: string, isIconOnlyNode: boolean = false) => {
         const fontSize = isIconOnlyNode ? 18 : 12;
         switch (nodeType) {
