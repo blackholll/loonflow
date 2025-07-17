@@ -15,6 +15,7 @@ import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutl
 import WorkflowBasic from '../WorkflowBasic';
 import WorkflowForm from '../WorkflowForm';
 import WorkflowDesigon from '../WorkflowDesign';
+import WorkflowAdvanced from '../WorkflowAdvanced';
 
 
 interface WorkflowDetailInfo {
@@ -187,7 +188,7 @@ function WorkflowDetail() {
                 {activeTab === 'basicInfo' && <WorkflowBasic onBasicChange={onBasicChange} basicInfo={workflowDetailInfo.basicInfo} />}
                 {activeTab === 'formDesign' && <WorkflowForm />}
                 {activeTab === 'workflowDesign' && <WorkflowDesigon />}
-                {activeTab === 'advancedSetting' && <div>advancedSetting - noticeInfo: {JSON.stringify(workflowDetailInfo.noticeInfo)}</div>}
+                {activeTab === 'advancedSetting' && <WorkflowAdvanced onBasicChange={onBasicChange} basicInfo={workflowDetailInfo.basicInfo} />}
             </Box>
 
             {/* 确认对话框 */}

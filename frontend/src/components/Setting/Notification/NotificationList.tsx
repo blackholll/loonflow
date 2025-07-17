@@ -8,43 +8,43 @@ import { getNotificationList, delNotification } from '../../../services/notifica
 import NotificationDialog from './NotificationDialog';
 
 
-export const NotificationList=()=> {
+export const NotificationList = () => {
   const { t } = useTranslation();
-  const [ notificationDatas, setNotificationDatas ] = useState<INotificationResEntity[]>([]);
-  const [ notificationListLoading, setNotificationListLoading ] = useState<Boolean>(false);
-  const [ searchKey, setSearchKey ] = useState('');
-  const [ page, setPage ] = useState(1);
-  const [ perPage, setPerPage ] = useState(10);
-  const [ total, setTotal ] = useState(0);
-  const [ openNotification, setOpenNotification ] = useState(false);
-  const [ openDeleteConfirm, setOpenDeleteConfirm ] = useState(false);
-  const [ openedNotificationId, setOpenedAppId ] = useState('');
-  const [ delNotificationId, setDelAppId] = useState('');
+  const [notificationDatas, setNotificationDatas] = useState<INotificationResEntity[]>([]);
+  const [notificationListLoading, setNotificationListLoading] = useState<Boolean>(false);
+  const [searchKey, setSearchKey] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [openNotification, setOpenNotification] = useState(false);
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+  const [openedNotificationId, setOpenedAppId] = useState('');
+  const [delNotificationId, setDelAppId] = useState('');
   const { showMessage } = useSnackbar();
-  
-  const fetchNotificationList = useCallback(async()=>{
-    try{
+
+  const fetchNotificationList = useCallback(async () => {
+    try {
       setNotificationListLoading(true);
       const res = await getNotificationList(searchKey, page, perPage);
-      if (res.code === 0){
-        setNotificationDatas(res.data.notification_list);
+      if (res.code === 0) {
+        setNotificationDatas(res.data.notificationList);
         setTotal(res.data.total);
       } else {
         showMessage(res.msg, 'error');
       }
-    } catch (error:any) {
+    } catch (error: any) {
       showMessage(error.message, 'error');
       console.log(error);
     } finally {
       setNotificationListLoading(false);
     }
   }, [searchKey, page, perPage, showMessage]);
-  
+
   useEffect(() => {
-      fetchNotificationList();
+    fetchNotificationList();
   }, [searchKey, page, perPage, fetchNotificationList]);
 
-  const handleConfirmDelete = async(notificationId:string) => {
+  const handleConfirmDelete = async (notificationId: string) => {
     const result = await delNotification(notificationId);
     if (result.code === 0) {
       fetchNotificationList();
@@ -58,12 +58,12 @@ export const NotificationList=()=> {
   const handleConfirmClose = () => {
     setOpenDeleteConfirm(false);
   }
-  const handleDeleteClick = (notificationId:string) => {
+  const handleDeleteClick = (notificationId: string) => {
     setOpenDeleteConfirm(true);
     setDelAppId(notificationId);
   }
-  
-  const handleChangePage = (_event:any, newPage:number) => {
+
+  const handleChangePage = (_event: any, newPage: number) => {
     setPage(newPage);
   }
   const handleChangeKeyword = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,11 +74,11 @@ export const NotificationList=()=> {
     setPage(0);
     fetchNotificationList()
   };
-  
+
   const handleOpenNewNotifacation = () => {
     setOpenNotification(true);
   }
-  const handleOpenNotification = (notificationId:string) => {
+  const handleOpenNotification = (notificationId: string) => {
     console.log('notificationIdnotificationId:', notificationId);
     setOpenedAppId(notificationId)
     setOpenNotification(true);
@@ -88,43 +88,43 @@ export const NotificationList=()=> {
     setOpenNotification(false);
     setOpenedAppId('');
   }
-  
+
   return (
     <Card>
-      <CardHeader title={t('setting.notification.notificationList')}/>
-        <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{'marginLeft': '10px'}}>
-          <Grid size={{xs:12, sm:6, md:3}}>
-            <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={handleChangeKeyword}/>
-          </Grid>
-          <Grid size={{xs:12, sm:6, md:3}}>
-            <Button variant="outlined" size={'large'} sx={{width:'150px'}} onClick={handleOpenNewNotifacation}>{t('common.new')}</Button>
-          </Grid>
+      <CardHeader title={t('setting.notification.notificationList')} />
+      <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{ 'marginLeft': '10px' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={handleChangeKeyword} />
         </Grid>
-      
-        <TableContainer component={Paper} sx={{ marginTop: '10px' }}>
-        {notificationListLoading?(<div><CircularProgress/></div>) : (
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('common.name')}</TableCell>
-              <TableCell>{t('common.description')}</TableCell>
-              <TableCell>{t('common.type')}</TableCell>
-              <TableCell>{t('common.actions')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {notificationDatas?notificationDatas.map((notification) => (
-              <TableRow key={notification.id}>
-                <TableCell>{notification.name}</TableCell>
-                <TableCell>{notification.description}</TableCell>
-                <TableCell>{t(`common.${notification.type}`)}</TableCell>
-                <TableCell>
-                  <div><Button onClick={()=>handleOpenNotification(notification.id)}>edit</Button><Button onClick={()=>handleDeleteClick(notification.id)}>delete</Button>{notification.type === 'workflowAdmin'?<Button >{t('common.workflowPermission')}</Button>:null}</div>
-                  </TableCell>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={handleOpenNewNotifacation}>{t('common.new')}</Button>
+        </Grid>
+      </Grid>
+
+      <TableContainer component={Paper} sx={{ marginTop: '10px' }}>
+        {notificationListLoading ? (<div><CircularProgress /></div>) : (
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{t('common.name')}</TableCell>
+                <TableCell>{t('common.description')}</TableCell>
+                <TableCell>{t('common.type')}</TableCell>
+                <TableCell>{t('common.actions')}</TableCell>
               </TableRow>
-            )):null}
-          </TableBody>
-        </Table>)}
+            </TableHead>
+            <TableBody>
+              {notificationDatas ? notificationDatas.map((notification) => (
+                <TableRow key={notification.id}>
+                  <TableCell>{notification.name}</TableCell>
+                  <TableCell>{notification.description}</TableCell>
+                  <TableCell>{t(`common.${notification.type}`)}</TableCell>
+                  <TableCell>
+                    <div><Button onClick={() => handleOpenNotification(notification.id)}>edit</Button><Button onClick={() => handleDeleteClick(notification.id)}>delete</Button>{notification.type === 'workflowAdmin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div>
+                  </TableCell>
+                </TableRow>
+              )) : null}
+            </TableBody>
+          </Table>)}
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
@@ -135,7 +135,7 @@ export const NotificationList=()=> {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <NotificationDialog open={openNotification} notificationId={openedNotificationId} onClose={()=>closeDialog()}/>
+      <NotificationDialog open={openNotification} notificationId={openedNotificationId} onClose={() => closeDialog()} />
       <Dialog open={openDeleteConfirm} onClose={handleConfirmClose}>
         <DialogTitle>{t('common.confirm')}</DialogTitle>
         <DialogContent>
@@ -145,13 +145,13 @@ export const NotificationList=()=> {
           <Button onClick={handleConfirmClose} color="primary">
             {t('common.cancel')}
           </Button>
-          <Button onClick={()=> handleConfirmDelete(delNotificationId)} color="error">
-          {t('common.confirm')}
+          <Button onClick={() => handleConfirmDelete(delNotificationId)} color="error">
+            {t('common.confirm')}
           </Button>
         </DialogActions>
 
       </Dialog>
-      </Card>
+    </Card>
   )
 
 }

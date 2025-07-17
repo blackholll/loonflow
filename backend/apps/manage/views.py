@@ -101,6 +101,7 @@ class NotificationView(BaseView):
         return api_response(0, "", dict(notice_id=result))
 
 class SimpleNotificationView(BaseView):
+    @user_permission_check("workflow_admin")
     def get(self, request, *args, **kwargs):
         """
         get simple notice list. only return basic info. can be used for select as notice for workflow
@@ -115,7 +116,7 @@ class SimpleNotificationView(BaseView):
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         search_value = request.GET.get('search_value', '')
         try:
-            result = notification_service_ins.get_notice_list(tenant_id, search_value, page, per_page, True)
+            result = notification_service_ins.get_notification_list(tenant_id, search_value, page, per_page, True)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
