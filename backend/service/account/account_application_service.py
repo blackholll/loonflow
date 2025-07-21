@@ -28,7 +28,7 @@ class AccountApplicationService(BaseService):
         return str(application_obj.id)
 
     @classmethod
-    def get_application_list(cls, tenant_id: int, search_value: str, page: int, per_page: int, simple=False) -> dict:
+    def get_application_list(cls, tenant_id: int, search_value: str, page: int, per_page: int, simple=False, type='all') -> dict:
         """
         get application list
         :param tenant_id:
@@ -41,6 +41,8 @@ class AccountApplicationService(BaseService):
         query_params = Q(tenant_id=tenant_id)
         if search_value:
             query_params &= Q(name__contains=search_value) | Q(description__contains=search_value)
+        if type != 'all':
+            query_params &= Q(type=type)
         application_queryset = Application.objects.filter(query_params).order_by("id")
         paginator = Paginator(application_queryset, per_page)
         try:

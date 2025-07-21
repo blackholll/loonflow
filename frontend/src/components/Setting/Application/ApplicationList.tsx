@@ -25,7 +25,7 @@ export function ApplicationList() {
   const fetchApplicationList = useCallback(async () => {
     try {
       setApplicationListLoading(true);
-      const res = await getApplicationList(searchKey, page, perPage);
+      const res = await getApplicationList(searchKey, page, perPage, 'all');
       if (res.code === 0) {
         setApplicationDatas(res.data.applicationList);
         setTotal(res.data.total);
@@ -118,7 +118,7 @@ export function ApplicationList() {
                   <TableCell>{application.description}</TableCell>
                   <TableCell>{t(`common.${application.type}`)}</TableCell>
                   <TableCell>
-                    <div><Button onClick={() => handleOpenApp(application.id)}>edit</Button><Button onClick={() => handleDeleteClick(application.id)}>delete</Button>{application.type === 'workflowAdmin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div>
+                    <div><Button onClick={() => handleOpenApp(application.id)}>edit</Button><Button onClick={() => handleDeleteClick(application.id)}>delete</Button>{application.type === 'workflow_admin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div>
                   </TableCell>
                 </TableRow>
               )) : null}

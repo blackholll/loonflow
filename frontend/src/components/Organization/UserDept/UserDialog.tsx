@@ -314,7 +314,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onClose, userId, selected
                                         onChange={(e) => handleChange(e, "type")}
                                     >
                                         <FormControlLabel value="admin" control={<Radio />} label={t('user.admin')} />
-                                        <FormControlLabel value="workflow_admin" control={<Radio />} label={t('user.workflowAdmin')} />
+                                        <FormControlLabel value="workflow_admin" control={<Radio />} label={t('user.workflow_admin')} />
                                         <FormControlLabel value="normal" control={<Radio />} label={t('user.normal')} />
                                     </RadioGroup>
                                 }

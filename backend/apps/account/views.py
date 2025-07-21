@@ -1002,8 +1002,9 @@ class ApplicationView(BaseView):
         request_data = request.GET
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        type = request_data.get('type', 'all')
         try:
-            result = account_application_service_ins.get_application_list(tenant_id, search_value, page, per_page)
+            result = account_application_service_ins.get_application_list(tenant_id, search_value, page, per_page, type=type)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
@@ -1074,8 +1075,9 @@ class SimpleApplicationView(BaseView):
         request_data = request.GET
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
+        type = request_data.get('type', 'all')
         try:
-            result = account_application_service_ins.get_application_list(tenant_id, search_value, page, per_page, True)
+            result = account_application_service_ins.get_application_list(tenant_id, search_value, page, per_page, True, type)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:

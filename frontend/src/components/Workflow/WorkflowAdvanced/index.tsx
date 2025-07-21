@@ -9,6 +9,8 @@ import Markdown from 'react-markdown';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import NotificationConfig from './NotificationConfig';
+import PermissionConfig from './PermissionConfig';
+import CustomizeConfig from './CustomizeConfig';
 
 interface WorkflowBasicProps {
     onBasicChange: (name: string, description: string) => void;
@@ -89,10 +91,10 @@ function WorkflowAdvanced({ onBasicChange, basicInfo }: WorkflowBasicProps) {
                                     <Box><NotificationConfig /></Box>
                                 )}
                                 {tabIndex === 1 && (
-                                    <Box>权限配置内容（待实现）</Box>
+                                    <Box><PermissionConfig /></Box>
                                 )}
                                 {tabIndex === 2 && (
-                                    <Box>定制配置内容（待实现）</Box>
+                                    <Box><CustomizeConfig /></Box>
                                 )}
                             </Box>
                         </Box>

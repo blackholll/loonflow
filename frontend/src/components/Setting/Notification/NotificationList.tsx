@@ -119,7 +119,7 @@ export const NotificationList = () => {
                   <TableCell>{notification.description}</TableCell>
                   <TableCell>{t(`common.${notification.type}`)}</TableCell>
                   <TableCell>
-                    <div><Button onClick={() => handleOpenNotification(notification.id)}>edit</Button><Button onClick={() => handleDeleteClick(notification.id)}>delete</Button>{notification.type === 'workflowAdmin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div>
+                    <div><Button onClick={() => handleOpenNotification(notification.id)}>edit</Button><Button onClick={() => handleDeleteClick(notification.id)}>delete</Button>{notification.type === 'workflow_admin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div>
                   </TableCell>
                 </TableRow>
               )) : null}

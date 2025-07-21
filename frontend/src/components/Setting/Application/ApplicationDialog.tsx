@@ -129,7 +129,7 @@ const ApplicationDialog = ({ open, onClose, applicationId }: ApplicationDetailPr
           // onChange={handleRadioChange}
           >
             <FormControlLabel value="admin" control={<Radio />} label={t('common.admin')} />
-            <FormControlLabel value="workflowAdmin" control={<Radio />} label={t('common.workflowAdmin')} />
+            <FormControlLabel value="workflowAdmin" control={<Radio />} label={t('common.workflow_admin')} />
           </RadioGroup>
         </FormControl>
       </DialogContent>
