@@ -11,6 +11,7 @@ import {
     Divider,
     Paper,
     IconButton,
+    Autocomplete
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { Node, Edge } from '@xyflow/react';
@@ -157,6 +158,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                     <TextField
                         label="节点名称"
                         value={properties.name || ''}
+                        disabled={element.data?.nodeType === 'start' || element.data?.nodeType === 'end'}
                         onChange={(e) => handleNodeNameChange(e.target.value)}
                         size="small"
                         fullWidth
@@ -171,25 +173,34 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                         rows={3}
                         fullWidth
                     />
+                    {element.data?.nodeType === 'normal' && (
+                        <>
+                            <Autocomplete
+                                options={[
+                                    { name: '个人 ', value: 'user' },
+                                    { name: '多人 ', value: 'users' },
+                                    { name: '部门', value: 'department' },
+                                    { name: '角色', value: 'role' },
+                                    { name: '变量', value: 'variable' },
+                                    { name: '工单字段', value: 'ticket_field' },
+                                    { name: '父工单字段', value: 'parent_ticket_field' },
+                                    { name: '钩子', value: 'hook' },
+                                ]}
+                                getOptionLabel={(option) => option.name}
+                                renderInput={(params) => <TextField {...params} label="处理人类型" />}
+                            />
+                            <TextField
+                                label="处理人"
+                                value={properties.assignee || ''}
+                                onChange={(e) => handlePropertyChange('assignee', e.target.value)}
+                                size="small"
+                                fullWidth
+                                placeholder="输入处理人姓名或ID"
+                            />
+                        </>
+                    )}
 
-                    <TextField
-                        label="处理人"
-                        value={properties.assignee || ''}
-                        onChange={(e) => handlePropertyChange('assignee', e.target.value)}
-                        size="small"
-                        fullWidth
-                        placeholder="输入处理人姓名或ID"
-                    />
 
-                    <TextField
-                        label="超时时间（分钟）"
-                        type="number"
-                        value={properties.timeout || 0}
-                        onChange={(e) => handlePropertyChange('timeout', parseInt(e.target.value) || 0)}
-                        size="small"
-                        fullWidth
-                        inputProps={{ min: 0 }}
-                    />
 
                     {/* 网关特定属性 */}
                     {(element.data?.nodeType === 'parallel' || element.data?.nodeType === 'exclusive') && (

@@ -20,3 +20,7 @@ export interface ISimpleQueryParam {
   searchKey?: string
 
 }
+
+export interface ILabel {
+  [key: string]: any
+}

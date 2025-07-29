@@ -3,13 +3,14 @@ import { Paper, Typography, Divider, Box, Tooltip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
 import { FormStructure, IFormField, RowContainer } from '../../../../types/workflowDesign';
+import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema } from '../../../../types/workflow';
 
 interface FormPreviewProps {
-    formStructure: FormStructure;
-    renderFieldComponent: (component: IFormField) => React.ReactNode;
+    formSchemaInfo: IFormSchema;
+    renderFieldComponent: (component: IWorkflowComponent) => React.ReactNode;
 }
 
-function FormPreview({ formStructure, renderFieldComponent }: FormPreviewProps) {
+function FormPreview({ formSchemaInfo, renderFieldComponent }: FormPreviewProps) {
     return (
         <Paper
             sx={{
@@ -22,11 +23,11 @@ function FormPreview({ formStructure, renderFieldComponent }: FormPreviewProps) 
             }}
         >
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {formStructure.components.map((component) => {
+                {formSchemaInfo.componentInfoList.map((component) => {
                     if (component.type === 'row') {
                         return (
                             <Grid container spacing={2} key={component.id}>
-                                {(component as RowContainer).components.map((fieldComponent: IFormField) => (
+                                {(component as IWorkflowComponentRow).children.map((fieldComponent: IWorkflowComponent) => (
                                     <Grid
                                         key={fieldComponent.id}
                                         size={fieldComponent.layout.span || 12}
@@ -40,7 +41,7 @@ function FormPreview({ formStructure, renderFieldComponent }: FormPreviewProps) 
                                                         minWidth: 80,
                                                     }}
                                                 >
-                                                    {fieldComponent.label}{fieldComponent.description && (
+                                                    {fieldComponent.name}{fieldComponent.description && (
                                                         <Tooltip
                                                             title={fieldComponent.description}
                                                             placement="top"
@@ -72,7 +73,7 @@ function FormPreview({ formStructure, renderFieldComponent }: FormPreviewProps) 
                 })}
             </Box>
 
-            {formStructure.components.length === 0 && (
+            {formSchemaInfo.componentInfoList.length === 0 && (
                 <Box
                     sx={{
                         display: 'flex',

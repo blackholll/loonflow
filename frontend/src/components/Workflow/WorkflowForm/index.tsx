@@ -1,19 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
     Box,
     Paper,
     Typography,
     Card,
-    CardContent,
     TextField,
-    Button,
     Divider,
-    IconButton,
-    Tooltip,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     Tabs,
     Tab,
     RadioGroup,
@@ -30,28 +22,37 @@ import {
     Edit as EditIcon
 } from '@mui/icons-material';
 import useSnackbar from '../../../hooks/useSnackbar';
-import { FormStructure, IFormField, RowContainer, ComponentTemplate, FormDesignProps } from '../../../types/workflowDesign';
+import { FormStructure, ComponentTemplate, FormDesignProps } from '../../../types/workflowDesign';
 import componentCategories from './ComponentCategories';
 import ComponentProperties from './ComponentProperties';
 import FormDesign from './FormDesign';
 import FormPreview from './FormPreview';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, createEmptyWorkflowFullDefinition } from '../../../types/workflow';
+import { v4 as uuidv4 } from 'uuid';
+
+interface WorkflowFormProps {
+    onFormSchemaChange: (newFormSchema: IFormSchema) => void;
+    formSchema: { componentInfoList: (IWorkflowComponent | IWorkflowComponentRow)[]; }
+}
 
 
-function WorkflowForm() {
-    const [formStructure, setFormStructure] = useState<FormStructure>({
-        type: 'form',
-        layout: { span: 12 },
-        components: []
-    });
-    const [selectedComponent, setSelectedComponent] = useState<IFormField | RowContainer | null>(null);
+function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
+    const [formSchemaInfo, setFormSchemaInfo] = useState<IFormSchema>(formSchema);
+    const [selectedComponent, setSelectedComponent] = useState<IWorkflowComponent | IWorkflowComponentRow | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [dragOver, setDragOver] = useState(false);
     const [isMoving, setIsMoving] = useState(false);
     const [movingComponent, setMovingComponent] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState(0); // 0: 设计, 1: 预览
-    const generateId = () => `component_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const generateId = () => `temp_${uuidv4()}`;
+
+
+    const handleFormSchemaChange = useCallback((newFormSchema: IFormSchema) => {
+        setFormSchemaInfo(newFormSchema);
+        onFormSchemaChange(newFormSchema);
+    }, [onFormSchemaChange]);
 
     // 生成5位随机英文字母
     const generateRandomLetters = () => {
@@ -64,18 +65,18 @@ function WorkflowForm() {
     };
 
     // 生成唯一的字段标识
-    const generateUniqueFieldKey = (existingComponents: (RowContainer | IFormField)[]) => {
-        const getAllFieldKeys = (components: (RowContainer | IFormField)[]): string[] => {
+    const generateUniqueFieldKey = (existingComponents: (IWorkflowComponent | IWorkflowComponentRow)[]) => {
+        const getAllFieldKeys = (components: (IWorkflowComponent | IWorkflowComponentRow)[]): string[] => {
             const keys: string[] = [];
             components.forEach(comp => {
                 if (comp.type === 'row') {
-                    (comp as RowContainer).components.forEach((fieldComp: IFormField) => {
-                        if (fieldComp.fieldKey) {
-                            keys.push(fieldComp.fieldKey);
+                    (comp as IWorkflowComponentRow).children.forEach((fieldComp: IWorkflowComponent) => {
+                        if (fieldComp.componentKey) {
+                            keys.push(fieldComp.componentKey);
                         }
                     });
-                } else if ((comp as IFormField).fieldKey) {
-                    keys.push((comp as IFormField).fieldKey!);
+                } else if ((comp as IWorkflowComponent).componentKey) {
+                    keys.push((comp as IWorkflowComponent).componentKey!);
                 }
             });
             return keys;
@@ -100,20 +101,20 @@ function WorkflowForm() {
     };
 
     // 生成唯一的选项标识
-    const generateUniqueOptionKey = (existingComponents: (RowContainer | IFormField)[]) => {
-        const getAllOptionKeys = (components: (RowContainer | IFormField)[]): string[] => {
+    const generateUniqueOptionKey = (existingComponents: (IWorkflowComponent | IWorkflowComponentRow)[]) => {
+        const getAllOptionKeys = (components: (IWorkflowComponentRow | IWorkflowComponent)[]): string[] => {
             const keys: string[] = [];
             components.forEach(comp => {
                 if (comp.type === 'row') {
-                    (comp as RowContainer).components.forEach((fieldComp: IFormField) => {
-                        if ((fieldComp as IFormField).extendedProps?.optionsWithKeys) {
-                            (fieldComp as IFormField).extendedProps?.optionsWithKeys?.forEach(option => {
+                    (comp as IWorkflowComponentRow).children.forEach((fieldComp: IWorkflowComponent) => {
+                        if ((fieldComp as IWorkflowComponent).props?.optionsWithKeys) {
+                            (fieldComp as IWorkflowComponent).props?.optionsWithKeys?.forEach((option: any) => {
                                 keys.push(option.key);
                             });
                         }
                     });
-                } else if ((comp as IFormField).extendedProps?.optionsWithKeys) {
-                    (comp as IFormField).extendedProps?.optionsWithKeys!.forEach(option => {
+                } else if ((comp as IWorkflowComponent).props?.optionsWithKeys) {
+                    (comp as IWorkflowComponent).props?.optionsWithKeys!.forEach((option: any) => {
                         keys.push(option.key);
                     });
                 }
@@ -144,41 +145,44 @@ function WorkflowForm() {
         e.dataTransfer.setData('application/json', JSON.stringify(template));
     };
 
-    const handleComponentUpdate = (updatedComponent: IFormField | RowContainer) => {
-        function updateInList(list: (IFormField | RowContainer)[]): (IFormField | RowContainer)[] {
+    const handleComponentUpdate = (updatedComponent: IWorkflowComponent | IWorkflowComponentRow) => {
+        function updateInList(list: (IWorkflowComponentRow | IWorkflowComponent)[]): (IWorkflowComponentRow | IWorkflowComponent)[] {
             return list.map(comp => {
                 if (comp.id === updatedComponent.id) {
                     return updatedComponent;
                 }
-                if (comp.type === 'row' && Array.isArray((comp as RowContainer).components)) {
+                if (comp.type === 'row' && Array.isArray((comp as IWorkflowComponentRow).children)) {
                     return {
                         ...comp,
-                        components: (comp as RowContainer).components.map(field =>
-                            field.id === updatedComponent.id ? updatedComponent as IFormField : field
+                        children: (comp as IWorkflowComponentRow).children.map(field =>
+                            field.id === updatedComponent.id ? updatedComponent as IWorkflowComponent : field
                         )
                     };
                 }
                 return comp;
             });
         }
-        setFormStructure(prev => ({
-            ...prev,
-            components: updateInList(prev.components)
-        }));
+
+        const updatedFormSchema = {
+            ...formSchemaInfo,
+            componentInfoList: updateInList(formSchemaInfo.componentInfoList) as (IWorkflowComponent[] | IWorkflowComponentRow[])
+        };
+
+        setFormSchemaInfo(updatedFormSchema);
         setSelectedComponent(updatedComponent);
     };
 
-    const renderFieldComponent = (component: IFormField) => {
+    const renderFieldComponent = (component: IWorkflowComponent) => {
         const commonProps = {
             fullWidth: true,
             size: 'small' as const,
             variant: 'outlined' as const,
-            placeholder: component.placeholder,
+            placeholder: component.props.placeholder,
         };
 
         // 获取选项数据，只使用optionsWithKeys
         const getOptions = () => {
-            return component.extendedProps?.optionsWithKeys?.map(option => option.label) || [];
+            return component.props?.optionsWithKeys?.map((option: any) => option.label) || [];
         };
 
         const options = getOptions();
@@ -194,9 +198,8 @@ function WorkflowForm() {
                 return (
                     <Autocomplete
                         options={options}
-                        multiple={component.extendedProps?.multiple || false}
+                        multiple={component.props?.multiple || false}
                         size="small"
-                        value={component.value || (component.extendedProps?.multiple ? [] : null)}
                         onChange={(_, newValue) => {
                             // 更新组件值
                             const updatedComponent = {
@@ -210,7 +213,7 @@ function WorkflowForm() {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                placeholder={component.placeholder}
+                                placeholder={component.props.placeholder}
                                 variant="outlined"
                                 size="small"
                             />
@@ -219,7 +222,7 @@ function WorkflowForm() {
                             value.map((option, index) => (
                                 <Chip
                                     variant="outlined"
-                                    label={option}
+                                    label={option as string}
                                     size="small"
                                     {...getTagProps({ index })}
                                 />
@@ -227,11 +230,11 @@ function WorkflowForm() {
                         }
                         renderOption={(props, option) => (
                             <li {...props}>
-                                <ListItemText primary={option} />
+                                <ListItemText primary={option as string} />
                             </li>
                         )}
                         filterOptions={(options, { inputValue }) => {
-                            const filtered = options.filter(option =>
+                            const filtered = options.filter((option: any) =>
                                 option.toLowerCase().includes(inputValue.toLowerCase())
                             );
                             return filtered;
@@ -246,15 +249,15 @@ function WorkflowForm() {
             case 'radio':
                 return (
                     <RadioGroup row>
-                        {options.map((option, index) => (
-                            <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
+                        {options.map((option: any, index: any) => (
+                            <FormControlLabel key={index} value={option} control={<Radio />} label={option as string} />
                         ))}
                     </RadioGroup>)
             case 'checkbox':
                 return (
                     <FormGroup row>
-                        {options.map((option, index) => (
-                            <FormControlLabel key={index} value={option} control={<Checkbox />} label={option} />
+                        {options.map((option: any, index: any) => (
+                            <FormControlLabel key={index} value={option} control={<Checkbox />} label={option as string} />
                         ))}
                     </FormGroup>
                 )
@@ -270,9 +273,8 @@ function WorkflowForm() {
                 return (
                     <Autocomplete
                         options={['张三', '李四']}
-                        multiple={component.extendedProps?.multiple || false}
+                        multiple={component.props?.multiple || false}
                         size="small"
-                        value={component.value || (component.extendedProps?.multiple ? [] : null)}
                         onChange={(_, newValue) => {
                             // 更新组件值
                             const updatedComponent = {
@@ -286,7 +288,7 @@ function WorkflowForm() {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                placeholder={component.placeholder}
+                                placeholder={component.props.placeholder}
                                 variant="outlined"
                                 size="small"
                             />
@@ -323,9 +325,8 @@ function WorkflowForm() {
                 return (
                     <Autocomplete
                         options={['行政部', '财务部']}
-                        multiple={component.extendedProps?.multiple || false}
+                        multiple={component.props?.multiple || false}
                         size="small"
-                        value={component.value || (component.extendedProps?.multiple ? [] : null)}
                         onChange={(_, newValue) => {
                             // 更新组件值
                             const updatedComponent = {
@@ -339,7 +340,7 @@ function WorkflowForm() {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                placeholder={component.placeholder}
+                                placeholder={component.props.placeholder}
                                 variant="outlined"
                                 size="small"
                             />
@@ -426,7 +427,7 @@ function WorkflowForm() {
                                         })}
                                     </Box>
                                     <Typography variant="body2" sx={{ flex: 1 }} style={{ fontSize: 11 }}>
-                                        {template.label}
+                                        {template.name}
                                     </Typography>
                                 </Card>
                             ))}
@@ -456,13 +457,13 @@ function WorkflowForm() {
                 {/* 画布内容 */}
                 {activeTab === 0 ? (
                     <FormDesign
-                        formStructure={formStructure}
+                        formSchemaInfo={formSchemaInfo}
                         selectedComponent={selectedComponent}
                         isDragging={isDragging}
                         dragOver={dragOver}
                         isMoving={isMoving}
                         movingComponent={movingComponent}
-                        onFormStructureChange={setFormStructure}
+                        onFormSchemaChange={handleFormSchemaChange}
                         onSelectedComponentChange={setSelectedComponent}
                         onIsDraggingChange={setIsDragging}
                         onDragOverChange={setDragOver}
@@ -475,7 +476,7 @@ function WorkflowForm() {
                     />
                 ) : (
                     <FormPreview
-                        formStructure={formStructure}
+                        formSchemaInfo={formSchemaInfo}
                         renderFieldComponent={renderFieldComponent}
                     />
                 )}

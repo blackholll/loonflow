@@ -26,7 +26,7 @@ import UserDept from './components/Organization/UserDept/Index';
 import Role from './components/Organization/Role';
 import { WorkflowList } from './components/Workflow/WorkflowList';
 import WorkflowDetail from './components/Workflow/WorkflowDetail';
-import FlowEditorDemo from './components/Workflow/WorkflowDesign/FlowEditorDemo';
+import FlowEditorDemo from './components/Workflow/WorkflowProcess/FlowEditorDemo';
 
 
 const App = () => {

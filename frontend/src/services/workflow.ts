@@ -1,6 +1,6 @@
 
 import apiClient from './api';
-import { ISimpleWorkflowListRes, IWorkflowListRes } from '../types/workflow';
+import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes } from '../types/workflow';
 import { IApiErrResponse, } from '@/types/common';
 
 
@@ -105,7 +105,7 @@ export const getWorkflowList = async (search_value: string, page: number, per_pa
   }
 };
 
-export const getWorkflowDetail = async (workflowId: number): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+export const getWorkflowDetail = async (workflowId: string): Promise<IWorkflowFullDefinitionRes | IApiErrResponse> => {
   try {
     const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}`);
     return response.data;

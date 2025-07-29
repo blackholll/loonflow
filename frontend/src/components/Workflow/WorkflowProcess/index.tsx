@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import {
     ReactFlow,
     Node,
@@ -31,39 +31,139 @@ import Toolbar from './Toolbar';
 import PropertyPanel from './PropertyPanel';
 import { CustomNode } from './CustomNode';
 import { CustomEdge } from './CustomEdge';
+import { IProcessSchema, IWorkflowNode, IWorkflowEdge } from '../../../types/workflow';
 
-// 节点类型定义 - 将在组件内部定义
-
-// 边类型定义
+// 边类型定义 - 移到组件外部避免重新创建
 const edgeTypes: EdgeTypes = {
     custom: CustomEdge,
 };
 
-// 初始节点
-const initialNodes: Node[] = [
-    {
-        id: '1',
-        type: 'startNode',
-        position: { x: 250, y: 100 },
+// 节点类型定义 - 移到组件外部避免重新创建
+const nodeTypes: NodeTypes = {
+    startNode: (props: any) => <CustomNode {...props} />,
+    normalNode: (props: any) => <CustomNode {...props} />,
+    endNode: (props: any) => <CustomNode {...props} />,
+    parallelGateway: (props: any) => <CustomNode {...props} />,
+    exclusiveGateway: (props: any) => <CustomNode {...props} />,
+    timerNode: (props: any) => <CustomNode {...props} />,
+    hookNode: (props: any) => <CustomNode {...props} />,
+};
+
+// 将 IWorkflowNode 转换为 React Flow Node
+const convertWorkflowNodeToReactFlowNode = (workflowNode: IWorkflowNode): Node => {
+    return {
+        id: workflowNode.id,
+        type: workflowNode.type === 'start' ? 'startNode' :
+            workflowNode.type === 'end' ? 'endNode' : 'normalNode',
+        position: { x: workflowNode.layout.span * 100, y: workflowNode.layout.orderId ? workflowNode.layout.orderId * 100 : 100 },
         data: {
-            label: '开始节点',
-            nodeType: 'start',
+            label: workflowNode.label.text || workflowNode.label.label,
+            nodeType: workflowNode.type,
             properties: {
-                name: '开始节点',
-                description: '流程的起始点',
-                assignee: '',
+                name: workflowNode.label.text || workflowNode.label.label,
+                description: workflowNode.label.description || '',
+                assignee: workflowNode.props.participant || '',
                 timeout: 0,
+                ...workflowNode.props
             }
         },
-    },
-];
+    };
+};
 
-// 初始边
-const initialEdges: Edge[] = [];
+// 将 IWorkflowEdge 转换为 React Flow Edge
+const convertWorkflowEdgeToReactFlowEdge = (workflowEdge: IWorkflowEdge): Edge => {
+    return {
+        id: workflowEdge.id,
+        source: workflowEdge.sourceNodeId,
+        target: workflowEdge.targetNodeId,
+        sourceHandle: workflowEdge.layout.souceHandle,
+        targetHandle: workflowEdge.layout.targetHandle,
+        type: 'custom',
+        data: {
+            label: workflowEdge.label.text || workflowEdge.label.label,
+            properties: {
+                name: workflowEdge.name,
+                description: workflowEdge.label.description || '',
+                type: workflowEdge.type,
+                ...workflowEdge.props
+            }
+        },
+        style: {
+            strokeWidth: 2,
+            stroke: '#555',
+        },
+    };
+};
 
-const WorkflowDesign: React.FC = () => {
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+// 将 React Flow Node 转换为 IWorkflowNode
+const convertReactFlowNodeToWorkflowNode = (node: Node): IWorkflowNode => {
+    const properties: any = node.data.properties || {};
+    return {
+        id: node.id,
+        type: node.data.nodeType as 'start' | 'end' | 'common',
+        label: {
+            text: properties.name || node.data.label,
+            label: properties.name || node.data.label,
+            description: properties.description || '',
+        },
+        layout: {
+            span: Math.floor(node.position.x / 100),
+            orderId: Math.floor(node.position.y / 100),
+        },
+        props: {
+            allowRetreat: false,
+            rememberLastParticipant: false,
+            fieldPermission: {},
+            participantType: 'user',
+            participant: properties.assignee || '',
+            distributeType: 'direct',
+            ...properties
+        }
+    };
+};
+
+// 将 React Flow Edge 转换为 IWorkflowEdge
+const convertReactFlowEdgeToWorkflowEdge = (edge: Edge): IWorkflowEdge => {
+    const properties: any = edge.data?.properties || {};
+    return {
+        id: edge.id,
+        name: properties.name || edge.data?.label || '',
+        type: properties.type || 'other',
+        sourceNodeId: edge.source,
+        targetNodeId: edge.target,
+        label: {
+            text: properties.name || edge.data?.label || '',
+            label: properties.name || edge.data?.label || '',
+            description: properties.description || '',
+        },
+        props: {
+            validateField: false,
+            condition: properties.condition || '',
+            confirmMessage: '',
+            ...properties
+        },
+        layout: {
+            souceHandle: edge.sourceHandle || '',
+            targetHandle: edge.targetHandle || '',
+        }
+    };
+};
+
+interface WorkflowProcessProps {
+    processSchema?: IProcessSchema;
+    onProcessSchemaChange?: (processSchema: IProcessSchema) => void;
+}
+
+const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
+    processSchema = { nodeInfoList: [], edgeInfoList: [] },
+    onProcessSchemaChange
+}) => {
+    // 初始化节点和边
+    const initialNodes: Node[] = processSchema.nodeInfoList.map(convertWorkflowNodeToReactFlowNode);
+    const initialEdges: Edge[] = processSchema.edgeInfoList.map(convertWorkflowEdgeToReactFlowEdge);
+
+    const [nodes, setNodes, onNodesChangeBase] = useNodesState(initialNodes);
+    const [edges, setEdges, onEdgesChangeBase] = useEdgesState(initialEdges);
     const [selectedElement, setSelectedElement] = useState<Node | Edge | null>(null);
     const [propertyPanelOpen, setPropertyPanelOpen] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -76,6 +176,7 @@ const WorkflowDesign: React.FC = () => {
         { nodes: initialNodes, edges: initialEdges }
     ]);
     const [historyIndex, setHistoryIndex] = useState(0);
+
 
     // 保存历史记录
     const saveToHistory = useCallback((newNodes: Node[], newEdges: Edge[]) => {
@@ -94,20 +195,36 @@ const WorkflowDesign: React.FC = () => {
         setHistoryIndex(prev => prev + 1);
     }, [historyIndex]);
 
+    // 通知父组件数据变化
+    const notifyParentChange = useCallback((newNodes: Node[], newEdges: Edge[]) => {
+        if (onProcessSchemaChange) {
+            const newProcessSchema: IProcessSchema = {
+                nodeInfoList: newNodes.map(convertReactFlowNodeToWorkflowNode),
+                edgeInfoList: newEdges.map(convertReactFlowEdgeToWorkflowEdge)
+            };
+            onProcessSchemaChange(newProcessSchema);
+        }
+    }, [onProcessSchemaChange]);
+
+    // 自定义节点变化处理，添加通知父组件的逻辑
+    const onNodesChange = useCallback((changes: NodeChange[]) => {
+        onNodesChangeBase(changes);
+        // 延迟通知父组件，避免频繁更新
+        setTimeout(() => {
+            notifyParentChange(nodes, edges);
+        }, 100);
+    }, [onNodesChangeBase, nodes, edges, notifyParentChange]);
+
+    // 自定义边变化处理，添加通知父组件的逻辑
+    const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+        onEdgesChangeBase(changes);
+        // 延迟通知父组件，避免频繁更新
+        setTimeout(() => {
+            notifyParentChange(nodes, edges);
+        }, 100);
+    }, [onEdgesChangeBase, nodes, edges, notifyParentChange]);
 
 
-
-
-    // 节点类型定义
-    const nodeTypes: NodeTypes = {
-        startNode: (props: any) => <CustomNode {...props} />,
-        normalNode: (props: any) => <CustomNode {...props} />,
-        endNode: (props: any) => <CustomNode {...props} />,
-        parallelGateway: (props: any) => <CustomNode {...props} />,
-        exclusiveGateway: (props: any) => <CustomNode {...props} />,
-        timerNode: (props: any) => <CustomNode {...props} />,
-        hookNode: (props: any) => <CustomNode {...props} />,
-    };
 
     // 连接处理
     const onConnect = useCallback(
@@ -165,10 +282,11 @@ const WorkflowDesign: React.FC = () => {
             setEdges((eds) => {
                 const newEdges = addEdge(newEdge, eds);
                 saveToHistory(nodes, newEdges);
+                notifyParentChange(nodes, newEdges);
                 return newEdges;
             });
         },
-        [setEdges, nodes, saveToHistory]
+        [setEdges, nodes, saveToHistory, notifyParentChange]
     );
 
 
@@ -228,9 +346,10 @@ const WorkflowDesign: React.FC = () => {
         setNodes((nds) => {
             const newNodes = [...nds, newNode];
             saveToHistory(newNodes, edges);
+            notifyParentChange(newNodes, edges);
             return newNodes;
         });
-    }, [setNodes, edges, saveToHistory]);
+    }, [setNodes, edges, saveToHistory, notifyParentChange]);
 
     // 更新节点属性
     const onUpdateNodeProperties = useCallback((nodeId: string, properties: any) => {
@@ -249,9 +368,10 @@ const WorkflowDesign: React.FC = () => {
                     : node
             );
             saveToHistory(newNodes, edges);
+            notifyParentChange(newNodes, edges);
             return newNodes;
         });
-    }, [setNodes, edges, saveToHistory]);
+    }, [setNodes, edges, saveToHistory, notifyParentChange]);
 
     // 更新边属性
     const onUpdateEdgeProperties = useCallback((edgeId: string, properties: any) => {
@@ -262,9 +382,10 @@ const WorkflowDesign: React.FC = () => {
                     : edge
             );
             saveToHistory(nodes, newEdges);
+            notifyParentChange(nodes, newEdges);
             return newEdges;
         });
-    }, [setEdges, nodes, saveToHistory]);
+    }, [setEdges, nodes, saveToHistory, notifyParentChange]);
 
     // 工具栏操作
     const handleClear = useCallback(() => {
@@ -272,7 +393,8 @@ const WorkflowDesign: React.FC = () => {
         setEdges([]);
         setSelectedElement(null);
         setPropertyPanelOpen(false);
-    }, [setNodes, setEdges]);
+        notifyParentChange([], []);
+    }, [setNodes, setEdges, notifyParentChange]);
 
     const handleUndo = useCallback(() => {
         if (historyIndex > 0) {
@@ -283,8 +405,9 @@ const WorkflowDesign: React.FC = () => {
             setHistoryIndex(newIndex);
             setSelectedElement(null);
             setPropertyPanelOpen(false);
+            notifyParentChange(historyEntry.nodes, historyEntry.edges);
         }
-    }, [historyIndex, history, setNodes, setEdges]);
+    }, [historyIndex, history, setNodes, setEdges, notifyParentChange]);
 
     const handleRedo = useCallback(() => {
         if (historyIndex < history.length - 1) {
@@ -295,8 +418,9 @@ const WorkflowDesign: React.FC = () => {
             setHistoryIndex(newIndex);
             setSelectedElement(null);
             setPropertyPanelOpen(false);
+            notifyParentChange(historyEntry.nodes, historyEntry.edges);
         }
-    }, [historyIndex, history, setNodes, setEdges]);
+    }, [historyIndex, history, setNodes, setEdges, notifyParentChange]);
 
     const handleDelete = useCallback(() => {
         if (selectedElement) {
@@ -305,6 +429,7 @@ const WorkflowDesign: React.FC = () => {
                 setEdges((eds) => {
                     const newEdges = eds.filter((edge) => edge.id !== selectedElement.id);
                     saveToHistory(nodes, newEdges);
+                    notifyParentChange(nodes, newEdges);
                     return newEdges;
                 });
             } else {
@@ -317,6 +442,7 @@ const WorkflowDesign: React.FC = () => {
                             edge.source !== nodeId && edge.target !== nodeId
                         );
                         saveToHistory(newNodes, newEdges);
+                        notifyParentChange(newNodes, newEdges);
                         return newEdges;
                     });
                     return newNodes;
@@ -325,7 +451,7 @@ const WorkflowDesign: React.FC = () => {
             setSelectedElement(null);
             setPropertyPanelOpen(false);
         }
-    }, [selectedElement, setNodes, setEdges, nodes, saveToHistory]);
+    }, [selectedElement, setNodes, setEdges, nodes, saveToHistory, notifyParentChange]);
 
     const handleCopy = useCallback(() => {
         if (selectedElement) {
@@ -347,6 +473,7 @@ const WorkflowDesign: React.FC = () => {
                 setEdges((eds) => {
                     const newEdges = [...eds, newEdge];
                     saveToHistory(nodes, newEdges);
+                    notifyParentChange(nodes, newEdges);
                     return newEdges;
                 });
             } else {
@@ -369,13 +496,14 @@ const WorkflowDesign: React.FC = () => {
                 setNodes((nds) => {
                     const newNodes = [...nds, newNode];
                     saveToHistory(newNodes, edges);
+                    notifyParentChange(newNodes, edges);
                     return newNodes;
                 });
             }
             setSelectedElement(null);
             setPropertyPanelOpen(false);
         }
-    }, [selectedElement, setNodes, setEdges, nodes, edges, saveToHistory]);
+    }, [selectedElement, setNodes, setEdges, nodes, edges, saveToHistory, notifyParentChange]);
 
     return (
         <ReactFlowProvider>
@@ -472,4 +600,4 @@ const WorkflowDesign: React.FC = () => {
     );
 };
 
-export default WorkflowDesign; 
+export default WorkflowProcess; 

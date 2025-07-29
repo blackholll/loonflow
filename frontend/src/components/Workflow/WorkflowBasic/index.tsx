@@ -1,9 +1,8 @@
-import react, { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Box, Tooltip, InputAdornment } from '@mui/material';
+import { useState, useCallback, useEffect } from 'react';
+import { TextField } from '@mui/material';
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid2';
 import Markdown from 'react-markdown';
 import Tabs from '@mui/material/Tabs';
@@ -18,22 +17,31 @@ interface WorkflowBasicProps {
 }
 
 function WorkflowBasic({ onBasicChange, basicInfo }: WorkflowBasicProps) {
+    const [activeTab, setActiveTab] = useState('description');
     const [name, setName] = useState(basicInfo?.name || '');
     const [description, setDescription] = useState(basicInfo?.description || '');
-    const [activeTab, setActiveTab] = useState('description');
 
-    // 监听 basicInfo 变化，更新表单值
     useEffect(() => {
-        if (basicInfo) {
-            setName(basicInfo.name || '');
-            setDescription(basicInfo.description || '');
-        }
+        console.log('load basicInfo', basicInfo);
+        setName(basicInfo?.name || '');
+        setDescription(basicInfo?.description || '');
     }, [basicInfo]);
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
-        console.log(newValue);
+    const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: string) => {
         setActiveTab(newValue);
-    };
+    }, []);
+
+    const handleNameChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        const newName = event.target.value;
+        setName(newName);
+        onBasicChange(newName, description);
+    }, [description, onBasicChange]);
+
+    const handleDescriptionChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        const newDescription = event.target.value;
+        setDescription(newDescription);
+        onBasicChange(name, newDescription);
+    }, [name, onBasicChange]);
 
     return (
         <Grid
@@ -54,10 +62,7 @@ function WorkflowBasic({ onBasicChange, basicInfo }: WorkflowBasicProps) {
                             required
                             fullWidth
                             margin="normal"
-                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                setName(event.target.value);
-                                onBasicChange(event.target.value, description);
-                            }}
+                            onChange={handleNameChange}
                         />
                         <Tabs
                             value={activeTab}
@@ -73,10 +78,7 @@ function WorkflowBasic({ onBasicChange, basicInfo }: WorkflowBasicProps) {
                             multiline
                             fullWidth
                             margin="normal"
-                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                setDescription(event.target.value);
-                                onBasicChange(name, event.target.value);
-                            }}
+                            onChange={handleDescriptionChange}
                         />}
                         {activeTab === 'descriptionPreview' && <Markdown>{description}</Markdown>}
 

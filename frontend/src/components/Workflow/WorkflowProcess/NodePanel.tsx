@@ -34,6 +34,7 @@ const nodeConfigs = {
             icon: StartIcon,
             color: '#4caf50',
             properties: {
+                name: '开始节点1',
                 nodeType: 'start',
                 canConnect: true,
                 canDisconnect: false,
@@ -45,6 +46,7 @@ const nodeConfigs = {
             icon: NormalIcon,
             color: '#2196f3',
             properties: {
+                name: '普通节点1',
                 nodeType: 'normal',
                 canConnect: true,
                 canDisconnect: true,
@@ -56,6 +58,7 @@ const nodeConfigs = {
             icon: EndIcon,
             color: '#f44336',
             properties: {
+                name: '结束节点1',
                 nodeType: 'end',
                 canConnect: false,
                 canDisconnect: true,

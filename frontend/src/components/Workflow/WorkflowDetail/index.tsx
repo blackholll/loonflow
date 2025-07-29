@@ -1,4 +1,4 @@
-import react, { useState, useEffect } from 'react';
+import react, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -11,47 +11,41 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContentText from '@mui/material/DialogContentText';
+import Tooltip from '@mui/material/Tooltip';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import WorkflowBasic from '../WorkflowBasic';
 import WorkflowForm from '../WorkflowForm';
-import WorkflowDesigon from '../WorkflowDesign';
+import WorkflowDesign from '../WorkflowProcess';
 import WorkflowAdvanced from '../WorkflowAdvanced';
-
-
-interface WorkflowDetailInfo {
-    basicInfo?: {
-        name: string;
-        description: string;
-    };
-    noticeInfo?: any;
-    fieldInfoList?: any[];
-    [key: string]: any;
-}
+import { IWorkflowFullDefinition, createEmptyWorkflowFullDefinition, IFormSchema, IProcessSchema, IpermissionInfo, ICustomizationInfo } from '../../../types/workflow';
+import { getWorkflowDetail } from '../../../services/workflow';
+import useSnackbar from '../../../hooks/useSnackbar';
 
 function WorkflowDetail() {
     const { t } = useTranslation();
 
     const { workflowId } = useParams();
     const [activeTab, setActiveTab] = useState('basicInfo');
-    const [lastSavedTimestamp, setLastSavedTimestamp] = useState<number | null>(null);
-    const [lastSavedTimeValue, setLastSavedTimeValue] = useState<number | null>(1);
-    const [lastSavedTimeUnit, setLastSavedTimeUnit] = useState('common.second')
-    const [workflowDetailInfo, setWorkflowDetailInfo] = useState<WorkflowDetailInfo>({});
+    const [workflowDetailInfo, setWorkflowDetailInfo] = useState<IWorkflowFullDefinition>(createEmptyWorkflowFullDefinition());
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const [hasCheckedDraft, setHasCheckedDraft] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [problems, setProblems] = useState<string[]>([]);
+    const { showMessage } = useSnackbar();
 
     const NEW_WORKFLOW_ID = '00000000-0000-0000-0000-000000000000';
     const STORAGE_KEY = 'workflow_draft';
 
     // 保存到 localStorage
-    const saveToLocalStorage = (data: WorkflowDetailInfo) => {
+    const saveToLocalStorage = useCallback((data: IWorkflowFullDefinition) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
             data,
             timestamp: Date.now()
         }));
-    };
+    }, []);
 
     // 从 localStorage 加载
-    const loadFromLocalStorage = (): WorkflowDetailInfo | null => {
+    const loadFromLocalStorage = useCallback((): IWorkflowFullDefinition | null => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             try {
@@ -63,89 +57,175 @@ function WorkflowDetail() {
             }
         }
         return null;
-    };
+    }, []);
 
     // 清空 localStorage
-    const clearLocalStorage = () => {
+    const clearLocalStorage = useCallback(() => {
         localStorage.removeItem(STORAGE_KEY);
-    };
+    }, []);
 
-    // 从 API 获取工作流信息
-    const fetchWorkflowFromAPI = async (id: string): Promise<WorkflowDetailInfo> => {
+    const fetchWorkflowFromAPI = useCallback(async (id: string): Promise<IWorkflowFullDefinition | null> => {
         try {
-            // 这里替换为实际的 API 调用
-            const response = await fetch(`/api/workflow/${id}`);
-            const data = await response.json();
-
-            // 保存到 localStorage
-            saveToLocalStorage(data);
-
-            return data;
+            const response = await getWorkflowDetail(id);
+            if (response.code === 0) {
+                const data = response.data.workflowFullDefination;
+                saveToLocalStorage(data);
+                return data;
+            } else {
+                throw new Error(response.msg);
+            }
         } catch (error) {
             console.error('Failed to fetch workflow:', error);
-            return {};
+            showMessage(t('common.fetchWorkflowFailed'), 'error');
+            return null;
         }
-    };
+    }, [showMessage, t, saveToLocalStorage]);
 
     // 处理确认对话框
-    const handleConfirmLoad = () => {
+    const handleConfirmLoad = useCallback(() => {
         const storedData = loadFromLocalStorage();
         if (storedData) {
             setWorkflowDetailInfo(storedData);
         }
+        setIsInitialized(true);
         setShowConfirmDialog(false);
-    };
+    }, [loadFromLocalStorage]);
 
-    const handleConfirmClear = () => {
+    const handleConfirmClear = useCallback(() => {
         clearLocalStorage();
-        setWorkflowDetailInfo({});
+        setIsInitialized(true);
         setShowConfirmDialog(false);
-    };
+    }, [clearLocalStorage]);
 
     // 初始化数据
     useEffect(() => {
         const initializeWorkflow = async () => {
             if (workflowId === NEW_WORKFLOW_ID) {
-                // 新增工作流
-                const storedData = loadFromLocalStorage();
-                if (storedData && Object.keys(storedData).length > 0) {
-                    setShowConfirmDialog(true);
-                } else {
-                    setWorkflowDetailInfo({});
+                // 新增工作流 - 只在第一次检查草稿
+                if (!hasCheckedDraft) {
+                    const storedData = loadFromLocalStorage();
+                    if (storedData && Object.keys(storedData).length > 0) {
+                        setShowConfirmDialog(true);
+                    } else {
+                        // 如果没有草稿，设置初始化完成标记
+                        setIsInitialized(true);
+                    }
+                    setHasCheckedDraft(true);
                 }
             } else {
                 // 查看现有工作流
                 const data = await fetchWorkflowFromAPI(workflowId!);
-                setWorkflowDetailInfo(data);
+                if (data) {
+                    setWorkflowDetailInfo(data);
+                }
+                setIsInitialized(true);
             }
         };
-
         initializeWorkflow();
+    }, [workflowId, fetchWorkflowFromAPI, hasCheckedDraft, loadFromLocalStorage]);
+
+    // 当 workflowId 变化时重置草稿检查状态
+    useEffect(() => {
+        setHasCheckedDraft(false);
+        setIsInitialized(false);
     }, [workflowId]);
 
-    // 当 workflowDetailInfo 变化时保存到 localStorage
+    // 当 workflowDetailInfo 变化时保存到 localStorage（延迟保存，避免频繁更新）
     useEffect(() => {
-        if (workflowId === NEW_WORKFLOW_ID && Object.keys(workflowDetailInfo).length > 0) {
-            saveToLocalStorage(workflowDetailInfo);
-        }
-    }, [workflowDetailInfo, workflowId]);
+        if (workflowId === NEW_WORKFLOW_ID && isInitialized && Object.keys(workflowDetailInfo).length > 0) {
+            const timeoutId = setTimeout(() => {
+                saveToLocalStorage(workflowDetailInfo);
+            }, 1000); // 延迟1秒保存，避免频繁更新
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+            return () => clearTimeout(timeoutId);
+        }
+    }, [workflowDetailInfo, workflowId, isInitialized, saveToLocalStorage]);
+
+    const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: string) => {
         console.log(newValue);
         setActiveTab(newValue);
-    };
+    }, []);
 
-    function onBasicChange(name: string, description: string) {
-        console.log(name);
-        console.log(description)
-        setWorkflowDetailInfo({
-            ...workflowDetailInfo,
+    const checkProblems = useCallback((workflowData: IWorkflowFullDefinition) => {
+        const problems = [];
+        if (workflowData.formSchema.componentInfoList.length === 0) {
+            problems.push('表单设计不能为空');
+        }
+        if (workflowData.processSchema.nodeInfoList.length === 0) {
+            problems.push('流程设计不能为空');
+        }
+        problems.push('测试问题: 存在问题');
+        problems.push('表单设计: 存在空的行容器');
+        setProblems(problems);
+    }, []);
+
+    // 更新基础信息的回调函数
+    const onBasicChange = useCallback((name: string, description: string) => {
+        setWorkflowDetailInfo(prev => ({
+            ...prev,
             basicInfo: {
+                ...prev.basicInfo,
                 name: name,
                 description: description
             }
-        })
-    }
+        }));
+    }, []);
+
+    // 更新表单架构的回调函数
+    const onFormSchemaChange = useCallback((formSchema: IFormSchema) => {
+        setWorkflowDetailInfo(prev => ({
+            ...prev,
+            formSchema: formSchema
+        }));
+    }, []);
+
+    // 更新流程架构的回调函数
+    const onProcessSchemaChange = useCallback((processSchema: IProcessSchema) => {
+        console.log(processSchema);
+        setWorkflowDetailInfo(prev => ({
+            ...prev,
+            processSchema: processSchema
+        }));
+    }, []);
+
+    // 监听workflowDetailInfo变化，自动检查问题
+    useEffect(() => {
+        if (isInitialized) {
+            checkProblems(workflowDetailInfo);
+        }
+    }, [workflowDetailInfo, isInitialized, checkProblems]);
+
+    // 使用 useMemo 优化子组件渲染，避免不必要的重新渲染
+    const basicComponent = useMemo(() => (
+        <WorkflowBasic
+            onBasicChange={onBasicChange}
+            basicInfo={workflowDetailInfo.basicInfo}
+            key="workflow-basic"
+        />
+    ), [workflowDetailInfo.basicInfo, onBasicChange]);
+
+    const formComponent = useMemo(() => (
+        <WorkflowForm
+            onFormSchemaChange={onFormSchemaChange}
+            formSchema={workflowDetailInfo.formSchema}
+            key="workflow-form"
+        />
+    ), [workflowDetailInfo.formSchema, onFormSchemaChange]);
+
+    const processComponent = useMemo(() => (
+        <WorkflowDesign
+            onProcessSchemaChange={onProcessSchemaChange}
+            processSchema={workflowDetailInfo.processSchema}
+            key="workflow-process" />
+    ), [workflowDetailInfo.processSchema, onProcessSchemaChange]);
+
+    const advancedComponent = useMemo(() => (
+        <WorkflowAdvanced
+            onBasicChange={onBasicChange}
+            basicInfo={workflowDetailInfo.basicInfo}
+            key="workflow-advanced"
+        />
+    ), [workflowDetailInfo.basicInfo, onBasicChange]);
 
     return (
         <Box sx={{ width: '100%' }} >
@@ -159,7 +239,7 @@ function WorkflowDetail() {
                 position: 'relative'
             }}>
                 <ArrowBackIosNewOutlinedIcon style={{ marginRight: '16px' }} />
-                {workflowDetailInfo?.basicInfo?.name || '未命名1'} {lastSavedTimeValue ? <div style={{ fontSize: 12, color: 'gray' }}> ( {t('common.lastSavedTime') + ': ' + t(`${lastSavedTimeValue}`) + ' ' + t(`${lastSavedTimeUnit}`) + t('common.ago')} )</div> : ''}
+                {workflowDetailInfo?.basicInfo?.name || '未命名1'}
                 <Box sx={{
                     position: 'absolute',
                     left: '50%',
@@ -172,23 +252,54 @@ function WorkflowDetail() {
                     >
                         <Tab label="基本信息" value="basicInfo" />
                         <Tab label="表单设计" value="formDesign" />
-                        <Tab label="流程设计" value="workflowDesign" />
+                        <Tab label="流程设计" value="processDesign" />
                         <Tab label="高级设置" value="advancedSetting" />
                     </Tabs>
                 </Box>
+                {problems.length > 0 && (
+                    <Tooltip
+                        title={
+                            <Box>
+                                <Box sx={{ fontWeight: 'bold', mb: 1 }}>发现以下问题：</Box>
+                                {problems.map((problem, index) => (
+                                    <Box key={index} sx={{ mb: 0.5 }}>
+                                        • {problem}
+                                    </Box>
+                                ))}
+                            </Box>
+                        }
+                        arrow
+                        placement="bottom"
+                    >
+                        <Box
+                            style={{ color: 'red', cursor: 'pointer' }}
+                            sx={{
+                                position: 'absolute',
+                                left: '85%',
+                                transform: 'translateX(-50%)',
+                                '&:hover': {
+                                    textDecoration: 'underline'
+                                }
+                            }}
+                        >
+                            存在{problems.length}个问题,请及时修改
+                        </Box>
+                    </Tooltip>
+                )}
+
                 <Button
                     variant="contained"
                     color="primary"
                     sx={{ marginLeft: 'auto' }}
                 >
-                    保存
+                    发布
                 </Button>
             </Box>
             <Box>
-                {activeTab === 'basicInfo' && <WorkflowBasic onBasicChange={onBasicChange} basicInfo={workflowDetailInfo.basicInfo} />}
-                {activeTab === 'formDesign' && <WorkflowForm />}
-                {activeTab === 'workflowDesign' && <WorkflowDesigon />}
-                {activeTab === 'advancedSetting' && <WorkflowAdvanced onBasicChange={onBasicChange} basicInfo={workflowDetailInfo.basicInfo} />}
+                {activeTab === 'basicInfo' && basicComponent}
+                {activeTab === 'formDesign' && formComponent}
+                {activeTab === 'processDesign' && processComponent}
+                {activeTab === 'advancedSetting' && advancedComponent}
             </Box>
 
             {/* 确认对话框 */}
