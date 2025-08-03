@@ -291,8 +291,9 @@ class RoleView(BaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        role_ids = request_data.get('role_ids', '')
         try:
-            result = account_role_service_ins.get_role_list(search_value, page, per_page)
+            result = account_role_service_ins.get_role_list(search_value, role_ids, page, per_page)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception as e:
@@ -424,7 +425,7 @@ class RoleDetailView(BaseView):
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, 'delete successfully', {})
 
-class SimpleRoleView(BaseView):
+class SimpleRolesView(BaseView):
     def get(self, request, *args, **kwargs):
         """
         get simple role list, for common user query role list
@@ -437,8 +438,9 @@ class SimpleRoleView(BaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
+        role_ids = request_data.get('role_ids', '')
         try:
-            result = account_role_service_ins.get_role_list(search_value, page, per_page, True)
+            result = account_role_service_ins.get_role_list(search_value, role_ids, page, per_page, True)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception as e:
@@ -500,8 +502,9 @@ class DeptPathsView(BaseView):
         request_data = request.GET
         search_value = request_data.get('search_value', '')
         tenant_id = request.META.get('HTTP_TENANTID')
+        dept_ids = request_data.get('dept_ids', '')
         try:
-            result = account_dept_service_ins.get_dept_path_list(tenant_id, search_value)
+            result = account_dept_service_ins.get_dept_path_list(tenant_id, dept_ids, search_value)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
@@ -949,7 +952,7 @@ class UserChangePasswordView(BaseView):
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, "success", {})
 
-class SimpleUserView(BaseView):
+class SimpleUsersView(BaseView):
     def get(self, request, *args, **kwargs):
         """
         get simple user list
@@ -962,16 +965,17 @@ class SimpleUserView(BaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
-        dept_id = int(request_data.get('dept_id', 0)) if request_data.get('dept_id', 0) else 0
+        dept_id = request_data.get('dept_id', '')
+        user_ids = request_data.get('user_ids', '')
         try:
-            result = account_user_service_ins.get_user_list(search_value, dept_id, page, per_page, simple=True)
+            result = account_user_service_ins.get_user_list(search_value, user_ids, dept_id, page, per_page, simple=True)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", {})
 
-        data = dict(user_list=result.get('user_result_object_format_list'),
+        data = dict(user_info_list=result.get('user_result_object_format_list'),
                     per_page=result.get('paginator_info').get('per_page'),
                     page=result.get('paginator_info').get('page'),
                     total=result.get('paginator_info').get('total'))
@@ -999,12 +1003,13 @@ class ApplicationView(BaseView):
         """
         tenant_id = request.META.get('HTTP_TENANTID')
         search_value = request.GET.get('search_value', '')
+        app_ids = request.GET.get('app_ids', '')
         request_data = request.GET
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         type = request_data.get('type', 'all')
         try:
-            result = account_application_service_ins.get_application_list(tenant_id, search_value, page, per_page, type=type)
+            result = account_application_service_ins.get_application_list(tenant_id, search_value, app_ids, page, per_page, type=type)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
@@ -1072,12 +1077,13 @@ class SimpleApplicationView(BaseView):
         """
         tenant_id = request.META.get('HTTP_TENANTID')
         search_value = request.GET.get('search_value', '')
+        app_ids = request.GET.get('app_ids', '')
         request_data = request.GET
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         type = request_data.get('type', 'all')
         try:
-            result = account_application_service_ins.get_application_list(tenant_id, search_value, page, per_page, True, type)
+            result = account_application_service_ins.get_application_list(tenant_id, search_value, app_ids, page, per_page, True, type)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:

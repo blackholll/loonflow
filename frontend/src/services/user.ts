@@ -1,4 +1,5 @@
 import apiClient from './api';
+import { ISimpleUserListRes } from '../types/user';
 
 export const updateMyProfile = async (lang: string) => {
   try {
@@ -18,12 +19,27 @@ export const getMyProfile = async () => {
   }
 };
 
-export const getSimpleUser = async (searchValue: string = '') => {
+export const getSimpleUsers = async (searchValue: string = '', userIds: string = '', page: number = 1, perPage: number = 100): Promise<ISimpleUserListRes> => {
   try {
     const response = await apiClient.get('/api/v1.0/accounts/simple_users', {
       params: {
         search_value: searchValue,
-        per_page: 100
+        page: page,
+        per_page: perPage,
+        user_ids: userIds
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getUserByIds = async (userIds: string[]) => {
+  try {
+    const response = await apiClient.get('/api/v1.0/accounts/users/by_ids', {
+      params: {
+        user_ids: userIds,
       },
     });
     return response.data;

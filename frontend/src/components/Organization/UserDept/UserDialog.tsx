@@ -95,7 +95,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onClose, userId, selected
     const fetchDeptPaths = useCallback(async (inputValue: string) => {
         try {
             setDeptSearchLoading(true);
-            await getDeptPaths(inputValue).then(result => {
+            await getDeptPaths(inputValue, '', 1, 1000).then(result => {
                 if (result.code === 0) {
                     setDeptPathList(result.data.deptPathList);
                 }

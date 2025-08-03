@@ -6,6 +6,12 @@ export interface ISimpleDept {
     children: ISimpleDept[];
 }
 
+export interface ISimpleDeptPath {
+    id: string;
+    name: string;
+    path: string;
+}
+
 export interface ISimpleParentDept {
     id: string;
     name: string;

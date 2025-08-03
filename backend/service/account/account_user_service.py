@@ -269,11 +269,12 @@ class AccountUserService(BaseService):
         return True, user_dept_info
 
     @classmethod
-    def get_user_list(cls, search_value: str, dept_id: str, page: int = 1, per_page: int = 10, simple=False) -> dict:
+    def get_user_list(cls, search_value: str, user_ids: str, dept_id: str, page: int = 1, per_page: int = 10, simple=False) -> dict:
         """
         get user restful info list by query params: search_value, page, per_page
         :param search_value: support user's username, and user's alias. fuzzy query
         :param dept_id:
+        :param user_ids:
         :param page:
         :param per_page:
         :param simple:
@@ -284,6 +285,8 @@ class AccountUserService(BaseService):
             query_params &= Q(name__contains=search_value) | Q(alias__contains=search_value) | Q(email__contains=search_value)
         if dept_id and dept_id != '0' and dept_id!='00000000-0000-0000-0000-000000000000':
             query_params &= Q(dept__id__in=Dept.objects.filter(id=dept_id))
+        if user_ids:
+            query_params &= Q(id__in=user_ids.split(','))
         user_objects = User.objects.filter(query_params).order_by("id")
         paginator = Paginator(user_objects, per_page)
         try:

@@ -3,8 +3,7 @@ import time
 import traceback
 
 import requests
-from apps.loon_base_model import SnowflakeIDGenerator
-from apps.workflow.models import WorkflowHook
+from apps.workflow.models import Hook as WorkflowHook
 from service.base_service import BaseService
 from service.common.common_service import common_service_ins
 from service.exception.custom_common_exception import CustomCommonException
@@ -23,9 +22,7 @@ class WorkflowHookService(BaseService):
         """
         hook_create_list = []
         for hook_info in hook_info_list:
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
-            hook_id = SnowflakeIDGenerator()()
-            hook_create = WorkflowHook(id=hook_id, tenant_id=tenant_id, workflow_id=workflow_id, creator_id=operator_id,
+            hook_create = WorkflowHook(tenant_id=tenant_id, workflow_id=workflow_id, creator_id=operator_id,
                                        name=hook_info.get("name"), description=hook_info.get("description"),
                                        url=hook_info.get("url"), token=hook_info.get("token"), type=hook_info.get("type")
                                        )

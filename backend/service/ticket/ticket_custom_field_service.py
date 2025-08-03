@@ -1,5 +1,4 @@
-from apps.loon_base_model import SnowflakeIDGenerator
-from apps.ticket.models import TicketCustomField
+from apps.ticket.models import CustomField as TicketCustomField
 from service.base_service import BaseService
 from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
 
@@ -46,10 +45,8 @@ class TicketCustomFieldService(BaseService):
         record_list = []
         for field_key, field_value in field_info_dict.items():
             field_value_column = cls.get_field_value_column(custom_field_dict.get(field_key))
-            record_list.append(TicketCustomField(id=SnowflakeIDGenerator()(), tenant_id=tenant_id, ticket_id=ticket_id, creator_id=operator_id, field_key=field_key, field_type=custom_field_dict.get(field_key),
+            record_list.append(TicketCustomField(tenant_id=tenant_id, ticket_id=ticket_id, creator_id=operator_id, field_key=field_key, field_type=custom_field_dict.get(field_key),
                                                  **{field_value_column: field_value}))
-            import time
-            time.sleep(0.001)  # SnowflakeIDGenerator has bug will, just workaround provisionally
         TicketCustomField.objects.bulk_create(record_list)
         return True
 

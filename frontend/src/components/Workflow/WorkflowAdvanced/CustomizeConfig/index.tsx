@@ -1,25 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, OutlinedInput, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Box, Stack, Grid2, FormLabel, Autocomplete, TextField, Chip, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Alert, CircularProgress, OutlinedInput, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Box, Stack, Grid2, FormLabel, Autocomplete, TextField, Chip, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { getSimpletApplicationList } from '../../../../services/application'
 import { ISimpleApplicationResEntity } from '../../../../types/application';
 import { v4 as uuidv4 } from 'uuid';
+import { ICustomizationInfo, IWorkflowHook } from '../../../../types/workflow';
 import useSnackbar from '../../../../hooks/useSnackbar';
 
-interface IHook {
-    id: string;
-    url: string;
-    token: string;
-    events: IHookEvent[];
-}
 
 interface IHookEvent {
     key: string;
     label: string;
 }
+interface CustomizeConfigProps {
+    onCustomizeConfigChange: (customizationInfo: ICustomizationInfo) => void;
+    customizeConfig: ICustomizationInfo;
+}
 
-function CustomizeConfig() {
+function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: CustomizeConfigProps) {
+    const [customizationInfo, setCustomizationInfo] = useState<ICustomizationInfo>(customizeConfig);
     const [applicationList, setApplicationList] = useState<ISimpleApplicationResEntity[]>([]);
+    const [loadingApps, setLoadingApps] = useState(false);
     const [selectedApplications, setSelectedApplications] = useState<ISimpleApplicationResEntity[]>([]);
     const [label, setLabel] = useState({});
     const [labelJson, setLabelJson] = useState(JSON.stringify(label, null, 2));
@@ -27,23 +28,44 @@ function CustomizeConfig() {
     const [open, setOpen] = useState(false);
     const [selectedHookEvent, setSelectedHookEvent] = useState<IHookEvent[]>([]);
     const [addedHookToken, setAddedHookToken] = useState('');
-    const [hooks, setHooks] = useState<IHook[]>([]);
+    const [hooks, setHooks] = useState<IWorkflowHook[]>(customizeConfig.hookInfoList || []);
     const [hookUrl, setHookUrl] = useState('');
+    const [appSearchValue, setAppSearchValue] = useState('');
+    const [loadingApplications, setLoadingApplications] = useState(false);
+
     const { showMessage } = useSnackbar();
 
+    useEffect(() => {
+        if (customizeConfig.authorizedAppIdList.length > 0) {
+            getSimpletApplicationList('', customizeConfig.authorizedAppIdList.join(','), 1, 1000, 'workflow_admin').then((res) => {
+                setSelectedApplications(res.data.applicationList.filter((app: ISimpleApplicationResEntity) => customizeConfig.authorizedAppIdList.includes(app.id)));
+            });
+        }
+    }, [customizeConfig]);
 
     const handleClose = () => {
         setOpen(false);
     };
     const handleAddHook = () => {
         const newToken = uuidv4();
+        const newHookId = uuidv4();
         setAddedHookToken(newToken);
         setHooks([...hooks, {
-            id: '00000000-0000-0000-0000-000000000000',
+            id: `temp_${newHookId}`,
             url: hookUrl,
             token: newToken,
-            events: selectedHookEvent
+            eventList: selectedHookEvent.map((event) => event.key as 'pre_start' | 'started' | 'force_closed' | 'nomal_end' | 'rejected' | 'withdrawn')
         }]);
+        const newCustomizationInfo = {
+            ...customizationInfo, hookInfoList: [...customizationInfo.hookInfoList, {
+                id: `temp_${newHookId}`,
+                url: hookUrl,
+                token: newToken,
+                eventList: selectedHookEvent.map((event) => event.key as 'pre_start' | 'started' | 'force_closed' | 'nomal_end' | 'rejected' | 'withdrawn')
+            }]
+        };
+        setCustomizationInfo(newCustomizationInfo);
+        onCustomizeConfigChange(newCustomizationInfo);
         setOpen(false);
     }
 
@@ -75,20 +97,20 @@ function CustomizeConfig() {
     ]
 
 
-    useEffect(() => {
-        getSimpletApplicationList('', 1, 1000, 'workflow_admin').then((res) => {
-            setApplicationList(res.data.applicationList);
-        });
-    }, []);
     const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
         setLabelJson(e.target.value);
         try {
             setLabel(JSON.parse(e.target.value));
+            const newCustomizationInfo = { ...customizationInfo, label: JSON.parse(e.target.value) };
+            setCustomizationInfo(newCustomizationInfo);
+            onCustomizeConfigChange(newCustomizationInfo);
             setError('');
         } catch (err) {
             setError('Invalid JSON');
         }
     };
+
 
     function copyToClipboardFallback(text: string) {
         const textarea = document.createElement('textarea');
@@ -125,6 +147,27 @@ function CustomizeConfig() {
             copyToClipboardFallback(addedHookToken);
         }
     };
+    const handleAuthorizedAppChange = (value: ISimpleApplicationResEntity[]) => {
+        const newCustomizationInfo = { ...customizationInfo, authorizedAppIdList: value.map((v: any) => v.id) };
+        setCustomizationInfo(newCustomizationInfo);
+        onCustomizeConfigChange(newCustomizationInfo);
+        setSelectedApplications(value);
+    }
+
+    const loadApplications = async (searchValue: string = '') => {
+        if (loadingApps) return;
+        setLoadingApps(true);
+        try {
+            const response = await getSimpletApplicationList(searchValue, '', 1, 1000, 'workflow_admin');
+            if (response.code === 0) {
+                setApplicationList(response.data.applicationList.map((app: ISimpleApplicationResEntity) => ({ label: app.name, value: app.id })) || []);
+            }
+        } catch (error) {
+            console.error('加载应用列表失败:', error);
+        } finally {
+            setLoadingApps(false);
+        }
+    };
 
 
     return (
@@ -137,35 +180,35 @@ function CustomizeConfig() {
                     <Grid size={9}>
                         <Autocomplete
                             multiple
-                            disablePortal
-                            options={applicationList || []}
+                            options={applicationList}
+                            getOptionLabel={(option) => option.name}
                             value={selectedApplications}
-                            onChange={(event, newValue) => {
-                                setSelectedApplications(newValue);
+                            onChange={(e, value) => handleAuthorizedAppChange(value)}
+                            onInputChange={(e, value) => {
+                                setAppSearchValue(value);
+                                if (value.length > 0) {
+                                    loadApplications(value);
+                                }
                             }}
-                            getOptionLabel={(option) => option.name || ''}
-                            isOptionEqualToValue={(option, value) => option.id === value.id}
-                            sx={{ width: 300 }}
-                            renderInput={(params) => <TextField {...params} label="应用授权" />}
-                            renderOption={(props, option) => (
-                                <li {...props}>
-                                    <div>
-                                        <div>{option.name || '未命名'}</div>
-                                        <div style={{ fontSize: '0.8em', color: '#666' }}>
-                                            {option.description || '无描述'}
-                                        </div>
-                                    </div>
-                                </li>
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="选择应用"
+                                    placeholder="输入关键词后搜索应用..."
+                                    InputProps={{
+                                        ...params.InputProps,
+                                        endAdornment: (
+                                            <>
+                                                {loadingApplications ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {params.InputProps.endAdornment}
+                                            </>
+                                        ),
+                                    }}
+                                />
                             )}
-                            renderTags={(value, getTagProps) =>
-                                value.map((option, index) => (
-                                    <Chip
-                                        label={option.name}
-                                        size="small"
-                                        {...getTagProps({ index })}
-                                    />
-                                ))
-                            }
+                            loading={loadingApplications}
+                            size="small"
+                            fullWidth
                         />
                     </Grid>
                 </Grid>
@@ -207,12 +250,12 @@ function CustomizeConfig() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {hooks.map((row) => (
+                            {customizationInfo.hookInfoList.map((row) => (
                                 <TableRow key={row.url}>
                                     <TableCell component="th" scope="row">
                                         {row.url}
                                     </TableCell>
-                                    <TableCell align="right">{row.events.map((event) => event.label).join(',')}</TableCell>
+                                    <TableCell align="right">{row.eventList.map((event) => hookEvents.find((e) => e.key === event)?.label).join(',')}</TableCell>
                                     <TableCell align="right"><div><Button disabled>编辑</Button><Button disabled>重置token</Button><Button disabled>删除</Button></div></TableCell>
                                 </TableRow>
                             ))}

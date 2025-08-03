@@ -1,6 +1,5 @@
 import time
-from apps.loon_base_model import SnowflakeIDGenerator
-from apps.workflow.models import WorkflowPermission
+from apps.workflow.models import Permission as WorkflowPermission
 from service.base_service import BaseService
 from service.exception.custom_common_exception import CustomCommonException
 
@@ -23,48 +22,40 @@ class WorkflowPermissionService(BaseService):
         viewer_id_list = permission_info.get("viewer_id_list", [])
         viewer_dept_id_list = permission_info.get("viewer_dept_id_list", [])
         for admin_id in admin_id_list:
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
-            permission_id = SnowflakeIDGenerator()()
-            permission_create = WorkflowPermission(id=permission_id, tenant_id=tenant_id, workflow_id=workflow_id,
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id,
                                                    permission="admin", target_type="user", target=admin_id,
                                                    creator_id=operator_id
                                                    )
             permission_create_list.append(permission_create)
 
         for intervener_id in intervener_id_list:
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
-            permission_id = SnowflakeIDGenerator()()
-            permission_create = WorkflowPermission(id=permission_id, tenant_id=tenant_id, workflow_id=workflow_id,
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id,
                                                    permission="intervene", target_type="user", target=str(intervener_id),
                                                    creator_id=operator_id
                                                    )
             permission_create_list.append(permission_create)
 
         for viewer_id in viewer_id_list:
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
-            permission_id = SnowflakeIDGenerator()()
-            permission_create = WorkflowPermission(id=permission_id, tenant_id=tenant_id, workflow_id=workflow_id,
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id,
                                                    permission="view", target_type="user", target=str(viewer_id),
                                                    creator_id=operator_id)
             permission_create_list.append(permission_create)
 
         for viewer_dept_id in viewer_dept_id_list:
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
-            permission_id = SnowflakeIDGenerator()()
-            permission_create = WorkflowPermission(id=permission_id, tenant_id=tenant_id, workflow_id=workflow_id,
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id,
                                                    permission="view", target_type="dept", target=str(viewer_dept_id))
             permission_create_list.append(permission_create)
         WorkflowPermission.objects.bulk_create(permission_create_list)
         return True
 
     @classmethod
-    def get_user_permission_workflow_id_list(cls, user_id: int) -> list:
+    def get_user_permission_workflow_id_list(cls, user_id: str) -> list:
         """
         get user permission workflow id list
         :param user_id:
         :return:
         """
-        permission_queryset = WorkflowPermission.objects.filter(permission="admin", user_type="user", target=str(user_id))
+        permission_queryset = WorkflowPermission.objects.filter(permission="admin", user_type="user", target=user_id, version__status='active')
         result = [permission.id for permission in permission_queryset]
         return result
 

@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid2';
 import { IWorkflowEntity } from '../../../types/workflow';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { getWorkflowList, } from '../../../services/workflow';
+import WorkflowVersion from './workflowVersion';
 
 
 export function WorkflowList() {
@@ -18,6 +19,8 @@ export function WorkflowList() {
     const [total, setTotal] = React.useState<number>(0)
     const [page, setPage] = React.useState<number>(1)
     const [perPage, setPerPage] = React.useState<number>(10)
+    const [openedWorkflowIdVersion, setOpenedWorkflowIdVersion] = React.useState<string>('')
+
     const { showMessage } = useSnackbar();
 
     const fetchWorkflowList = useCallback(async () => {
@@ -44,6 +47,9 @@ export function WorkflowList() {
         setOpenWorkflow(true);
         setOpenedWorkflowId(workflowId);
     }
+    const handleWorkflowVersionClose = () => {
+        setOpenedWorkflowIdVersion('');
+    }
 
     return (
         <Card>
@@ -66,6 +72,7 @@ export function WorkflowList() {
                             <TableRow>
                                 <TableCell>{t('common.name')}</TableCell>
                                 <TableCell>{t('common.description')}</TableCell>
+                                <TableCell>{t('workflow.activeVersion')}</TableCell>
                                 <TableCell>{t('common.actions')}</TableCell>
                             </TableRow>
                         </TableHead>
@@ -74,9 +81,9 @@ export function WorkflowList() {
                                 <TableRow key={workflowData.id}>
                                     <TableCell>{workflowData.name}</TableCell>
                                     <TableCell>{workflowData.description}</TableCell>
+                                    <TableCell>{workflowData.version}</TableCell>
                                     <TableCell>
-                                        <div><Button onClick={() => handleOpenWorkflow(workflowData.id)}>edit</Button></div>
-                                        {/* <div><Button onClick={() => handleOpenWorkflow(workflowData.id)}>edit</Button><Button onClick={() => handleDeleteClick(workflowData.id)}>delete</Button>{application.type === 'workflowAdmin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div> */}
+                                        <div><Button onClick={() => setOpenedWorkflowIdVersion(workflowData.workflowId)}>编辑</Button></div>
                                     </TableCell>
                                 </TableRow>
                             )) : null}
@@ -92,6 +99,20 @@ export function WorkflowList() {
                 onPageChange={(_event: any, newPage) => setPage(newPage)}
                 onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) => { setPerPage(parseInt(event.target.value, 10)); setPage(1); fetchWorkflowList() }}
             />
+            <Dialog
+                maxWidth="md"
+                open={openedWorkflowIdVersion !== ''}
+                keepMounted
+                onClose={handleWorkflowVersionClose}
+                aria-describedby="alert-dialog-slide-description"
+                fullWidth
+            >
+                <DialogTitle>{"版本列表"}</DialogTitle>
+                <DialogContent>
+                    <WorkflowVersion workflowId={openedWorkflowIdVersion} />
+                </DialogContent>
+            </Dialog>
         </Card>
+
     );
 }

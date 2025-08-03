@@ -11,19 +11,20 @@ interface EdgeData {
     };
 }
 
-const CustomEdge: React.FC<EdgeProps> = ({
-    id,
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
-    sourcePosition,
-    targetPosition,
-    style = {},
-    markerEnd,
-    selected,
-    data,
-}) => {
+function CustomEdge(props: EdgeProps) {
+    const {
+        id,
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        sourcePosition,
+        targetPosition,
+        style = {},
+        markerEnd,
+        selected,
+        data,
+    } = props;
     const { setEdges } = useReactFlow();
 
     const [edgePath, labelX, labelY] = getSmoothStepPath({

@@ -10,6 +10,11 @@ export interface IRoleResEntity {
     tenantId: string;
 }
 
+export interface ISimpleRole {
+    id: string;
+    name: string;
+}
+
 export interface IRoleListResData {
     roleList: IRoleResEntity[]
 }

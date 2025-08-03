@@ -29,14 +29,13 @@ app.autodiscover_tasks()
 
 import json
 import requests
-from apps.ticket.models import TicketRecord
-from apps.workflow.models import Transition, Node, Workflow, WorkflowNotice
-from apps.manage.models import Notification
+from apps.ticket.models import Record as TicketRecord
+from apps.workflow.models import Edge, Node, Record as WorkflowRecord, Notification as WorkflowNotification
 from service.account.account_user_service import account_user_service_ins
 from service.common.constant_service import constant_service_ins
 from service.ticket.ticket_base_service import TicketBaseService, ticket_base_service_ins
 from service.common.common_service import CommonService, common_service_ins
-from service.workflow.workflow_transition_service import WorkflowTransitionService, workflow_transition_service_ins
+from service.workflow.workflow_transition_service import workflow_transition_service_ins
 from django.conf import settings
 
 try:
@@ -111,8 +110,8 @@ def send_ticket_notice(tenant_id: int, ticket_id: int):
     ticket_obj = TicketRecord.objects.get(id=ticket_id)
 
     workflow_id = ticket_obj.workflow_id
-    workflow_obj = Workflow.objects.get(id=workflow_id)
-    workflow_notices = WorkflowNotice.objects.get(workflow_id=workflow_id).workflow_notices
+    workflow_obj = WorkflowRecord.objects.get(id=workflow_id)
+    workflow_notices = WorkflowNotification.objects.get(workflow_id=workflow_id).workflow_notices
 
     notice_str_list = workflow_notices.split(',')
     notice_id_list = [int(notice_str) for notice_str in notice_str_list]
@@ -139,7 +138,7 @@ def send_ticket_notice(tenant_id: int, ticket_id: int):
               'ticket_value_info': ticket_value_info, 'latest_history': latest_history,
               'participant_info_list': participant_info_list}
     for notice_id in notice_id_list:
-        notice_obj = Notice.objects.filter(id=notice_id).first()
+        notice_obj = Notification.objects.filter(id=notice_id).first()
         if not notice_obj:
             continue
         hook_url = notice_obj.hook_url

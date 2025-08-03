@@ -5,7 +5,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { addApplication } from '../../../services/application';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { debounce } from 'lodash';
-import { getSimpleUser } from '../../../services/user';
+import { getSimpleUsers } from '../../../services/user';
 import { addDept, getDeptDetail, updateDept } from '../../../services/dept';
 
 // 定义用户接口
@@ -59,12 +59,12 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
         setApproverSearchLoading(true);
       }
 
-      const result = await getSimpleUser(keyword);
+      const result = await getSimpleUsers(keyword);
       if (result.code === 0) {
         if (purpose === 'leader') {
-          setLeaderUserList(result.data.userList);
+          setLeaderUserList(result.data.userInfoList);
         } else {
-          setApproverUserList(result.data.userList);
+          setApproverUserList(result.data.userInfoList);
         }
 
       } else {

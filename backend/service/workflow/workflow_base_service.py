@@ -2,7 +2,7 @@ import json
 from django.conf import settings
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.workflow.models import Workflow, WorkflowPermission
+from apps.workflow.models import Record as WorkflowRecord, Permission as WorkflowPermission, BasicInfo, Version as WorkflowVersion
 from service.account.account_user_service import account_user_service_ins
 from service.base_service import BaseService
 from service.common.common_service import common_service_ins
@@ -32,7 +32,7 @@ class WorkflowBaseService(BaseService):
         :return:
         """
         basic_info = request_data.get("basic_info")
-        workflow_info = Workflow(name=basic_info.get('name'), description=basic_info.get("description"))
+        workflow_info = WorkflowRecord(name=basic_info.get('name'), description=basic_info.get("description"))
         workflow_info.save()
         workflow_id = workflow_info.id
         workflow_notice_service_ins.add_workflow_notice(operator_id, tenant_id, workflow_id, request_data.get("notice_info"))
@@ -62,9 +62,10 @@ class WorkflowBaseService(BaseService):
             if permission_workflow_id_list:
                 query_params &= Q(id__in=permission_workflow_id_list)
 
+        query_params &= Q(version__type='default')
         if search_value:
-            query_params &= Q(name__contains=search_value)
-        workflow_queryset = Workflow.objects.filter(query_params).order_by('id')
+            query_params &= Q(name__contains=search_value) | Q(description__contains=search_value)
+        workflow_queryset = BasicInfo.objects.filter(query_params).order_by('id')
         paginator = Paginator(workflow_queryset, per_page)
         try:
             workflow_result_paginator = paginator.page(page)
@@ -76,9 +77,15 @@ class WorkflowBaseService(BaseService):
         workflow_result_object_list = workflow_result_paginator.object_list
         workflow_info_list = []
         for workflow_result_object in workflow_result_object_list:
-            workflow_simple_data = dict(id=workflow_result_object.id, name=workflow_result_object.name,
-                                        decription=workflow_result_object.description)
-            workflow_info_list.append(workflow_simple_data)
+            
+            if simple:
+                workflow_data = dict(id=str(workflow_result_object.id), name=workflow_result_object.name, description=workflow_result_object.description)
+            else:
+                workflow_data = workflow_result_object.get_dict()
+            
+            workflow_data['version'] = workflow_result_object.version.name
+            workflow_data['workflow_id'] = str(workflow_result_object.workflow_id)
+            workflow_info_list.append(workflow_data)
         return dict(workflow_info_list=workflow_info_list, per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
@@ -101,9 +108,31 @@ class WorkflowBaseService(BaseService):
         :param workflow_id:
         :return:
         """
-        return Workflow.objects.get(id=workflow_id, tenant_id=tenant_id)
+        return WorkflowRecord.objects.get(id=workflow_id, tenant_id=tenant_id)
 
-
+    @classmethod
+    def get_workflow_version_list(cls, workflow_id: str, tenant_id: str, operator_id: str, search_value: str, page: int, per_page: int) -> dict:
+        """
+        get workflow version list
+        :param workflow_id:
+        :return:
+        """
+        query_params = Q(workflow_id=workflow_id, tenant_id=tenant_id)
+        if search_value:
+            query_params &= Q(name__contains=search_value)
+        workflow_version_queryset = WorkflowVersion.objects.filter(query_params).order_by('id')
+        paginator = Paginator(workflow_version_queryset, per_page)
+        try:
+            workflow_version_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            workflow_version_result_paginator = paginator.page(1)
+        except EmptyPage:
+            workflow_version_result_paginator = paginator.page(paginator.num_pages)
+        workflow_version_result_object_list = workflow_version_result_paginator.object_list
+        workflow_version_info_list = [] 
+        for workflow_version_result_object in workflow_version_result_object_list:
+            workflow_version_info_list.append(workflow_version_result_object.get_dict())
+        return dict(version_info_list=workflow_version_info_list, per_page=per_page, page=page, total=paginator.count)
 
 ############## below are waiting for update
     @classmethod
@@ -117,13 +146,13 @@ class WorkflowBaseService(BaseService):
         # 如果是超级管理员,拥有所有工作流的权限
         flag, result = account_base_service_ins.admin_permission_check(username=username)
         if flag:
-            workflow_queryset = Workflow.objects.filter(is_deleted=0).all()
+            workflow_queryset = WorkflowRecord.objects.filter(is_deleted=0).all()
         else:
             # 作为工作流创建人+工作流管理员的工作流
             workflow_admin_queryset = WorkflowPermission.objects.filter(permission='admin', user_type='user', user=username).all()
             workflow_admin_id_list = [workflow_admin.workflow_id for workflow_admin in workflow_admin_queryset]
 
-            workflow_queryset = Workflow.objects.filter(
+            workflow_queryset = WorkflowRecord.objects.filter(
                 Q(creator=username) | Q(id__in=workflow_admin_id_list)).all()
 
         workflow_restful_list = [workflow.get_dict() for workflow in workflow_queryset]
@@ -140,7 +169,7 @@ class WorkflowBaseService(BaseService):
         :param workflow_id:
         :return:
         """
-        workflow_obj = Workflow.objects.filter(is_deleted=0, id=workflow_id).first()
+        workflow_obj = WorkflowRecord.objects.filter(is_deleted=0, id=workflow_id).first()
         if not workflow_obj:
             return False, 'workflow is not existed or has been deleted'
         return True, workflow_obj
@@ -153,7 +182,7 @@ class WorkflowBaseService(BaseService):
         :param workflow_id:
         :return:
         """
-        workflow_obj = Workflow.objects.filter(is_deleted=0, id=workflow_id).first()
+        workflow_obj = WorkflowRecord.objects.filter(is_deleted=0, id=workflow_id).first()
 
         # 权限人
         permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id).all()
@@ -206,7 +235,7 @@ class WorkflowBaseService(BaseService):
         :param content_template:
         :return:
         """
-        workflow_obj = Workflow.objects.filter(id=workflow_id)
+        workflow_obj = WorkflowRecord.objects.filter(id=workflow_id)
         if workflow_obj:
             workflow_obj.update(name=name, description=description, notices=notices,
                                 view_permission_check=view_permission_check,
@@ -297,7 +326,7 @@ class WorkflowBaseService(BaseService):
         :param workflow_id:
         :return:
         """
-        workflow_obj = Workflow.objects.filter(id=workflow_id)
+        workflow_obj = WorkflowRecord.objects.filter(id=workflow_id)
         if workflow_obj:
             workflow_obj.update(is_deleted=True)
         return True, ''
@@ -352,7 +381,7 @@ class WorkflowBaseService(BaseService):
         :param username:
         :return:
         """
-        workflow_query_obj = Workflow.objects.filter(id=workflow_id).first()
+        workflow_query_obj = WorkflowRecord.objects.filter(id=workflow_id).first()
         if not workflow_query_obj:
             return False, 'workflow is not existed'
         if username == workflow_query_obj.creator:

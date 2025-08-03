@@ -15,9 +15,9 @@ import Tooltip from '@mui/material/Tooltip';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import WorkflowBasic from '../WorkflowBasic';
 import WorkflowForm from '../WorkflowForm';
-import WorkflowDesign from '../WorkflowProcess';
+import WorkflowProcess from '../WorkflowProcess';
 import WorkflowAdvanced from '../WorkflowAdvanced';
-import { IWorkflowFullDefinition, createEmptyWorkflowFullDefinition, IFormSchema, IProcessSchema, IpermissionInfo, ICustomizationInfo } from '../../../types/workflow';
+import { IWorkflowFullDefinition, createEmptyWorkflowFullDefinition, IFormSchema, IProcessSchema, IpermissionInfo, ICustomizationInfo, IAdvancedSchema } from '../../../types/workflow';
 import { getWorkflowDetail } from '../../../services/workflow';
 import useSnackbar from '../../../hooks/useSnackbar';
 
@@ -188,6 +188,13 @@ function WorkflowDetail() {
         }));
     }, []);
 
+    const onAdvancedSchemaChange = useCallback((advancedSchema: IAdvancedSchema) => {
+        setWorkflowDetailInfo(prev => ({
+            ...prev,
+            advancedSchema: advancedSchema
+        }));
+    }, []);
+
     // 监听workflowDetailInfo变化，自动检查问题
     useEffect(() => {
         if (isInitialized) {
@@ -213,19 +220,21 @@ function WorkflowDetail() {
     ), [workflowDetailInfo.formSchema, onFormSchemaChange]);
 
     const processComponent = useMemo(() => (
-        <WorkflowDesign
+        <WorkflowProcess
             onProcessSchemaChange={onProcessSchemaChange}
             processSchema={workflowDetailInfo.processSchema}
+            formSchema={workflowDetailInfo.formSchema}
             key="workflow-process" />
-    ), [workflowDetailInfo.processSchema, onProcessSchemaChange]);
+    ), [workflowDetailInfo.processSchema, workflowDetailInfo.formSchema, onProcessSchemaChange]);
 
     const advancedComponent = useMemo(() => (
         <WorkflowAdvanced
-            onBasicChange={onBasicChange}
-            basicInfo={workflowDetailInfo.basicInfo}
+            formSchema={workflowDetailInfo.formSchema}
+            onAdvancedChange={onAdvancedSchemaChange}
+            advancedSchema={workflowDetailInfo.advancedSchema}
             key="workflow-advanced"
         />
-    ), [workflowDetailInfo.basicInfo, onBasicChange]);
+    ), [workflowDetailInfo.advancedSchema, onBasicChange]);
 
     return (
         <Box sx={{ width: '100%' }} >

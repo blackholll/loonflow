@@ -21,6 +21,13 @@ export interface IUserListResData {
     userInfoList: IUser[]
 }
 
+export interface IUserSimpleListResData {
+    page: number;
+    perPage: number;
+    total: number;
+    userInfoList: ISimpleUser[]
+}
+
 export interface ISimpleUser {
     id: string;
     name: string;
@@ -28,4 +35,4 @@ export interface ISimpleUser {
     email: string;
 }
 
-export interface ISimpleUserListRes extends IApiResponse<IUserListResData> { }
+export interface ISimpleUserListRes extends IApiResponse<IUserSimpleListResData> { }

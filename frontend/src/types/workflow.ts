@@ -6,6 +6,11 @@ export interface ILayout {
   orderId?: number
 }
 
+export interface INodeLayout {
+  x: number,
+  y: number,
+
+}
 export interface IProps {
   placeholder?: string,
   defaultValue?: any,
@@ -20,6 +25,8 @@ export interface IWorkflowEntity {
   id: string,
   name: string,
   description: string,
+  version: string,
+  workflowId: string,
   createdAt: string,
   updatedAt: string,
   creator: string,
@@ -55,7 +62,21 @@ export interface ISimpleWorkflowListRes extends IApiResponse<ISimpleWorkflowList
 
 export interface IWorkflowListRes extends IApiResponse<IWorkflowListResData> { }
 
-
+export interface IWorkflowVersionEntity {
+  id: string,
+  name: string,
+  description: string,
+  status: string,
+  createdAt: string,
+  updatedAt: string,
+}
+export interface IWorkflowVersionListResData {
+  page: number;
+  perPage: number;
+  total: number;
+  versionInfoList: IWorkflowVersionEntity[]
+}
+export interface IWorkflowVersionListRes extends IApiResponse<IWorkflowVersionListResData> { }
 
 export interface IWorkflowComponent {
   id: string,
@@ -95,7 +116,7 @@ export interface IWorkflowNode {
   id: string,
   type: 'start' | 'end' | 'common',
   label: ILabel,
-  layout: ILayout,
+  layout: INodeLayout,
   props: IWorkflowNodeProps,
 }
 
@@ -127,9 +148,8 @@ export interface INotification {
 export interface IWorkflowHook {
   id: string,
   url: string,
-  Token: string,
-  eventList: 'create' | 'reject'[],
   token: string,
+  eventList: ('pre_start' | 'started' | 'force_closed' | 'nomal_end' | 'rejected' | 'withdrawn')[],
 }
 
 export interface IFormSchema {
@@ -140,7 +160,11 @@ export interface IProcessSchema {
   nodeInfoList: IWorkflowNode[],
   edgeInfoList: IWorkflowEdge[],
 }
-
+export interface IAdvancedSchema {
+  notificationInfo: INotification,
+  permissionInfo: IpermissionInfo,
+  customizationInfo: ICustomizationInfo,
+}
 export interface IpermissionInfo {
   adminIdList: string[],
   dispatcherIdList: string[],
@@ -152,21 +176,20 @@ export interface ICustomizationInfo {
   label: ILabel,
   hookInfoList: IWorkflowHook[]
 }
+
+export interface IBasicInfo {
+  id: string,
+  name: string,
+  description: string,
+  version: string,
+  tenantId: string
+}
+
 export interface IWorkflowFullDefinition {
-  basicInfo: {
-    id: string,
-    name: string,
-    description: string
-    version: string,
-    tenantId: string
-  }
+  basicInfo: IBasicInfo,
   formSchema: IFormSchema
   processSchema: IProcessSchema
-  advancedSchema: {
-    notificationInfo: INotification,
-    permissionInfo: IpermissionInfo,
-    customizationInfo: ICustomizationInfo,
-  }
+  advancedSchema: IAdvancedSchema
 }
 
 export const createEmptyWorkflowFullDefinition = (): IWorkflowFullDefinition => {

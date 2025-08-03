@@ -1,6 +1,6 @@
 
 import apiClient from './api';
-import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes } from '../types/workflow';
+import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes, IWorkflowVersionListRes } from '../types/workflow';
 import { IApiErrResponse, } from '@/types/common';
 
 
@@ -135,6 +135,15 @@ export const updateWorkflow = async (workflowId: number, params: any): Promise<I
 export const deleteWorkflow = async (workflowId: number): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
   try {
     const response = await apiClient.delete(`/api/v1.0/workflows/${workflowId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getWorkflowVersionList = async (workflowId: string, searchValue: string, page: number, perPage: number): Promise<IWorkflowVersionListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}/versions`, { params: { searchValue, page, perPage } });
     return response.data;
   } catch (error) {
     throw error;

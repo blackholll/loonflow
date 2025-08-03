@@ -3,7 +3,7 @@ from django.db import models
 from apps.loon_base_model import BaseModel, BaseCommonModel
 from django.utils.translation import gettext_lazy as _
 
-from apps.workflow.models import Workflow
+from apps.workflow.models import Record as WorkflowRecord
 
 
 class Tenant(BaseModel):
@@ -200,7 +200,7 @@ class Role(BaseCommonModel):
 class ApplicationWorkflow(BaseCommonModel):
     """application permissioned workflow list"""
     application = models.ForeignKey("Application", db_constraint=False, on_delete=models.DO_NOTHING)
-    workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
+    workflow = models.ForeignKey(WorkflowRecord, db_constraint=False, on_delete=models.DO_NOTHING)
 
 
 class Application(BaseCommonModel):

@@ -69,7 +69,7 @@ class AccountRoleService(BaseService):
         return role_obj.get_dict()
 
     @classmethod
-    def get_role_list(cls, search_value: str, page: int = 1, per_page: int = 10, simple:bool = False) -> dict:
+    def get_role_list(cls, search_value: str, role_ids: str, page: int = 1, per_page: int = 10, simple:bool = False) -> dict:
         """
         get role list
         get role restful list by search params
@@ -81,6 +81,8 @@ class AccountRoleService(BaseService):
         query_params = Q()
         if search_value:
             query_params &= Q(name__contains=search_value) | Q(description__contains=search_value)
+        if role_ids:
+            query_params &= Q(id__in=role_ids.split(','))
         user_objects = Role.objects.filter(query_params)
         paginator = Paginator(user_objects, per_page)
         try:

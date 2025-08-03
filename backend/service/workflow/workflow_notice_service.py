@@ -1,8 +1,7 @@
 import json
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.manage.models import Notification
-from apps.workflow.models import WorkflowNotice
+from apps.workflow.models import Notification as WorkflowNotification
 from service.base_service import BaseService
 from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
@@ -23,7 +22,7 @@ class WorkflowNoticeService(BaseService):
         notice_id_list = notice_info.get("notice_id_list")
         notice_id_str_list = [str(notice_id) for notice_id in notice_id_list]
         notices = ",".join(notice_id_str_list)
-        workflow_notice_info = WorkflowNotice(workflow_id=workflow_id, creator_id=operator_id, tenant_id=tenant_id,
+        workflow_notice_info = WorkflowNotification(workflow_id=workflow_id, creator_id=operator_id, tenant_id=tenant_id,
                                               title_template=notice_info.get("title_template"), content_template=
                                               notice_info.get("content_template"), notices=notices)
         workflow_notice_info.save()
@@ -44,7 +43,7 @@ class WorkflowNoticeService(BaseService):
         if query_value:
             query_params &= Q(name__contains=query_value) | Q(description__contains=query_value)
 
-        custom_notice_querset = Notice.objects.filter(query_params).order_by('id')
+        custom_notice_querset = WorkflowNotification.objects.filter(query_params).order_by('id')
         paginator = Paginator(custom_notice_querset, per_page)
         try:
             custom_notice_result_paginator = paginator.page(page)
@@ -85,7 +84,7 @@ class WorkflowNoticeService(BaseService):
         :param creator:
         :return:
         """
-        notice_obj = Notice(name=name, description=description, type_id=type_id, corpid=corpid,
+        notice_obj = WorkflowNotification(name=name, description=description, type_id=type_id, corpid=corpid,
                                   corpsecret=corpsecret, appkey=appkey, appsecret=appsecret, hook_url=hook_url,
                                   hook_token=hook_token, creator=creator)
         notice_obj.save()
@@ -105,7 +104,7 @@ class WorkflowNoticeService(BaseService):
         :param hook_token:
         :return:
         """
-        custom_notice_obj = Notice.objects.filter(id=custom_notice_id)
+        custom_notice_obj = WorkflowNotification.objects.filter(id=custom_notice_id)
         if custom_notice_obj:
             custom_notice_obj.update(name=name, description=description, hook_url=hook_url, hook_token=hook_token,
                                      type_id=type_id, corpid=corpid, corpsecret=corpsecret, appkey=appkey,
@@ -122,7 +121,7 @@ class WorkflowNoticeService(BaseService):
         :id: 
         :return:
         """
-        custom_notice_obj = Notice.objects.filter(id=custom_notice_id)
+        custom_notice_obj = WorkflowNotification.objects.filter(id=custom_notice_id)
         if custom_notice_obj:
             custom_notice_obj.update(is_deleted=True)
             return True, ''
@@ -137,7 +136,7 @@ class WorkflowNoticeService(BaseService):
         :param custom_notice_id:
         :return:
         """
-        custom_notice_obj = Notice.objects.filter(id=custom_notice_id).first()
+        custom_notice_obj = WorkflowNotification.objects.filter(id=custom_notice_id).first()
         if custom_notice_obj:
             custom_notice_info = custom_notice_obj.get_dict()
             return True, custom_notice_info

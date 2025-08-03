@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
     ReactFlow,
     Node,
@@ -17,13 +17,6 @@ import {
     EdgeChange
 } from '@xyflow/react';
 import { Box, Paper, Drawer, IconButton, Tooltip, Divider, Snackbar, Alert } from '@mui/material';
-import {
-    Clear as ClearIcon,
-    Undo as UndoIcon,
-    Redo as RedoIcon,
-    Delete as DeleteIcon,
-    ContentCopy as CopyIcon,
-} from '@mui/icons-material';
 import '@xyflow/react/dist/style.css';
 
 import NodePanel from './NodePanel';
@@ -31,7 +24,7 @@ import Toolbar from './Toolbar';
 import PropertyPanel from './PropertyPanel';
 import { CustomNode } from './CustomNode';
 import { CustomEdge } from './CustomEdge';
-import { IProcessSchema, IWorkflowNode, IWorkflowEdge } from '../../../types/workflow';
+import { IProcessSchema, IWorkflowNode, IWorkflowEdge, IFormSchema } from '../../../types/workflow';
 
 // 边类型定义 - 移到组件外部避免重新创建
 const edgeTypes: EdgeTypes = {
@@ -55,14 +48,14 @@ const convertWorkflowNodeToReactFlowNode = (workflowNode: IWorkflowNode): Node =
         id: workflowNode.id,
         type: workflowNode.type === 'start' ? 'startNode' :
             workflowNode.type === 'end' ? 'endNode' : 'normalNode',
-        position: { x: workflowNode.layout.span * 100, y: workflowNode.layout.orderId ? workflowNode.layout.orderId * 100 : 100 },
+        position: { x: workflowNode.layout.x, y: workflowNode.layout.y },
         data: {
             label: workflowNode.label.text || workflowNode.label.label,
             nodeType: workflowNode.type,
             properties: {
                 name: workflowNode.label.text || workflowNode.label.label,
                 description: workflowNode.label.description || '',
-                assignee: workflowNode.props.participant || '',
+                assignee: workflowNode.props.assignee || '',
                 timeout: 0,
                 ...workflowNode.props
             }
@@ -107,15 +100,15 @@ const convertReactFlowNodeToWorkflowNode = (node: Node): IWorkflowNode => {
             description: properties.description || '',
         },
         layout: {
-            span: Math.floor(node.position.x / 100),
-            orderId: Math.floor(node.position.y / 100),
+            x: node.position.x,
+            y: node.position.y,
         },
         props: {
             allowRetreat: false,
             rememberLastParticipant: false,
             fieldPermission: {},
-            participantType: 'user',
-            participant: properties.assignee || '',
+            assigneeType: 'user',
+            assignee: properties.assignee || '',
             distributeType: 'direct',
             ...properties
         }
@@ -151,16 +144,19 @@ const convertReactFlowEdgeToWorkflowEdge = (edge: Edge): IWorkflowEdge => {
 
 interface WorkflowProcessProps {
     processSchema?: IProcessSchema;
+    formSchema?: IFormSchema;
     onProcessSchemaChange?: (processSchema: IProcessSchema) => void;
 }
 
 const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
     processSchema = { nodeInfoList: [], edgeInfoList: [] },
+    formSchema = { componentInfoList: [] },
     onProcessSchemaChange
 }) => {
     // 初始化节点和边
     const initialNodes: Node[] = processSchema.nodeInfoList.map(convertWorkflowNodeToReactFlowNode);
     const initialEdges: Edge[] = processSchema.edgeInfoList.map(convertWorkflowEdgeToReactFlowEdge);
+    const [currentFormSchema, setCurrentFormSchema] = useState<IFormSchema>(formSchema);
 
     const [nodes, setNodes, onNodesChangeBase] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChangeBase] = useEdgesState(initialEdges);
@@ -176,6 +172,11 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
         { nodes: initialNodes, edges: initialEdges }
     ]);
     const [historyIndex, setHistoryIndex] = useState(0);
+
+    useEffect(() => {
+        setCurrentFormSchema(formSchema);
+        console.log('formSchema22222222', formSchema);
+    }, [formSchema]);
 
 
     // 保存历史记录
@@ -265,11 +266,10 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
                 id: `edge-${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}-${Date.now()}`,
                 type: 'custom',
                 data: {
-                    label: '',
                     properties: {
-                        name: '',
+                        name: '同意',
                         condition: '',
-                        description: '',
+                        type: 'accept'
                     }
                 },
                 style: {
@@ -335,7 +335,7 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
             data: {
                 ...nodeData,
                 properties: {
-                    name: nodeData.label,
+                    name: nodeData.properties.name ?? '',
                     description: '',
                     assignee: '',
                     timeout: 0,
@@ -353,6 +353,7 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
 
     // 更新节点属性
     const onUpdateNodeProperties = useCallback((nodeId: string, properties: any) => {
+        console.log('onUpdateNodeProperties:', nodeId, properties);
         setNodes((nds) => {
             const newNodes = nds.map((node) =>
                 node.id === nodeId
@@ -505,6 +506,17 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
         }
     }, [selectedElement, setNodes, setEdges, nodes, edges, saveToHistory, notifyParentChange]);
 
+
+    const propertyPanelComponent = useMemo(() => (
+        <PropertyPanel
+            element={selectedElement}
+            formSchema={currentFormSchema}
+            onUpdateNodeProperties={onUpdateNodeProperties}
+            onUpdateEdgeProperties={onUpdateEdgeProperties}
+        />
+    ), [currentFormSchema, onUpdateNodeProperties, onUpdateEdgeProperties, selectedElement]);
+
+
     return (
         <ReactFlowProvider>
             <Box sx={{ display: 'flex', height: '100vh', width: '100vw' }}>
@@ -568,16 +580,12 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
                     onClose={() => setPropertyPanelOpen(false)}
                     sx={{
                         '& .MuiDrawer-paper': {
-                            width: 320,
+                            width: 450,
                             boxSizing: 'border-box',
                         },
                     }}
                 >
-                    <PropertyPanel
-                        element={selectedElement}
-                        onUpdateNodeProperties={onUpdateNodeProperties}
-                        onUpdateEdgeProperties={onUpdateEdgeProperties}
-                    />
+                    {propertyPanelComponent}
                 </Drawer>
             </Box>
 

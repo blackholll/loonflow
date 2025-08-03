@@ -1,7 +1,6 @@
 import time
 
-from apps.loon_base_model import SnowflakeIDGenerator
-from apps.ticket.models import TicketUser
+from apps.ticket.models import User as TicketUser
 from service.account.account_user_service import account_user_service_ins
 from service.base_service import BaseService
 
@@ -27,7 +26,7 @@ class TicketUserService(BaseService):
         if ticket_user_queryset:
             ticket_user_queryset.update(**update_dict)
         else:
-            ticket_user = TicketUser(id=SnowflakeIDGenerator()(),  tenant_id=tenant_id, ticket_id=ticket_id, user_id=user_id)
+            ticket_user = TicketUser( tenant_id=tenant_id, ticket_id=ticket_id, user_id=user_id)
             ticket_user.save()
             TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=user_id).update(**update_dict)
 
@@ -46,8 +45,7 @@ class TicketUserService(BaseService):
         not_exist_user_id_list = [user_id for user_id in user_id_list if user_id not in exist_user_id_list]
         ticket_user_batch_list = []
         for not_exist_user_id in not_exist_user_id_list:
-            ticket_user_batch_list.append(TicketUser(id=SnowflakeIDGenerator()(), tenant_id=tenant_id, ticket_id=ticket_id, user_id=not_exist_user_id, as_participant=True))
-            time.sleep(0.001)  # workaround for SnowflakeIDGenerator
+            ticket_user_batch_list.append(TicketUser(tenant_id=tenant_id, ticket_id=ticket_id, user_id=not_exist_user_id, as_participant=True))
         TicketUser.objects.bulk_create(ticket_user_batch_list)
 
     @classmethod

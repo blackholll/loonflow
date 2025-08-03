@@ -3,10 +3,9 @@ import time
 
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
-from apps.workflow.models import CustomField
+from apps.workflow.models import Component
 from service.base_service import BaseService
 from service.common.log_service import auto_log
-from apps.loon_base_model import SnowflakeIDGenerator
 
 
 class WorkflowCustomFieldService(BaseService):
@@ -21,7 +20,7 @@ class WorkflowCustomFieldService(BaseService):
         """
         # todo: need calculate field order
         batch_data = cls.gen_workflow_custom_field_batch_data(tenant_id, workflow_id, 0, field_info_list)
-        CustomField.objects.bulk_create(batch_data)
+        Component.objects.bulk_create(batch_data)
         return True
 
     @classmethod
@@ -38,9 +37,8 @@ class WorkflowCustomFieldService(BaseService):
 
         for field_info in field_info_list:
             order_id = 0
-            new_id = SnowflakeIDGenerator()()
 
-            result_0 = CustomField(tenant_id=tenant_id, workflow_id=workflow_id,
+            result_0 = Component(tenant_id=tenant_id, workflow_id=workflow_id,
                                    field_type=field_info.get("field_type", ""),
                                    field_key=field_info.get("field_key", ""),
                                    field_name=field_info.get("field_name", ""),
@@ -50,7 +48,6 @@ class WorkflowCustomFieldService(BaseService):
                                    description=field_info.get("description", ""),
                                    placeholder=field_info.get("placeholder", ""),
                                    props=field_info.get("props", ""),
-                                   id=new_id
                                    )
             time.sleep(0.001)  # for SnowflakeIDGenerator's concurrent issue
             order_id += 1
@@ -70,9 +67,9 @@ class WorkflowCustomFieldService(BaseService):
         """
         layout_type_list = ["row", "col"]
         if include_layout is False:
-            return CustomField.objects.filter(workflow_id=workflow_id).exclude(field_type__in=layout_type_list)
+            return Component.objects.filter(workflow_id=workflow_id).exclude(field_type__in=layout_type_list)
         else:
-            return CustomField.objects.filter(workflow_id=workflow_id)
+            return Component.objects.filter(workflow_id=workflow_id)
 
 
 
@@ -112,7 +109,7 @@ class WorkflowCustomFieldService(BaseService):
             query_params &= Q(field_key__contains=query_value) | Q(description__contains=query_value) \
                             | Q(field_name__contains=query_value)
 
-        workflow_custom_field_queryset = CustomField.objects.filter(query_params).order_by('id')
+        workflow_custom_field_queryset = Component.objects.filter(query_params).order_by('id')
         paginator = Paginator(workflow_custom_field_queryset, per_page)
         try:
             workflow_custom_field_result_paginator = paginator.page(page)
@@ -155,7 +152,7 @@ class WorkflowCustomFieldService(BaseService):
         :param creator:
         :return:
         """
-        custom_field_obj = CustomField(workflow_id=workflow_id, field_type_id=field_type_id, field_key=field_key,
+        custom_field_obj = Component(workflow_id=workflow_id, field_type_id=field_type_id, field_key=field_key,
                                        field_name=field_name, order_id=order_id, default_value=default_value,
                                        description=description, field_template=field_template,
                                        boolean_field_display=boolean_field_display,
@@ -186,7 +183,7 @@ class WorkflowCustomFieldService(BaseService):
         :param creator:
         :return:
         """
-        custom_filed_queryset = CustomField.objects.filter(id=custom_field_id)
+        custom_filed_queryset = Component.objects.filter(id=custom_field_id)
         if custom_filed_queryset:
             custom_filed_queryset.update(workflow_id=workflow_id, field_type_id=field_type_id, field_key=field_key,
                                          field_name=field_name, order_id=order_id, default_value=default_value,
@@ -203,7 +200,7 @@ class WorkflowCustomFieldService(BaseService):
         :param custom_field_id:
         :return:
         """
-        custom_field_queryset = CustomField.objects.filter(id=custom_field_id)
+        custom_field_queryset = Component.objects.filter(id=custom_field_id)
         if custom_field_queryset:
             custom_field_queryset.update(is_deleted=True)
         return True, ''

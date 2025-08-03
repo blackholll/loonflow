@@ -8,8 +8,8 @@ import redis
 from django.db.models import Q
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from apps.workflow.models import CustomField, Workflow, WorkflowHook
-from apps.ticket.models import TicketRecord, TicketCustomField, TicketUser, TicketNode
+from apps.workflow.models import Component, Record as WorkflowRecord, Hook as WorkflowHook
+from apps.ticket.models import Record as TicketRecord, CustomField, User as TicketUser, Node as TicketNode
 from service.account.account_dept_service import account_dept_service_ins
 from service.account.account_role_service import account_role_service_ins
 from service.account.account_user_service import account_user_service_ins

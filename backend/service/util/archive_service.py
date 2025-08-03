@@ -3,7 +3,6 @@ import time
 
 from django.forms.models import model_to_dict
 
-from apps.loon_base_model import SnowflakeIDGenerator
 from service.base_service import BaseService
 from apps.util.models import Archive
 
@@ -39,7 +38,7 @@ class ArchiveService(BaseService):
         archive_list = []
         for record in record_queryset:
             data = json.dumps(record.get_dict())
-            archive_list.append(Archive(data=data, model_name=model_name, creator_id=operator_id, id=SnowflakeIDGenerator().__call__()))
+            archive_list.append(Archive(data=data, model_name=model_name, creator_id=operator_id))
         Archive.objects.bulk_create(archive_list)
 
         record_queryset.delete()

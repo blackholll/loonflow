@@ -1,14 +1,12 @@
 import time
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
-
-from apps.loon_base_model import SnowflakeIDGenerator
-from apps.workflow.models import Transition
+from apps.workflow.models import Edge
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 
 
-class WorkflowTransitionService(BaseService):
+class WorkflowEdgeService(BaseService):
     def add_workflow_transition(self, tenant_id: int, workflow_id: int, operator_id: int, node_dict: dict, transition_info_list:list) -> bool:
         """
         add workflow transition info
@@ -21,7 +19,6 @@ class WorkflowTransitionService(BaseService):
         """
         transition_create_list = []
         for transition_info in transition_info_list:
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
             source_node_f_id = transition_info.get("source_node_f_id", "")
             destination_node_f_id = transition_info.get("destination_node_f_id", "")
             source_node_id = node_dict.get(source_node_f_id)
@@ -29,8 +26,7 @@ class WorkflowTransitionService(BaseService):
             destination_node_id = node_dict.get(destination_node_f_id)
             if not (source_node_id or destination_node_id):
                 print(111)
-            transition_id = SnowflakeIDGenerator()()
-            transition_create = Transition(id=transition_id, name=transition_info.get("name"),
+            transition_create = Edge(name=transition_info.get("name"),
                                            tenant_id=tenant_id, creator_id=operator_id,
                                            workflow_id=workflow_id, source_node_id=source_node_id,
                                            destination_node_id=destination_node_id,
@@ -41,17 +37,17 @@ class WorkflowTransitionService(BaseService):
                                            props=transition_info.get("props", {})
                                            )
             transition_create_list.append(transition_create)
-        Transition.objects.bulk_create(transition_create_list)
+        Edge.objects.bulk_create(transition_create_list)
         return True
 
     @classmethod
-    def get_node_transition_queryset(cls, node_id: int) -> list[Transition]:
+    def get_node_transition_queryset(cls, node_id: int) -> list[Edge]:
         """
         get transition list base source node
         :param node_id:
         :return:
         """
-        transition_queryset = Transition.objects.filter(source_node_id=node_id)
+        transition_queryset = Edge.objects.filter(source_node_id=node_id)
         return transition_queryset
 
     @classmethod
@@ -61,7 +57,7 @@ class WorkflowTransitionService(BaseService):
         :param node_id:
         :return:
         """
-        transition_queryset = Transition.objects.filter(source_node_id=node_id)
+        transition_queryset = Edge.objects.filter(source_node_id=node_id)
         result_list = []
         need_key_list = ["id", "label", "name", "type", "alter_text", "props"]
         for transition in transition_queryset:
@@ -89,7 +85,7 @@ class WorkflowTransitionService(BaseService):
         :return:
         """
         result = []
-        transition_queryset = Transition.objects.filter(source_node_id=parallel_node_id).all()
+        transition_queryset = Edge.objects.filter(source_node_id=parallel_node_id).all()
         for transition in transition_queryset:
             if transition.destination_node.type == "parallel_gw":
                 result.extend(cls.get_parallel_next_node_list(transition.destination_node_id))
@@ -104,7 +100,7 @@ class WorkflowTransitionService(BaseService):
         :param source_node_id:
         :return:
         """
-        return Transition.objects.filter(source_node_id=source_node_id)
+        return Edge.objects.filter(source_node_id=source_node_id)
 
 
 
@@ -230,5 +226,5 @@ class WorkflowTransitionService(BaseService):
         return True, ''
 
 
-workflow_transition_service_ins = WorkflowTransitionService()
+workflow_transition_service_ins = WorkflowEdgeService()
 

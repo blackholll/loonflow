@@ -103,9 +103,9 @@ export const getDeptDetail = async (deptId: string) => {
     }
 }
 
-export const getDeptPaths = async (search_value: string) => {
+export const getDeptPaths = async (search_value: string, dept_ids: string, page: number = 1, perPage: number = 100) => {
     try {
-        const response = await apiClient.get(`/api/v1.0/accounts/dept_paths`, { params: { search_value: search_value } });
+        const response = await apiClient.get(`/api/v1.0/accounts/dept_paths`, { params: { search_value: search_value, dept_ids: dept_ids, page: page, per_page: perPage } });
         return response.data;
     } catch (error) {
         throw error;

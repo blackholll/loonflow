@@ -125,6 +125,27 @@ class WorkflowDetailView(BaseView):
         return 'test'
 
 
+class WorkflowVersionsView(BaseView):
+    @user_permission_check("admin, workflow_admin")
+    def get(self, request, *args, **kwargs):
+        workflow_id = kwargs.get("workflow_id")
+        tenant_id = request.META.get('HTTP_TENANTID')
+        operator_id = request.META.get('HTTP_USERID')
+        search_value = request.GET.get('search_value', '')
+        per_page = int(request.GET.get('per_page', 10)) if request.GET.get('per_page', 10) else 10
+        page = int(request.GET.get('page', 1)) if request.GET.get('page', 1) else 1
+        try:
+            result = workflow_base_service_ins.get_workflow_version_list(workflow_id, tenant_id, operator_id, search_value, page, per_page)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internel Server Error", {})
+        return api_response(0, "", dict(version_info_list=result.get("version_info_list"), page=
+                                        result.get("page"), per_page=result.get("per_page"), total=result.get("total")))
+
+
+
 
 
 

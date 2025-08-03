@@ -137,7 +137,10 @@
     "interveneTickets": "干预工单"
   },
   "workflow": {
-    "workflowList": "流程列表"
+    "workflowList": "流程列表",
+    "activeVersion": "当前版本",
+    "candidateVersion": "候选版本",
+    "archivedVersion": "归档版本"
   },
   "setting": {
     "tenant": {

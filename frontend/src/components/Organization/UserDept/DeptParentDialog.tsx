@@ -32,7 +32,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
         }
         try {
             setLoading(true);
-            const result = await getDeptPaths(keyword);
+            const result = await getDeptPaths(keyword, '', 1, 1000);
             if (result.code === 0) {
                 setDeptPathList(result.data.deptPathList);
             } else {

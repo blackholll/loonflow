@@ -6,7 +6,6 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q, QuerySet
 
 from apps.account.models import Dept, UserDept, User, DeptApprover, Tenant
-from apps.loon_base_model import SnowflakeIDGenerator
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 from service.exception.custom_common_exception import CustomCommonException
@@ -220,8 +219,7 @@ class AccountDeptService(BaseService):
                                      approver_id not in existed_approver_id_list]
         add_record = []
         for need_add_approver_id in need_add_approver_id_list:
-            add_record.append(DeptApprover(dept_id=dept_id, user_id=need_add_approver_id, id=SnowflakeIDGenerator()()))
-            time.sleep(0.001)  # temporary action for  SnowflakeIDGenerator concurrence bug
+            add_record.append(DeptApprover(dept_id=dept_id, user_id=need_add_approver_id))
         DeptApprover.objects.bulk_create(add_record)
         if need_del_approver_id_list:
             DeptApprover.objects.filter(dept_id=dept_id, user_id__in=need_del_approver_id_list).delete()
@@ -424,15 +422,18 @@ class AccountDeptService(BaseService):
         return result_list
 
     @classmethod
-    def get_dept_path_list(cls, tenant_id: str, search_value:str) -> list:
+    def get_dept_path_list(cls, tenant_id: str, dept_ids:str, search_value:str) -> list:
         """
         get department path list, eg. [{'id':1, 'path':'技术部-基础设施部'}]
         :param search_value: department name
         :return: list of dict with dept id and full path
         """
         result_list = []
-        # 获取所有匹配的部门
-        department_queryset = Dept.objects.filter(name__contains=search_value, tenant_id=tenant_id).all()
+        query_params = Q(name__contains=search_value, tenant_id=tenant_id)
+        if dept_ids:
+            query_params &= Q(id__in=dept_ids.split(','))
+        department_queryset = Dept.objects.filter(query_params).all()
+
         
         # 收集所有需要查询的部门ID
         dept_ids = set()

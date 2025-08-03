@@ -1,4 +1,4 @@
-import react, { useState, useEffect } from 'react';
+import react, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Box, Tooltip, InputAdornment } from '@mui/material';
 
 import Card from '@mui/material/Card';
@@ -11,13 +11,12 @@ import Tab from '@mui/material/Tab';
 import NotificationConfig from './NotificationConfig';
 import PermissionConfig from './PermissionConfig';
 import CustomizeConfig from './CustomizeConfig';
+import { INotification, IpermissionInfo, ICustomizationInfo, IAdvancedSchema, IFormSchema } from '../../../types/workflow';
 
-interface WorkflowBasicProps {
-    onBasicChange: (name: string, description: string) => void;
-    basicInfo?: {
-        name: string;
-        description: string;
-    };
+interface WorkflowAdvancedProps {
+    onAdvancedChange: (advancedSchema: IAdvancedSchema) => void;
+    advancedSchema: IAdvancedSchema;
+    formSchema: IFormSchema;
 }
 
 const tabList = [
@@ -26,24 +25,56 @@ const tabList = [
     { label: '定制配置', value: 2 },
 ];
 
-function WorkflowAdvanced({ onBasicChange, basicInfo }: WorkflowBasicProps) {
-    const [name, setName] = useState(basicInfo?.name || '');
-    const [description, setDescription] = useState(basicInfo?.description || '');
-    const [activeTab, setActiveTab] = useState('description');
+function WorkflowAdvanced({ onAdvancedChange, advancedSchema, formSchema }: WorkflowAdvancedProps) {
+    const [advancedSchemaInfo, setAdvancedSchemaInfo] = useState(advancedSchema);
     const [tabIndex, setTabIndex] = useState(0);
 
-    // 监听 basicInfo 变化，更新表单值
-    useEffect(() => {
-        if (basicInfo) {
-            setName(basicInfo.name || '');
-            setDescription(basicInfo.description || '');
-        }
-    }, [basicInfo]);
+    const onNotificationConfigChange = useCallback((notificationConfig: INotification) => {
+        setAdvancedSchemaInfo(prev => ({
+            ...prev,
+            notificationInfo: notificationConfig
+        }));
+        onAdvancedChange({ ...advancedSchemaInfo, notificationInfo: notificationConfig });
+    }, []);
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
-        console.log(newValue);
-        setActiveTab(newValue);
-    };
+    const onPermissionConfigChange = useCallback((permissionConfig: IpermissionInfo) => {
+        console.log('onPermissionConfigChange:', permissionConfig);
+        setAdvancedSchemaInfo(prev => ({
+            ...prev,
+            permissionInfo: permissionConfig
+        }));
+        onAdvancedChange({ ...advancedSchemaInfo, permissionInfo: permissionConfig });
+    }, []);
+
+    const onCustomizeConfigChange = useCallback((customizeConfig: ICustomizationInfo) => {
+        setAdvancedSchemaInfo(prev => ({
+            ...prev,
+            customizationInfo: customizeConfig
+        }));
+        onAdvancedChange({ ...advancedSchemaInfo, customizationInfo: customizeConfig });
+    }, []);
+
+    const NotificatinComponent = useMemo(() => (
+        <NotificationConfig
+            onNotificationConfigChange={onNotificationConfigChange}
+            notificationConfig={advancedSchemaInfo.notificationInfo}
+            formSchema={formSchema}
+            key="notification-config" />
+    ), [advancedSchemaInfo.notificationInfo, formSchema, onNotificationConfigChange]);
+
+    const PermissionComponent = useMemo(() => (
+        <PermissionConfig
+            onPermissionConfigChange={onPermissionConfigChange}
+            permissionConfig={advancedSchemaInfo.permissionInfo}
+            key="permission-config" />
+    ), [advancedSchemaInfo.permissionInfo, onPermissionConfigChange]);
+
+    const CustomizeComponent = useMemo(() => (
+        <CustomizeConfig
+            onCustomizeConfigChange={onCustomizeConfigChange}
+            customizeConfig={advancedSchemaInfo.customizationInfo}
+            key="customize-config" />
+    ), [advancedSchemaInfo.customizationInfo, onCustomizeConfigChange]);
 
     return (
         <Grid
@@ -88,13 +119,13 @@ function WorkflowAdvanced({ onBasicChange, basicInfo }: WorkflowBasicProps) {
                             {/* 右侧内容区 */}
                             <Box sx={{ flex: 1, minWidth: 400, maxWidth: 600 }}>
                                 {tabIndex === 0 && (
-                                    <Box><NotificationConfig /></Box>
+                                    <Box>{NotificatinComponent}</Box>
                                 )}
                                 {tabIndex === 1 && (
-                                    <Box><PermissionConfig /></Box>
+                                    <Box>{PermissionComponent}</Box>
                                 )}
                                 {tabIndex === 2 && (
-                                    <Box><CustomizeConfig /></Box>
+                                    <Box>{CustomizeComponent}</Box>
                                 )}
                             </Box>
                         </Box>

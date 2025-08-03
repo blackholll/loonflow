@@ -2,25 +2,54 @@ from django.db import models
 from apps.loon_base_model import BaseCommonModel
 
 
-class Workflow(BaseCommonModel):
+class Record(BaseCommonModel):
     """
     workflow record
     """
+    pass
+
+class Version(BaseCommonModel):
+    """
+    version
+    """
+    TYPE_CHOICE = [
+        ('archived', 'archived'),
+        ('default', 'default'),
+        ('candidate', 'candidate')
+    ]
+    workflow = models.ForeignKey(Record, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING, related_name='workflow_versions')
+    name = models.CharField("name", max_length=50, null=True, blank=True)
+    description = models.CharField("description", max_length=500, null=True, blank=True)
+    type = models.CharField("type", choices=TYPE_CHOICE, max_length=50, null=True, blank=True)
+
+class BaseWorkflowModel(BaseCommonModel):
+    """
+    basic workflow model
+    """
+    version = models.ForeignKey(Version, db_constraint=False, on_delete=models.DO_NOTHING)
+    class Meta:
+        abstract = True
+
+
+
+class BasicInfo(BaseWorkflowModel):
+    """
+    workflow basic info
+    """
+    workflow = models.ForeignKey(Record, db_constraint=False, null=False, on_delete=models.DO_NOTHING, related_name='basic_info')
     name = models.CharField("name", max_length=50)
     description = models.CharField("description", max_length=200)
 
-
-class WorkflowNotice(BaseCommonModel):
+class Notification(BaseWorkflowModel):
     """
-    workflow notice
+    workflow notification
     """
-    workflow = models.ForeignKey(Workflow, db_constraint=False, null=False, on_delete=models.DO_NOTHING)
-    notices = models.CharField("workflow_notices", max_length=500, default="", blank=True)
+    workflow = models.ForeignKey(Record, db_constraint=False, null=False, on_delete=models.DO_NOTHING)
+    channels = models.CharField("workflow_notices", max_length=500, default="", blank=True)
     title_template = models.CharField("title_template", max_length=200, default='', blank=True)  # ',' between notice ids
     content_template = models.CharField("content_template", max_length=1000, default='title:{title}, created at:{created_at}')
 
-
-class Node(BaseCommonModel):
+class Node(BaseWorkflowModel):
     """
     node
     node_field: {"field1": "r", "field2":"rwr", "field3": "rwo"}
@@ -57,7 +86,7 @@ class Node(BaseCommonModel):
     # node field attr: r:read, wo:write option, wr: write require
 
     name = models.CharField("name", max_length=50)
-    workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
+    workflow = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING)
     type = models.CharField("type", max_length=50, choices=TYPE_CHOICE, default='common')
     allow_retreat = models.BooleanField("allow_retreat", default=False)
     remember_last_participant = models.BooleanField("remember_last_participant", default=False, help_text='ticket to this node will assign to the previous handler if the value is true')
@@ -68,29 +97,29 @@ class Node(BaseCommonModel):
     props = models.JSONField("props")
 
 
-class Transition(BaseCommonModel):
+class Edge(BaseWorkflowModel):
     """
-    transition
+    edge
     """
-    TRANSITION_TYPE_CHOICE = [
+    TYPE_CHOICE = [
         ('accept', 'accept'),
         ('reject', 'reject'),
         ('other', 'other')
     ]
     name = models.CharField("name", max_length=50)
-    workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_workflow")
+    workflow = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_workflow")
     source_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
     destination_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_destination")
     condition_expression = models.JSONField("condition_expression", max_length=1000, default=dict)
-    type = models.CharField("transition_type", choices=TRANSITION_TYPE_CHOICE)
-    field_require_check = models.BooleanField("field_require_check", default=True, help_text='will check whether all field rule is valid if this attr is true')
-    alert_text = models.CharField("alert_text", max_length=200, default='', blank=True)
+    type = models.CharField("type", choices=TYPE_CHOICE)
+    validate_fields = models.BooleanField("validate_fields", default=True, help_text='will check whether all field rule is valid if this attr is true')
+    confirm_message = models.CharField("confirm_message", max_length=200, default='', blank=True)
     props = models.JSONField("props")
 
 
-class CustomField(BaseCommonModel):
-    """CustomField"""
-    FIELD_TYPE_CHOICE = [
+class Component(BaseWorkflowModel):
+    """Component"""
+    COMPONENT_TYPE_CHOICE = [
         ('text', 'text'),
         ('number', 'number'),
         ('date', 'date'),
@@ -106,19 +135,16 @@ class CustomField(BaseCommonModel):
         ('col', 'col')
     ]
 
-    workflow = models.ForeignKey(Workflow, db_constraint=False, on_delete=models.DO_NOTHING)
-    field_type = models.CharField("field_type", max_length=50, choices=FIELD_TYPE_CHOICE)
-    field_key = models.CharField("field_key", max_length=50)
-    field_name = models.CharField("field_name", max_length=50)
-    parent_field = models.ForeignKey('self', db_constraint=False, null=False, default=0, on_delete=models.DO_NOTHING)
-    order_id = models.IntegerField("order_id", default=0)  # only for current level's order
-    default_value = models.TextField("default_value", null=True, blank=True)
+    workflow = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING)
+    type = models.CharField("type", max_length=50, choices=COMPONENT_TYPE_CHOICE)
+    component_key = models.CharField("field_key", max_length=50)
+    component_name = models.CharField("component_name", max_length=50)
+    parent_component = models.ForeignKey('self', db_constraint=False, null=False, default=0, on_delete=models.DO_NOTHING)
     description = models.CharField("description", max_length=200, blank=True, default='')
-    placeholder = models.CharField("placeholder", max_length=200, blank=True, default='')
     props = models.JSONField("props")  # unit, option, different field type has different props
 
 
-class WorkflowPermission(BaseCommonModel):
+class Permission(BaseWorkflowModel):
     """
     permission record for workflow
     """
@@ -133,13 +159,13 @@ class WorkflowPermission(BaseCommonModel):
         ('dept', 'dept'),
         ('app', 'app')
     ]
-    workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
+    workflow = models.ForeignKey(Record, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
     permission = models.CharField("permission", choices=PERMISSION_CHOICE, max_length=100, null=True, blank=True)
     target_type = models.CharField("target_type", choices=TARGET_TYPE, max_length=100, null=True, blank=True)
     target = models.CharField("target", max_length=100, null=True, blank=True)  # should be user_id/department_id/app_id
 
 
-class WorkflowHook(BaseCommonModel):
+class Hook(BaseCommonModel):
     """
     hook record
     """
@@ -156,4 +182,7 @@ class WorkflowHook(BaseCommonModel):
     url = models.CharField("url", max_length=500, null=True, blank=True)
     token = models.CharField("token", max_length=200, null=True, blank=True)
     types = models.CharField("types", max_length=500, null=True, blank=True)
-    workflow = models.ForeignKey(Workflow, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
+    workflow = models.ForeignKey(Record, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
+
+
+

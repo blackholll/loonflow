@@ -4,7 +4,10 @@ export const getRoleList = async (searchValue: string, page: number, perPage: nu
     const response = await apiClient.get('/api/v1.0/accounts/roles', { params: { search_value: searchValue, page, per_page: perPage } });
     return response.data;
 };
-
+export const getSimpleRoles = async (searchValue: string, roleIds: string, page: number, perPage: number) => {
+    const response = await apiClient.get('/api/v1.0/accounts/simple_roles', { params: { search_value: searchValue, role_ids: roleIds, page, per_page: perPage } });
+    return response.data;
+};
 export const deleteRole = async (roleId: string) => {
     const response = await apiClient.delete(`/api/v1.0/accounts/roles/${roleId}`);
     return response.data;

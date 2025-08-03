@@ -34,7 +34,7 @@ const nodeConfigs = {
             icon: StartIcon,
             color: '#4caf50',
             properties: {
-                name: '开始节点1',
+                name: '新建中',
                 nodeType: 'start',
                 canConnect: true,
                 canDisconnect: false,
@@ -46,7 +46,7 @@ const nodeConfigs = {
             icon: NormalIcon,
             color: '#2196f3',
             properties: {
-                name: '普通节点1',
+                name: '处理中',
                 nodeType: 'normal',
                 canConnect: true,
                 canDisconnect: true,
@@ -58,7 +58,7 @@ const nodeConfigs = {
             icon: EndIcon,
             color: '#f44336',
             properties: {
-                name: '结束节点1',
+                name: '已结束',
                 nodeType: 'end',
                 canConnect: false,
                 canDisconnect: true,
@@ -119,10 +119,11 @@ const nodeConfigs = {
     ]
 };
 
-const NodePanel: React.FC<NodePanelProps> = ({ onAddNode }) => {
+function NodePanel(props: NodePanelProps) {
+    const { onAddNode } = props;
     const handleNodeDrag = (nodeConfig: any) => {
         onAddNode(nodeConfig.type, {
-            label: nodeConfig.label,
+            label: nodeConfig.properties.name,
             nodeType: nodeConfig.properties.nodeType,
             color: nodeConfig.color,
             properties: nodeConfig.properties,

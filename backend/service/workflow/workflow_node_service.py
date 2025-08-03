@@ -1,7 +1,6 @@
 import json
 import time
 import logging
-from apps.loon_base_model import SnowflakeIDGenerator
 from apps.workflow.models import Node
 from service.base_service import BaseService
 from service.exception.custom_common_exception import CustomCommonException
@@ -23,16 +22,13 @@ class WorkflowNodeService(BaseService):
         node_create_list = []
         result_dict = dict()
         for node_info in node_info_list:
-            time.sleep(0.01)  # SnowflakeIDGenerator has bug will, just workaround provisionally
             f_id = node_info.get("f_id")
-            node_id = SnowflakeIDGenerator()()
-            result_dict[f_id] = node_id
             node_field_dict = dict()
             node_field_info_list = node_info.get("node_field_info_list")
             for node_field_info in node_field_info_list:
                 node_field_dict[node_field_info.get("field_key")] = node_field_info.get("field_attr")
 
-            node_create = Node(id=node_id, name=node_info.get("name"),
+            node_create = Node(name=node_info.get("name"),
                                workflow_id=workflow_id,
                                tenant_id=tenant_id,
                                creator_id=operator_id,

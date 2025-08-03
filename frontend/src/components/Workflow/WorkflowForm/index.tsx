@@ -167,9 +167,10 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
             ...formSchemaInfo,
             componentInfoList: updateInList(formSchemaInfo.componentInfoList) as (IWorkflowComponent[] | IWorkflowComponentRow[])
         };
-
+        console.log('updatedFormSchema', updatedFormSchema);
         setFormSchemaInfo(updatedFormSchema);
         setSelectedComponent(updatedComponent);
+        onFormSchemaChange(updatedFormSchema);
     };
 
     const renderFieldComponent = (component: IWorkflowComponent) => {
@@ -483,7 +484,7 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
             </Box>
 
             {/* 右侧属性面板 */}
-            <Paper sx={{ width: 300, p: 2, overflow: 'auto' }}>
+            <Paper sx={{ width: 350, p: 2, overflow: 'auto' }}>
                 <Typography variant="h6" gutterBottom>
                     属性设置
                 </Typography>
