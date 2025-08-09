@@ -1,13 +1,15 @@
+from distutils import ccompiler
 import time
 from apps.workflow.models import Permission as WorkflowPermission
 from service.base_service import BaseService
 from service.exception.custom_common_exception import CustomCommonException
+from service.util.archive_service import archive_service_ins
 
 
 class WorkflowPermissionService(BaseService):
 
     @classmethod
-    def add_workflow_permission(cls, tenant_id: int, workflow_id: int, operator_id: int, permission_info: dict):
+    def add_workflow_permission(cls, tenant_id: str, workflow_id: str, version_id: str, operator_id: str, permission_info: dict):
         """
         add workflow permission
         :param tenant_id:
@@ -18,35 +20,95 @@ class WorkflowPermissionService(BaseService):
         """
         permission_create_list = []
         admin_id_list = permission_info.get("admin_id_list", [])
-        intervener_id_list = permission_info.get("intervener_id_list", [])
+        dispatcher_id_list = permission_info.get("dispatcher_id_list", [])
         viewer_id_list = permission_info.get("viewer_id_list", [])
         viewer_dept_id_list = permission_info.get("viewer_dept_id_list", [])
+        
         for admin_id in admin_id_list:
-            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id,
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
                                                    permission="admin", target_type="user", target=admin_id,
                                                    creator_id=operator_id
                                                    )
             permission_create_list.append(permission_create)
 
-        for intervener_id in intervener_id_list:
-            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id,
-                                                   permission="intervene", target_type="user", target=str(intervener_id),
+        for dispatcher_id in dispatcher_id_list:
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
+                                                   permission="dispatcher", target_type="user", target=str(dispatcher_id),
                                                    creator_id=operator_id
                                                    )
             permission_create_list.append(permission_create)
 
         for viewer_id in viewer_id_list:
-            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id,
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
                                                    permission="view", target_type="user", target=str(viewer_id),
                                                    creator_id=operator_id)
             permission_create_list.append(permission_create)
 
         for viewer_dept_id in viewer_dept_id_list:
-            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id,
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
                                                    permission="view", target_type="dept", target=str(viewer_dept_id))
             permission_create_list.append(permission_create)
         WorkflowPermission.objects.bulk_create(permission_create_list)
         return True
+
+    @classmethod
+    def add_workflow_app_permission(cls, tenant_id: str, workflow_id: str, version_id: str, operator_id: str, authorized_app_id_list:list): 
+        """
+        add workflow app permission
+        :param tenant_id:
+        :param workflow_id:
+        :param operator_id:
+        :param authorized_app_id_list:
+        :return:
+        """
+        permission_create_list = []
+        for authorized_app_id in authorized_app_id_list:
+            permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
+                                                   permission="api", target_type="app", target=authorized_app_id,
+                                                   creator_id=operator_id)
+            permission_create_list.append(permission_create)
+        WorkflowPermission.objects.bulk_create(permission_create_list)
+        return True
+    @classmethod
+    def get_workflow_fd_permission(cls, tenant_id: str, workflow_id: str, version_id: str):
+        """
+        get workflow full definition permission
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :return:
+        """
+        permission_queryset = WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id).all()
+        if permission_queryset:
+            permission_result = dict(
+                admin_id_list=[permission.target for permission in permission_queryset if permission.permission == 'admin'],
+                dispatcher_id_list=[permission.target for permission in permission_queryset if permission.permission == 'dispatcher'],
+                viewer_id_list=[permission.target for permission in permission_queryset if permission.permission == 'view'],
+                viewer_dept_id_list=[permission.target for permission in permission_queryset if permission.permission == 'view' and permission.target_type == 'dept'],
+            )
+        else:
+            permission_result = dict(
+                admin_id_list = [],
+                dispatcher_id_list = [],
+                viewer_id_list = [],
+                viewer_dept_id_list = []
+            )
+        return permission_result
+    
+    @classmethod
+    def get_workflow_fd_authorized_app_id_list(cls, tenant_id: str, workflow_id: str, version_id: str):
+        """
+        get workflow full definition permission list
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :return:
+        """
+        permission_queryset = WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, permission="api").all()
+        authorized_app_id_list = [permission.target for permission in permission_queryset]
+        return authorized_app_id_list
+
+
 
     @classmethod
     def get_user_permission_workflow_id_list(cls, user_id: str) -> list:
@@ -102,5 +164,98 @@ class WorkflowPermissionService(BaseService):
         workflow_id_list = [result.workflow_id for result in result_queryset]
         workflow_id_list = list(set(workflow_id_list))
         return True, dict(workflow_id_list=workflow_id_list)
+
+    @classmethod
+    def update_workflow_permission(cls, tenant_id: str, workflow_id: str, version_id: str, operator_id: str, permission_info: dict):
+        """
+        update workflow permission
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param operator_id:
+        :param permission_info:
+        :return:
+        """
+        admin_id_list = permission_info.get("admin_id_list", [])
+        dispatcher_id_list = permission_info.get("dispatcher_id_list", [])
+        viewer_id_list = permission_info.get("viewer_id_list", [])
+        viewer_dept_id_list = permission_info.get("viewer_dept_id_list", [])
+
+        ## for deleted
+        exist_permission_queryset = WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id).all()
+        for permission_obj in exist_permission_queryset:
+            if permission_obj.permission == 'admin' and permission_obj.target not in admin_id_list:
+                archive_service_ins.archive_record('workflow_permission', permission_obj, operator_id)
+            if permission_obj.permission == 'dispatcher' and permission_obj.target not in dispatcher_id_list:
+                archive_service_ins.archive_record('workflow_permission', permission_obj, operator_id)
+            if permission_obj.permission == 'view' and permission_obj.target not in viewer_id_list:
+                archive_service_ins.archive_record('workflow_permission', permission_obj, operator_id)
+            if permission_obj.permission == 'view' and permission_obj.target_type == 'dept' and permission_obj.target not in viewer_dept_id_list:
+                archive_service_ins.archive_record('workflow_permission', permission_obj, operator_id)
+
+
+        ## for added
+        permission_create_list = []
+        for admin_id in admin_id_list:
+            if not WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, permission="admin", target_type="user", target=admin_id).exists():
+                permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
+                                                   permission="admin", target_type="user", target=admin_id,
+                                                   creator_id=operator_id
+                                                   )
+                permission_create_list.append(permission_create)
+        
+        for dispatcher_id in dispatcher_id_list:
+            if not WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, permission="dispatcher", target_type="user", target=dispatcher_id).exists():
+                permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
+                                                   permission="dispatcher", target_type="user", target=dispatcher_id,
+                                                   creator_id=operator_id
+                                                   )
+                permission_create_list.append(permission_create)
+        for viewer_id in viewer_id_list:
+            if not WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, permission="view", target_type="user", target=viewer_id).exists():
+                permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
+                                                   permission="view", target_type="user", target=viewer_id,
+                                                   creator_id=operator_id
+                                                   )
+                permission_create_list.append(permission_create)
+        for viewer_dept_id in viewer_dept_id_list:
+            if not WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, permission="view", target_type="dept", target=viewer_dept_id).exists():
+                permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
+                                                   permission="view", target_type="dept", target=viewer_dept_id,
+                                                   creator_id=operator_id
+                                                   )
+                permission_create_list.append(permission_create)
+
+        WorkflowPermission.objects.bulk_create(permission_create_list)
+        return True
+
+    @classmethod
+    def update_workflow_app_permission(cls, tenant_id: str, workflow_id: str, version_id: str, operator_id: str, authorized_app_id_list: list):
+        """
+        update workflow app permission
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param operator_id:
+        :param authorized_app_id_list:
+        :return:
+        """
+        # todo: need delete removed permission
+        exist_permission_queryset = WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, permission="api").all()
+        for permission_obj in exist_permission_queryset:
+            if permission_obj.target not in authorized_app_id_list:
+                archive_service_ins.archive_record('workflow_permission', permission_obj, operator_id)
+
+        # todo: need add new permission
+        permission_create_list = []
+        for authorized_app_id in authorized_app_id_list:
+            if not WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, permission="api", target_type="app", target=authorized_app_id).exists():
+                permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
+                                                   permission="api", target_type="app", target=authorized_app_id,
+                                                   creator_id=operator_id)
+            permission_create_list.append(permission_create)
+        WorkflowPermission.objects.bulk_create(permission_create_list)
+        return True
+
 
 workflow_permission_service_ins = WorkflowPermissionService()

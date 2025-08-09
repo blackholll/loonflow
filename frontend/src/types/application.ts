@@ -20,7 +20,7 @@ export interface ISimpleApplicationResEntity {
   name: string;
   description: string;
   type: string;
-  tenantId: string;
+  tenantId?: string;
 }
 export interface IApplicationListResData {
   applicationInfoList: IApplicationResEntity[]

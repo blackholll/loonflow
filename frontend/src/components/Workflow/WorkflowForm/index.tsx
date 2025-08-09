@@ -428,7 +428,7 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
                                         })}
                                     </Box>
                                     <Typography variant="body2" sx={{ flex: 1 }} style={{ fontSize: 11 }}>
-                                        {template.name}
+                                        {template.componentName}
                                     </Typography>
                                 </Card>
                             ))}

@@ -6,7 +6,7 @@ from service.account.account_base_service import account_base_service_ins
 from service.base_service import BaseService
 from service.common.constant_service import constant_service_ins
 from service.common.log_service import auto_log
-from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
+from service.workflow.workflow_component_service import workflow_component_service_ins
 from service.workflow.workflow_transition_service import workflow_transition_service_ins
 
 

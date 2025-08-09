@@ -45,8 +45,8 @@ class Notification(BaseWorkflowModel):
     workflow notification
     """
     workflow = models.ForeignKey(Record, db_constraint=False, null=False, on_delete=models.DO_NOTHING)
-    channels = models.CharField("workflow_notices", max_length=500, default="", blank=True)
-    title_template = models.CharField("title_template", max_length=200, default='', blank=True)  # ',' between notice ids
+    channels = models.CharField("workflow_notification", max_length=500, default="", blank=True)
+    title_template = models.CharField("title_template", max_length=200, default='', blank=True)
     content_template = models.CharField("content_template", max_length=1000, default='title:{title}, created at:{created_at}')
 
 class Node(BaseWorkflowModel):
@@ -88,12 +88,7 @@ class Node(BaseWorkflowModel):
     name = models.CharField("name", max_length=50)
     workflow = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING)
     type = models.CharField("type", max_length=50, choices=TYPE_CHOICE, default='common')
-    allow_retreat = models.BooleanField("allow_retreat", default=False)
-    remember_last_participant = models.BooleanField("remember_last_participant", default=False, help_text='ticket to this node will assign to the previous handler if the value is true')
-    participant_type = models.CharField("participant_type", max_length=100, choices=PARTICIPANT_TYPE_CHOICE)
-    participant = models.CharField("participant", default='', blank=True, max_length=1000, help_text='need support sub-workflow, then you should set the participant as loonflowrobot')
-    distribute_type = models.CharField("distribute_type", max_length=50, default='direct', choices=DISTRIBUTE_TYPE_CHOICE)
-    node_field = models.JSONField("node_field", default=dict)
+    layout = models.JSONField("layout")
     props = models.JSONField("props")
 
 
@@ -109,11 +104,9 @@ class Edge(BaseWorkflowModel):
     name = models.CharField("name", max_length=50)
     workflow = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_workflow")
     source_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
-    destination_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_destination")
-    condition_expression = models.JSONField("condition_expression", max_length=1000, default=dict)
+    target_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="transition_destination")
     type = models.CharField("type", choices=TYPE_CHOICE)
-    validate_fields = models.BooleanField("validate_fields", default=True, help_text='will check whether all field rule is valid if this attr is true')
-    confirm_message = models.CharField("confirm_message", max_length=200, default='', blank=True)
+    layout = models.JSONField("layout")
     props = models.JSONField("props")
 
 
@@ -139,8 +132,9 @@ class Component(BaseWorkflowModel):
     type = models.CharField("type", max_length=50, choices=COMPONENT_TYPE_CHOICE)
     component_key = models.CharField("field_key", max_length=50)
     component_name = models.CharField("component_name", max_length=50)
-    parent_component = models.ForeignKey('self', db_constraint=False, null=False, default=0, on_delete=models.DO_NOTHING)
+    parent_component = models.ForeignKey('self', db_constraint=False, null=True, default='0000', on_delete=models.DO_NOTHING)
     description = models.CharField("description", max_length=200, blank=True, default='')
+    layout = models.JSONField("layout")
     props = models.JSONField("props")  # unit, option, different field type has different props
 
 
@@ -165,11 +159,11 @@ class Permission(BaseWorkflowModel):
     target = models.CharField("target", max_length=100, null=True, blank=True)  # should be user_id/department_id/app_id
 
 
-class Hook(BaseCommonModel):
+class Hook(BaseWorkflowModel):
     """
     hook record
     """
-    HOOK_TYPE_CHOICE = [
+    EVENT_TYPE_CHOICE = [
         ("pre_create", "pre_create"),
         ("create", "create"),
         ("force_close", "force_close"),
@@ -181,7 +175,7 @@ class Hook(BaseCommonModel):
     description = models.CharField("description", max_length=500, null=True, blank=True)
     url = models.CharField("url", max_length=500, null=True, blank=True)
     token = models.CharField("token", max_length=200, null=True, blank=True)
-    types = models.CharField("types", max_length=500, null=True, blank=True)
+    events = models.CharField("events", max_length=500, null=True, blank=True)
     workflow = models.ForeignKey(Record, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
 
 

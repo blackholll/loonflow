@@ -1,4 +1,5 @@
 import { IApiResponse, ILabel } from '../types/common';
+import { v4 as uuidv4 } from 'uuid';
 
 
 export interface ILayout {
@@ -81,7 +82,7 @@ export interface IWorkflowVersionListRes extends IApiResponse<IWorkflowVersionLi
 export interface IWorkflowComponent {
   id: string,
   componentKey: string,
-  name: string,
+  componentName: string,
   description: string,
   type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'link' | 'richText' | 'externalData' | 'customCreator' | 'customCreatedAt' | 'ticketStatus' | 'approvalStatus' | 'ticketType' | 'currentHandler',
   layout: ILayout,
@@ -92,7 +93,8 @@ export interface IWorkflowComponent {
 export interface IWorkflowComponentRow {
   id: string,
   componentKey: string,
-  name: string,
+  componentName: string,
+  description: string,
   type: 'row',
   layout: ILayout,
   label: ILabel,
@@ -114,7 +116,8 @@ export interface IWorkflowNodeProps {
 }
 export interface IWorkflowNode {
   id: string,
-  type: 'start' | 'end' | 'common',
+  type: 'start' | 'end' | 'common' | 'parallel' | 'exclusive' | 'timer' | 'hook',
+  name: string,
   label: ILabel,
   layout: INodeLayout,
   props: IWorkflowNodeProps,
@@ -169,7 +172,7 @@ export interface IpermissionInfo {
   adminIdList: string[],
   dispatcherIdList: string[],
   viewerIdList: string[],
-  viewDepartmentIdList: string[]
+  viewerDeptIdList: string[]
 }
 export interface ICustomizationInfo {
   authorizedAppIdList: string[],
@@ -195,7 +198,7 @@ export interface IWorkflowFullDefinition {
 export const createEmptyWorkflowFullDefinition = (): IWorkflowFullDefinition => {
   return {
     basicInfo: {
-      id: '',
+      id: `temp_${uuidv4()}`,
       name: '',
       description: '',
       version: '',
@@ -218,7 +221,7 @@ export const createEmptyWorkflowFullDefinition = (): IWorkflowFullDefinition => 
         adminIdList: [],
         dispatcherIdList: [],
         viewerIdList: [],
-        viewDepartmentIdList: []
+        viewerDeptIdList: []
       },
       customizationInfo: {
         authorizedAppIdList: [],
@@ -230,3 +233,5 @@ export const createEmptyWorkflowFullDefinition = (): IWorkflowFullDefinition => 
 }
 
 export interface IWorkflowFullDefinitionRes extends IApiResponse<{ workflowFullDefination: IWorkflowFullDefinition }> { }
+
+export interface IWorkflowReleaseRes extends IApiResponse<{ workflowId: string }> { }

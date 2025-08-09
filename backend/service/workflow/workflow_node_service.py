@@ -10,7 +10,7 @@ logger = logging.getLogger("django")
 
 class WorkflowNodeService(BaseService):
     @classmethod
-    def add_workflow_node(cls, operator_id: int, tenant_id: int, workflow_id: int, node_info_list: list) -> dict:
+    def add_workflow_node(cls, operator_id: str, tenant_id: str, workflow_id: str, version_id: str, node_info_list: list) -> dict:
         """
         add workflow node
         :param operator_id:
@@ -19,32 +19,51 @@ class WorkflowNodeService(BaseService):
         :param node_info_list:
         :return:
         """
-        node_create_list = []
-        result_dict = dict()
+        # since we need get each record's id,  have to insert record one by one
+        node_id_dict = {}
         for node_info in node_info_list:
-            f_id = node_info.get("f_id")
-            node_field_dict = dict()
-            node_field_info_list = node_info.get("node_field_info_list")
-            for node_field_info in node_field_info_list:
-                node_field_dict[node_field_info.get("field_key")] = node_field_info.get("field_attr")
+            new_node_info = {
+                'name': node_info.get("name"),
+                'workflow_id': workflow_id,
+                'tenant_id': tenant_id,
+                'version_id': version_id,
+                'creator_id': operator_id,
+                'type': node_info.get("type"),
+                'props': node_info.get("props", {}),
+                'layout': node_info.get("layout", {}),
+                'label': node_info.get("label", {})
+            }
+            new_node_record = Node(**new_node_info)
+            new_node_record.save()
+            new_node_id = new_node_record.id
+            node_id_dict[node_info.get("id")] = new_node_id
+        return node_id_dict
 
-            node_create = Node(name=node_info.get("name"),
-                               workflow_id=workflow_id,
-                               tenant_id=tenant_id,
-                               creator_id=operator_id,
-                               type=node_info.get("type"),
-                               allow_retreat=node_info.get("allow_retreat"),
-                               remember_last_participant=node_info.get("remember_last_participant"),
-                               participant_type=node_info.get("participant_type"),
-                               participant=node_info.get("participant"),
-                               distribute_type=node_info.get("distribute_type"),
-                               node_field=node_field_dict,
-                               props=node_info.get("props")
-                               )
-            node_create_list.append(node_create)
-        Node.objects.bulk_create(node_create_list)
-        return result_dict
 
+    @classmethod
+    def get_workflow_fd_node_list(cls, tenant_id: str, workflow_id: str, version_id: str):
+        """
+        get workflow node list
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :return:
+        """
+        node_queryset = Node.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id)
+        node_result_list = []
+        for node_obj in node_queryset:
+            node_result_list.append(
+                dict(
+                    id=str(node_obj.id),
+                    name=node_obj.name,
+                    type=node_obj.type,
+                    props=node_obj.props,
+                    layout=node_obj.layout,
+                    label=node_obj.label,
+                )
+            )
+        return node_result_list
+    
     @classmethod
     def get_init_node_rest(cls, workflow_id: int) -> dict:
         """
@@ -98,6 +117,45 @@ class WorkflowNodeService(BaseService):
     @classmethod
     def get_node_by_id(cls, node_id:int):
         return Node.objects.get(id=node_id)
+
+    @classmethod
+    def update_workflow_node(cls, tenant_id: str, workflow_id: str, version_id: str, operator_id: str, node_info_list: list):
+        """
+        update workflow node
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param node_info_list:
+        :return:
+        """
+        node_id_dict = {}
+        for node_info in node_info_list:
+            if node_info.get("id").startswith('temp_'):
+                # new node
+                new_node_record= Node(
+                    name=node_info.get("name"),
+                    workflow_id=workflow_id,
+                    tenant_id=tenant_id,
+                    version_id=version_id,
+                    creator_id=operator_id,
+                    type=node_info.get("type"),
+                    props=node_info.get("props", {}),
+                    layout=node_info.get("layout", {}),
+                    label=node_info.get("label", {})
+                )
+                new_node_record.save()
+                node_id_dict[node_info.get("id")] = new_node_record.id
+            else:
+                # update existed node
+                update_node_record = Node.objects.filter(id=node_info.get("id"), tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id).update(
+                    name=node_info.get("name"),
+                    type=node_info.get("type"),
+                    props=node_info.get("props", {}),
+                    layout=node_info.get("layout", {}),
+                    label=node_info.get("label", {}))
+
+        return node_id_dict
+
 
 
 workflow_node_service_ins = WorkflowNodeService()

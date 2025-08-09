@@ -1066,7 +1066,6 @@ class ApplicationView(BaseView):
 
 
 class SimpleApplicationView(BaseView):
-    @user_permission_check("workflow_admin")
     def get(self, request, *args, **kwargs):
         """
         get simple application list. used by select application in workflow config page

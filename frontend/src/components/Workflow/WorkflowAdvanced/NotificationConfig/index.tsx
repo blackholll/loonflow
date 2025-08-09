@@ -6,12 +6,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { getSimpleNotificationList } from '../../../../services/notification';
 import { INotification, IFormSchema } from '../../../../types/workflow';
 
-const availableFields = [
-    { key: 'title', label: '标题' },
-    { key: 'country.label', label: '国家' },
-    { key: 'username', label: '用户名' },
-    // 可根据实际表单设计动态生成
-];
+
 
 // 定义通知项的类型
 interface NotificationItem {
@@ -57,15 +52,15 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
             if (component.type === 'row' && 'children' in component) {
                 component.children.forEach((childComponent) => {
                     fields.push({
-                        key: childComponent.id,
-                        label: childComponent.name
+                        key: childComponent.componentKey,
+                        label: childComponent.componentName
                     });
                 });
             } else {
                 // 如果是 IWorkflowComponent 类型，直接添加
                 fields.push({
-                    key: component.id,
-                    label: component.name
+                    key: component.componentKey,
+                    label: component.componentName
                 });
             }
         });
@@ -130,7 +125,7 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
                             sx={{ width: 300 }}
                             renderInput={(params) => <TextField {...params} label="通知方式" />}
                             renderOption={(props, option) => (
-                                <li {...props}>
+                                <li {...props} key={option.id}>
                                     <div>
                                         <div>{option.name || '未命名'}</div>
                                         <div style={{ fontSize: '0.8em', color: '#666' }}>
@@ -140,13 +135,16 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
                                 </li>
                             )}
                             renderTags={(value, getTagProps) =>
-                                value.map((option, index) => (
-                                    <Chip
+                                value.map((option, index) => {
+                                    const { key, ...otherProps } = getTagProps({ index });
+                                    return <Chip
+                                        key={key}
                                         label={option.name}
                                         size="small"
-                                        {...getTagProps({ index })}
+                                        {...otherProps}
                                     />
-                                ))
+                                }
+                                )
                             }
                         />
                     </Grid>

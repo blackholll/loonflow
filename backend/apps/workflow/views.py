@@ -12,7 +12,7 @@ from service.exception.custom_common_exception import CustomCommonException
 from service.format_response import api_response
 from service.permission.user_permission import user_permission_check
 from service.workflow.workflow_base_service import workflow_base_service_ins
-from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
+from service.workflow.workflow_component_service import workflow_component_service_ins
 from service.workflow.workflow_permission_service import workflow_permission_service_ins
 from service.workflow.workflow_state_service import workflow_state_service_ins
 from service.workflow.workflow_transition_service import workflow_transition_service_ins
@@ -46,7 +46,7 @@ class WorkflowView(BaseView):
         return api_response(0, "", dict(workflow_info_list=result.get("workflow_info_list"), page=
                                         result.get("page"), per_page=result.get("per_page"), total=result.get("total")))
 
-    @user_permission_check('workflow_admin')
+    @user_permission_check('workflow_admin,admin')
     def post(self, request, *args, **kwargs):
         """
         new workflow. include all workflow info
@@ -119,10 +119,6 @@ class WorkflowInitNodeView(BaseView):
         return api_response(0, "", result)
 
 
-class WorkflowDetailView(BaseView):
-    @user_permission_check("workflow_admin", )
-    def get(self, request, *args, **kwargs):
-        return 'test'
 
 
 class WorkflowVersionsView(BaseView):
@@ -145,6 +141,83 @@ class WorkflowVersionsView(BaseView):
                                         result.get("page"), per_page=result.get("per_page"), total=result.get("total")))
 
 
+
+
+class WorkflowDetailView(BaseView):
+    @user_permission_check('workflow_admin,admin', workflow_id_source='url')
+    def get(self, request, *args, **kwargs):
+        """
+        获取工作流详情
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        version_name = request.GET.get('version_name', '')
+        
+        try:
+            workflow_result = workflow_base_service_ins.get_full_definition_info_by_id(tenant_id, workflow_id, version_name)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internel Server Error", {})
+        
+        return api_response(0, '', {'workflow_full_defination':  workflow_result})
+
+    @user_permission_check('workflow_admin,admin', workflow_id_source='url')
+    def patch(self, request, *args, **kwargs):
+        """
+        修改工作流
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        json_str = request.body.decode('utf-8')
+        if not json_str:
+            return api_response(-1, 'post参数为空', {})
+        request_data_dict = json.loads(json_str)
+        workflow_id = kwargs.get('workflow_id')
+        operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+
+        try:
+            workflow_base_service_ins.update_workflow(operator_id, tenant_id, workflow_id, request_data_dict)
+            return api_response(0, "", dict(workflow_id=workflow_id))
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+
+
+        
+
+    @user_permission_check('workflow_admin')
+    def delete(self, request, *args, **kwargs):
+        """
+        删除工作流
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        app_name = request.META.get('HTTP_APPNAME')
+        workflow_id = kwargs.get('workflow_id')
+        # 判断是否有工作流的权限
+        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
+        if not app_permission:
+            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
+        flag, result = workflow_base_service_ins.delete_workflow(workflow_id)
+        if flag is False:
+            code, msg, data = -1, msg, {}
+        else:
+            code, msg, data = 0, '', {}
+        return api_response(code, msg, data)
+    
 
 
 
@@ -198,105 +271,7 @@ class WorkflowInitView(BaseView):
         return api_response(code, msg, data)
 
 
-class WorkflowDetailView(BaseView):
-    patch_schema = Schema({
-        'name': And(str, lambda n: n != '', error='name is needed'),
-        Optional('description'): str,
-        str: object
 
-    })
-
-    @user_permission_check('workflow_admin')
-    def get(self, request, *args, **kwargs):
-        """
-        获取工作流详情
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        workflow_id = kwargs.get('workflow_id')
-
-        app_name = request.META.get('HTTP_APPNAME')
-        username = request.user.username
-
-        flag, msg = workflow_permission_service_ins.manage_workflow_permission_check(workflow_id, username, app_name)
-        if flag is False:
-            return api_response(-1, msg, {})
-
-        flag, workflow_result = workflow_base_service_ins.get_full_info_by_id(workflow_id)
-        if flag is False:
-            code, msg, data = -1, workflow_result, {}
-        else:
-            workflow_result['gmt_created'] = str(workflow_result['gmt_created'])[:19]
-            code = 0
-        return api_response(code, msg, workflow_result)
-
-    @user_permission_check('workflow_admin')
-    def patch(self, request, *args, **kwargs):
-        """
-        修改工作流
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'post参数为空', {})
-        request_data_dict = json.loads(json_str)
-        app_name = request.META.get('HTTP_APPNAME')
-        workflow_id = kwargs.get('workflow_id')
-        from service.account.account_base_service import AccountBaseService
-        # 判断是否有工作流的权限
-        app_permission, msg = AccountBaseService.app_workflow_permission_check(app_name, workflow_id)
-        if not app_permission:
-            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        name = request_data_dict.get('name', '')
-        description = request_data_dict.get('description', '')
-        notices = request_data_dict.get('notices', '')
-        view_permission_check = request_data_dict.get('view_permission_check', 1)
-        limit_expression = request_data_dict.get('limit_expression', '')
-        display_form_str = request_data_dict.get('display_form_str', '')
-        workflow_admin = request_data_dict.get('workflow_admin', '')
-        title_template = request_data_dict.get('title_template', '')
-        content_template = request_data_dict.get('content_template', '')
-        intervener = request_data_dict.get('intervener', '')
-        view_depts = request_data_dict.get('view_depts', '')
-        view_persons = request_data_dict.get('view_persons', '')
-        api_permission_apps = request_data_dict.get('api_permission_apps', '')
-
-
-        flag, result = workflow_base_service_ins.edit_workflow(
-            workflow_id, name, description, notices, view_permission_check, limit_expression, display_form_str,
-            workflow_admin, title_template, content_template, intervener, view_depts, view_persons, api_permission_apps)
-        if flag is False:
-            code, msg, data = -1, result, {}
-        else:
-            code, msg, data = 0, '', {}
-        return api_response(code, msg, data)
-
-    @user_permission_check('workflow_admin')
-    def delete(self, request, *args, **kwargs):
-        """
-        删除工作流
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        app_name = request.META.get('HTTP_APPNAME')
-        workflow_id = kwargs.get('workflow_id')
-        # 判断是否有工作流的权限
-        app_permission, msg = account_base_service_ins.app_workflow_permission_check(app_name, workflow_id)
-        if not app_permission:
-            return api_response(-1, 'APP:{} have no permission to get this workflow info'.format(app_name), '')
-        flag, result = workflow_base_service_ins.delete_workflow(workflow_id)
-        if flag is False:
-            code, msg, data = -1, msg, {}
-        else:
-            code, msg, data = 0, '', {}
-        return api_response(code, msg, data)
 
 
 class WorkflowTransitionView(BaseView):

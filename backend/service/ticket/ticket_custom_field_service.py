@@ -1,6 +1,6 @@
 from apps.ticket.models import CustomField as TicketCustomField
 from service.base_service import BaseService
-from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
+from service.workflow.workflow_component_service import workflow_component_service_ins
 
 
 class TicketCustomFieldService(BaseService):
@@ -38,16 +38,16 @@ class TicketCustomFieldService(BaseService):
         :param field_info_dict:
         :return:
         """
-        workflow_custom_field_queryset = workflow_custom_field_service_ins.get_workflow_custom_field(workflow_id)
-        custom_field_dict = {}
-        for workflow_custom_field in workflow_custom_field_queryset:
-            custom_field_dict[workflow_custom_field.field_key] = workflow_custom_field.field_type
-        record_list = []
-        for field_key, field_value in field_info_dict.items():
-            field_value_column = cls.get_field_value_column(custom_field_dict.get(field_key))
-            record_list.append(TicketCustomField(tenant_id=tenant_id, ticket_id=ticket_id, creator_id=operator_id, field_key=field_key, field_type=custom_field_dict.get(field_key),
-                                                 **{field_value_column: field_value}))
-        TicketCustomField.objects.bulk_create(record_list)
+        # workflow_custom_field_queryset = workflow_component_service_ins.get_workflow_custom_field(workflow_id)
+        # custom_field_dict = {}
+        # for workflow_custom_field in workflow_custom_field_queryset:
+        #     custom_field_dict[workflow_custom_field.field_key] = workflow_custom_field.field_type
+        # record_list = []
+        # for field_key, field_value in field_info_dict.items():
+        #     field_value_column = cls.get_field_value_column(custom_field_dict.get(field_key))
+        #     record_list.append(TicketCustomField(tenant_id=tenant_id, ticket_id=ticket_id, creator_id=operator_id, field_key=field_key, field_type=custom_field_dict.get(field_key),
+        #                                          **{field_value_column: field_value}))
+        # TicketCustomField.objects.bulk_create(record_list)
         return True
 
 

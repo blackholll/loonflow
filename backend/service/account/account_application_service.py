@@ -59,7 +59,7 @@ class AccountApplicationService(BaseService):
         for application_object in application_object_list:
             result = application_object.get_dict()
             if simple:
-                need_del_field_list = ["label", "creator_info", "created_at", "updated_at", "type", "token", "tenant_id"]
+                need_del_field_list = ["label", "creator_info", "created_at", "updated_at", "token", "tenant_id"]
                 for need_del_field in need_del_field_list:
                     result.pop(need_del_field)
             application_result_list.append(result)

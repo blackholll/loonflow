@@ -139,13 +139,13 @@ function ComponentProperties({ component, onUpdate }: ComponentPropertiesProps) 
 
             <TextField
                 label="名称"
-                value={(component as IWorkflowComponent).name || ''}
-                onChange={(e) => handleChange('name', e.target.value)}
+                value={(component as IWorkflowComponent).componentName || ''}
+                onChange={(e) => handleChange('componentName', e.target.value)}
                 fullWidth
                 size="small"
                 required
-                error={!((component as IWorkflowComponent).name || '').trim()}
-                helperText={!((component as IWorkflowComponent).name || '').trim() ? '名称为必填项' : ''}
+                error={!((component as IWorkflowComponent).componentName || '').trim()}
+                helperText={!((component as IWorkflowComponent).componentName || '').trim() ? '名称为必填项' : ''}
             />
 
             <TextField

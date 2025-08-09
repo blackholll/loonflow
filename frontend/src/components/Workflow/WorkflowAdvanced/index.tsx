@@ -30,29 +30,38 @@ function WorkflowAdvanced({ onAdvancedChange, advancedSchema, formSchema }: Work
     const [tabIndex, setTabIndex] = useState(0);
 
     const onNotificationConfigChange = useCallback((notificationConfig: INotification) => {
-        setAdvancedSchemaInfo(prev => ({
-            ...prev,
-            notificationInfo: notificationConfig
-        }));
-        onAdvancedChange({ ...advancedSchemaInfo, notificationInfo: notificationConfig });
-    }, []);
+        setAdvancedSchemaInfo(prev => {
+            const newState = {
+                ...prev,
+                notificationInfo: notificationConfig
+            };
+            onAdvancedChange(newState);
+            return newState;
+        });
+    }, [onAdvancedChange]);
 
     const onPermissionConfigChange = useCallback((permissionConfig: IpermissionInfo) => {
         console.log('onPermissionConfigChange:', permissionConfig);
-        setAdvancedSchemaInfo(prev => ({
-            ...prev,
-            permissionInfo: permissionConfig
-        }));
-        onAdvancedChange({ ...advancedSchemaInfo, permissionInfo: permissionConfig });
-    }, []);
+        setAdvancedSchemaInfo(prev => {
+            const newState = {
+                ...prev,
+                permissionInfo: permissionConfig
+            };
+            onAdvancedChange(newState);
+            return newState;
+        });
+    }, [onAdvancedChange]);
 
     const onCustomizeConfigChange = useCallback((customizeConfig: ICustomizationInfo) => {
-        setAdvancedSchemaInfo(prev => ({
-            ...prev,
-            customizationInfo: customizeConfig
-        }));
-        onAdvancedChange({ ...advancedSchemaInfo, customizationInfo: customizeConfig });
-    }, []);
+        setAdvancedSchemaInfo(prev => {
+            const newState = {
+                ...prev,
+                customizationInfo: customizeConfig
+            };
+            onAdvancedChange(newState);
+            return newState;
+        });
+    }, [onAdvancedChange]);
 
     const NotificatinComponent = useMemo(() => (
         <NotificationConfig

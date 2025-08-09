@@ -18,7 +18,6 @@ from service.util.archive_service import ArchiveService, archive_service_ins
 class AccountUserService(BaseService):
 
     @classmethod
-    @auto_log
     def user_type_check(cls, email: str = "", user_id: str = 0, tenant_id: str = "", types: str = "") -> bool:
         """
         user type check

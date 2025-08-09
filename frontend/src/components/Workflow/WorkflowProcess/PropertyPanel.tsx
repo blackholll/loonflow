@@ -561,13 +561,13 @@ function PropertyPanel(props: PropertyPanelProps) {
                     <TextField
                         label="节点名称"
                         value={properties.name || ''}
-                        disabled={element.data?.nodeType === 'start' || element.data?.nodeType === 'end'}
+                        disabled={properties.type === 'start' || properties.type === 'end'}
                         onChange={(e) => handleNodeNameChange(e.target.value)}
                         size="small"
                         fullWidth
                     />
 
-                    {element.data?.nodeType === 'normal' && (
+                    {properties.type === 'normal' && (
                         <>
                             <Autocomplete
                                 options={assigneeTypeOptions}
@@ -653,7 +653,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                                     return component.children.map((child: any) => {
                                         return (<Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
 
-                                            <FormLabel id="demo-controlled-radio-buttons-group" sx={{ width: '80px' }}>{child.name}</FormLabel>
+                                            <FormLabel id="demo-controlled-radio-buttons-group" sx={{ width: '80px' }}>{child.componentName}</FormLabel>
                                             <RadioGroup
                                                 row
                                                 aria-labelledby="demo-controlled-radio-buttons-group"

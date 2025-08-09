@@ -1,6 +1,6 @@
 
 import apiClient from './api';
-import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes, IWorkflowVersionListRes } from '../types/workflow';
+import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes, IWorkflowVersionListRes, IWorkflowReleaseRes } from '../types/workflow';
 import { IApiErrResponse, } from '@/types/common';
 
 
@@ -105,16 +105,16 @@ export const getWorkflowList = async (search_value: string, page: number, per_pa
   }
 };
 
-export const getWorkflowDetail = async (workflowId: string): Promise<IWorkflowFullDefinitionRes | IApiErrResponse> => {
+export const getWorkflowDetail = async (workflowId: string, versionName?: string): Promise<IWorkflowFullDefinitionRes | IApiErrResponse> => {
   try {
-    const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}`);
+    const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}`, { params: { version_name: versionName } });
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const addWorkflow = async (params: any): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+export const addWorkflow = async (params: any): Promise<IWorkflowReleaseRes | IApiErrResponse> => {
   try {
     const response = await apiClient.post('/api/v1.0/workflows', params);
     return response.data;
@@ -123,7 +123,7 @@ export const addWorkflow = async (params: any): Promise<ISimpleWorkflowListRes |
   }
 };
 
-export const updateWorkflow = async (workflowId: number, params: any): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+export const updateWorkflow = async (workflowId: string, params: any): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
   try {
     const response = await apiClient.patch(`/api/v1.0/workflows/${workflowId}`, params);
     return response.data;
@@ -132,7 +132,7 @@ export const updateWorkflow = async (workflowId: number, params: any): Promise<I
   }
 };
 
-export const deleteWorkflow = async (workflowId: number): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+export const deleteWorkflow = async (workflowId: string): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
   try {
     const response = await apiClient.delete(`/api/v1.0/workflows/${workflowId}`);
     return response.data;

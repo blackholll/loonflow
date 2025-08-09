@@ -160,7 +160,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
         try {
             const response = await getSimpletApplicationList(searchValue, '', 1, 1000, 'workflow_admin');
             if (response.code === 0) {
-                setApplicationList(response.data.applicationList.map((app: ISimpleApplicationResEntity) => ({ label: app.name, value: app.id })) || []);
+                setApplicationList(response.data.applicationList);
             }
         } catch (error) {
             console.error('加载应用列表失败:', error);

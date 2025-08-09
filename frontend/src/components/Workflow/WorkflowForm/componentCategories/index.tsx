@@ -20,7 +20,7 @@ import {
 const basicComponentTemplates: ComponentTemplate[] = [
     {
         type: 'text',
-        name: '单行文本',
+        componentName: '单行文本',
         icon: <TextFieldsIcon />,
         defaultProps: {
             label: '文本输入',
@@ -32,7 +32,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'textarea',
-        name: '多行文本',
+        componentName: '多行文本',
         icon: <TextFieldsIcon />,
         defaultProps: {
             label: '多行文本',
@@ -44,7 +44,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'number',
-        name: '数字',
+        componentName: '数字',
         icon: <NumberIcon />,
         defaultProps: {
             label: '数字',
@@ -56,7 +56,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'select',
-        name: '下拉选择',
+        componentName: '下拉选择',
         icon: <SelectIcon />,
         defaultProps: {
             label: '下拉选择',
@@ -75,7 +75,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'radio',
-        name: '单选框',
+        componentName: '单选框',
         icon: <RadioButtonIcon />,
         defaultProps: {
             label: '单选框',
@@ -93,7 +93,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'checkbox',
-        name: '复选框',
+        componentName: '复选框',
         icon: <CheckBoxIcon />,
         defaultProps: {
             label: '复选框',
@@ -111,7 +111,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'time',
-        name: '时间选择',
+        componentName: '时间选择',
         icon: <Schedule />,
         defaultProps: {
             label: '时间选择',
@@ -125,7 +125,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'date',
-        name: '日期选择',
+        componentName: '日期选择',
         icon: <CalendarMonth />,
         defaultProps: {
             label: '日期选择',
@@ -139,7 +139,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'file',
-        name: '附件',
+        componentName: '附件',
         icon: <FileIcon />,
         defaultProps: {
             label: '附件',
@@ -150,7 +150,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'user',
-        name: '用户',
+        componentName: '用户',
         icon: <UserIcon />,
         defaultProps: {
             label: '用户',
@@ -161,7 +161,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'department',
-        name: '部门',
+        componentName: '部门',
         icon: <GroupsIcon />,
         defaultProps: {
             label: '部门',
@@ -172,7 +172,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'link',
-        name: '链接',
+        componentName: '链接',
         icon: <Link />,
         defaultProps: {
             label: '链接',
@@ -183,7 +183,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'richText',
-        name: '富文本',
+        componentName: '富文本',
         icon: <EditNote />,
         defaultProps: {
             label: '富文本',
@@ -194,7 +194,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
     },
     {
         type: 'externalData',
-        name: '外部数据源',
+        componentName: '外部数据源',
         icon: <DateIcon />,
         defaultProps: {
             label: '外部数据源',
@@ -209,7 +209,7 @@ const basicComponentTemplates: ComponentTemplate[] = [
 const InfoComponentTemplates: ComponentTemplate[] = [
     {
         type: 'customCreator',
-        name: '创建人',
+        componentName: '创建人',
         icon: <SelectIcon />,
         defaultProps: {
             label: '创建人',
@@ -219,7 +219,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         }
     }, {
         type: 'customCreatedAt',
-        name: '创建时间',
+        componentName: '创建时间',
         icon: <SelectIcon />,
         defaultProps: {
             label: '创建时间',
@@ -229,7 +229,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         }
     }, {
         type: 'ticketStatus',
-        name: '工单状态',
+        componentName: '工单状态',
         icon: <SelectIcon />,
         defaultProps: {
             label: '工单状态',
@@ -239,7 +239,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         }
     }, {
         type: 'approvalStatus',
-        name: '审批状态',
+        componentName: '审批状态',
         icon: <SelectIcon />,
         defaultProps: {
             label: '审批状态',
@@ -249,7 +249,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         }
     }, {
         type: 'ticketType',
-        name: '工单类型',
+        componentName: '工单类型',
         icon: <SelectIcon />,
         defaultProps: {
             label: '工单类型',
@@ -259,7 +259,7 @@ const InfoComponentTemplates: ComponentTemplate[] = [
         }
     }, {
         type: 'currentHandler',
-        name: '当前处理人',
+        componentName: '当前处理人',
         icon: <SelectIcon />,
         defaultProps: {
             label: '当前处理人',

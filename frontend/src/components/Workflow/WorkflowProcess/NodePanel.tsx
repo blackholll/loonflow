@@ -29,37 +29,37 @@ const nodeConfigs = {
     // 基础节点
     basicNodes: [
         {
-            type: 'startNode',
+            type: 'start',
             label: '开始节点',
             icon: StartIcon,
             color: '#4caf50',
             properties: {
                 name: '新建中',
-                nodeType: 'start',
+                type: 'start',
                 canConnect: true,
                 canDisconnect: false,
             }
         },
         {
-            type: 'normalNode',
+            type: 'normal',
             label: '普通节点',
             icon: NormalIcon,
             color: '#2196f3',
             properties: {
                 name: '处理中',
-                nodeType: 'normal',
+                type: 'normal',
                 canConnect: true,
                 canDisconnect: true,
             }
         },
         {
-            type: 'endNode',
+            type: 'end',
             label: '结束节点',
             icon: EndIcon,
             color: '#f44336',
             properties: {
                 name: '已结束',
-                nodeType: 'end',
+                type: 'end',
                 canConnect: false,
                 canDisconnect: true,
             }
@@ -73,7 +73,7 @@ const nodeConfigs = {
             icon: ParallelIcon,
             color: '#ff9800',
             properties: {
-                nodeType: 'parallel',
+                type: 'parallel',
                 canConnect: true,
                 canDisconnect: true,
                 gatewayType: 'parallel',
@@ -85,7 +85,7 @@ const nodeConfigs = {
             icon: ExclusiveIcon,
             color: '#9c27b0',
             properties: {
-                nodeType: 'exclusive',
+                type: 'exclusive',
                 canConnect: true,
                 canDisconnect: true,
                 gatewayType: 'exclusive',
@@ -95,23 +95,23 @@ const nodeConfigs = {
 
     advancedNodes: [
         {
-            type: 'timerNode',
+            type: 'timer',
             icon: TimerIcon,
             label: '定时器节点',
             color: '#9c27b0',
             properties: {
-                nodeType: 'timer',
+                type: 'timer',
                 canConnect: true,
                 canDisconnect: true,
             }
         },
         {
-            type: 'hookNode',
+            type: 'hook',
             icon: WebhookIcon,
             label: '钩子节点',
             color: '#9c27b0',
             properties: {
-                nodeType: 'hook',
+                type: 'hook',
                 canConnect: true,
                 canDisconnect: true,
             }
@@ -124,7 +124,7 @@ function NodePanel(props: NodePanelProps) {
     const handleNodeDrag = (nodeConfig: any) => {
         onAddNode(nodeConfig.type, {
             label: nodeConfig.properties.name,
-            nodeType: nodeConfig.properties.nodeType,
+            type: nodeConfig.properties.type,
             color: nodeConfig.color,
             properties: nodeConfig.properties,
         });

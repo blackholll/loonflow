@@ -5,6 +5,7 @@ import { getWorkflowVersionList } from '../../../../services/workflow';
 import { SelectChangeEvent, Card, CardHeader, Button, Dialog, DialogTitle, DialogActions, DialogContent, Autocomplete, Container, TextField, Select, MenuItem, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TablePagination, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import useSnackbar from '../../../../hooks/useSnackbar';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 function WorkflowVersion({ workflowId }: { workflowId: string }) {
@@ -21,6 +22,7 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
     const [versionDescription, setVersionDescription] = useState('');
     const [versionType, setVersionType] = useState('default');
     const { showMessage } = useSnackbar();
+    const navigate = useNavigate();
 
 
     const fetchWorkflowVersionList = useCallback(async () => {
@@ -101,7 +103,9 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                                     <TableCell>{workflowVersion.type}</TableCell>
                                     <TableCell>{new Date(workflowVersion.createdAt).toLocaleString()}</TableCell>
                                     <TableCell>
-                                        <div><Button onClick={() => handleEditVersion(workflowVersion)}>编辑版本</Button><Button >编辑工作流</Button></div>
+                                        <div><Button onClick={() => handleEditVersion(workflowVersion)}>编辑版本</Button>
+                                            <Button disabled={workflowVersion.type === 'archived'} onClick={() => workflowVersion.type !== 'archived' && navigate(`/workflow/${workflowId}?version_name=${workflowVersion.name}`)}>编辑工作流</Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )) : null}

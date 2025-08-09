@@ -31,7 +31,7 @@ from service.workflow.workflow_node_service import workflow_node_service_ins
 from service.workflow.workflow_permission_service import workflow_permission_service_ins
 from service.workflow.workflow_state_service import workflow_state_service_ins
 from service.workflow.workflow_transition_service import workflow_transition_service_ins
-from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
+from service.workflow.workflow_component_service import workflow_component_service_ins
 
 
 class TicketBaseService(BaseService):

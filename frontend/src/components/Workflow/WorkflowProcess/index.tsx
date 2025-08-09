@@ -25,38 +25,36 @@ import PropertyPanel from './PropertyPanel';
 import { CustomNode } from './CustomNode';
 import { CustomEdge } from './CustomEdge';
 import { IProcessSchema, IWorkflowNode, IWorkflowEdge, IFormSchema } from '../../../types/workflow';
+import { v4 as uuidv4 } from 'uuid';
 
-// 边类型定义 - 移到组件外部避免重新创建
+// edge definition, move to the outside of the component to avoid re-creation
 const edgeTypes: EdgeTypes = {
     custom: CustomEdge,
 };
 
-// 节点类型定义 - 移到组件外部避免重新创建
+// move to the outside of the component to avoid re-creation
 const nodeTypes: NodeTypes = {
-    startNode: (props: any) => <CustomNode {...props} />,
-    normalNode: (props: any) => <CustomNode {...props} />,
-    endNode: (props: any) => <CustomNode {...props} />,
+    start: (props: any) => <CustomNode {...props} />,
+    normal: (props: any) => <CustomNode {...props} />,
+    end: (props: any) => <CustomNode {...props} />,
     parallelGateway: (props: any) => <CustomNode {...props} />,
     exclusiveGateway: (props: any) => <CustomNode {...props} />,
-    timerNode: (props: any) => <CustomNode {...props} />,
-    hookNode: (props: any) => <CustomNode {...props} />,
+    timer: (props: any) => <CustomNode {...props} />,
+    hook: (props: any) => <CustomNode {...props} />,
 };
 
 // 将 IWorkflowNode 转换为 React Flow Node
 const convertWorkflowNodeToReactFlowNode = (workflowNode: IWorkflowNode): Node => {
+    console.log(' workflowNode.type workflowNode.type:', workflowNode)
     return {
         id: workflowNode.id,
-        type: workflowNode.type === 'start' ? 'startNode' :
-            workflowNode.type === 'end' ? 'endNode' : 'normalNode',
+        type: workflowNode.type,
         position: { x: workflowNode.layout.x, y: workflowNode.layout.y },
         data: {
-            label: workflowNode.label.text || workflowNode.label.label,
-            nodeType: workflowNode.type,
             properties: {
-                name: workflowNode.label.text || workflowNode.label.label,
-                description: workflowNode.label.description || '',
-                assignee: workflowNode.props.assignee || '',
-                timeout: 0,
+                label: workflowNode.label,
+                name: workflowNode.name,
+                type: workflowNode.type,
                 ...workflowNode.props
             }
         },
@@ -73,11 +71,10 @@ const convertWorkflowEdgeToReactFlowEdge = (workflowEdge: IWorkflowEdge): Edge =
         targetHandle: workflowEdge.layout.targetHandle,
         type: 'custom',
         data: {
-            label: workflowEdge.label.text || workflowEdge.label.label,
             properties: {
                 name: workflowEdge.name,
-                description: workflowEdge.label.description || '',
                 type: workflowEdge.type,
+                label: workflowEdge.props.label,
                 ...workflowEdge.props
             }
         },
@@ -88,30 +85,22 @@ const convertWorkflowEdgeToReactFlowEdge = (workflowEdge: IWorkflowEdge): Edge =
     };
 };
 
-// 将 React Flow Node 转换为 IWorkflowNode
 const convertReactFlowNodeToWorkflowNode = (node: Node): IWorkflowNode => {
     const properties: any = node.data.properties || {};
+    const workflowNodeName = properties.name || '';
+    const workflowLabel = properties.label || {};
+    const { name, label, ...workflowProps } = properties;
+
     return {
         id: node.id,
-        type: node.data.nodeType as 'start' | 'end' | 'common',
-        label: {
-            text: properties.name || node.data.label,
-            label: properties.name || node.data.label,
-            description: properties.description || '',
-        },
+        type: node.type as 'start' | 'end' | 'common' | 'parallel' | 'exclusive' | 'timer' | 'hook',
+        name: workflowNodeName,
+        label: workflowLabel,
         layout: {
             x: node.position.x,
             y: node.position.y,
         },
-        props: {
-            allowRetreat: false,
-            rememberLastParticipant: false,
-            fieldPermission: {},
-            assigneeType: 'user',
-            assignee: properties.assignee || '',
-            distributeType: 'direct',
-            ...properties
-        }
+        props: workflowProps
     };
 };
 
@@ -124,11 +113,7 @@ const convertReactFlowEdgeToWorkflowEdge = (edge: Edge): IWorkflowEdge => {
         type: properties.type || 'other',
         sourceNodeId: edge.source,
         targetNodeId: edge.target,
-        label: {
-            text: properties.name || edge.data?.label || '',
-            label: properties.name || edge.data?.label || '',
-            description: properties.description || '',
-        },
+        label: properties.label,
         props: {
             validateField: false,
             condition: properties.condition || '',
@@ -148,11 +133,11 @@ interface WorkflowProcessProps {
     onProcessSchemaChange?: (processSchema: IProcessSchema) => void;
 }
 
-const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
+function WorkflowProcess({
     processSchema = { nodeInfoList: [], edgeInfoList: [] },
     formSchema = { componentInfoList: [] },
     onProcessSchemaChange
-}) => {
+}: WorkflowProcessProps) {
     // 初始化节点和边
     const initialNodes: Node[] = processSchema.nodeInfoList.map(convertWorkflowNodeToReactFlowNode);
     const initialEdges: Edge[] = processSchema.edgeInfoList.map(convertWorkflowEdgeToReactFlowEdge);
@@ -263,7 +248,7 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
             // 使用React Flow的addEdge函数创建连线
             const newEdge: Edge = {
                 ...params,
-                id: `edge-${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}-${Date.now()}`,
+                id: `temp_${uuidv4()}`,
                 type: 'custom',
                 data: {
                     properties: {
@@ -329,7 +314,7 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
     // 添加节点
     const onAddNode = useCallback((nodeType: string, nodeData: any) => {
         const newNode: Node = {
-            id: `${nodeType}-${Date.now()}`,
+            id: `temp_${uuidv4()}`,
             type: nodeType,
             position: { x: 100, y: 100 },
             data: {
@@ -338,7 +323,6 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
                     name: nodeData.properties.name ?? '',
                     description: '',
                     assignee: '',
-                    timeout: 0,
                     ...nodeData.properties,
                 }
             },
@@ -460,7 +444,7 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
                 // 复制边
                 const newEdge: Edge = {
                     ...selectedElement,
-                    id: `edge-${Date.now()}`,
+                    id: `temp_${uuidv4()}`,
                     source: selectedElement.source,
                     target: selectedElement.target,
                     data: {
@@ -481,7 +465,7 @@ const WorkflowProcess: React.FC<WorkflowProcessProps> = ({
                 // 复制节点
                 const newNode: Node = {
                     ...selectedElement,
-                    id: `${selectedElement.type}-${Date.now()}`,
+                    id: `temp_${uuidv4()}`,
                     position: {
                         x: selectedElement.position.x + 50,
                         y: selectedElement.position.y + 50,

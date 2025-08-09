@@ -146,8 +146,8 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
         if (permissionConfigInfo.viewerIdList.length > 0) {
             fetchSimpleUsers('', permissionConfig.viewerIdList.join(','), 1, 1000).then(data => setSelectedViewers(data));
         }
-        if (permissionConfigInfo.viewDepartmentIdList.length > 0) {
-            fetchDeptPaths('', permissionConfig.viewDepartmentIdList.join(','), 1, 1000).then(data => setSelectedViewerDepts(data));
+        if (permissionConfigInfo.viewerDeptIdList.length > 0) {
+            fetchDeptPaths('', permissionConfig.viewerDeptIdList.join(','), 1, 1000).then(data => setSelectedViewerDepts(data));
         }
     }, [permissionConfigInfo]);
 

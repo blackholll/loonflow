@@ -1,6 +1,7 @@
 import json
 from django.conf import settings
 from django.db.models import Q
+from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from apps.workflow.models import Record as WorkflowRecord, Permission as WorkflowPermission, BasicInfo, Version as WorkflowVersion
 from service.account.account_user_service import account_user_service_ins
@@ -9,13 +10,14 @@ from service.common.common_service import common_service_ins
 from service.common.log_service import auto_log
 from service.account.account_base_service import AccountBaseService, account_base_service_ins
 from service.exception.custom_common_exception import CustomCommonException
-from service.workflow.workflow_custom_field_service import workflow_custom_field_service_ins
 from service.workflow.workflow_hook_service import workflow_hook_service_ins
 from service.workflow.workflow_node_service import workflow_node_service_ins
-from service.workflow.workflow_notice_service import workflow_notice_service_ins
+from service.workflow.workflow_notification_service import workflow_notification_service_ins
 from service.workflow.workflow_permission_service import workflow_permission_service_ins
 from service.workflow.workflow_state_service import workflow_state_service_ins
 from service.workflow.workflow_transition_service import workflow_transition_service_ins
+from service.workflow.workflow_component_service import workflow_component_service_ins
+from service.workflow.workflow_edge_service import workflow_edge_service_ins
 
 
 class WorkflowBaseService(BaseService):
@@ -23,7 +25,8 @@ class WorkflowBaseService(BaseService):
     workflow service
     """
     @classmethod
-    def add_workflow(cls, operator_id: int, tenant_id: int, request_data: dict) -> int:
+    @transaction.atomic
+    def add_workflow(cls, operator_id: str, tenant_id: str, request_data: dict) -> str:
         """
         add workflow
         :param operator_id:
@@ -32,16 +35,34 @@ class WorkflowBaseService(BaseService):
         :return:
         """
         basic_info = request_data.get("basic_info")
-        workflow_info = WorkflowRecord(name=basic_info.get('name'), description=basic_info.get("description"))
-        workflow_info.save()
-        workflow_id = workflow_info.id
-        workflow_notice_service_ins.add_workflow_notice(operator_id, tenant_id, workflow_id, request_data.get("notice_info"))
-        workflow_custom_field_service_ins.add_workflow_custom_field(tenant_id, workflow_id, request_data.get("field_info_list"))
-        node_dict = workflow_node_service_ins.add_workflow_node(operator_id, tenant_id, workflow_id, request_data.get("node_info_list"))
-        workflow_transition_service_ins.add_workflow_transition(tenant_id, workflow_id, operator_id, node_dict, request_data.get("transition_info_list"))
-        workflow_permission_service_ins.add_workflow_permission(tenant_id, workflow_id, operator_id, request_data.get("permission_info"))
-        workflow_hook_service_ins.add_workflow_hook(tenant_id, workflow_id, operator_id, request_data.get("hook_info_list"))
-        return workflow_info.id
+        workflow_record_info = WorkflowRecord(tenant_id=tenant_id)
+        workflow_record_info.save()
+        workflow_id = workflow_record_info.id
+        new_version_record = WorkflowVersion(tenant_id=tenant_id, name=basic_info.get('version'), workflow_id=workflow_id, type='default')
+        new_version_record.save()
+        new_version_id = new_version_record.id
+        
+
+        workflow_basic_info = BasicInfo(tenant_id=tenant_id, name=basic_info.get('name'), description=basic_info.get("description"), workflow_id=workflow_id, version_id=new_version_id)
+        workflow_basic_info.save()
+        
+        workflow_notification_service_ins.add_workflow_notification(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("advanced_schema", {}).get("notification_info", {}))
+        workflow_component_service_ins.add_workflow_components(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("form_schema", {}).get("component_info_list"))
+        node_id_dict = workflow_node_service_ins.add_workflow_node(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("process_schema", {}).get("node_info_list"))
+
+        edge_info_list = request_data.get("process_schema", {}).get("edge_info_list", [])
+        for edge_info in edge_info_list:
+            edge_info["source_node_id"] = node_id_dict.get(edge_info.get("source_node_id"))
+            edge_info["target_node_id"] = node_id_dict.get(edge_info.get("target_node_id")) 
+            
+        workflow_edge_service_ins.add_workflow_edges(tenant_id, workflow_id, new_version_id, operator_id, edge_info_list)
+        
+        workflow_permission_service_ins.add_workflow_permission(tenant_id, workflow_id, new_version_id, operator_id, request_data.get("advanced_schema", {}).get("permission_info", {}))
+        workflow_permission_service_ins.add_workflow_app_permission(tenant_id, workflow_id, new_version_id, operator_id, request_data.get("advanced_schema", {}).get("customization_info", {}).get("authorized_app_id_list", []))
+        workflow_hook_service_ins.add_workflow_hook(tenant_id, workflow_id, new_version_id, operator_id, request_data.get("advanced_schema", {}).get("customization_info", {}).get("hook_info_list", []))
+        
+        return str(workflow_record_info.id)
+
 
     @classmethod
     def get_workflow_list(cls, tenant_id: int, operator_id: int, search_value: str, page: int, per_page: int, simple=False) ->dict:
@@ -88,6 +109,67 @@ class WorkflowBaseService(BaseService):
             workflow_info_list.append(workflow_data)
         return dict(workflow_info_list=workflow_info_list, per_page=per_page, page=page, total=paginator.count)
 
+
+    @classmethod
+    @transaction.atomic
+    def update_workflow(cls, operator_id: str, tenant_id: str, workflow_id: str, request_data: dict)->str:
+        """
+        update workflow
+        :param workflow_id:
+        :param request_data:
+        :return:
+        """
+        current_version = request_data.get("basic_info", {}).get("version")
+        current_version_queryset = WorkflowVersion.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, name=current_version).all()
+        if current_version_queryset.count() == 0:
+            # add a new version
+            new_version_record = WorkflowVersion(tenant_id=tenant_id, name=current_version, workflow_id=workflow_id, type='candidate')
+            new_version_record.save()
+            new_version_id = new_version_record.id
+
+            # add new version whole info
+            workflow_basic_info = BasicInfo(tenant_id=tenant_id, name=request_data.get("basic_info", {}).get('name'), description=request_data.get("basic_info", {}).get("description"), workflow_id=workflow_id, version_id=new_version_id)
+            workflow_basic_info.save()
+
+            workflow_notification_service_ins.add_workflow_notification(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("advanced_schema", {}).get("notification_info", {}))
+            workflow_component_service_ins.add_workflow_components(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("form_schema", {}).get("component_info_list"))
+            node_id_dict = workflow_node_service_ins.add_workflow_node(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("process_schema", {}).get("node_info_list"))
+
+            edge_info_list = request_data.get("process_schema", {}).get("edge_info_list", [])
+            for edge_info in edge_info_list:
+                edge_info["source_node_id"] = node_id_dict.get(edge_info.get("source_node_id"))
+                edge_info["target_node_id"] = node_id_dict.get(edge_info.get("target_node_id")) 
+                
+            workflow_edge_service_ins.add_workflow_edges(tenant_id, workflow_id, new_version_id, operator_id, edge_info_list)
+            
+            workflow_permission_service_ins.add_workflow_permission(tenant_id, workflow_id, new_version_id, operator_id, request_data.get("advanced_schema", {}).get("permission_info", {}))
+            workflow_permission_service_ins.add_workflow_app_permission(tenant_id, workflow_id, new_version_id, operator_id, request_data.get("advanced_schema", {}).get("customization_info", {}).get("authorized_app_id_list", []))
+            workflow_hook_service_ins.add_workflow_hook(tenant_id, workflow_id, new_version_id, operator_id, request_data.get("advanced_schema", {}).get("customization_info", {}).get("hook_info_list", []))
+        else:
+            # todo: update exist version's info
+            version_id = current_version_queryset.first().id
+            BasicInfo.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id).update(name=request_data.get("basic_info", {}).get('name'), description=request_data.get("basic_info", {}).get("description"))
+
+            workflow_notification_service_ins.update_workflow_notification(tenant_id, workflow_id, version_id, request_data.get("advanced_schema", {}).get("notification_info", {}))
+
+            workflow_component_service_ins.update_workflow_components(tenant_id, workflow_id, version_id, operator_id, request_data.get("form_schema", {}).get("component_info_list"))
+
+            node_id_dict = workflow_node_service_ins.update_workflow_node(tenant_id, workflow_id, version_id, operator_id, request_data.get("process_schema", {}).get("node_info_list"))
+            edge_info_list = request_data.get("process_schema", {}).get("edge_info_list", [])
+            for edge_info in edge_info_list:
+                edge_info["source_node_id"] = node_id_dict.get(edge_info.get("source_node_id"))
+                edge_info["target_node_id"] = node_id_dict.get(edge_info.get("target_node_id")) 
+                
+            workflow_edge_service_ins.update_workflow_edges(tenant_id, workflow_id, new_version_id, operator_id, edge_info_list)
+
+            # update permission
+            workflow_permission_service_ins.update_workflow_permission(tenant_id, workflow_id, version_id, operator_id, request_data.get("advanced_schema", {}).get("permission_info", {}))
+            # update app permission
+            workflow_permission_service_ins.update_workflow_app_permission(tenant_id, workflow_id, version_id, operator_id, request_data.get("advanced_schema", {}).get("customization_info", {}).get("authorized_app_id_list", []))
+            # update hook
+            workflow_hook_service_ins.update_workflow_hook(tenant_id, workflow_id, version_id, operator_id, request_data.get("advanced_schema", {}).get("customization_info", {}).get("hook_info_list", []))
+            return True
+        
     @classmethod
     def get_workflow_init_node_rest(cls, workflow_id: int) -> dict:
         """
@@ -175,43 +257,63 @@ class WorkflowBaseService(BaseService):
         return True, workflow_obj
 
     @classmethod
-    @auto_log
-    def get_full_info_by_id(cls, workflow_id: int)->tuple:
+    def get_full_definition_info_by_id(cls, tenant_id: str, workflow_id: str, version_name: str='')->tuple:
         """
-        获取工作流详细详情，包括关联数据。管理员， 干预人，查看权限人，查看权限部门，授权应用
+        get full definition of workflow
+        :param tenant_id:
         :param workflow_id:
+        :param version_id:
         :return:
         """
-        workflow_obj = WorkflowRecord.objects.filter(is_deleted=0, id=workflow_id).first()
+        try:
+            if version_name:
+                version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, name=version_name)
+                if version_obj.type == 'archived':
+                    raise CustomCommonException('version is archived, does not support to get full definition')
+            else:
+                version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, type='default')
+                if version_obj.type == 'archived':
+                    raise CustomCommonException('version is archived, does not support to get full definition')
+        except WorkflowVersion.DoesNotExist:
+            raise CustomCommonException('version is not existed or has been deleted')
 
-        # 权限人
-        permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id).all()
-        adminer_list = []
-        intervener_list = []
-        viewer_username_list = []
-        viewer_dept_id_list = []
-        app_for_api_id_list = []
-        for permission_obj in permission_queryset:
-            if permission_obj.permission == 'admin':
-                adminer_list.append(permission_obj.user)
-            elif permission_obj.permission == 'intervene':
-                intervener_list.append(permission_obj.user)
-            elif permission_obj.permission == 'view':
-                if permission_obj.user_type == 'user':
-                    viewer_username_list.append(permission_obj.user)
-                if permission_obj.user_type == 'department':
-                    viewer_dept_id_list.append(permission_obj.user)
-            elif permission_obj.permission == 'api':
-                app_for_api_id_list.append(permission_obj.user)
+        # basicinfo
+        basic_info_obj = BasicInfo.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_obj.id)
+        basic_info = dict(
+            id=workflow_id,
+            name=basic_info_obj.name,
+            description=basic_info_obj.description,
+            version=version_obj.name,
+            tenant_id=str(basic_info_obj.tenant_id),
+            label=basic_info_obj.label
+        )
 
-        workflow_info_dict = workflow_obj.get_dict()
-        workflow_info_dict['workflow_admin'] = adminer_list
-        workflow_info_dict['intervener'] = intervener_list
-        workflow_info_dict['view_persons'] = viewer_username_list
-        workflow_info_dict['view_depts'] = viewer_dept_id_list
-        workflow_info_dict['api_permission_apps'] = app_for_api_id_list
-        return True, workflow_info_dict
+        form_schema_component_list = workflow_component_service_ins.get_workflow_fd_component_list(tenant_id, workflow_id, version_obj.id)
+        process_schema_node_list = workflow_node_service_ins.get_workflow_fd_node_list(tenant_id, workflow_id, version_obj.id)
+        process_schema_edge_list = workflow_edge_service_ins.get_workflow_fd_edge_list(tenant_id, workflow_id, version_obj.id)
+        
 
+        notification_result = workflow_notification_service_ins.get_workflow_fd_notification(tenant_id, workflow_id, version_obj.id)
+        
+        workflow_permission_result = workflow_permission_service_ins.get_workflow_fd_permission(tenant_id, workflow_id, version_obj.id)
+        
+        workflow_authorized_app_id_list = workflow_permission_service_ins.get_workflow_fd_authorized_app_id_list(tenant_id, workflow_id, version_obj.id)
+
+        workflow_hook_result = workflow_hook_service_ins.get_workflow_fd_hook_list(tenant_id, workflow_id, version_obj.id)
+
+        label = basic_info_obj.label
+        basic_info.pop('label')
+        
+        return dict(
+            basic_info=basic_info,
+            form_schema={'component_info_list': form_schema_component_list},
+            process_schema={'node_info_list': process_schema_node_list, 'edge_info_list': process_schema_edge_list},
+            advanced_schema={'notification_info': notification_result, 'permission_info': workflow_permission_result, 'customization_info': {
+                'authorized_app_id_list': workflow_authorized_app_id_list,
+                'hook_info_list': workflow_hook_result
+            }},
+            label=label
+        )
 
 
 

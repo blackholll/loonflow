@@ -14,19 +14,24 @@ export function WorkflowList() {
     const [workflowDatas, setWorkflowDatas] = React.useState<IWorkflowEntity[]>([]);
     const [workflowListLoading, setWorkflowListLoading] = React.useState<boolean>(false);
     const [searchKey, setSearchKey] = React.useState<string>('')
-    const [openWorkflow, setOpenWorkflow] = React.useState<boolean>(false);
-    const [openedWorkflowId, setOpenedWorkflowId] = React.useState<string>('')
     const [total, setTotal] = React.useState<number>(0)
-    const [page, setPage] = React.useState<number>(1)
+    const [page, setPage] = React.useState<number>(0)
     const [perPage, setPerPage] = React.useState<number>(10)
     const [openedWorkflowIdVersion, setOpenedWorkflowIdVersion] = React.useState<string>('')
+
+    useEffect(() => {
+        const maxPage = Math.ceil(total / perPage);
+        if (page > maxPage - 1 && maxPage >= 1) {
+            setPage(maxPage);
+        }
+    }, [total, perPage]);
 
     const { showMessage } = useSnackbar();
 
     const fetchWorkflowList = useCallback(async () => {
         try {
             setWorkflowListLoading(true);
-            const res = await getWorkflowList(searchKey, page, perPage,);
+            const res = await getWorkflowList(searchKey, page + 1, perPage,);
             if (res.code === 0) {
                 setWorkflowDatas(res.data.workflowInfoList);
                 setTotal(res.data.total);
@@ -42,11 +47,6 @@ export function WorkflowList() {
         fetchWorkflowList();
     }, [searchKey, page, perPage, fetchWorkflowList]);
 
-
-    const handleOpenWorkflow = (workflowId: string) => {
-        setOpenWorkflow(true);
-        setOpenedWorkflowId(workflowId);
-    }
     const handleWorkflowVersionClose = () => {
         setOpenedWorkflowIdVersion('');
     }
@@ -60,7 +60,7 @@ export function WorkflowList() {
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <Link to="/workflow/00000000-0000-0000-0000-000000000000">
-                        <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={() => setOpenWorkflow(true)}>{t('common.new')}</Button>
+                        <Button variant="outlined" size={'large'} sx={{ width: '150px' }}>{t('common.new')}</Button>
                     </Link>
                 </Grid>
             </Grid>
@@ -95,9 +95,12 @@ export function WorkflowList() {
                 component="div"
                 count={total}
                 rowsPerPage={perPage}
-                page={page}
+                page={total === 0 ? 0 : page}
                 onPageChange={(_event: any, newPage) => setPage(newPage)}
-                onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) => { setPerPage(parseInt(event.target.value, 10)); setPage(1); fetchWorkflowList() }}
+                onRowsPerPageChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setPerPage(parseInt(event.target.value, 10));
+                    setPage(0);
+                }}
             />
             <Dialog
                 maxWidth="md"

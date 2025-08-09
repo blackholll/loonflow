@@ -41,7 +41,7 @@ function FormPreview({ formSchemaInfo, renderFieldComponent }: FormPreviewProps)
                                                         minWidth: 80,
                                                     }}
                                                 >
-                                                    {fieldComponent.name}{fieldComponent.description && (
+                                                    {fieldComponent.componentName}{fieldComponent.description && (
                                                         <Tooltip
                                                             title={fieldComponent.description}
                                                             placement="top"

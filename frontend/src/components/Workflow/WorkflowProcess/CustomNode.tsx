@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { useState } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Box, Typography, Paper, TextField } from '@mui/material';
 import {
@@ -10,36 +10,25 @@ import {
     Timer as TimerIcon,
     Webhook as WebhookIcon
 } from '@mui/icons-material';
-import zIndex from '@mui/material/styles/zIndex';
-import { transform } from 'lodash';
 
-type NodeShape = 'rectangle' | 'ellipse' | 'diamond';
 
-interface WorkflowNodeData {
-    label: string;
-    nodeType: string;
-    properties?: {
-        name: string;
-        description: string;
-        assignee: string;
-        timeout: number;
-        [key: string]: any;
-    };
-}
 
 
 const CustomNode = ({ data, selected }: NodeProps) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [editName, setEditName] = useState((data as any)?.label || '节点');
+    const [editName, setEditName] = useState((data as any)?.properties?.name || '节点');
     const [showHandles, setShowHandles] = useState(false);
 
+
+    console.log('data333:', data);
     // 当 data.label 变化时，更新 editName
     React.useEffect(() => {
-        setEditName((data as any)?.label || '节点');
-    }, [(data as any)?.label]);
+        setEditName((data as any)?.properties?.name || '节点');
+    }, [(data as any)?.properties?.name]);
 
     const getNodeIcon = (nodeType: string, isIconOnlyNode: boolean = false) => {
         const fontSize = isIconOnlyNode ? 18 : 12;
+        console.log('nodeTypenodeType:', nodeType);
         switch (nodeType) {
             case 'start':
                 return <StartIcon sx={{ fontSize, color: '#4caf50' }} />;
@@ -58,7 +47,8 @@ const CustomNode = ({ data, selected }: NodeProps) => {
         }
     };
 
-    const nodeType = (data as any)?.nodeType || 'normal';
+    console.log('data1111:', data);
+    const nodeType = (data as any)?.properties?.type || 'normal';
 
     const handleNodeClick = (event: React.MouseEvent) => {
         if (event.detail === 2) { // 双击编辑

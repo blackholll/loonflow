@@ -118,7 +118,7 @@ function FormDesign(props: FormDesignProps) {
             const newComponent: IWorkflowComponent = {
                 id: generateId(),
                 type: template.type as 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file',
-                name: template.name || '新字段',
+                componentName: template.componentName || '新字段',
                 label: {},
                 description: template.defaultProps.description || '',
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList),
@@ -161,7 +161,8 @@ function FormDesign(props: FormDesignProps) {
                 type: 'row',
                 layout: { span: 6 },
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList),
-                name: '新行',
+                componentName: '新行',
+                description: '',
                 label: {},
                 props: {},
                 children: [newComponent]
@@ -196,7 +197,8 @@ function FormDesign(props: FormDesignProps) {
             type: 'row',
             layout: { span: 12 },
             componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList),
-            name: '新行',
+            componentName: '新行',
+            description: '',
             label: {},
             props: {},
             children: []
@@ -431,7 +433,7 @@ function FormDesign(props: FormDesignProps) {
             const newComponent: IWorkflowComponent = {
                 id: generateId(),
                 type: template.type,
-                name: template.name || '新字段',
+                componentName: template.componentName || '新字段',
                 description: template.defaultProps.description || '',
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList),
                 label: {},
@@ -586,7 +588,7 @@ function FormDesign(props: FormDesignProps) {
                                                                 fontWeight: 'normal',
                                                             }}
                                                         >
-                                                            {fieldComponent.name}{fieldComponent.description && (
+                                                            {fieldComponent.componentName}{fieldComponent.description && (
                                                                 <Tooltip
                                                                     title={fieldComponent.description}
                                                                     placement="top"

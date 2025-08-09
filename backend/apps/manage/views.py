@@ -101,7 +101,7 @@ class NotificationView(BaseView):
         return api_response(0, "", dict(notice_id=result))
 
 class SimpleNotificationView(BaseView):
-    @user_permission_check("workflow_admin")
+    @user_permission_check("workflow_admin,admin")
     def get(self, request, *args, **kwargs):
         """
         get simple notice list. only return basic info. can be used for select as notice for workflow
