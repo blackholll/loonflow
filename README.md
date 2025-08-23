@@ -1,7 +1,7 @@
 # loonflow
 a workflow engine base on django
 
-3.0版本正在开发中，将支持拖拽配置工作流、多租户、一个用户可以属于多个部门等。[具体进度](https://github.com/blackholll/loonflow/tree/v3.0.1_mui)
+3.0版本正在开发中，将支持拖拽配置工作流、工作流多版本、多租户、一个用户可以属于多个部门等。[具体进度](https://github.com/blackholll/loonflow/tree/v3.0.1_mui)
 
 README in English: 
 
