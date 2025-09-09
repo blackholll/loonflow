@@ -185,9 +185,9 @@ function PropertyPanel(props: PropertyPanelProps) {
 
 
     const handleFieldPermissionChange = (key: string, value: any) => {
-        const newFieldPermission = { ...properties.fieldPermission, [key]: value };
-        console.log('newFieldPermission', newFieldPermission);
-        handlePropertyChange('fieldPermission', newFieldPermission);
+        const newFieldPermissions = { ...properties.fieldPermissions, [key]: value };
+        console.log('newFieldPermissions', newFieldPermissions);
+        handlePropertyChange('fieldPermissions', newFieldPermissions);
     };
 
     // 处理人类型选项
@@ -658,12 +658,12 @@ function PropertyPanel(props: PropertyPanelProps) {
                                                 row
                                                 aria-labelledby="demo-controlled-radio-buttons-group"
                                                 name="controlled-radio-buttons-group"
-                                                value={properties?.fieldPermission?.[child.componentKey] || 'hidden'}
+                                                value={properties?.fieldPermissions?.[child.componentKey] || 'hidden'}
                                                 onChange={(e) => handleFieldPermissionChange(child.componentKey, e.target.value)}
                                             >
                                                 <FormControlLabel value="readonly" control={<Radio />} label="只读" />
-                                                <FormControlLabel value="write_optional" control={<Radio />} label="选填" />
-                                                <FormControlLabel value="wrote_required" control={<Radio />} label="必填" />
+                                                <FormControlLabel value="optional" control={<Radio />} label="选填" />
+                                                <FormControlLabel value="required" control={<Radio />} label="必填" />
                                                 <FormControlLabel value="hidden" control={<Radio />} label="隐藏" />
                                             </RadioGroup>
                                         </Box>)

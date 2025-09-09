@@ -1,5 +1,6 @@
 import { IApiResponse, IApiErrResponse, ISimpleEntity } from './common';
 import { ISimpleUser } from './user';
+import { IWorkflowAction, IFormSchema } from './workflow';
 
 
 export interface ITicketListQueryParam {
@@ -16,14 +17,16 @@ export interface IWorkflowListQueryParam {
 
 export interface INewTicketReqParam {
   workflowId: string;
-  transitionId: string;
-  [propName: string]: any;
+  actionId: string;
+  fields: any;
 }
 
 export interface IHandleTicketReqParam {
-  transitionId: number;
+  ticketId: string;
+  actionType: string;
+  actionId: string;
   comment?: string;
-  [propName: string]: any;
+  fields: any;
 }
 
 export interface ITicketDetailReqParam {
@@ -67,10 +70,10 @@ export interface ITicketListResEntity {
   title: string;
   node: ISimpleEntity,
   workflow: ISimpleEntity;
-  creator: ISimpleUser;
-  creatorDisplayName: string;
-  createTime: string;
-  updateTime: string;
+  creatorInfo: ISimpleUser;
+  actState: string
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ITicketListResData {
@@ -79,5 +82,17 @@ export interface ITicketListResData {
   total: number;
   ticketList: ITicketListResEntity[]
 }
+export interface INewTicketResData {
+  ticketId: string;
+}
 
 export interface ITicketListRes extends IApiResponse<ITicketListResData> { }
+
+export interface INewTicketRes extends IApiResponse<INewTicketResData> { }
+
+
+export interface ITicketActionsRes extends IApiResponse<{ actions: IWorkflowAction }> { }
+
+export interface ITicketDetailFormRes extends IApiResponse<{ formSchema: IFormSchema }> { }
+
+export interface IHandleTicketRes extends IApiResponse<{ ticketId: string }> { }

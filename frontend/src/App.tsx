@@ -19,6 +19,7 @@ import RelationTicket from './components/Ticket/RelationTicket';
 import ViewTicket from './components/Ticket/ViewTicket';
 import InterveneTicket from './components/Ticket/InterveneTicket';
 import AllTicket from './components/Ticket/AllTicket';
+import TicketDetailPage from './components/Ticket/TicketDetailPage';
 import Tenant from './components/Setting/Tenant';
 import { ApplicationList } from './components/Setting/Application';
 import { NotificationList } from './components/Setting/Notification';
@@ -98,6 +99,10 @@ const App = () => {
       <Route key={'ticketAll'}
         path={'/ticket/all'}
         element={<PrivateRoute element={<Layout children={<AllTicket />} />} />}
+      />
+      <Route key={'ticketDetail'}
+        path={'/ticket/:ticketId'}
+        element={<PrivateRoute element={<Layout children={<TicketDetailPage />} />} />}
       />
     </Route>,
     <Route

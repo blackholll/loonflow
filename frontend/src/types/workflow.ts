@@ -19,6 +19,7 @@ export interface IProps {
 }
 export interface ISimpleWorkflowEntity {
   id: string,
+  workflowId: string,
   name: string,
   description: string
 }
@@ -83,6 +84,7 @@ export interface IWorkflowComponent {
   id: string,
   componentKey: string,
   componentName: string,
+  value?: any,
   description: string,
   type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'link' | 'richText' | 'externalData' | 'customCreator' | 'customCreatedAt' | 'ticketStatus' | 'approvalStatus' | 'ticketType' | 'currentHandler',
   layout: ILayout,
@@ -108,7 +110,7 @@ export interface IWorkflowFiledPermission {
 export interface IWorkflowNodeProps {
   allowRetreat: boolean,
   rememberLastParticipant: boolean,
-  fieldPermission: IWorkflowFiledPermission,
+  fieldPermissions: IWorkflowFiledPermission,
   participantType: 'user' | 'department',
   participant: string,
   distributeType: 'direct' | 'random',
@@ -235,3 +237,24 @@ export const createEmptyWorkflowFullDefinition = (): IWorkflowFullDefinition => 
 export interface IWorkflowFullDefinitionRes extends IApiResponse<{ workflowFullDefination: IWorkflowFullDefinition }> { }
 
 export interface IWorkflowReleaseRes extends IApiResponse<{ workflowId: string }> { }
+
+export interface IWorkflowNodeSchema {
+  id: string,
+  type: 'start',
+  name: string,
+  label: ILabel,
+  props: IWorkflowNodeProps,
+}
+
+export interface IWorkflowInitNodeRes extends IApiResponse<{ initNode: IWorkflowNodeSchema }> { }
+
+export interface IWorkflowAction {
+  id: string,
+  name: string,
+  type: 'accept' | 'reject' | 'other',
+  props: IWorkflowEdgeProps,
+}
+
+export interface IWorkflowActionsRes extends IApiResponse<{ actions: IWorkflowAction }> { }
+
+export interface IWorkflowCreationFormRes extends IApiResponse<{ formSchema: IFormSchema }> { }

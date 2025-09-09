@@ -14,8 +14,6 @@ from service.workflow.workflow_hook_service import workflow_hook_service_ins
 from service.workflow.workflow_node_service import workflow_node_service_ins
 from service.workflow.workflow_notification_service import workflow_notification_service_ins
 from service.workflow.workflow_permission_service import workflow_permission_service_ins
-from service.workflow.workflow_state_service import workflow_state_service_ins
-from service.workflow.workflow_transition_service import workflow_transition_service_ins
 from service.workflow.workflow_component_service import workflow_component_service_ins
 from service.workflow.workflow_edge_service import workflow_edge_service_ins
 
@@ -160,7 +158,7 @@ class WorkflowBaseService(BaseService):
                 edge_info["source_node_id"] = node_id_dict.get(edge_info.get("source_node_id"))
                 edge_info["target_node_id"] = node_id_dict.get(edge_info.get("target_node_id")) 
                 
-            workflow_edge_service_ins.update_workflow_edges(tenant_id, workflow_id, new_version_id, operator_id, edge_info_list)
+            workflow_edge_service_ins.update_workflow_edges(tenant_id, workflow_id, version_id, operator_id, edge_info_list)
 
             # update permission
             workflow_permission_service_ins.update_workflow_permission(tenant_id, workflow_id, version_id, operator_id, request_data.get("advanced_schema", {}).get("permission_info", {}))
@@ -215,6 +213,149 @@ class WorkflowBaseService(BaseService):
         for workflow_version_result_object in workflow_version_result_object_list:
             workflow_version_info_list.append(workflow_version_result_object.get_dict())
         return dict(version_info_list=workflow_version_info_list, per_page=per_page, page=page, total=paginator.count)
+
+    @classmethod
+    def get_ticket_creation_form(cls, workflow_id: str, tenant_id: str, operator_id: str, version_name: str) -> dict:
+        """
+        get ticket creation form
+        :param workflow_id:
+        :param tenant_id:
+        :param operator_id:
+        :param version_name:
+        :return:
+        """
+        if version_name:
+            version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, name=version_name)
+        else:
+            version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, type='default')
+
+        form_schema_component_list = workflow_component_service_ins.get_workflow_fd_component_list(tenant_id, workflow_id, version_obj.id)
+        
+        # need filter with init node's component list
+
+        init_node_field_permissions = workflow_node_service_ins.get_init_node_field_permissions(tenant_id, workflow_id, version_obj.id)
+        result_component_list = []
+        for component in form_schema_component_list:
+            if component['type'] == 'row':
+                for child_component in component['children']:
+                    children_length = 0
+                    if init_node_field_permissions.get(child_component['component_key']) is not None and init_node_field_permissions.get(child_component['component_key']) != 'hidden' :
+                        child_component['required'] = (init_node_field_permissions.get(child_component['component_key'])== 'required')
+                        result_component_list.append(child_component)
+                        children_length += 1
+                if children_length != 0:
+                    result_component_list.append(component)
+                
+        return result_component_list
+
+    @classmethod
+    def get_ticket_creation_actions(cls, workflow_id: str, tenant_id: str, operator_id: str, version_name: str) -> dict:
+        """
+        get ticket creation actions
+        :param workflow_id:
+        :param tenant_id:
+        :param operator_id:
+        :param version_name:
+        :return:
+        """
+        if version_name:
+            version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, name=version_name)
+        else:
+            version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, type='default')
+        
+        init_node = workflow_node_service_ins.get_init_node(tenant_id, workflow_id, version_obj.id)
+
+        edge_info_list = workflow_edge_service_ins.get_workflow_edges_by_source_node_id(tenant_id, workflow_id, version_obj.id, init_node.id)
+        action_result_list = []
+        for edge_info in edge_info_list:
+            action_result_list.append(dict(
+                id=str(edge_info.id),
+                name=edge_info.name,
+                type=edge_info.type,
+                props=edge_info.props
+            ))
+        return action_result_list
+
+
+    @classmethod
+    def get_workflow_version_id_by_name(cls, workflow_id: str, tenant_id: str, version_name: str) -> str:
+        """
+        get workflow version id
+        :param workflow_id:
+        :param tenant_id:
+        :param version_name:
+        :return:
+        """
+        if version_name:
+            version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, name=version_name)
+            if version_obj.type == 'archived':
+                raise CustomCommonException('workflow version is archived')
+        else:
+            version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, type='default')
+        return version_obj.id
+
+    @classmethod
+    def get_workflow_node_form(cls, tenant_id: str, workflow_id: str, version_id: str, node_id: str) -> dict:
+        """
+        get workflow node form
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param node_id:
+        :return:
+        """
+        node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, workflow_id, version_id, node_id)
+        node_props = node_obj.props
+        node_type = node_obj.type
+        if node_type == 'end':
+            return cls.get_workflow_view_form(tenant_id, workflow_id, version_id, node_id)
+        node_form_permission = node_props.get('field_permissions', {})
+        result_component_list = []
+        form_schema_component_list = workflow_component_service_ins.get_workflow_fd_component_list(tenant_id, workflow_id, version_id)
+
+        for component in form_schema_component_list:
+            if component['type'] == 'row':
+                new_children = []
+                for child_component in component['children']:
+                    children_length = 0
+                    if node_form_permission.get(child_component['component_key']) is not None and node_form_permission.get(child_component['component_key']) != 'hidden' :
+                        child_component['required'] = (node_form_permission.get(child_component['component_key'])== 'required')
+                        new_children.append(child_component)
+                        children_length += 1
+                if children_length != 0:
+                    component['children'] = new_children
+                    result_component_list.append(component)
+        return result_component_list
+        
+
+        
+
+
+    @classmethod
+    def get_workflow_view_form(cls, tenant_id: str, workflow_id: str, version_id: str) -> dict:
+        """
+        get workflow view form, can control special component's visibility by configure tomorrow
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param node_id:
+        :return:
+        """
+        return workflow_component_service_ins.get_workflow_fd_component_list(tenant_id, workflow_id, version_id)
+
+    
+    @classmethod
+    def get_workflow_info_by_id_and_version_id(cls, tenant_id: str, workflow_id: str, version_id: str) -> dict:
+        """
+        get workflow info by id and version id
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :return:
+        """
+        workflow_obj = BasicInfo.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id)
+        return workflow_obj.get_dict()
+
 
 ############## below are waiting for update
     @classmethod

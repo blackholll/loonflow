@@ -4,18 +4,9 @@ import {
     Paper,
     Typography,
     Card,
-    TextField,
     Divider,
     Tabs,
-    Tab,
-    RadioGroup,
-    Radio,
-    FormControlLabel,
-    Checkbox,
-    FormGroup,
-    Chip,
-    ListItemText,
-    Autocomplete
+    Tab
 } from '@mui/material';
 import {
     Visibility as PreviewIcon,
@@ -27,10 +18,18 @@ import componentCategories from './ComponentCategories';
 import ComponentProperties from './ComponentProperties';
 import FormDesign from './FormDesign';
 import FormPreview from './FormPreview';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, createEmptyWorkflowFullDefinition } from '../../../types/workflow';
 import { v4 as uuidv4 } from 'uuid';
+import RenderFormComponent from './RenderFormComponent';
+
+import {
+    TextField,
+    // NumberField,
+    // SelectField,
+    // DateTimeField,
+    // UserField,
+    // DepartmentField,
+} from '../../formFields';
 
 interface WorkflowFormProps {
     onFormSchemaChange: (newFormSchema: IFormSchema) => void;
@@ -173,214 +172,6 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
         onFormSchemaChange(updatedFormSchema);
     };
 
-    const renderFieldComponent = (component: IWorkflowComponent) => {
-        const commonProps = {
-            fullWidth: true,
-            size: 'small' as const,
-            variant: 'outlined' as const,
-            placeholder: component.props.placeholder,
-        };
-
-        // 获取选项数据，只使用optionsWithKeys
-        const getOptions = () => {
-            return component.props?.optionsWithKeys?.map((option: any) => option.label) || [];
-        };
-
-        const options = getOptions();
-
-        switch (component.type) {
-            case 'text':
-                return <TextField {...commonProps} />;
-            case 'textarea':
-                return <TextField {...commonProps} multiline rows={3} />;
-            case 'number':
-                return <TextField type="number" {...commonProps} />;
-            case 'select':
-                return (
-                    <Autocomplete
-                        options={options}
-                        multiple={component.props?.multiple || false}
-                        size="small"
-                        onChange={(_, newValue) => {
-                            // 更新组件值
-                            const updatedComponent = {
-                                ...component,
-                                value: newValue
-                            };
-                            handleComponentUpdate(updatedComponent);
-                        }}
-                        freeSolo={false}
-                        disableClearable={false}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                placeholder={component.props.placeholder}
-                                variant="outlined"
-                                size="small"
-                            />
-                        )}
-                        renderTags={(value, getTagProps) =>
-                            value.map((option, index) => (
-                                <Chip
-                                    variant="outlined"
-                                    label={option as string}
-                                    size="small"
-                                    {...getTagProps({ index })}
-                                />
-                            ))
-                        }
-                        renderOption={(props, option) => (
-                            <li {...props}>
-                                <ListItemText primary={option as string} />
-                            </li>
-                        )}
-                        filterOptions={(options, { inputValue }) => {
-                            const filtered = options.filter((option: any) =>
-                                option.toLowerCase().includes(inputValue.toLowerCase())
-                            );
-                            return filtered;
-                        }}
-                        noOptionsText="未找到匹配的选项"
-                        clearOnBlur={false}
-                        selectOnFocus
-                        clearOnEscape
-                        isOptionEqualToValue={(option, value) => option === value}
-                    />
-                );
-            case 'radio':
-                return (
-                    <RadioGroup row>
-                        {options.map((option: any, index: any) => (
-                            <FormControlLabel key={index} value={option} control={<Radio />} label={option as string} />
-                        ))}
-                    </RadioGroup>)
-            case 'checkbox':
-                return (
-                    <FormGroup row>
-                        {options.map((option: any, index: any) => (
-                            <FormControlLabel key={index} value={option} control={<Checkbox />} label={option as string} />
-                        ))}
-                    </FormGroup>
-                )
-            case 'time':
-                return <TimePicker format="hh:mm::ss aa" slotProps={{
-                    textField: { fullWidth: true }
-                }} />
-            case 'date':
-                return <DateTimePicker slotProps={{
-                    textField: { fullWidth: true }
-                }} />
-            case 'user':
-                return (
-                    <Autocomplete
-                        options={['张三', '李四']}
-                        multiple={component.props?.multiple || false}
-                        size="small"
-                        onChange={(_, newValue) => {
-                            // 更新组件值
-                            const updatedComponent = {
-                                ...component,
-                                value: newValue
-                            };
-                            handleComponentUpdate(updatedComponent);
-                        }}
-                        freeSolo={false}
-                        disableClearable={false}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                placeholder={component.props.placeholder}
-                                variant="outlined"
-                                size="small"
-                            />
-                        )}
-                        renderTags={(value, getTagProps) =>
-                            value.map((option, index) => (
-                                <Chip
-                                    variant="outlined"
-                                    label={option}
-                                    size="small"
-                                    {...getTagProps({ index })}
-                                />
-                            ))
-                        }
-                        renderOption={(props, option) => (
-                            <li {...props}>
-                                <ListItemText primary={option} />
-                            </li>
-                        )}
-                        filterOptions={(options, { inputValue }) => {
-                            const filtered = options.filter(option =>
-                                option.toLowerCase().includes(inputValue.toLowerCase())
-                            );
-                            return filtered;
-                        }}
-                        noOptionsText="未找到匹配的选项"
-                        clearOnBlur={false}
-                        selectOnFocus
-                        clearOnEscape
-                        isOptionEqualToValue={(option, value) => option === value}
-                    />
-                );
-            case 'department':
-                return (
-                    <Autocomplete
-                        options={['行政部', '财务部']}
-                        multiple={component.props?.multiple || false}
-                        size="small"
-                        onChange={(_, newValue) => {
-                            // 更新组件值
-                            const updatedComponent = {
-                                ...component,
-                                value: newValue
-                            };
-                            handleComponentUpdate(updatedComponent);
-                        }}
-                        freeSolo={false}
-                        disableClearable={false}
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                placeholder={component.props.placeholder}
-                                variant="outlined"
-                                size="small"
-                            />
-                        )}
-                        renderTags={(value, getTagProps) =>
-                            value.map((option, index) => (
-                                <Chip
-                                    variant="outlined"
-                                    label={option}
-                                    size="small"
-                                    {...getTagProps({ index })}
-                                />
-                            ))
-                        }
-                        renderOption={(props, option) => (
-                            <li {...props}>
-                                <ListItemText primary={option} />
-                            </li>
-                        )}
-                        filterOptions={(options, { inputValue }) => {
-                            const filtered = options.filter(option =>
-                                option.toLowerCase().includes(inputValue.toLowerCase())
-                            );
-                            return filtered;
-                        }}
-                        noOptionsText="未找到匹配的选项"
-                        clearOnBlur={false}
-                        selectOnFocus
-                        clearOnEscape
-                        isOptionEqualToValue={(option, value) => option === value}
-                    />
-                );
-            case 'file':
-                return <TextField {...commonProps} type="file" InputLabelProps={{ shrink: true }} />;
-            default:
-                return <TextField {...commonProps} />;
-        }
-    };
-
 
     return (
         <Box sx={{ display: 'flex', height: 'calc(100vh - 100px)', gap: 2, p: 2 }}>
@@ -473,12 +264,12 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
                         generateId={generateId}
                         generateUniqueFieldKey={generateUniqueFieldKey}
                         generateUniqueOptionKey={generateUniqueOptionKey}
-                        renderFieldComponent={renderFieldComponent}
+                        renderFieldComponent={(component, handleComponentUpdate) => <RenderFormComponent component={component} handleComponentUpdate={handleComponentUpdate} />}
                     />
                 ) : (
                     <FormPreview
                         formSchemaInfo={formSchemaInfo}
-                        renderFieldComponent={renderFieldComponent}
+                        renderFieldComponent={(component, handleComponentUpdate) => <RenderFormComponent component={component} handleComponentUpdate={handleComponentUpdate || (() => { })} />}
                     />
                 )}
             </Box>

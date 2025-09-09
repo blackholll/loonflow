@@ -26,7 +26,7 @@ class WorkflowComponentService(BaseService):
         # if the id start with temp_, means it is a new component, need to insert
         
         exist_componet_queryset = Component.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id)
-        exist_componet_dict = {component.id: component for component in exist_componet_queryset}
+        exist_componet_dict = {str(component.id): component for component in exist_componet_queryset}
         
         id_to_new_id_dict = {}
         for component_info in component_info_list:
@@ -50,9 +50,10 @@ class WorkflowComponentService(BaseService):
 
             else:
                 # if id is not startswith 'temp_', means existed in database need update
-                if component_info.get("id") in exist_componet_dict:
+                if component_info.get("id") in exist_componet_dict.keys():
                     update_component_info = copy.deepcopy(component_info)
                     update_component_info.pop('id')
+                    update_component_info.pop('children')
                     Component.objects.filter(id=component_info.get('id')).update(**update_component_info )
                     
                     # for children
@@ -171,6 +172,22 @@ class WorkflowComponentService(BaseService):
                 component_result_list.append(component_result)
                 
         return component_result_list
+    
+    @classmethod
+    def get_workflow_custom_fields(cls, tenant_id: str, workflow_id: str, version_id: str):
+        """
+        get workflow custom field
+        :param workflow_id:
+        :param tenant_id:
+        :param version_id:
+        :return:
+        """
+        component_queryset = Component.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id).all()
+        custom_field_list = []
+        for component_obj in component_queryset:
+            if component_obj.type != 'row':
+                custom_field_list.append(component_obj.get_dict())
+        return custom_field_list
 
 
 workflow_component_service_ins = WorkflowComponentService()

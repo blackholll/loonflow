@@ -33,8 +33,8 @@ class AppPermissionCheck(MiddlewareMixin):
                 if not request.META.get('HTTP_APPNAME'):
                     request.META.update(dict(HTTP_APPNAME='loonflow'))
                 request.META.update(dict(HTTP_EMAIL=user_info.email))
-                request.META.update(dict(HTTP_USERID=user_info.id))
-                request.META.update(dict(HTTP_TENANTID=user_info.tenant_id))
+                request.META.update(dict(HTTP_USERID=str(user_info.id)))
+                request.META.update(dict(HTTP_TENANTID=str(user_info.tenant_id)))
                 return
             elif request.path == '/api/v1.0/configs/common':
                 request.META.update(dict(HTTP_TENANTID='00000000-0000-0000-0000-000000000001'))

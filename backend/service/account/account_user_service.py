@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
-from apps.account.models import User, UserDept, UserRole, Role, Dept
+from apps.account.models import User, UserDept, UserRole, Role, Dept, DeptApprover
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 from service.exception.custom_common_exception import CustomCommonException
@@ -38,18 +38,10 @@ class AccountUserService(BaseService):
         else:
             raise CustomCommonException("user type is not allowed")
 
-    @classmethod
-    @auto_log
-    def get_user_by_username(cls, username: str) -> tuple:
-        """
-        get user info by username
-        :return:
-        """
-        result = User.objects.filter(username=username).first()
-        if result:
-            return True, result
-        else:
-            return False, 'username: {} is not existed or has been deleted'.format(username)
+
+
+
+
 
     @classmethod
     def get_user_by_email(cls, email: str) -> tuple:
@@ -197,52 +189,62 @@ class AccountUserService(BaseService):
         return True, jwt_info
 
     @classmethod
-    @auto_log
-    def get_user_up_dept_id_list(cls, username: str) -> tuple:
+    def get_user_parent_dept_id_list(cls, tenant_id: str, user_id: str) -> list:
         """
         get user's department id list by username, include parent department
         :param username:
         :return:
         """
         dept_id_list = []
-        user_obj = User.objects.filter(username=username).first()
+        user_obj = User.objects.filter(id=user_id, tenant_id=tenant_id).first()
         if not user_obj:
             return False, 'user is not existed or has been deleted'
 
         def iter_dept(dept_id):
-            dept_obj = Dept.objects.filter(id=dept_id).first()
+            dept_obj = Dept.objects.filter(id=dept_id, tenant_id=tenant_id).first()
             if dept_obj:
                 dept_id_list.append(dept_obj.id)
                 if dept_obj.parent_dept_id:
                     iter_dept(dept_obj.parent_dept_id)
 
-        user_dept_queryset = UserDept.objects.filter(user_id=user_obj.id).all()
+        user_dept_queryset = UserDept.objects.filter(user_id=user_obj.id, tenant_id=tenant_id).all()
         user_dept_id_list = [user_dept.dept_id for user_dept in user_dept_queryset]
         for user_dept_id in user_dept_id_list:
             iter_dept(user_dept_id)
         dept_id_list = list(set(dept_id_list))
-        return True, dept_id_list
+        return dept_id_list
 
     @classmethod
-    def get_user_dept_approver(cls, user_id: int, dept_id: int = 0) -> list:
+    def get_user_dept_approver_id_list(cls, tenant_id: str, user_id: str, dept_id: str = '') -> list:
         """
-        get user's department approver， Preferential access to the approver, without taking tl（team leader）
+        get user's department approver， Preferential access to the approver, than taking tl（team leader）
         :param user_id:
+        :param tenant_id:
         :param dept_id: for the situation that user belong more than one dept
         :return:
         """
-        user_obj = User.objects.get(id=user_id)
+        user_obj = User.objects.get(id=user_id, tenant_id=tenant_id)
         if dept_id:
-            UserDept.objects.get(user_id=user_obj.id, dept_id=dept_id) # check whether user belong to this dept
-            dept_info = Dept.objects.get(id=dept_id)
-            return dept_info.approver.split(",") if dept_info.approver else [str(dept_info.leader_id)]
+            UserDept.objects.get(user_id=user_obj.id, dept_id=dept_id, tenant_id=tenant_id) # check whether user belong to this dept
+            
+            dept_approver_queryset = DeptApprover.objects.filter(dept_id=dept_id, tenant_id=tenant_id).all()
+            if dept_approver_queryset:
+                return dept_approver_queryset.values_list('user_id', flat=True)
+            else:
+                dept_queryset = Dept.objects.filter(id=dept_id, tenant_id=tenant_id).first()
+                return [str(dept_queryset.leader_id)] if dept_queryset else []
         else:
             result_list = []
             user_dept_queryset = UserDept.objects.filter(user_id=user_obj.id)
             user_dept_id_list = [user_dept.dept_id for user_dept in user_dept_queryset]
-            dept_queryset = Dept.objects.filter(id__in=user_dept_id_list)
-            for dept in dept_queryset:
-                result_list += dept.approver.split(",") if dept.approver else [str(dept.leader_id)]
+            for user_dept_id in user_dept_id_list:
+                dept_approver_queryset = DeptApprover.objects.filter(dept_id=user_dept_id, tenant_id=tenant_id).all()
+                if dept_approver_queryset:
+                    result_list += dept_approver_queryset.values_list('user_id', flat=True)
+                else: 
+                    dept_queryset = Dept.objects.filter(id=user_dept_id, tenant_id=tenant_id).first()
+                    result_list += [str(dept_queryset.leader_id)] if dept_queryset else []
+            return list(set(result_list))
 
     @classmethod
     @auto_log

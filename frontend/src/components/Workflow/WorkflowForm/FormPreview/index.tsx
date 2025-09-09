@@ -7,10 +7,16 @@ import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema } from '../../..
 
 interface FormPreviewProps {
     formSchemaInfo: IFormSchema;
-    renderFieldComponent: (component: IWorkflowComponent) => React.ReactNode;
+    renderFieldComponent: (component: IWorkflowComponent, handleComponentUpdate?: (updatedComponent: IWorkflowComponent) => void) => React.ReactNode;
 }
 
 function FormPreview({ formSchemaInfo, renderFieldComponent }: FormPreviewProps) {
+    // 在预览模式下，我们不需要处理组件更新，所以传递一个空的更新函数
+    const handleComponentUpdate = (updatedComponent: IWorkflowComponent) => {
+        // 预览模式下不执行任何更新操作
+        console.log('Preview mode: component update ignored', updatedComponent);
+    };
+
     return (
         <Paper
             sx={{
@@ -61,7 +67,7 @@ function FormPreview({ formSchemaInfo, renderFieldComponent }: FormPreviewProps)
 
                                             </Box>
                                             <Box sx={{ flex: 1 }}>
-                                                {renderFieldComponent(fieldComponent)}
+                                                {renderFieldComponent(fieldComponent, handleComponentUpdate)}
                                             </Box>
                                         </Box>
                                     </Grid>

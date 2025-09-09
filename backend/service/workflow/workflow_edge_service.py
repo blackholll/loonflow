@@ -76,7 +76,6 @@ class WorkflowEdgeService(BaseService):
                     name=edge_info.get("name"),
                     label=edge_info.get("label"),
                     props=edge_info.get("props"),
-                    updater_id=operator_id
                 )
         return True
 
@@ -106,5 +105,46 @@ class WorkflowEdgeService(BaseService):
             )
         return edge_result_list
     
+    @classmethod
+    def get_workflow_edges_by_source_node_id(cls, tenant_id: str, workflow_id: str, version_id: str, node_id: str):
+        """
+        get workflow edges by source node id
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param node_id:
+        :return:
+        """
+        edge_queryset = Edge.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, source_node_id=node_id).all()
+        return list(edge_queryset)
+
+    @classmethod
+    def get_workflow_edge_by_id(cls, tenant_id: str, workflow_id: str, version_id: str, edge_id: str):
+        """
+        get workflow edge by id
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param edge_id:
+        :return:
+        """
+        edge_obj = Edge.objects.get(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, id=edge_id)
+        return edge_obj
+
+    @classmethod
+    def get_parallel_next_node_list(cls, tenant_id: str, workflow_id: str, version_id: str, node_id: str):
+        """
+        get parallel next node list
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param node_id:
+        :return:
+        """
+        result = []
+        edge_queryset = Edge.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, source_node_id=node_id).all()
+        for edge_obj in edge_queryset:
+            result.append(edge_obj.target_node_id)
+        return result
 
 workflow_edge_service_ins = WorkflowEdgeService()

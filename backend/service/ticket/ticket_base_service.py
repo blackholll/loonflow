@@ -3,8 +3,10 @@ import json
 import datetime
 import logging
 import random
+from turtle import up
 
 import redis
+from django.db import transaction
 from django.db.models import Q
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -21,33 +23,32 @@ from service.common.log_service import auto_log
 from service.common.common_service import common_service_ins
 from service.common.constant_service import constant_service_ins
 from service.account.account_base_service import account_base_service_ins
-from service.ticket.ticket_custom_field_service import ticket_custom_field_service_ins
+from service.ticket.ticket_field_service import ticket_field_service_ins
 from service.ticket.ticket_flow_history_service import ticket_flow_history_service_ins
 from service.ticket.ticket_node_service import ticket_node_service_ins
 from service.ticket.ticket_user_service import ticket_user_service_ins
 from service.workflow.workflow_base_service import workflow_base_service_ins
 from service.workflow.workflow_hook_service import workflow_hook_service_ins
 from service.workflow.workflow_node_service import workflow_node_service_ins
+from service.workflow.workflow_edge_service import workflow_edge_service_ins
 from service.workflow.workflow_permission_service import workflow_permission_service_ins
-from service.workflow.workflow_state_service import workflow_state_service_ins
-from service.workflow.workflow_transition_service import workflow_transition_service_ins
 from service.workflow.workflow_component_service import workflow_component_service_ins
 
 
 class TicketBaseService(BaseService):
+   
     @classmethod
-    @auto_log
-    def get_ticket_by_id(cls, ticket_id: int):
+    def get_ticket_by_id(cls, tenant_id:str, ticket_id: str):
         """
         get ticket record
+        :param tenant_id:
         :param ticket_id:
         :return:
         """
-        return TicketRecord.objects.get(id=ticket_id).first()
+        return TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
 
 
     @classmethod
-    @auto_log
     def get_ticket_list(cls, tenant_id:str='', title: str='', user_id: str='', create_start: str='', create_end: str='',
                         workflow_ids: str='', node_ids: str='', ticket_ids: str='', category: str='', reverse: int=1,
                         per_page: int=10, page: int=1, app_name: str='', **kwargs):
@@ -72,24 +73,18 @@ class TicketBaseService(BaseService):
         category_list = ['all', 'owner', 'duty', 'relation', 'worked', 'view', 'intervene']
         if category not in category_list:
             return False, 'category value is invalid, it should be in all, owner, duty, relation'
-        query_params = Q()
-
+        query_params = Q(tenant_id=tenant_id)
         # get granted workflow_id_list base by app_name
-
         from service.workflow.workflow_permission_service import workflow_permission_service_ins
-        flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission('api', 'app', app_name)
+        app_workflow_id_list = workflow_permission_service_ins.get_workflow_id_list_by_permission('api', 'app', app_name)
+        if not app_workflow_id_list:
+            return dict(ticket_result_restful_list=[], paginator_info=dict(per_page=per_page, page=page, total=0))
 
-        if not flag or not result.get('workflow_id_list'):
-            return True, dict(ticket_result_restful_list=[], paginator_info=dict(per_page=per_page, page=page, total=0))
-        else:
-            app_workflow_id_list = result.get('workflow_id_list')
-            # query_params &= Q(workflow_id__in=result.get('workflow_id_list'))
 
-        if kwargs.get('act_state') != '':
+        if kwargs.get('act_state'):
             query_params &= Q(act_state=kwargs.get('act_state'))
 
-
-        if kwargs.get('creator') != '':
+        if kwargs.get('creator'):
             query_params &= Q(creator=kwargs.get('creator'))
         if kwargs.get('parent_ticket_id'):
             query_params &= Q(parent_ticket_id=kwargs.get('parent_ticket_id'))
@@ -105,11 +100,10 @@ class TicketBaseService(BaseService):
             query_params &= Q(created_at__lte=create_end)
         if workflow_ids:
             workflow_id_str_list = workflow_ids.split(',')
-            query_workflow_id_list = [int(workflow_id_str) for workflow_id_str in workflow_id_str_list]
+            query_workflow_id_list = [workflow_id_str for workflow_id_str in workflow_id_str_list]
         else:
             query_workflow_id_list = []
 
-            # query_params &= Q(workflow_id__in=workflow_id_list)
         if node_ids:
             node_id_list = node_ids.split(',')
             query_params &= Q(node_id__in=node_id_list)
@@ -118,63 +112,47 @@ class TicketBaseService(BaseService):
             ticket_id_list = [int(ticket_id_str) for ticket_id_str in ticket_id_str_list]
             query_params &= Q(id__in=ticket_id_list)
 
-        if kwargs.get('from_admin'):
-            permission_workflow_id_set = set(workflow_admin_id_list) - (set(workflow_admin_id_list) - set(app_workflow_id_list))
-            if query_workflow_id_list:
-                ending_workflow_id_list = list(permission_workflow_id_set - (permission_workflow_id_set - set(query_workflow_id_list)))
-            else:
-                ending_workflow_id_list = list(permission_workflow_id_set)
+        if query_workflow_id_list:
+            final_workflow_id_list = list(set(app_workflow_id_list) - (set(app_workflow_id_list) - set(query_workflow_id_list)))
         else:
-            if query_workflow_id_list:
-                ending_workflow_id_list = list(set(app_workflow_id_list) - (set(app_workflow_id_list) - set(query_workflow_id_list)))
-            else:
-                ending_workflow_id_list = app_workflow_id_list
+            final_workflow_id_list = app_workflow_id_list
 
-        query_params &= Q(workflow_id__in=ending_workflow_id_list)
+        query_params &= Q(workflow_id__in=final_workflow_id_list)
 
         if reverse:
-            order_by_str = '-gmt_created'
+            order_by_str = '-created_at'
         else:
-            order_by_str = 'gmt_created'
-
+            order_by_str = 'created_at'
+        
         if category == 'owner':
-            query_params &= Q(creator=username)
+            query_params &= Q(creator_id=user_id)
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category == 'duty':
-            duty_query_expression = Q(ticketuser__as_participant=True, ticketuser__user_id=user_id)
+            duty_query_expression = Q(ticket_user__as_assignee=True, ticket_user__user_id=user_id)
             query_params &= duty_query_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category == 'relation':
-            relation_query_expression = Q(ticketuser__username=username)
+            relation_query_expression = Q(ticket_user__user_id=user_id)
             query_params &= relation_query_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category == 'worked':
-            worked_query_expression = Q(ticketuser__username=username, ticketuser__worked=True)
+            worked_query_expression = Q(ticket_user__user_id=user_id, ticket_user__as_processor=True)
             query_params &= worked_query_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
         elif category in ('view', 'intervene'):
-            flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission(category, 'user', username)
-            if not flag:
-                view_workflow_ids = []
-            else:
-                view_workflow_ids = result.get('workflow_id_list', [])
-            view_department_workflow_id_list = []
+            category_workflow_id_list = workflow_permission_service_ins.get_workflow_id_list_by_permission(category, 'user', user_id)
             if category == 'view':
-                # view 还需要考虑查看权限部门,先查询用户所在部门，然后查询
-                flag, result = account_user_service_ins.get_user_up_dept_id_list(username)
-                if flag:
-                    department_id_str_list = [str(result0) for result0 in result]
-                    flag, result = workflow_permission_service_ins.get_workflow_id_list_by_permission(
-                        category, 'department', ','.join(department_id_str_list))
-                    view_department_workflow_id_list = result.get('workflow_id_list', []) if flag else []
-
-            category_workflow_ids = list(set(view_workflow_ids).union(set(view_department_workflow_id_list)))
-
-            view_query_expression = Q(workflow_id__in=category_workflow_ids)
-            query_params &= view_query_expression
-            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
+                parent_department_id_list = account_user_service_ins.get_user_parent_dept_id_list(tenant_id, user_id)
+                if parent_department_id_list:
+                    view_department_workflow_id_list = workflow_permission_service_ins.get_workflow_id_list_by_permission(
+                            category, 'department', ','.join(parent_department_id_list))
+                    category_workflow_id_list = list(set(category_workflow_id_list).union(set(view_department_workflow_id_list)))
+            query_params &= Q(workflow_id__in=category_workflow_id_list)
+            # ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
         else:
-            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
+            # ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
 
         paginator = Paginator(ticket_objects, per_page)
 
@@ -187,41 +165,21 @@ class TicketBaseService(BaseService):
             ticket_result_paginator = paginator.page(paginator.num_pages)
 
         ticket_result_object_list = ticket_result_paginator.object_list
+        # 将模型对象转换为可序列化的字典
         ticket_result_restful_list = []
-        for ticket_result_object in ticket_result_object_list:
-            state_obj_flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_result_object.state_id)
-            state_name = state_obj.name if state_obj_flag else '未知状态'
-            flag, participant_info = cls.get_ticket_format_participant_info(ticket_result_object.id)
+        for ticket_obj in ticket_result_object_list:
+            try:
+                ticket_result_restful_list.append(ticket_obj.get_dict())
+            except Exception:
+                # 兜底：至少返回基础字段，避免序列化失败
+                ticket_result_restful_list.append(dict(id=str(getattr(ticket_obj, 'id', '')), title=getattr(ticket_obj, 'title', ''), act_state=getattr(ticket_obj, 'act_state', '')))
 
-            flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_result_object.workflow_id)
-            workflow_info_dict = dict(workflow_id=workflow_obj.id, workflow_name=workflow_obj.name)
-
-            flag, creator_obj = account_user_service_ins.get_user_by_username(ticket_result_object.creator)
-            if flag:
-                flag, dept_dict_info = account_user_service_ins.get_user_dept_info(user_id=creator_obj.id)
-
-                creator_info = dict(username=creator_obj.username, alias=creator_obj.alias,
-                                    is_active=creator_obj.is_active, email=creator_obj.email, phone=creator_obj.phone,
-                                    dept_info=dept_dict_info)
-            else:
-                creator_info = dict(username=ticket_result_object.creator, alias='', is_active=False, email='',
-                                    phone='', dept_info={})
-            ticket_format_obj = ticket_result_object.get_dict()
-
-            state_obj_label = '{}'
-            if state_obj_flag:
-                state_obj_label = json.loads(state_obj.label)
-            ticket_format_obj.update(dict(state=dict(state_id=ticket_result_object.state_id, state_name=state_name,
-                                                     state_label=state_obj_label),
-                                          participant_info=participant_info, creator_info=creator_info,
-                                          workflow_info=workflow_info_dict))
-
-            ticket_result_restful_list.append(ticket_format_obj)
-        return True, dict(ticket_result_restful_list=ticket_result_restful_list,
+        return dict(ticket_result_restful_list=ticket_result_restful_list,
                           paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
     @classmethod
-    def new_ticket(cls, tenant_id: int, app_name: str, operator_id: int,  request_data_dict: dict)->int:
+    @transaction.atomic
+    def new_ticket(cls, tenant_id: str, app_name: str, operator_id: str,  request_data_dict: dict)->int:
         """
         new ticket
         :param tenant_id:
@@ -231,122 +189,123 @@ class TicketBaseService(BaseService):
         :return:
         """
         workflow_id = request_data_dict.get('workflow_id')
+        cc_to_user_id_list = request_data_dict.get('cc_to_user_id_list', [])
+        # get version id
+        workflow_version = request_data_dict.get('workflow_version', '')
+        version_id = workflow_base_service_ins.get_workflow_version_id_by_name(workflow_id, tenant_id, workflow_version)
+
         # check whether current call source has permission to create this type ticket
-        workflow_permission_service_ins.app_workflow_permission_check(tenant_id, workflow_id, app_name)
+        workflow_permission_service_ins.app_workflow_permission_check(tenant_id, workflow_id, version_id, app_name)
         # pre_create_hook check
-        workflow_hook_service_ins.pre_create_hook(tenant_id, operator_id, workflow_id, request_data_dict)
+        workflow_hook_service_ins.pre_create_hook(tenant_id, operator_id, workflow_id, version_id, request_data_dict)
 
-        transition_id = request_data_dict.get('transition_id')
-        parent_ticket_id = request_data_dict.get('parent_ticket_id', 0)
-        parent_ticket_node_id = request_data_dict.get('parent_ticket_node_id', 0)
-        ticket_field_info_list = request_data_dict.get('ticket_field_info_list', [])
-        request_field_arg_list = [ticket_field_info.get("field_key") for ticket_field_info in ticket_field_info_list]
-        title = ""
-        ticket_field_dict = dict()
-        for ticket_field_info in ticket_field_info_list:
-            ticket_field_dict[ticket_field_info.get("field_key")] =ticket_field_info.get("field_value")
-            if ticket_field_info.get("field_key") == "title":
-                title = ticket_field_info.get("field_value")
+        action_id = request_data_dict.get('action_id')
+        parent_ticket_id = request_data_dict.get('parent_ticket_id', '')
+        parent_ticket_node_id = request_data_dict.get('parent_ticket_node_id', '')
+        
 
-        required_field_list, update_field_list = workflow_node_service_ins.get_start_node_field_list(workflow_id)
 
-        # check whether all required field are provided if transition's field_require_check is enable
-        req_transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(transition_id)
-        if req_transition_obj.source_node.type != "start":
-            raise CustomCommonException("To create ticket, transition's source node's type must be 'start'")
-        if req_transition_obj.field_require_check:
+        # todo: required field check
+        edge_obj = workflow_edge_service_ins.get_workflow_edge_by_id(tenant_id, workflow_id, version_id, action_id)
+        validate_fields = edge_obj.props.get('validate_fields', True)
+
+        ## get start node id
+        required_field_list, update_field_list = [], []
+        start_node_obj = workflow_node_service_ins.get_init_node(tenant_id, workflow_id, version_id)
+
+        ## startnode and action match check
+        if start_node_obj.id != edge_obj.source_node_id:
+            raise CustomCommonException("start node and action not match")
+        
+
+
+        field_permissions = start_node_obj.props.get('field_permissions', {})
+        for field_key, field_permission in field_permissions.items():
+            if field_permission == 'required':
+                required_field_list.append(field_key)
+                update_field_list.append(field_key)
+            elif field_permission == 'optional':
+                update_field_list.append(field_key)
+        
+        if validate_fields:
             for required_field in required_field_list:
-                if required_field not in request_field_arg_list:
-                    raise CustomCommonException("To create this type ticket should include those fields: {}".format(','.join(required_field_list)))
+                if required_field not in request_data_dict.get('fields', {}).keys():
+                    raise CustomCommonException('field {} is required'.format(required_field))
+        
 
         # get next node list. next node can be more than one
-        next_node_list = cls.get_next_node_list(0, request_data_dict)
+        next_node_list = cls.get_action_next_node_list(tenant_id, '', workflow_id, version_id, action_id, request_data_dict)
         act_state = "on_going"
         if len(next_node_list) == 1:
-            act_state = cls.get_act_state_by_node_and_transition_type(next_node_list[0].type, req_transition_obj.type)
+            act_state = cls.get_act_state_by_node_and_edge_type(next_node_list[0].type, edge_obj.type)
 
-        ticket_record = TicketRecord(title=title, workflow_id=workflow_id,
+        ticket_record = TicketRecord(title=request_data_dict.get('fields', {}).get('title', ''), workflow_id=workflow_id,
                                      parent_ticket_id=parent_ticket_id,
                                      parent_ticket_node_id=parent_ticket_node_id,
-                                     act_state=act_state, creator_id=operator_id, tenant_id=tenant_id)
+                                     act_state=act_state, creator_id=operator_id, tenant_id=tenant_id,
+                                     workflow_version_id=version_id)
         ticket_record.save()
         ticket_id = ticket_record.id
-        print('ticket_idticket_id:',ticket_id)
 
         # add ticket cc_to user record
         ticket_user_service_ins.add_record(tenant_id, operator_id, ticket_id, True, False, False, False)
         if request_data_dict.get("cc_to_list"):
             for cc_to in request_data_dict.get("cc_to_list"):
-                ticket_user_service_ins.add_record(tenant_id, cc_to, ticket_id, True, False, False, True)
+                ticket_user_service_ins.add_record(tenant_id, cc_to, ticket_id, False, False, False, True)
 
         # add ticket flow history
-        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, transition_id,
+        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, action_id,
                                                                 "", "person", str(operator_id),
-                                                                req_transition_obj.source_node_id,
-                                                                "create", request_data_dict)
-
+                                                                start_node_obj.id,
+                                                                "create", request_data_dict.get('fields', {}))
         # add ticket custom field
-        add_custom_field_info = dict()
-        for update_field in update_field_list:
-            if update_field != "title":
-                add_custom_field_info[update_field] = ticket_field_dict.get(update_field)
-        ticket_custom_field_service_ins.add_record(tenant_id, ticket_id, operator_id, workflow_id, add_custom_field_info)
+        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, version_id, request_data_dict.get('fields'))
 
-        # update TicketNode, TicketNodeParticipant
-        ticket_node_participant_list =[]
-        ticket_participant_user_list = []
+        # update TicketNode
+        next_ticket_node_result_list  = []
         for next_node in next_node_list:
-            ticket_node_participant_obj = dict()
-            next_participant_info = cls.get_ticket_node_participant_info(operator_id, next_node, 0, request_data_dict)
-            destination_participant_type = next_participant_info.get("destination_participant_type")
-            destination_participant_list = next_participant_info.get("destination_participant_list")
-            all_participant_result = next_participant_info.get("all_participant_result")
-            ticket_node_participant_obj["ticket_id"] = ticket_id
-            ticket_node_participant_obj["node_id"] = next_node.id
-            ticket_node_participant_obj["node_type"] = next_node.type
-            ticket_node_participant_obj["in_add_node"] = False
-            ticket_node_participant_obj["add_node_target"] = ""
-            ticket_node_participant_obj["hook_state"] = ""
-            ticket_node_participant_obj["all_participant_result"] = all_participant_result
-            ticket_node_participant_obj["destination_participant_type"] = destination_participant_type
-            ticket_node_participant_obj["destination_participant_list"] = destination_participant_list
-            ticket_node_participant_list.append(ticket_node_participant_obj)
+            next_node_result = dict()
+            next_node_assignee_info = cls.get_ticket_node_assignee_info(tenant_id, operator_id, next_node, '', request_data_dict)
+            next_node_result['ticket_id'] = ticket_id
+            next_node_result['node_id'] = next_node.id
+            next_node_result['node_type'] = next_node.type
+            next_node_result['is_active'] = True
+            next_node_result['in_add_node'] = False
+            next_node_result['add_node_target'] = ""
+            next_node_result['hook_state'] = ""
+            next_node_result['all_assignee_result'] = next_node_assignee_info.get("all_assignee_result")
+            next_node_result['target_assignee_type'] = next_node_assignee_info.get("target_assignee_type")
+            next_node_result['target_assignee_list'] = next_node_assignee_info.get("target_assignee_list")
+            next_ticket_node_result_list.append(next_node_result)
 
-            if destination_participant_type in ("person", "multi_person"):
-                ticket_participant_user_list += destination_participant_list
-        ticket_node_service_ins.update_batch_record(tenant_id, ticket_node_participant_list)
+        ticket_node_service_ins.update_ticket_node_record(tenant_id, next_ticket_node_result_list)
 
         # update relate user for next node
-        ticket_participant_user_list = list(set(ticket_participant_user_list))
-        ticket_user_service_ins.add_participant_record_list(tenant_id, ticket_id, ticket_participant_user_list)
-
-        # send notice
-        from tasks import send_ticket_notice
-        send_ticket_notice.apply_async(args=[tenant_id, ticket_id], queue="loonflow")
+        ticket_user_service_ins.update_ticket_user_by_all_next_node_result(tenant_id, ticket_id, operator_id, cc_to_user_id_list, next_ticket_node_result_list)
 
 
-        for ticket_node_participant in ticket_node_participant_list:
+
+        # todo: send notice
+
+        # todo: next node handle
+        for next_ticket_node in next_ticket_node_result_list:
             # hook
-            if ticket_node_participant.get("destination_participant_type") == "hook":
-                from tasks import flow_hook_task
-                flow_hook_task.apply_async(args=[tenant_id, ticket_id, ticket_node_participant.get("node_id")], queue="loonflow")
+            if next_ticket_node.get("target_assignee_type") == "hook":
+                ## todo: hook handle
+                pass
 
             # timer handle
-            if ticket_node_participant.get("node_type") == "timer":
-                cls.handle_timer_transition(ticket_id, ticket_node_participant.get("node_id"), int(ticket_node_participant.get(destination_participant_list)[0]))
+            if next_ticket_node.get("node_type") == "timer":
+                ## todo: timer handle
+                pass
 
-            # parent_ticket handle
-            if ticket_node_participant.get("node_type") == "end" and ticket_record.parent_ticket_id and ticket_record.parent_ticket_node_id:
-                # if all brother node is end, trigger parent ticket flow
-                parent_transition_queryset = workflow_transition_service_ins.get_transition_queryset_by_source_node_id(ticket_record.parent_ticket_node_id)
-                parent_transition_id = parent_transition_queryset[0].id
-                cls.handle_ticket(tenant_id, ticket_id, dict(transition_id=parent_transition_id, comment="all children ticket done, auto handle parent ticket"), by_child=True)
-        return ticket_id
+            # todo:parent_ticket handle
+        return str(ticket_id)
 
 
     @classmethod
-    def get_act_state_by_node_and_transition_type(cls, node_type, transition_type):
-        if transition_type == "reject":
+    def get_act_state_by_node_and_edge_type(cls, node_type, edge_type):
+        if edge_type == "reject":
             return "rejected"
         if node_type == "start":
             return "in_draft"
@@ -356,63 +315,75 @@ class TicketBaseService(BaseService):
             return "on-going"
 
     @classmethod
-    def get_next_node_list(cls, ticket_id: int, request_data_dict: dict) -> list:
+    def get_action_next_node_list(cls, tenant_id: str, ticket_id: str, workflow_id: str, version_id: str, action_id: str, request_data_dict: dict) -> list:
         """
         get next node
+        :param tenant_id:
         :param ticket_id:
-        :param request_data_dict:
+        :param workflow_id:
+        :param version_id:
+        :param action_id:
         :return:
         """
-        # if ticket_id is 0, which means now is creating ticket, so get start node and with transition id to calculate next nodes
-        # if ticket_id is not 0, get ticket's current node, then with transition id to calculate next nodes
+        # if ticket_id is '', which means now is creating ticket, so get start node and with transition id to calculate next nodes
+        # if ticket_id is not '', get ticket's current node, then with transition id to calculate next nodes
+        # todo: need consider in_parallel, if node in parallel, and not current source node, then also return them
+        # todo: add in-parallel node, then remove current node
 
-        workflow_id = request_data_dict.get("workflow_id", 0)
+        result_node_list = []
 
         if not ticket_id:
-            init_node = workflow_node_service_ins.get_init_node_rest(workflow_id)
-            source_node_id_list = [init_node.get("id")]
+            init_node = workflow_node_service_ins.get_init_node(tenant_id, workflow_id, version_id)
+            source_node_list = [init_node]
         else:
-            source_node_id_list = cls.get_ticket_current_node_list(ticket_id)
-        transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(request_data_dict.get("transition_id"))
-        if transition_obj.source_node_id not in source_node_id_list:
+            source_node_list = cls.get_ticket_current_node_list(tenant_id, ticket_id)
+        
+        edge_obj = workflow_edge_service_ins.get_workflow_edge_by_id(tenant_id, workflow_id, version_id, action_id)
+        if edge_obj.source_node_id not in [node.id for node in source_node_list]:
             raise CustomCommonException("current node has no permission to run this transition")
-        destination_node = transition_obj.destination_node
-        if destination_node.type in ("start", "common", "end", "timer"):
-            return [destination_node]
-        if destination_node.type == "parallel_gw":
-            return workflow_transition_service_ins.get_parallel_next_node_list(destination_node)
+        
+        target_node_id = edge_obj.target_node_id
+        target_node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, workflow_id, version_id, target_node_id)
 
-        elif destination_node.type == "mutual_gw":
-            # get destination node
-            next_transition_queryset = workflow_transition_service_ins.get_transition_queryset_by_source_node_id
-            ticket_all_value_dict = cls.get_ticket_all_field_value()
+
+
+        if target_node_obj.type in ("start", "normal", "end", "timer"):
+            result_node_list.append(target_node_obj)
+        if target_node_obj.type == "parallel": # 并行网关
+            node_id_list =  workflow_edge_service_ins.get_parallel_next_node_list(target_node_obj)
+            workflow_node_queryset = workflow_node_service_ins.get_node_queryset_by_id_list(tenant_id, workflow_id, version_id, node_id_list)
+            result_node_list.extend(list(workflow_node_queryset))
+        
+        elif target_node_obj.type == "exclusive": # 排他网关
+            # request_data and current field data
+            next_edge_list = workflow_edge_service_ins.get_workflow_edges_by_source_node_id(tenant_id, workflow_id, version_id, target_node_obj.id)
+            ticket_all_value_dict = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+            # todo: need merge request data and ticket_all_value_dict
+            
             ticket_all_value_dict_copy = copy.deepcopy(ticket_all_value_dict)
-            require_field_list, update_field_list = workflow_node_service_ins.get_node_field_list()
-            for update_field in update_field_list:
-                ticket_all_value_dict_copy[update_field] = request_data_dict.get(update_field)
+            ticket_all_value_dict_copy.update(request_data_dict.fields)
+            for key, value in ticket_all_value_dict_copy.items():
+                if isinstance(ticket_all_value_dict_copy[key], str):
+                    ticket_all_value_dict_copy[key] = "'''" + ticket_all_value_dict_copy[key] + "'''"
 
-            for next_transition_obj in next_transition_queryset:
-                condition_expression = next_transition_obj.condition_expression
+            for next_edge_obj in next_edge_list:
+                condition_expression = next_edge_obj.props.get('condition_expression', '')
                 condition_expression_format = condition_expression.format(**ticket_all_value_dict_copy)
                 import datetime, time # for security， only support datetime, time, abs operation
                 if eval(condition_expression_format, {"__builtins__": None}, {"datetime":datetime, "time":time, "abs": abs}):
-                    return [next_transition_obj.destination_node]
+                    next_node_id = next_edge_obj.target_node_id
+                    next_node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, workflow_id, version_id, next_node_id)
+                    result_node_list.append(next_node_obj)
+        
+        # add in-parallel node, but not current node
+        for source_node in source_node_list:
+            if source_node.type == "in-parallel" and source_node.id != edge_obj.source_node_id:
+                result_node_list.append(source_node)
+        return result_node_list
 
-
-
-
-
-
-
-
-
-
-
-
-        return 1, 1
 
     @classmethod
-    def get_ticket_node_participant_info(cls, operator_id: int, node_obj, ticket_id: int = 0,
+    def get_ticket_node_assignee_info(cls, tenant_id: str, operator_id: str, node_obj, ticket_id: str = '',
                                          ticket_req_dict: dict = {}) -> dict:
         """
         get ticket node's participant info
@@ -423,102 +394,312 @@ class TicketBaseService(BaseService):
         :return:
         """
         if ticket_id:
-            ticket_obj = TicketRecord.objects.get(id=ticket_id)
+            ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
             if node_obj.type == "start":
-                return dict(destination_participant_type="person", destination_participant_list=[ticket_obj.creator_id],
-                            all_participant_result={})
+                return dict(assignee_type="person", assignee_list=[ticket_obj.creator_id],
+                            all_assignee_result={})
             elif node_obj.type == "end":
-                return dict(destination_participant_type="none", destination_participant_list=[],
-                            all_participant_result={})
+                return dict(assignee_type="none", assignee_list=[],
+                            all_assignee_result={})
+            
             parent_ticket_id = ticket_obj.parent_ticket_id
             creator_id = ticket_obj.creator_id
-            ticket_node_obj = TicketNode.objects.get(Ticket_id=ticket_id)
-            all_participant_result = ticket_node_obj.all_participant_result
-            node_field = node_obj.node_field
+            ticket_node_obj = TicketNode.objects.get(Ticket_id=ticket_id, tenant_id=tenant_id)
+            all_assignee_result = ticket_node_obj.all_assignee_result
+
+            node_field = node_obj.props.get('field_permissions', {})
+
             edit_field_list = []
             for key, value in node_field.items():
-                if value in ["wo", "wr"]:
-                    # r:read, wo:write option, wr: write require
+                if value in ["optional", "required"]:
                     edit_field_list.append(key)
-            ticket_value_info = cls.get_ticket_all_field_value(ticket_id)
+
+            ticket_value_info = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
             for edit_field in edit_field_list:
-                ticket_value_info.update(ticket_req_dict.get(edit_field))
+                ticket_value_info.update(ticket_req_dict.get('fields', {}).get(edit_field, ''))
 
         else:
-            # ticket_id is 0, means this is new ticket
+            # ticket_id is '', means this is new ticket
+            all_assignee_result = {}
             if node_obj.type == "start":
-                return dict(destination_participant_type="person", destination_participant_list=[operator_id],
-                            all_participant_result={})
+                return dict(assignee_type="person", assignee_list=[operator_id],
+                            all_assignee_result={})
             elif node_obj.type == "end":
-                return dict(destination_participant_type="none", destination_participant_list=[],
-                            all_participant_result={})
+                return dict(assignee_type="none", assignee_list=[],
+                            all_assignee_result={})
             parent_ticket_id = ticket_req_dict.get("parent_ticket_id")
             creator_id = operator_id
-            all_participant_result = {}
-            ticket_value_info = ticket_req_dict
+            ticket_value_info = ticket_req_dict.get('fields', {})
 
-        destination_participant_type, destination_participant, destination_participant_list = node_obj.participant_type, node_obj.participant, []
-        if destination_participant_type == "personal":
-            destination_participant_list = destination_participant.split(',')
-        elif destination_participant_type == "ticket_field":
-            participant_list = destination_participant.split(",")
+        target_assignee_type, target_assignee, target_assignee_list = node_obj.props.get('assignee_type'), node_obj.props.get('assignee'), []
 
-            for participant0 in participant_list:
-                destination_participant_list.append(ticket_value_info.get(participant0))
+        if target_assignee_type == "users":
+            target_assignee_list = target_assignee.split(',')
+        elif target_assignee_type == "ticket_field":
+            target_assignee_source_list = target_assignee.split(",")
 
-        elif destination_participant_type == "parent_ticket_field":
-            ticket_value_info = cls.get_ticket_all_field_value(parent_ticket_id)
-            participant_list = destination_participant.split(",")
-            destination_participant_list = []
-            for participant0 in participant_list:
-                destination_participant_list.append(ticket_value_info.get(participant0))
-            destination_participant = ",".join(destination_participant_list)
-        elif destination_participant_type == "variable":
-            destination_participant_list = []
-            for participant0 in destination_participant_list:
-                if participant0 == "creator":
-                    destination_participant_list.append(creator_id)
-                elif participant0 == "creator_dept_approver":
-                    destination_participant_list += account_user_service_ins.get_user_dept_approver(creator_id)
-        elif destination_participant_type == "dept":
-            destination_participant_list = account_dept_service_ins.get_dept_user_id_list(int(destination_participant))
-        elif destination_participant_type == "hook":
-            destination_participant_list = ["*"]  # hook participant may contain sensitive information
-        elif destination_participant_type == "from-external":
-            external_config = json.load(destination_participant)
+            for target_assignee_source in target_assignee_source_list:
+                target_assignee_list.append(ticket_value_info.get(target_assignee_source))
+
+        elif target_assignee_type == "parent_ticket_field":
+            ticket_value_info = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, parent_ticket_id)
+
+            target_assignee_source_list = target_assignee.split(",")
+            for target_assignee_source in target_assignee_source_list:
+                target_assignee_list.append(ticket_value_info.get(target_assignee_source))
+            target_assignee = ",".join(target_assignee_list)
+        elif target_assignee_type == "variable":
+            for target_assignee_source in target_assignee_source_list:
+                if target_assignee_source == "creator":
+                    target_assignee_list.append(creator_id)
+                elif target_assignee_source == "creator_dept_approver":
+                    target_assignee_list += account_user_service_ins.get_user_dept_approver_id_list(tenant_id, creator_id)
+        elif target_assignee_type == "dept":
+            target_assignee_list = account_dept_service_ins.get_dept_user_id_list(tenant_id, target_assignee)
+            target_assignee = ",".join(target_assignee_list)
+        elif target_assignee_type == "hook":
+            target_assignee_list = ["*"]  # hook participant may contain sensitive information
+        elif target_assignee_type == "from-external":
+            external_config = json.load(target_assignee)
             external_url = external_config.get('external_url')
             external_token = external_config.get('external_token')
             extra_info = external_config.get('extra_info')  # should be a dict
             ticket_req_dict.update(extra_info=extra_info)
             result = hook_base_service_ins.call_hook(external_url, external_token, ticket_req_dict)
             if result.get("code") == 0:
-                destination_participant_list = result.get("participant_list")
+                target_assignee_list = result.get("participant_list")
 
-        if len(destination_participant_list) > 1:
+        if len(target_assignee_list) > 1:
             if node_obj.distribute_type == "random":
-                destination_participant_list = random.choice(destination_participant_list)
-                destination_participant_type = "person"
+                target_assignee_list = random.choice(target_assignee_list)
+                target_assignee_type = "person"
             elif node_obj.distribute_type == "whole":
-                if not all_participant_result:
-                    for destination_participant0 in destination_participant_list:
-                        all_participant_result[destination_participant0] = {}
-        return dict(destination_participant_type=destination_participant_type,
-                    destination_participant_list=destination_participant_list,
-                    all_participant_result=all_participant_result)
+                if not all_assignee_result:
+                    for target_assignee0 in target_assignee_list:
+                        all_assignee_result[target_assignee0] = {}
+        return dict(target_assignee_type=target_assignee_type,
+                    target_assignee_list=target_assignee_list,
+                    all_assignee_result=all_assignee_result)
 
 
     @classmethod
-    def get_ticket_current_node_list(cls, ticket_id: int) -> list:
+    def get_ticket_current_node_list(cls, tenant_id: str, ticket_id: str) -> list:
         """
         get ticket's current node list
         :param ticket_id:
         :return:
         """
-        result_list = []
-        ticket_node_queryset = TicketNode.objects.filter(ticket_id=ticket_id).all()
-        for ticket_node in ticket_node_queryset:
-            result_list.append(ticket_node.id)
-        return result_list
+        ticket_node_queryset = TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id).all()
+        return list(ticket_node_queryset)
+
+    
+    @classmethod
+    def get_ticket_detail_form(cls, tenant_id: str, operator_id: str, ticket_id: str) -> tuple:
+        """
+        get ticket detail form
+        :param tenant_id:
+        :param operator_id:
+        :param ticket_id:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
+        workflow_id = ticket_obj.workflow_id
+        workflow_version_id = ticket_obj.workflow_version_id
+
+        # todo： get all ticket fields' value
+        ticket_field_value_dict = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+        
+        if ticket_obj.act_state == "end":
+            # ticket end, only view ticket
+            component_result_list = workflow_base_service_ins.get_workflow_view_form(workflow_id, tenant_id, workflow_version_id)
+        else:
+            # todo: check whether user is current assignee
+            current_assignee_info = ticket_user_service_ins.get_ticket_current_assignee_info(tenant_id, ticket_id)
+            if operator_id not in current_assignee_info.keys():
+                # user has view permission, since in view.py checked user view permission
+                component_result_list = workflow_base_service_ins.get_workflow_view_form(tenant_id, workflow_id, workflow_version_id)
+            else:
+                assignee_node_ids = current_assignee_info.get(operator_id)
+                component_result_list = workflow_base_service_ins.get_workflow_node_form(tenant_id, workflow_id, workflow_version_id, assignee_node_ids.split(',')[0])
+
+        # todo: set field value
+        new_component_result_list = []
+        for component in component_result_list:
+            # new_component = copy.deepcopy(component)
+            
+            if component.get('type') == 'row':
+                for field_component in component.get('children'):
+                    # new_field_component = copy.deepcopy(field_component)
+                    field_key = field_component.get('component_key')
+                    field_value = ticket_field_value_dict.get(field_key)
+                    field_component['props']['value'] = field_value
+                    # component.get('children').append(field_component)
+            new_component_result_list.append(component)
+        return new_component_result_list
+                
+    @classmethod
+    def ticket_view_permission_check(cls, tenant_id:str, ticket_id: str, user_id: str)-> bool:
+        """
+        check user whether have view permission,  if open permission check in workflow config, otherwise decide by ticket releationship
+        :param tenant_id:
+        :param ticket_id:
+        :param user_id:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.filter(tenant_id=tenant_id, id=ticket_id).first()
+        if not ticket_obj:
+            return CustomCommonException("ticket is not existed or has been deleted")
+        
+        user_obj = account_user_service_ins.get_user_by_user_id(tenant_id, user_id)
+        if user_obj.type == 'admin':
+            return True
+        workflow_ticket_view_permission = workflow_permission_service_ins.user_workflow_permission_check(tenant_id, ticket_obj.workflow_id, ticket_obj.workflow_version_id, user_id, 'view')
+        if workflow_base_service_ins:
+            return True
+        
+        # check relation permission
+        related_user_id_list = ticket_user_service_ins.get_ticket_relation_user_id_list(tenant_id, ticket_id)
+        if user_id in related_user_id_list:
+            return True
+        else:
+            return False
+
+    @classmethod
+    def ticket_action_permission_check(cls, tenant_id: str, ticket_id: str, user_id: str, action_type:str, action_id:str) -> bool:
+        """
+        check user whether have handle permission
+        :param tenant_id:
+        :param ticket_id:
+        :param user_id:
+        :return:
+        """
+        if action_type == "add_comment":
+            return cls.ticket_view_permission_check(tenant_id, ticket_id, user_id)
+        elif action_type in ("forward", "consult", "consult_submit", "accept", "agree", "reject", "other"):
+            return cls.ticket_assignee_permission_check(tenant_id,ticket_id, user_id)
+        elif action_type in ("force_forward", "force_close", "force_alter_node"):
+            return cls.ticket_admin_permission_check(tenant_id, ticket_id, user_id)
+        return False
+
+
+
+
+    @classmethod
+    def ticket_assignee_permission_check(cls, tenant_id: str, ticket_id: str, user_id: str) -> bool:
+        """
+        check user whether have handle permission
+        :param ticket_id:
+        :param user_id:
+        :return:
+        """
+        current_assignee_info = ticket_user_service_ins.get_ticket_current_assignee_info(tenant_id, ticket_id)
+        if user_id in current_assignee_info.keys():
+            return True
+        return False
+
+    @classmethod
+    def get_ticket_detail_actions(cls, tenant_id: str, ticket_id: str, user_id: str) -> list:
+        """
+        get ticket detail actions
+        :param tenant_id:
+        :param ticket_id:
+        :param user_id:
+        :return:
+        """
+        # todo: need consider in_add_node status
+
+        ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
+        workflow_id = ticket_obj.workflow_id
+        workflow_version_id = ticket_obj.workflow_version_id
+        # check handle permission
+        current_assignee_info = ticket_user_service_ins.get_ticket_current_assignee_info(tenant_id, ticket_id)
+        if user_id in current_assignee_info.keys():
+            # has hendle permission, get edge list, base first node
+            edge_info_list = workflow_edge_service_ins.get_workflow_edges_by_source_node_id(tenant_id, workflow_id, workflow_version_id, current_assignee_info.get(user_id).split(',')[0])
+            action_result_list = []
+            for edge_info in edge_info_list:
+                action_result_list.append(dict(
+                    id=str(edge_info.id),
+                    name=edge_info.name,
+                    type=edge_info.type,
+                    props=edge_info.props
+                ))
+            
+        if ticket_base_service_ins.ticket_view_permission_check(tenant_id, ticket_id, user_id):
+            action_result_list.append(dict(
+                id='add_comment',
+                name='add comment',
+                type='add_comment',
+                props= {}
+            ))
+        return action_result_list
+
+
+    @classmethod
+    @transaction.atomic
+    def handle_ticket(cls, tenant_id: str, ticket_id:str, operator_id: str, request_data_dict: dict) -> bool:
+        """
+        handle ticket. include edge actions and consult(加签), consult_submit(加签提交), forward(转交), accept(接单)
+        :param tenant_id:
+        :param ticket_id:
+        :param operator_id:
+        :param ticket_id:
+        :param action_type:
+        :param action_id:
+        :param action_props:
+        :param request_data_dict:
+        :return:
+        """
+        action_type = request_data_dict.get('action_type')
+        action_id = request_data_dict.get('action_id')
+        action_props = request_data_dict.get('action_props')
+        if action_type == "add_comment":
+            cls.add_comment(tenant_id, ticket_id, operator_id, request_data_dict.get('comment'))
+        elif action_type in ("forward", "consult", "consult_submit", "accept", "agree", "reject", "other"):
+            cls.handle_ticket_assignee_action(tenant_id, ticket_id, operator_id, request_data_dict)
+        elif action_type in ("force_forward", "force_close", "force_alter_node"):
+            cls.handle_ticket_admin_action(tenant_id, ticket_id, operator_id, request_data_dict)
+        return True
+
+        
+    
+    
+    @classmethod
+    def add_comment(cls, tenant_id: str, ticket_id: str, operator_id: str, comment: str) -> str:
+        """
+        add comment to ticket
+        :param tenant_id:
+        :param ticket_id:
+        :param operator_id:
+        :param comment:
+        :return:
+        """
+        ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "add_comment", None, comment,
+        "user", operator_id, None, ticket_data)
+    
+        
+        
+        
+
+    @auto_log
+    def ticket_admin_permission_check(cls, tenant_id:str, ticket_id: str, user_id: str = '') -> bool:
+        """
+        check whether user has ticket's admin permission
+        :param username:
+        :param ticket_id:
+        :return:
+        """
+        # admin has all ticket's permission
+        user_record = account_user_service_ins.get_user_by_user_id(tenant_id, user_id)
+        if user_record.type_id == "admin":
+            return True
+        if user_record.type_id == "workflow_admin":
+            ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
+            workflow_id = ticket_obj.workflow_id
+            workflow_version_id = ticket_obj.workflow_version_id
+            return workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'admin')
+        
 
 
 
@@ -527,6 +708,18 @@ class TicketBaseService(BaseService):
 
 
 
+
+
+
+
+
+
+
+
+        
+
+
+    # todo: update
 
 
 
@@ -1154,36 +1347,7 @@ class TicketBaseService(BaseService):
 
         return True, dict(permission=True, need_accept=need_accept, in_add_node=in_add_node)
 
-    @classmethod
-    @auto_log
-    def ticket_view_permission_check(cls, ticket_id: int, username: str)-> tuple:
-        """
-        check user whether have view permission if open permission check in workflow config, otherwise decide by ticket releation
-        校验用户是否有工单的查看权限:先查询对应的工作流是否校验查看权限， 如果不校验直接允许，如果校验需要判断用户是否属于工单的关系人
-        :param ticket_id:
-        :param username:
-        :return:
-        """
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id).first()
-        if not ticket_obj:
-            return False, 'ticket is not existed or has been deleted'
-        flag, workflow_obj = workflow_base_service_ins.get_by_id(ticket_obj.workflow_id)
-        if flag is False:
-            return False, workflow_obj
-        if not workflow_obj.view_permission_check:
-            return True, "this ticket's workflow config did not open view permission check"
-        else:
-            flag, user_obj = account_user_service_ins.get_user_by_username(username)
-            if flag is False:
-                return False, 'user is not existed or has been deleted'
-            else:
-                if user_obj.type_id == constant_service_ins.ACCOUNT_TYPE_SUPER_ADMIN:
-                    return True, 'admin has all ticket view permission'
-            if username in ticket_obj.relation.split(','):
-                return True, 'user is relation about this ticket, has view permission'
-            else:
-                return False, 'user is not relation about this ticket and the workflow open view permission check'
-
+    
     @classmethod
     @auto_log
     def get_ticket_transition(cls, ticket_id: int, username: str)->tuple:
@@ -1226,215 +1390,6 @@ class TicketBaseService(BaseService):
             transition_dict_list.append(transition_dict)
         return True, dict(transition_dict_list=transition_dict_list)
 
-    @classmethod
-    @auto_log
-    def handle_ticket(cls, tenant_id: int, ticket_id: int, request_data_dict: dict, by_timer: bool=False, by_task: bool=False,
-                      by_hook: bool=False, by_child: bool=False):
-        """
-        处理工单:校验必填参数,获取当前状态必填字段，更新工单基础字段，更新工单自定义字段， 更新工单流转记录，执行必要的脚本，通知消息
-        此处逻辑和新建工单有较多重复，下个版本会拆出来
-        handle ticket, include params check,update base field, update custom field, update ticket flowlog,
-        run script, send notice...
-        :param ticket_id:
-        :param request_data_dict:
-        :param by_timer:  by timer transition
-        :param by_task: by script task transition
-        :param by_hook: by hook transition
-        :return:
-        """
-        transition_id = request_data_dict.get('transition_id', '')
-        username = request_data_dict.get('username', '')
-        suggestion = request_data_dict.get('suggestion', '')
-
-        if not (transition_id and username):
-            return False, '参数不合法,请提供username，transition_id'
-        ticket_obj = TicketRecord.objects.filter(id=ticket_id, is_deleted=False).first()
-        source_ticket_state_id = ticket_obj.state_id
-        if not ticket_obj:
-            return False, '工单不存在或已被删除'
-
-        # 判断用户是否有权限处理该工单
-        flag, result = cls.ticket_handle_permission_check(ticket_id, username, by_timer, by_task, by_hook)
-        if flag is False:
-            return False, result
-        if result.get('permission') is False:
-            return False, result.get('msg')
-        if result.get('need_accept'):
-            return False, '需要先接单再处理'
-        if result.get('in_add_node'):
-            return False, '工单当前处于加签中，只允许加签完成操作'
-
-        flag, state_obj = workflow_state_service_ins.get_workflow_state_by_id(ticket_obj.state_id)
-        if flag is False:
-            return False, state_obj
-
-        # 获取初始状态必填字段 及允许更新的字段
-        flag, state_info_dict = cls.get_state_field_info(state_obj.id)
-        require_field_list = state_info_dict.get('require_field_list', [])
-        update_field_list = state_info_dict.get('update_field_list', [])
-
-        # 校验是否所有必填字段都有提供，如果transition_id对应设置为不校验必填则直接通过
-        flag, req_transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(transition_id)
-        if req_transition_obj.field_require_check:
-
-            request_field_arg_list = [key for key, value in request_data_dict.items()
-                                      if (key not in ['workflow_id', 'suggestion', 'username'])]
-            for require_field in require_field_list:
-                if require_field not in request_field_arg_list:
-                    return False, '此工单的必填字段为:{}'.format(','.join(require_field_list))
-
-        flag, msg = cls.get_next_state_id_by_transition_and_ticket_info(ticket_id, request_data_dict)
-        if flag:
-            destination_state_id = msg.get('destination_state_id')
-        else:
-            return False, msg
-
-        flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
-
-        # 判断当前处理人类型是否为全部处理，如果处理类型为全部处理（根据json.loads(ticket_obj.multi_all_person)来判断），且有人未处理，则工单状态不变，只记录处理过程
-        if json.loads(ticket_obj.multi_all_person):
-            multi_all_person = ticket_obj.multi_all_person
-            multi_all_person_dict = json.loads(multi_all_person)
-            flag, result = common_service_ins.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
-            if flag and result.get('result_list'):
-                multi_all_person_dict[username] = dict(transition_id=transition_id,
-                                                       transition_name=req_transition_obj.name)
-                has_all_same_value, msg = common_service_ins.check_dict_has_all_same_value(multi_all_person_dict)
-                if has_all_same_value:
-                    # 所有人处理的transition都一致,则工单进入下个状态
-                    flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_id,
-                                                                                   ticket_req_dict=request_data_dict)
-                    if not flag:
-                        return False, participant_info
-                    destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
-                    destination_participant = participant_info.get('destination_participant', '')
-                    multi_all_person = '{}'
-                else:
-                    # 处理人没有没有全部处理完成或者处理动作不一致
-                    destination_participant_type_id = ticket_obj.participant_type_id
-                    flag, result = common_service_ins.get_dict_blank_or_false_value_key_list(multi_all_person_dict)
-                    destination_participant = ','.join(result.get('result_list'))
-                    destination_state_id = ticket_obj.state_id  # 保持原状态
-                    flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
-                    multi_all_person = json.dumps(multi_all_person_dict)
-
-        else:
-            # 当前处理人类型非全部处理
-            # flag, destination_state = workflow_state_service_ins.get_workflow_state_by_id(destination_state_id)
-            # if not destination_state:
-            #     return False, msg
-            # 获取目标状态的信息
-            flag, participant_info = cls.get_ticket_state_participant_info(destination_state_id, ticket_id,
-                                                                           ticket_req_dict=request_data_dict)
-            if not flag:
-                return False, participant_info
-            destination_participant_type_id = participant_info.get('destination_participant_type_id', 0)
-            destination_participant = participant_info.get('destination_participant', '')
-            multi_all_person = participant_info.get('multi_all_person', '')
-            # 如果开启了了记忆最后处理人,且当前状态非全部处理中，那么处理人为之前的处理人
-            if destination_state.remember_last_man_enable and multi_all_person == '{}':
-                # 获取此状态的最后处理人
-                flag, result = cls.get_ticket_state_last_man(ticket_id, destination_state.id)
-                if flag and result.get('last_man'):
-                    destination_participant_type_id = constant_service_ins.PARTICIPANT_TYPE_PERSONAL
-                    destination_participant = result.get('last_man')
-
-        # 更新工单信息：基础字段及自定义字段， add_relation字段 需要下个处理人是部门、角色等的情况
-        ticket_obj.state_id = destination_state_id
-        ticket_obj.participant_type_id = destination_participant_type_id
-        ticket_obj.participant = destination_participant
-        ticket_obj.multi_all_person = multi_all_person
-        if destination_state.type_id == constant_service_ins.STATE_TYPE_END:
-            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_FINISH
-        elif destination_state.type_id == constant_service_ins.STATE_TYPE_START:
-            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_DRAFT
-        else:
-            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_ONGOING
-
-        if req_transition_obj.attribute_type_id == constant_service_ins.TRANSITION_ATTRIBUTE_TYPE_REFUSE:
-            ticket_obj.act_state_id = constant_service_ins.TICKET_ACT_STATE_BACK
-
-        ticket_obj.save()
-
-        # 记录处理过的人
-        if not (by_timer or by_task or by_hook):
-            cls.update_ticket_worked(ticket_id, username)
-
-        # 更新工单信息：基础字段及自定义字段， add_relation字段 需要考虑下个处理人是部门、角色等的情况
-        flag, result = cls.get_ticket_dest_relation(destination_participant_type_id, destination_participant)
-
-        if flag and result.get('add_relation'):
-            cls.update_ticket_relation(ticket_id, result.get('add_relation'))  # 更新关系人信息
-
-        # 只更新需要更新的字段
-        update_field_dict = {}
-        for key, value in request_data_dict.items():
-            if key in update_field_list:
-                update_field_dict[key] = value
-
-        cls.update_ticket_field_value(ticket_id, update_field_dict)
-        # 更新工单流转记录，执行必要的脚本，通知消息
-        flag, result = cls.get_ticket_all_field_value_json(ticket_id)
-        if flag is False:
-            return False, result
-        ticket_all_data = result.get('all_field_value_json')
-
-        if not by_task:
-            # 脚本执行完自动触发的流转，因为在run_flow_task已经有记录操作日志，所以此次不再记录
-            cls.add_ticket_flow_log(dict(ticket_id=ticket_id, transition_id=transition_id, suggestion=suggestion,
-                                         participant_type_id=constant_service_ins.PARTICIPANT_TYPE_PERSONAL,
-                                         participant=username, state_id=source_ticket_state_id, creator=username,
-                                         ticket_data=ticket_all_data))
-
-        # 通知消息
-        from tasks import send_ticket_notice
-        send_ticket_notice.apply_async(args=[ticket_id], queue='loonflow')
-
-        # 定时器逻辑
-        cls.handle_timer_transition(ticket_id, destination_state_id)
-
-        # 父工单逻辑处理
-        if destination_state.type_id == constant_service_ins.STATE_TYPE_END and ticket_obj.parent_ticket_id \
-                and ticket_obj.parent_ticket_state_id:
-            # 如果存在父工单，判断是否该父工单的下属子工单都已经结束状态，如果都是结束状态则自动流转父工单到下个状态
-            filter_params = dict(
-                parent_ticket_id=ticket_obj.parent_ticket_id,
-                parent_ticket_state_id=ticket_obj.parent_ticket_state_id,
-                is_deleted=0
-            )
-            other_sub_ticket_queryset = TicketRecord.objects.filter(**filter_params).all()
-            # 所有子工单使用相同的工作流,所以state都一样，检测是否都是ticket_obj.state_id即可判断是否都是结束状态
-            other_sub_ticket_state_id_list = [other_sub_ticket.state_id
-                                              for other_sub_ticket in other_sub_ticket_queryset]
-            flag, result = workflow_state_service_ins.get_states_info_by_state_id_list(
-                other_sub_ticket_state_id_list)
-            if flag:
-                sub_ticket_state_type_list = []
-                for key, value in result.items():
-                    sub_ticket_state_type_list.append(value.get('type_id'))
-                list_set = set(sub_ticket_state_type_list)
-                if list_set == {constant_service_ins.STATE_TYPE_END}:
-                    parent_ticket_obj = TicketRecord.objects.filter(id=ticket_obj.parent_ticket_id,
-                                                                    is_deleted=0).first()
-                    parent_ticket_state_id = parent_ticket_obj.state_id
-                    flag, parent_ticket_transition_queryset = workflow_transition_service_ins \
-                        .get_state_transition_queryset(parent_ticket_state_id)
-                    # 含有子工单的工单状态只支持单路径流转到下个状态
-                    parent_ticket_transition_id = parent_ticket_transition_queryset[0].id
-                    cls.handle_ticket(parent_ticket_obj.id, dict(transition_id=parent_ticket_transition_id,
-                                                                 username='loonrobot',
-                                                                 suggestion='所有子工单处理完毕，自动流转'))
-
-        if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_ROBOT:
-            from tasks import run_flow_task  # 放在文件开头会存在循环引用
-            run_flow_task.apply_async(args=[ticket_id, destination_participant, destination_state_id], queue='loonflow')
-
-        # 如果下个状态是hook，开始触发hook
-        if destination_participant_type_id == constant_service_ins.PARTICIPANT_TYPE_HOOK:
-            from tasks import flow_hook_task  # 放在文件开头会存在循环引用
-            flow_hook_task.apply_async(args=[ticket_id], queue='loonflow')
-
-        return True, ''
 
     @classmethod
     @auto_log
@@ -1964,48 +1919,7 @@ class TicketBaseService(BaseService):
                                      countdown=time_delay, queue='loonflow')
         return True
 
-    @classmethod
-    def get_ticket_all_field_value(cls, ticket_id: int)->dict:
-        """
-        get ticket's all field value
-        :param ticket_id:
-        :return:
-        """
-        ticket_obj = TicketRecord.objects.get(id=ticket_id)
-        # get ticket basic info from ticket_ticketrecord table
-        field_info_dict = ticket_obj.get_dict()
-        # get custom field value
-        ticket_custom_field_queryset = TicketCustomField.objects.filter(ticket_id=ticket_id).all()
-        for ticket_custom_field in ticket_custom_field_queryset:
-            if ticket_custom_field.field_type in ("text", "select", "cascade", "user", "file"):
-                field_info_dict[ticket_custom_field.field_key] = ticket_custom_field.common_value
-            elif ticket_custom_field.field_type == "number":
-                field_info_dict[ticket_custom_field.field_key] = ticket_custom_field.number_value
-            elif ticket_custom_field.field_type == "date":
-                field_info_dict[ticket_custom_field.field_key] = ticket_custom_field.date_value
-            elif ticket_custom_field.field_type == "datetime":
-                field_info_dict[ticket_custom_field.field_key] = ticket_custom_field.datetime_value
-            elif ticket_custom_field.field_type == "rich_text":
-                field_info_dict[ticket_custom_field.field_key] = ticket_custom_field.rich_text_value
-        return field_info_dict
-
-
-    @classmethod
-    @auto_log
-    def get_ticket_all_field_value_json(cls, ticket_id: int) -> tuple:
-        """
-        get ticket all field value to json
-        :param ticket_id:
-        :return:
-        """
-        flag, result = cls.get_ticket_all_field_value(ticket_id)
-        if flag is False:
-            return False, result
-
-        for key, value in result.items():
-            if type(value) not in [int, str, bool, float]:
-                result[key] = str(result[key])
-        return True, dict(all_field_value_json=json.dumps(result))
+    
 
     @classmethod
     @auto_log
@@ -2544,35 +2458,7 @@ class TicketBaseService(BaseService):
         result.save()
         return True, ''
 
-    @classmethod
-    @auto_log
-    def ticket_admin_permission_check(cls, ticket_id: int = 0, username: str = '') -> tuple:
-        """
-        校验用户是否是该工单的工作流管理员,以判断是否有权限对该工单干预处理
-        :param username:
-        :param ticket_id:
-        :return:
-        """
-        # 超级管理员拥有所有工作流管理权限
-        flag, result = account_user_service_ins.get_user_by_username(username)
-        if flag is False:
-            return False, result
-        if result.type_id == constant_service_ins.ACCOUNT_TYPE_WORKFLOW_ADMIN:
-            return True, "admin user has all ticket's intervention manage permission"
-
-        flag, result = cls.get_ticket_by_id(ticket_id)
-        if flag is False:
-            return False, result
-        workflow_id = result.workflow_id
-        flag, result = workflow_base_service_ins.get_workflow_manage_list(username)
-        if flag is False:
-            return False, result
-        workflow_list = result.get('workflow_list')
-        workflow_id_list = [workflow['id'] for workflow in workflow_list]
-        if workflow_id in workflow_id_list:
-            return True, ''
-        else:
-            return False, 'user has no permission to manage this ticket'
+    
 
     @classmethod
     @auto_log

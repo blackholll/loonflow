@@ -39,26 +39,27 @@ class TicketListView(BaseView):
     })
 
     post_schema = Schema({
-        'workflow_id': And(int, lambda n: n != 0, error='workflow_id is needed and type should be int'),
-        'transition_id': And(int, lambda n: n != 0, error='transition_id is needed and type should be int'),
-        str: object
+        'workflow_id': str,
+        'action_id': str,
+        Optional('parent_ticket_id'): str,
+        Optional('parent_ticket_node_id'): str,
+        Optional('fields'): object,
     })
 
     def get(self, request, *args, **kwargs):
         """
-        create new ticket
+        get ticket list
         :param request:
         :param args:
         :param kwargs:
         :return:
         """
-        creator_id = request.META.get('HTTP_USERID')
         tenant_id = request.META.get('HTTP_TENANTID')
 
         request_data = request.GET
         sn = request_data.get('sn', '')
         title = request_data.get('title', '')
-        user_id = request.META.get('HTTP_USER_ID')
+        user_id = str(request.META.get('HTTP_USERID'))
         create_start = request_data.get('create_start', '')
         create_end = request_data.get('create_end', '')
         workflow_ids = request_data.get('workflow_ids', '')
@@ -85,19 +86,21 @@ class TicketListView(BaseView):
             last_year_time = datetime.datetime.now() - datetime.timedelta(days=365*3)
             create_start = str(last_year_time)[:19]
             create_end = str(end_time)[:19]
-
-        flag, result = ticket_base_service_ins.get_ticket_list(
-            sn=sn, title=title, user_id=user_id, create_start=create_start, create_end=create_end,
-            workflow_ids=workflow_ids, node_ids=node_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
-            per_page=per_page, page=page, app_name=app_name, act_state_id=act_state_id, from_admin=from_admin,
-            creator=creator, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id)
-        if flag is not False:
+        try:
+            result = ticket_base_service_ins.get_ticket_list(
+                tenant_id=tenant_id, title=title, user_id=user_id, create_start=create_start, create_end=create_end,
+                workflow_ids=workflow_ids, node_ids=node_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
+                per_page=per_page, page=page, app_name=app_name, act_state_id=act_state_id, from_admin=from_admin,
+                creator=creator, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id)
             paginator_info = result.get('paginator_info')
-            data = dict(value=result.get('ticket_result_restful_list'), per_page=paginator_info.get('per_page'),
+            data = dict(ticket_list=result.get('ticket_result_restful_list'), per_page=paginator_info.get('per_page'),
                         page=paginator_info.get('page'), total=paginator_info.get('total'))
             code, msg,  = 0, ''
-        else:
-            code, data, msg = -1, {}, result
+        except CustomCommonException as e:
+            code, data, msg = -1, {}, e.message
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            code, data, msg = -1, {}, "Internal Server Error"
         return api_response(code, msg, data)
 
     def post(self, request, *args, **kwargs):
@@ -125,6 +128,109 @@ class TicketListView(BaseView):
         return api_response(0, "", dict(ticket_id=result))
 
 
+class TicketDetailFormView(BaseView):
+
+    def get(self, request, *args, **kwargs):
+        """
+        get ticket detail form, include form design and field value
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        ticket_id = kwargs.get('ticket_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        operator_id = request.META.get('HTTP_USERID')
+        try:
+            account_base_service_ins.app_ticket_permission_check(tenant_id, app_name, ticket_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')
+        
+        # check whether user has view permission
+        user_view_permission = ticket_base_service_ins.ticket_view_permission_check(tenant_id, ticket_id, operator_id)
+        if not user_view_permission:
+            return api_response(-1, "user has no view permission", '')
+
+        try:
+            component_result_list = ticket_base_service_ins.get_ticket_detail_form(tenant_id, operator_id, ticket_id)
+            return api_response(0, '', dict(form_schema={'component_info_list':component_result_list}))
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')
+
+class TicketDetailActionsView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get ticket detail actions
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        ticket_id = kwargs.get('ticket_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        user_id = request.META.get('HTTP_USERID')
+        try:
+            account_base_service_ins.app_ticket_permission_check(tenant_id, app_name, ticket_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')
+        
+        try:
+            result = ticket_base_service_ins.get_ticket_detail_actions(tenant_id, ticket_id, user_id)
+            return api_response(0, '', dict(actions=result))
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')
+        
+class TicketHandleView(BaseView):
+    def post(self, request, *args, **kwargs):
+        """
+        handle ticket
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        ticket_id = kwargs.get('ticket_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        user_id = request.META.get('HTTP_USERID')
+        try:
+            account_base_service_ins.app_ticket_permission_check(tenant_id, app_name, ticket_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')
+        
+        try:
+            json_str = request.body.decode('utf-8')
+            request_data_dict = json.loads(json_str)
+            if not ticket_base_service_ins.ticket_action_permission_check(tenant_id, ticket_id, user_id, request_data_dict.get('action_type'), request_data_dict.get('action_id')):
+                return api_response(-1, "user has no permission to handle this ticket", '')
+
+            result = ticket_base_service_ins.handle_ticket(tenant_id, ticket_id, user_id, request_data_dict)
+            return api_response(0, '', dict(ticket_id=result))
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')
+
+
+# todo: update
 class TicketView(BaseView):
     def get(self, request, *args, **kwargs):
         """

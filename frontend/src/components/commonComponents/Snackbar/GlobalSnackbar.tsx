@@ -5,7 +5,7 @@ import { Snackbar, Alert, SnackbarProps } from '@mui/material';
 interface GlobalSnackbarProps {
   open: boolean;
   onClose: (event: React.SyntheticEvent | Event, reason?: string) => void;
-  message: string;
+  message: string | React.ReactNode;
   severity: 'error' | 'warning' | 'info' | 'success';
 }
 
@@ -13,7 +13,7 @@ const GlobalSnackbar: React.FC<GlobalSnackbarProps> = ({ open, onClose, message,
   return (
     <Snackbar
       open={open}
-      autoHideDuration={3000}
+      autoHideDuration={5000}
       onClose={onClose}
       anchorOrigin={{
         vertical: 'top',

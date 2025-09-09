@@ -14,8 +14,6 @@ from service.permission.user_permission import user_permission_check
 from service.workflow.workflow_base_service import workflow_base_service_ins
 from service.workflow.workflow_component_service import workflow_component_service_ins
 from service.workflow.workflow_permission_service import workflow_permission_service_ins
-from service.workflow.workflow_state_service import workflow_state_service_ins
-from service.workflow.workflow_transition_service import workflow_transition_service_ins
 
 logger = logging.getLogger("django")
 
@@ -219,7 +217,50 @@ class WorkflowDetailView(BaseView):
         return api_response(code, msg, data)
     
 
+class WorkflowTicketCreationFormView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get ticket creation form
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        operator_id = request.META.get('HTTP_USERID')
+        version_name = request.GET.get('version_name', '')
+        try:
+            result = workflow_base_service_ins.get_ticket_creation_form(workflow_id, tenant_id, operator_id, version_name)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internel Server Error", {})
+        return api_response(0, '', dict(form_schema={'component_info_list': result}))
+    
 
+class WorkflowTicketCreationActionsView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get ticket creation actions
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        operator_id = request.META.get('HTTP_USERID')
+        version_name = request.GET.get('version_name', '')
+        try:
+            result = workflow_base_service_ins.get_ticket_creation_actions(workflow_id, tenant_id, operator_id, version_name)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internel Server Error", {})
+        return api_response(0, '', dict(actions=result))
 
 
 ##################  below ar waiting for update

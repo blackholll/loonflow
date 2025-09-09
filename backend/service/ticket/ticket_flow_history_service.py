@@ -3,7 +3,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from apps.ticket.models import FlowHistory
 from service.account.account_user_service import account_user_service_ins
 from service.base_service import BaseService
-from service.workflow.workflow_transition_service import workflow_transition_service_ins
+from service.workflow.workflow_edge_service import workflow_edge_service_ins
 
 
 class TicketFlowHistoryService(BaseService):
@@ -11,12 +11,11 @@ class TicketFlowHistoryService(BaseService):
     ticket flow history related service
     """
     @classmethod
-    def add_ticket_flow_history(cls, tenant_id: int, operator_id: int, ticket_id: int, transition_id: int, comment: str,
-                                participant_type: str, participant: str, node_id: int, flow_type: str,
-                                ticket_data: dict) -> int:
-        record = FlowHistory(tenant_id=tenant_id, creator_id=operator_id, ticket_id=ticket_id,
-                                   transition_id=transition_id, comment=comment, participant_type=participant_type,
-                                   participant=participant, node_id=node_id, flow_type=flow_type, ticket_data=ticket_data)
+    def add_ticket_flow_history(cls, tenant_id: str, operator_id: str, ticket_id: str, action_type: str, action_id: str, comment: str,
+                                processor_type: str, processor: str, node_id: str,  ticket_data: dict) -> int:
+        record = FlowHistory(tenant_id=tenant_id, creator_id=operator_id, ticket_id=ticket_id, action_type=action_type,
+                                   action_id=action_id, comment=comment, processor_type=processor_type,
+                                   processor=processor, node_id=node_id, ticket_data=ticket_data)
         record.save()
         return record.id
 

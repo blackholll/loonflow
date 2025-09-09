@@ -17,7 +17,35 @@ class AccountBaseService(BaseService):
     """
     account
     """
+    @classmethod
+    def app_ticket_permission_check(cls, tenant_id: str, app_name: str, ticket_id: str) -> tuple:
+        """
+        appname has permission to ticket,  check with app_name and ticket_id
+        :param tenant_id:
+        :param app_name:
+        :param ticket_id:
+        :return:
+        """
+        from service.ticket.ticket_base_service import ticket_base_service_ins
+        ticket_obj = ticket_base_service_ins.get_ticket_by_id(tenant_id, ticket_id)
 
+        workflow_id = ticket_obj.workflow_id
+        workflow_version_id = ticket_obj.workflow_version_id
+        
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+        permission_check = workflow_permission_service_ins.app_workflow_permission_check(tenant_id, workflow_id, workflow_version_id,
+                                                                                             app_name)
+
+        return permission_check
+
+
+
+
+
+
+
+
+    # todo: update
     @classmethod
     def get_token_by_app_name(cls, tenant_id: str, app_name: str) -> tuple:
         """
@@ -71,28 +99,7 @@ class AccountBaseService(BaseService):
         else:
             return False, 'the app has no permission to the workflow_id'
 
-    @classmethod
-    @auto_log
-    def app_ticket_permission_check(cls, app_name: str, ticket_id: int) -> tuple:
-        """
-        appname has permission to ticket check by app_name and ticket_id
-        :param app_name:
-        :param ticket_id:
-        :return:
-        """
-        from service.ticket.ticket_base_service import ticket_base_service_ins
-        flag, ticket_obj = ticket_base_service_ins.get_ticket_by_id(ticket_id)
-        if not flag:
-            return False, ticket_obj
-        workflow_id = ticket_obj.workflow_id
-
-        from service.workflow.workflow_permission_service import workflow_permission_service_ins
-        permission_check, msg = workflow_permission_service_ins.workflow_id_permission_check(workflow_id, 'api', 'app',
-                                                                                             app_name)
-
-        if not permission_check:
-            return False, msg
-        return True, ''
+    
 
 
 

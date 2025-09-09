@@ -93,34 +93,34 @@ class WorkflowHookService(BaseService):
 
 
     @classmethod
-    def get_workflow_hook_by_type(cls, tenant_id: int, workflow_id: int, hook_type: str) -> list:
+    def get_workflow_hook_by_event(cls, tenant_id: str, workflow_id: str, version_id: str, event: str) -> list:
         """
-        get workflow's hook filter by type
+        get workflow's hook filter by event
         :param tenant_id:
         :param workflow_id:
         :param hook_type:
         :return:
         """
         result_list = []
-        hook_queryset = WorkflowHook.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id).all()
+        hook_queryset = WorkflowHook.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id).all()
         for hook_obj in hook_queryset:
-            hooks = hook_obj.hooks
-            if hook_type in hooks.split(","):
+            if event in hook_obj.events.split(","):
                 result_list.append(hook_obj)
         return result_list
 
     @classmethod
-    def pre_create_hook(cls, tenant_id: int, operator_id: int, workflow_id: int, request_data_dict: dict) -> bool:
+    def pre_create_hook(cls, tenant_id: str, operator_id: str, workflow_id: str, version_id: str, request_data_dict: dict) -> bool:
         """
         pre create hook check, to decide whether operator can create a ticket
         :param tenant_id:
         :param operator_id:
         :param workflow_id:
+        :param version_id:
         :param request_data_dict:
         :return: {true, ""}, first element is whether user can create ticket, another is the message
         """
         # todo: query workflow info  to get hook info
-        result_list = cls.get_workflow_hook_by_type(tenant_id, workflow_id, "pre_create")
+        result_list = cls.get_workflow_hook_by_event(tenant_id, workflow_id, version_id, "pre_create")
         for workflow_hook in result_list:
             try:
                 request_data_dict['tenant_id'] = tenant_id

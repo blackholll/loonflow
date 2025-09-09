@@ -1,0 +1,100 @@
+import React from 'react';
+import {
+    FormControl,
+    InputLabel,
+    TextField as MuiTextField
+} from '@mui/material';
+import { DateTimePicker, TimePicker } from '@mui/x-date-pickers';
+import ViewField from './ViewField';
+
+interface DateTimeFieldProps {
+    value: string;
+    fieldRequired: boolean;
+    onChange: (value: string) => void;
+    mode: 'view' | 'edit';
+    props: any;
+}
+
+function DateTimeField({
+    value = '',
+    fieldRequired,
+    onChange,
+    mode,
+    props,
+}: DateTimeFieldProps) {
+
+    const handleChange = (newValue: any) => {
+        if (onChange) {
+            onChange(newValue);
+        }
+    };
+
+    if (mode === 'view') {
+        return (
+            <ViewField type={props.type} value={value} props={props} />
+        );
+    }
+
+
+}
+
+// 设计模式和编辑模式：可编辑
+const commonProps = {
+    value: value,
+    onChange: handleChange,
+    disabled: disabled,
+    slotProps: {
+        textField: {
+            fullWidth: fullWidth,
+            variant: variant,
+            required: required,
+            error: error,
+            helperText: helperText,
+            placeholder: field.placeholder
+        }
+    }
+};
+
+if (type === 'time') {
+    return (
+        <FormControl fullWidth={fullWidth} error={error}>
+            {field.label && (
+                <InputLabel shrink>{field.label}</InputLabel>
+            )}
+            <TimePicker
+                {...commonProps}
+                format={format || "HH:mm:ss"}
+            />
+        </FormControl>
+    );
+}
+
+if (type === 'date') {
+    return (
+        <FormControl fullWidth={fullWidth} error={error}>
+            {field.label && (
+                <InputLabel shrink>{field.label}</InputLabel>
+            )}
+            <DateTimePicker
+                {...commonProps}
+                format={format || "YYYY-MM-DD"}
+            />
+        </FormControl>
+    );
+}
+
+// datetime
+return (
+    <FormControl fullWidth={fullWidth} error={error}>
+        {field.label && (
+            <InputLabel shrink>{field.label}</InputLabel>
+        )}
+        <DateTimePicker
+            {...commonProps}
+            format={format || "YYYY-MM-DD HH:mm:ss"}
+        />
+    </FormControl>
+);
+};
+
+export default DateTimeField; 

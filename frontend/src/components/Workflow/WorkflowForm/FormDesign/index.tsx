@@ -35,7 +35,7 @@ interface FormDesignProps {
     generateId: () => string;
     generateUniqueFieldKey: (existingComponents: (IWorkflowComponentRow | IWorkflowComponent)[]) => string;
     generateUniqueOptionKey: (existingComponents: (IWorkflowComponentRow | IWorkflowComponent)[]) => string;
-    renderFieldComponent: (component: IWorkflowComponent) => React.ReactNode;
+    renderFieldComponent: (component: IWorkflowComponent, handleComponentUpdate: (updatedComponent: IWorkflowComponent) => void) => React.ReactNode;
 }
 
 function FormDesign(props: FormDesignProps) {
@@ -608,7 +608,23 @@ function FormDesign(props: FormDesignProps) {
 
                                                     </Box>
                                                     <Box sx={{ flex: 1 }}>
-                                                        {renderFieldComponent(fieldComponent)}
+                                                        {renderFieldComponent(fieldComponent, (updatedComponent) => {
+                                                            // 更新组件逻辑
+                                                            updateFormSchema({
+                                                                ...formSchemaDesignInfo,
+                                                                componentInfoList: formSchemaDesignInfo.componentInfoList.map(comp => {
+                                                                    if (comp.id === component.id && comp.type === 'row') {
+                                                                        return {
+                                                                            ...comp,
+                                                                            children: (comp as IWorkflowComponentRow).children.map(child =>
+                                                                                child.id === updatedComponent.id ? updatedComponent : child
+                                                                            )
+                                                                        };
+                                                                    }
+                                                                    return comp;
+                                                                })
+                                                            });
+                                                        })}
                                                     </Box>
                                                 </Box>
                                                 <Box

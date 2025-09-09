@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Container, TextField, Select, MenuItem, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TablePagination } from '@mui/material';
+import { Button, Container, TextField, Select, MenuItem, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TablePagination } from '@mui/material';
 import Card from '@mui/material/Card';
 import { CardContent, CardHeader } from '@mui/material';
-
+import { Link } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useTranslation } from 'react-i18next';
 import { ISimpleWorkflowEntity } from '@/types/workflow';
@@ -120,20 +120,27 @@ function TicketList({ category }: { category: string }) {
             <TableRow>
               <TableCell>Id</TableCell>
               <TableCell>{t('ticketList.ticketTitle')}</TableCell>
+              <TableCell>审批状态</TableCell>
               <TableCell>{t('ticketList.ticketCreator')}</TableCell>
               <TableCell>{t('ticketList.ticketCreateTime')}</TableCell>
-              <TableCell>{t('ticketList.ticketStatus')}</TableCell>
               <TableCell>{t('actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {ticketList ? ticketList.map((ticket) => (
               <TableRow key={ticket.id}>
+                <TableCell>{ticket.id}</TableCell>
                 <TableCell>{ticket.title}</TableCell>
-                <TableCell>{ticket.creator.alias}</TableCell>
-                <TableCell>{ticket.createTime}</TableCell>
-                <TableCell>{ticket.node.name}</TableCell>
-                <TableCell>{'actions'}</TableCell>
+                <TableCell>{ticket.actState}</TableCell>
+                <TableCell>{ticket.creatorInfo.alias}</TableCell>
+                <TableCell>{new Date(ticket.createdAt).toLocaleString()}</TableCell>
+                <TableCell>
+                  <div>
+                    <Link to={`/ticket/${ticket.id}`}>
+                      <Button variant="text" size={'large'} sx={{ width: '150px' }}>详情</Button>
+                    </Link>
+                  </div>
+                </TableCell>
               </TableRow>
             )) : null}
           </TableBody>

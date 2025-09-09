@@ -1,6 +1,8 @@
 from distutils import ccompiler
 import time
 from apps.workflow.models import Permission as WorkflowPermission
+from service.account import account_base_service, account_dept_service
+from service.account.account_user_service import account_user_service_ins
 from service.base_service import BaseService
 from service.exception.custom_common_exception import CustomCommonException
 from service.util.archive_service import archive_service_ins
@@ -108,8 +110,6 @@ class WorkflowPermissionService(BaseService):
         authorized_app_id_list = [permission.target for permission in permission_queryset]
         return authorized_app_id_list
 
-
-
     @classmethod
     def get_user_permission_workflow_id_list(cls, user_id: str) -> list:
         """
@@ -122,7 +122,7 @@ class WorkflowPermissionService(BaseService):
         return result
 
     @classmethod
-    def app_workflow_permission_check(cls, tenant_id: int, workflow_id: int, app_name: str) -> bool:
+    def app_workflow_permission_check(cls, tenant_id: str, workflow_id: str, version_id: str, app_name: str) -> bool:
         """
         check whether app has permission for workflow
         :param tenant_id:
@@ -134,10 +134,40 @@ class WorkflowPermissionService(BaseService):
 
         if app_name == "loonflow" and workflow_base_service_ins.get_workflow_record_by_id(tenant_id, workflow_id):
             return True
-        permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, permission="api", target=app_name).all()
+        permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id, permission="api", target=app_name).all()
         if permission_queryset:
             return True
         raise CustomCommonException("app has no permission to this workflow")
+
+    @classmethod
+    def user_workflow_permission_check(cls, tenant_id: str, workflow_id: str, version_id: str, user_id: str, permission: str):
+        """
+        check user whether have permission to special workflow's ticket
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param user_id:
+        :param permission:
+        :return:
+        """
+        if permission == 'admin':
+            return len(WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, 
+                                                         version_id=version_id, permission="admin", target_type="user", target=user_id)) > 0
+        elif permission == 'dispatcher':
+            return len(WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, 
+                                                         version_id=version_id, permission="dispatcher", target_type="user", target=user_id)) > 0
+        elif permission == 'view':
+            if  len(WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, 
+                                                         version_id=version_id, permission="view", target_type="user", target=user_id)) > 0:
+                return True
+            parent_department_id_list = account_user_service_ins.get_user_parent_dept_id_list(tenant_id, user_id)
+            for parent_department_id in parent_department_id_list:
+                if len(WorkflowPermission.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, 
+                                                         version_id=version_id, permission="view", target_type="dept", target=parent_department_id)) > 0:
+                    return True
+            return False
+        else:
+            return False
 
     @classmethod
     def get_workflow_id_list_by_permission(cls, permission:str, user_type:str, user:str):
@@ -146,24 +176,24 @@ class WorkflowPermissionService(BaseService):
 
         if not user:
             if user_type == 'app':
-                return False, 'app_name is not provided'
+                raise CustomCommonException('app_name is not provided')
             if user_type == 'user':
-                return False, 'user is not provided'
+                raise CustomCommonException('user is not provided')
             if user_type == 'department':
-                return False, 'department is not provided'
+                raise CustomCommonException('department is not provided')
 
         if user == 'loonflow':
-            from apps.workflow.models import Workflow
-            workflow_query_set = Workflow.objects.all()
+            from apps.workflow.models import Record as WorkflowRecord
+            workflow_query_set = WorkflowRecord.objects.filter().all()
             workflow_id_list = []
             for workflow_obj in workflow_query_set:
                 workflow_id_list.append(workflow_obj.id)
-            return True, dict(workflow_id_list=workflow_id_list)
-        result_queryset = WorkflowPermission.objects.filter(permission=permission, user_type=user_type,
-                                                                user__in=user.split(',')).all()
+            return workflow_id_list
+        result_queryset = WorkflowPermission.objects.filter(permission=permission, target_type=user_type,
+                                                                target__in=user.split(',')).all()
         workflow_id_list = [result.workflow_id for result in result_queryset]
         workflow_id_list = list(set(workflow_id_list))
-        return True, dict(workflow_id_list=workflow_id_list)
+        return workflow_id_list
 
     @classmethod
     def update_workflow_permission(cls, tenant_id: str, workflow_id: str, version_id: str, operator_id: str, permission_info: dict):
@@ -253,7 +283,7 @@ class WorkflowPermissionService(BaseService):
                 permission_create = WorkflowPermission(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id,
                                                    permission="api", target_type="app", target=authorized_app_id,
                                                    creator_id=operator_id)
-            permission_create_list.append(permission_create)
+                permission_create_list.append(permission_create)
         WorkflowPermission.objects.bulk_create(permission_create_list)
         return True
 

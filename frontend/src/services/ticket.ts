@@ -1,17 +1,20 @@
 
 import apiClient from './api';
-import { ITicketListRes, ITicketListQueryParam, ICommentTicketParam, IDelTicketParam } from '../types/ticket';
+import { ITicketListRes, ITicketListQueryParam, ICommentTicketParam, IDelTicketParam, INewTicketReqParam, INewTicketRes } from '../types/ticket';
 import { IApiErrResponse } from '@/types/common';
+import { ITicketDetailFormRes, ITicketActionsRes, IHandleTicketReqParam, IHandleTicketRes } from '../types/ticket';
 
 
-export const getTicketList = async(params: ITicketListQueryParam): Promise<ITicketListRes|IApiErrResponse> => {
+export const getTicketList = async (params: ITicketListQueryParam): Promise<ITicketListRes | IApiErrResponse> => {
   try {
-    const response = await apiClient.get('/api/v1.0/tickets', { params: { 
-      'page': params.page,
-      'per_page': params.perPage,
-      'category': params.category,
-      'parent_ticket_id': params.parentTicketId
-     }}
+    const response = await apiClient.get('/api/v1.0/tickets', {
+      params: {
+        'page': params.page,
+        'per_page': params.perPage,
+        'category': params.category,
+        'parent_ticket_id': params.parentTicketId
+      }
+    }
     );
     return response.data;
   } catch (error) {
@@ -19,7 +22,26 @@ export const getTicketList = async(params: ITicketListQueryParam): Promise<ITick
   }
 };
 
+export const newTicket = async (params: INewTicketReqParam): Promise<INewTicketRes | IApiErrResponse> => {
+  const response = await apiClient.post('/api/v1.0/tickets', params);
+  return response.data;
+}
 
+export const getTicketDetailForm = async (ticketId: string): Promise<ITicketDetailFormRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_detail_form`, { params: {} });
+  return response.data;
+};
+
+export const getTicketDetailActions = async (ticketId: string): Promise<ITicketActionsRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_detail_actions`, { params: {} });
+  return response.data;
+};
+
+export const handleTicket = async (params: IHandleTicketReqParam): Promise<IHandleTicketRes | IApiErrResponse> => {
+  const response = await apiClient.post(`/api/v1.0/tickets/${params.ticketId}/handle`,
+    { action_type: params.actionType, action_id: params.actionId, params: params.fields });
+  return response.data;
+};
 
 // export const getWorkflowList = async (params: IWorkflowParam) => {
 //   try {

@@ -2,7 +2,7 @@ import datetime, time
 from django.db import models
 from apps.loon_base_model import BaseCommonModel
 from django.utils.translation import gettext_lazy as _
-from apps.workflow.models import Record as WorkflowRecord, Node, Edge
+from apps.workflow.models import Record as WorkflowRecord, Node, Edge, Version as WorkflowVersion
 from apps.account.models import User as accountUser
 
 
@@ -21,9 +21,9 @@ class Record(BaseCommonModel):
 
     title = models.CharField(_("title"), max_length=500, blank=True, default="", help_text="ticket's title")
     workflow = models.ForeignKey(WorkflowRecord, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_workflow")
-    workflow_version = models.CharField("workflow version", default="", blank=True)
-    parent_ticket = models.ForeignKey("self", db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket")
-    parent_ticket_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket_node")
+    workflow_version = models.ForeignKey(WorkflowVersion, db_constraint=False, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="ticket_workflow_version")
+    parent_ticket = models.ForeignKey("self", db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket", null=True, blank=True)
+    parent_ticket_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket_node", null=True, blank=True)
     act_state = models.CharField("act state", choices=ACT_STATE_CHOICE)
 
 
@@ -40,26 +40,14 @@ class Node(BaseCommonModel):
 
     ticket = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_ticket")
     node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_node")
+    assignee_type = models.CharField('assignee type', max_length=50)
+    assignee = models.CharField('assignee', max_length=50, default='', blank=True)
+    is_active = models.BooleanField('is active', default=True, help_text='whether the node is active')
     in_add_node = models.BooleanField('in add node status', default=False, help_text='whether in add node status')
+    in_parallel = models.BooleanField('in parallel status', default=False, help_text='whether in parallel status')
     add_node_target = models.CharField('add node target', max_length=500, default='', blank=True)
     hook_state = models.CharField("hook running state", max_length=50, choices=HOOK_STATE_CHOICE)
-    all_participant_result = models.JSONField('all participant result', blank=True)
-
-
-class NodeParticipant(BaseCommonModel):
-    """
-    ticket node's participant, only runtime info， one user has only one record for one node,
-    """
-    PARTICIPANT_TYPE_CHOICE = [
-        ('', 'none'),
-        ('person', 'person'),
-        ('hook', 'hook'),
-    ]
-
-    ticket = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_parti_ticket")
-    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_parti_node")
-    participant_type = models.CharField("participant_type", max_length=50, choices=PARTICIPANT_TYPE_CHOICE)
-    participant = models.CharField("participant", max_length=50, default='', blank=True)
+    all_assignee_result = models.JSONField('all assignee result', blank=True)
 
 
 class FlowHistory(BaseCommonModel):
@@ -72,11 +60,11 @@ class FlowHistory(BaseCommonModel):
         ('hook', 'hook'),
     ]
 
-    FLOW_TYPE_CHOICE = [
+    ACTION_TYPE_CHOICE = [
         ('create', 'create'),
         ('forward', 'forward'),
-        ('countersign', 'countersign'),
-        ('countersign_end', 'countersign_end'),
+        ('consult', 'consult'), # 加签
+        ('consult_submit', 'consult_submit'), # 加签完成
         ('accept', 'accept'),
         ('comment', 'comment'),
         ('delete', 'delete'),
@@ -87,13 +75,13 @@ class FlowHistory(BaseCommonModel):
         ('other', 'other')
     ]
     ticket = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING)
-    transition = models.ForeignKey(Edge, db_constraint=False, on_delete=models.DO_NOTHING)
-    comment = models.CharField(_('comment'), max_length=10000, default='', blank=True)
+    action_type = models.CharField("action type", max_length=50, choices=ACTION_TYPE_CHOICE, null=True)
+    action = models.ForeignKey(Edge, db_constraint=False, on_delete=models.DO_NOTHING, null=True)
+    comment = models.CharField(_('comment'), max_length=10000, default='')
 
     processor_type = models.CharField(_('processor_type'), max_length=50, choices=PARTICIPANT_TYPE_CHOICE)
     processor = models.CharField(_('processor'), max_length=50, default='', blank=True)
-    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING)
-    flow_type = models.CharField("flow type", max_length=50, default="", blank=True)
+    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, null=True)
     ticket_data = models.JSONField(_('ticket_data'), default=dict, blank=True)
 
 
@@ -117,21 +105,22 @@ class CustomField(BaseCommonModel):
     ticket = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING)
     field_type = models.CharField("field_type", max_length=50, choices=FIELD_TYPE_CHOICE)
 
-    common_value = models.CharField('common_value', max_length=2000, default='', blank=True)  # for text, select, cascade, user, file
-    number_value = models.DecimalField('number', default=0, decimal_places=10, max_digits=20)
-    date_value = models.DateField("date value", default="1970-01-01")
-    datetime_value = models.DateTimeField('datetime_value', default=datetime.datetime.strptime('0001-01-01 00:00:00', '%Y-%m-%d %H:%M:%S'))
-    time_value = models.TimeField('time_value', default=datetime.datetime.strptime('00:00:01', '%H:%M:%S'))
-    rich_text_value = models.TextField('rich_text_value', default='')  # for richtext
+    common_value = models.CharField('common_value', max_length=2000, null=True)  # for text, select, cascade, user, file
+    number_value = models.DecimalField('number', null=True, decimal_places=10, max_digits=20)
+    date_value = models.DateField("date value", null=True)
+    datetime_value = models.DateTimeField('datetime_value', null=True)
+    time_value = models.TimeField('time_value', null=True)
+    rich_text_value = models.TextField('rich_text_value', null=True)  # for richtext
 
 
 class User(BaseCommonModel):
     """
-    ticket related user, include as creator, as participant, as processor, as cc recipient
+    ticket related user, include as creator, as assignee(current handle user), as processor(handled user), as cc recipient
     """
-    ticket = models.ForeignKey(Record, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING)
+    ticket = models.ForeignKey(Record, to_field='id', db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_user")
     user = models.ForeignKey(accountUser, db_constraint=False, on_delete=models.DO_NOTHING)
     as_creator = models.BooleanField('as creator', default=False)
     as_assignee = models.BooleanField('as assignee', default=False)
     as_processor = models.BooleanField('as processor', default=False)
     as_cc_recipient = models.BooleanField('as cc recipient', default=False)
+    assignee_node_ids = models.CharField('assignee node ids', max_length=2000, default='', blank=True)

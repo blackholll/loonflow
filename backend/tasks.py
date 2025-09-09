@@ -35,7 +35,6 @@ from service.account.account_user_service import account_user_service_ins
 from service.common.constant_service import constant_service_ins
 from service.ticket.ticket_base_service import TicketBaseService, ticket_base_service_ins
 from service.common.common_service import CommonService, common_service_ins
-from service.workflow.workflow_transition_service import workflow_transition_service_ins
 from django.conf import settings
 
 try:

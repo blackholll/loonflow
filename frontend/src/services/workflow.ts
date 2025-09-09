@@ -1,7 +1,8 @@
 
 import apiClient from './api';
-import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes, IWorkflowVersionListRes, IWorkflowReleaseRes } from '../types/workflow';
+import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes, IWorkflowVersionListRes, IWorkflowReleaseRes, IWorkflowInitNodeRes } from '../types/workflow';
 import { IApiErrResponse, } from '@/types/common';
+import { IWorkflowActionsRes, IWorkflowCreationFormRes } from '../types/workflow';
 
 
 
@@ -144,6 +145,24 @@ export const deleteWorkflow = async (workflowId: string): Promise<ISimpleWorkflo
 export const getWorkflowVersionList = async (workflowId: string, searchValue: string, page: number, perPage: number): Promise<IWorkflowVersionListRes | IApiErrResponse> => {
   try {
     const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}/versions`, { params: { searchValue, page, perPage } });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getTicketCreationForm = async (workflowId: string, versionName?: string): Promise<IWorkflowCreationFormRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}/ticket_creation_form`, { params: { version_name: versionName } });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getTicketCreationActions = async (workflowId: string, versionName?: string): Promise<IWorkflowActionsRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}/ticket_creation_actions`, { params: { version_name: versionName } });
     return response.data;
   } catch (error) {
     throw error;

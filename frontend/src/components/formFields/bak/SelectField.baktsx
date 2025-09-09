@@ -1,0 +1,120 @@
+import React from 'react';
+import {
+    Autocomplete,
+    TextField as MuiTextField,
+    FormControl,
+    FormHelperText,
+    InputLabel,
+    Chip
+} from '@mui/material';
+import { BaseFieldProps, FieldRenderMode } from './types';
+
+interface SelectFieldProps extends BaseFieldProps {
+    mode?: FieldRenderMode;
+    multiple?: boolean;
+    options?: Array<{ label: string; value: any }>;
+}
+
+const SelectField: React.FC<SelectFieldProps> = ({
+    field,
+    value = '',
+    onChange,
+    disabled = false,
+    readOnly = false,
+    required = false,
+    error = false,
+    helperText = '',
+    size = 'small',
+    variant = 'outlined',
+    fullWidth = true,
+    mode = 'view',
+    multiple = false,
+    options = []
+}) => {
+    const isDesignMode = mode === 'design';
+    const isViewMode = mode === 'view';
+    const isEditMode = mode === 'edit';
+
+    // 从field的props中获取选项
+    const fieldOptions = options;
+    const optionLabels = fieldOptions.map((opt: any) => opt.label || opt);
+
+    const handleChange = (event: any, newValue: any) => {
+        if (onChange && !isViewMode) {
+            onChange(newValue);
+        }
+    };
+
+    // 查看模式：只显示值
+    if (isViewMode) {
+        const displayValue = multiple
+            ? (Array.isArray(value) ? value.join(', ') : value)
+            : value;
+
+        return (
+            <FormControl fullWidth={fullWidth} error={error}>
+                <div style={{
+                    padding: '16.5px 14px',
+                    border: '1px solid #c0c0c0',
+                    borderRadius: '4px',
+                    backgroundColor: '#f5f5f5',
+                    minHeight: '56px'
+                }}>
+                    {displayValue || '-'}
+                </div>
+                {helperText && <FormHelperText>{helperText}</FormHelperText>}
+            </FormControl>
+        );
+    }
+
+    // 设计模式和编辑模式：可编辑
+    return (
+        <FormControl fullWidth={fullWidth} error={error}>
+            {field.label && (
+                <InputLabel shrink>{field.label}</InputLabel>
+            )}
+            <Autocomplete
+                options={optionLabels}
+                value={value}
+                onChange={handleChange}
+                multiple={multiple}
+                disabled={disabled}
+                freeSolo={false}
+                disableClearable={false}
+                renderInput={(params) => (
+                    <MuiTextField
+                        {...params}
+                        placeholder={field.placeholder}
+                        variant={variant}
+                        required={required}
+                        error={error}
+                        helperText={helperText}
+                    />
+                )}
+                renderTags={(value, getTagProps) =>
+                    value.map((option, index) => (
+                        <Chip
+                            variant="outlined"
+                            label={option}
+                            size="small"
+                            {...getTagProps({ index })}
+                        />
+                    ))
+                }
+                filterOptions={(options, { inputValue }) => {
+                    const filtered = options.filter((option) =>
+                        option.toLowerCase().includes(inputValue.toLowerCase())
+                    );
+                    return filtered;
+                }}
+                noOptionsText="未找到匹配的选项"
+                clearOnBlur={false}
+                selectOnFocus
+                clearOnEscape
+                isOptionEqualToValue={(option, value) => option === value}
+            />
+        </FormControl>
+    );
+};
+
+export default SelectField; 

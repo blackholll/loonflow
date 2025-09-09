@@ -1,12 +1,14 @@
 from django.urls import path
 
-from apps.workflow.views import WorkflowView, WorkflowSimpleView, WorkflowInitNodeView, WorkflowVersionsView, WorkflowDetailView
+from apps.workflow.views import WorkflowView, WorkflowSimpleView, WorkflowInitNodeView, WorkflowVersionsView, WorkflowDetailView, WorkflowTicketCreationFormView, WorkflowTicketCreationActionsView
 
 urlpatterns = [
     path('', WorkflowView.as_view()),
     path('/<str:workflow_id>', WorkflowDetailView.as_view()),
     path('/<str:workflow_id>/init_node', WorkflowInitNodeView.as_view()),
     path('/<str:workflow_id>/versions', WorkflowVersionsView.as_view()),
+    path('/<str:workflow_id>/ticket_creation_form', WorkflowTicketCreationFormView.as_view()),
+    path('/<str:workflow_id>/ticket_creation_actions', WorkflowTicketCreationActionsView.as_view()),
 
     # path('/user_admin', WorkflowUserAdminView.as_view()),
     # path('/<int:workflow_id>/init_state', WorkflowInitView.as_view()),
