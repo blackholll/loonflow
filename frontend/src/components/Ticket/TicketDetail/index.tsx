@@ -24,7 +24,7 @@ import RenderFormComponent from "../../Workflow/WorkflowForm/RenderFormComponent
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
 import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, IWorkflowNodeSchema, IWorkflowAction } from "../../../types/workflow";
 import { getTicketCreationForm, getTicketCreationActions } from "../../../services/workflow";
-import { newTicket, getTicketDetailForm, getTicketDetailActions } from "../../../services/ticket";
+import { newTicket, getTicketDetailForm, getTicketDetailActions, handleTicket } from "../../../services/ticket";
 import useSnackbar from "../../../hooks/useSnackbar";
 
 
@@ -38,6 +38,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange }: TicketDet
   const [ticketFullDetail, setTicketFullDetail] = useState<IFormSchema>();
   const [creationFormData, setCreationFormData] = useState<any>();
   const [creationFormActions, setCreationFormActions] = useState<any>();
+  const [actionBaseNodeId, setActionBaseNodeId] = useState<string>();
   const [fields, setFields] = useState<any>();
   const { showMessage } = useSnackbar();
 
@@ -68,6 +69,17 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange }: TicketDet
     if (res.code === 0) {
       console.log("get ticketDetail form")
       setFormSchema(res.data.formSchema);
+      // get component value and update fields
+      const fields: { [key: string]: any } = {};
+      res.data.formSchema.componentInfoList.forEach((component: IWorkflowComponentRow | IWorkflowComponent) => {
+        if (component.type === 'row') {
+          (component as IWorkflowComponentRow).children.forEach((fieldComponent: IWorkflowComponent) => {
+            fields[fieldComponent.componentKey] = fieldComponent.props.value;
+          });
+        }
+      });
+      setFields(fields);
+
     } else {
       showMessage(res.msg, 'error');
     }
@@ -76,6 +88,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange }: TicketDet
     const res = await getTicketDetailActions(ticketId);
     if (res.code === 0) {
       setCreationFormActions(res.data.actions);
+      setActionBaseNodeId(res.data.actionBaseNodeId);
     } else {
       showMessage(res.msg, 'error');
     }
@@ -105,7 +118,12 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange }: TicketDet
     if (ticketId) {
       // handle ticket
       console.log('ticketId', ticketId)
-      const res = await handleTicket(ticketId, action.type, action.id, fields)
+      const res = await handleTicket({
+        ticketId: ticketId, actionType: action.type, actionId: action.id, fields: fields, actionProps: {
+          comment: '',
+          nodeId: actionBaseNodeId,
+        }
+      })
       if (res.code === 0 && onTicketHandledChange) {
         showMessage(res.msg, 'success')
         onTicketHandledChange(res.data.ticketId)
@@ -115,7 +133,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange }: TicketDet
     } else {
       // new ticket
       console.log('no ticketId')
-      const res = await newTicket({ workflowId: workflowId!, action_id: action.id, fields: fields })
+      const res = await newTicket({ workflowId: workflowId!, actionId: action.id, fields: fields })
       if (res.code === 0 && onTicketHandledChange) {
         onTicketHandledChange(res.data.ticketId)
       }
@@ -189,13 +207,96 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange }: TicketDet
         })}
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 2 }}>
-        {creationFormActions?.map((action: IWorkflowAction) => (
-          <Button key={action.id} variant="contained" color="primary" onClick={() => {
-            handleActionClick(action)
-          }}>
-            {action.name}
-          </Button>
-        ))}
+        {creationFormActions?.map((action: IWorkflowAction) => {
+          // 根据 actionType 设置不同的按钮样式
+          const getButtonProps = (actionType: string) => {
+            switch (actionType) {
+              case 'agree':
+                return {
+                  variant: 'contained' as const,
+                  color: 'success' as const,
+                  sx: {
+                    backgroundColor: '#4caf50',
+                    '&:hover': {
+                      backgroundColor: '#45a049',
+                    }
+                  }
+                };
+              case 'reject':
+                return {
+                  variant: 'contained' as const,
+                  color: 'error' as const,
+                  sx: {
+                    backgroundColor: '#f44336',
+                    '&:hover': {
+                      backgroundColor: '#da190b',
+                    }
+                  }
+                };
+              case 'forward':
+              case 'consult':
+              case 'consult_submit':
+                return {
+                  variant: 'outlined' as const,
+                  color: 'primary' as const,
+                  sx: {
+                    borderColor: '#1976d2',
+                    color: '#1976d2',
+                    '&:hover': {
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                    }
+                  }
+                };
+              case 'add_comment':
+                return {
+                  variant: 'outlined' as const,
+                  color: 'primary' as const,
+                  sx: {
+                    borderColor: '#1976d2',
+                    color: '#1976d2',
+                    '&:hover': {
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                    }
+                  }
+                };
+              case 'other':
+                return {
+                  variant: 'outlined' as const,
+                  color: 'primary' as const,
+                  sx: {
+                    borderColor: '#1976d2',
+                    color: '#1976d2',
+                    '&:hover': {
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                    }
+                  }
+                };
+
+              default:
+                return {
+                  variant: 'contained' as const,
+                  color: 'primary' as const
+                };
+            }
+          };
+
+          const buttonProps = getButtonProps(action.type);
+
+          return (
+            <Button
+              key={action.id}
+              {...buttonProps}
+              onClick={() => {
+                handleActionClick(action)
+              }}
+            >
+              {action.name}
+            </Button>
+          );
+        })}
       </Box>
     </Paper>
   );

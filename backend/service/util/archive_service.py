@@ -5,6 +5,7 @@ from django.forms.models import model_to_dict
 
 from service.base_service import BaseService
 from apps.util.models import Archive
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 class ArchiveService(BaseService):
@@ -20,7 +21,7 @@ class ArchiveService(BaseService):
         :param operator_id:
         :return:
         """
-        data = json.dumps(record.get_dict())
+        data = json.dumps(record.get_dict(), cls=DjangoJSONEncoder)
         archived_obj = Archive(data=data, model_name=model_name, creator_id=operator_id)
         archived_obj.save()
         record.delete()
@@ -37,7 +38,7 @@ class ArchiveService(BaseService):
         """
         archive_list = []
         for record in record_queryset:
-            data = json.dumps(record.get_dict())
+            data = json.dumps(record.get_dict(), cls=DjangoJSONEncoder)
             archive_list.append(Archive(data=data, model_name=model_name, creator_id=operator_id))
         Archive.objects.bulk_create(archive_list)
 

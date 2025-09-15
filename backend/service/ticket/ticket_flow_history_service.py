@@ -1,3 +1,5 @@
+import datetime
+from datetime import date, time
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from apps.ticket.models import FlowHistory
@@ -13,9 +15,21 @@ class TicketFlowHistoryService(BaseService):
     @classmethod
     def add_ticket_flow_history(cls, tenant_id: str, operator_id: str, ticket_id: str, action_type: str, action_id: str, comment: str,
                                 processor_type: str, processor: str, node_id: str,  ticket_data: dict) -> int:
+        # todo: ticket_data serialize
+        finally_ticket_data = dict()
+        for key, value in ticket_data.items():
+            if isinstance(value, datetime.datetime):
+                finally_ticket_data[key] = value.strftime('%Y-%m-%d %H:%M:%S %z')
+            elif isinstance(value, date):
+                finally_ticket_data[key] = value.strftime('%Y-%m-%d')
+            elif isinstance(value, time):
+                finally_ticket_data[key] = value.strftime('%H:%M:%S')
+            else:
+                finally_ticket_data[key] = value
+
         record = FlowHistory(tenant_id=tenant_id, creator_id=operator_id, ticket_id=ticket_id, action_type=action_type,
                                    action_id=action_id, comment=comment, processor_type=processor_type,
-                                   processor=processor, node_id=node_id, ticket_data=ticket_data)
+                                   processor=processor, node_id=node_id, ticket_data=finally_ticket_data)
         record.save()
         return record.id
 

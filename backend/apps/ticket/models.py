@@ -40,12 +40,14 @@ class Node(BaseCommonModel):
 
     ticket = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_ticket")
     node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_node")
-    assignee_type = models.CharField('assignee type', max_length=50)
-    assignee = models.CharField('assignee', max_length=50, default='', blank=True)
+    assignee_type = models.CharField('assignee type', max_length=50, null=True) # user, hook, timer etc.
+    assignee = models.CharField('assignee', max_length=2000, default='', null=True) # if user,  joined by ','
     is_active = models.BooleanField('is active', default=True, help_text='whether the node is active')
-    in_add_node = models.BooleanField('in add node status', default=False, help_text='whether in add node status')
+    in_consult = models.BooleanField('in consult status', default=False, help_text='whether in consult status')
     in_parallel = models.BooleanField('in parallel status', default=False, help_text='whether in parallel status')
-    add_node_target = models.CharField('add node target', max_length=500, default='', blank=True)
+    in_accept_wait = models.BooleanField('in accept wait status', default=False, help_text='whether in accept wait status')
+    consult_from = models.ForeignKey(accountUser, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_consult_from", null=True)
+    consult_target = models.ForeignKey(accountUser, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_consult_target", null=True)
     hook_state = models.CharField("hook running state", max_length=50, choices=HOOK_STATE_CHOICE)
     all_assignee_result = models.JSONField('all assignee result', blank=True)
 
@@ -77,7 +79,7 @@ class FlowHistory(BaseCommonModel):
     ticket = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING)
     action_type = models.CharField("action type", max_length=50, choices=ACTION_TYPE_CHOICE, null=True)
     action = models.ForeignKey(Edge, db_constraint=False, on_delete=models.DO_NOTHING, null=True)
-    comment = models.CharField(_('comment'), max_length=10000, default='')
+    comment = models.CharField(_('comment'), max_length=10000, default='', blank=True)
 
     processor_type = models.CharField(_('processor_type'), max_length=50, choices=PARTICIPANT_TYPE_CHOICE)
     processor = models.CharField(_('processor'), max_length=50, default='', blank=True)

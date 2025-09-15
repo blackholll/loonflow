@@ -152,7 +152,7 @@ class TicketFieldService(BaseService):
         for need_update_field_value in need_update_field_value_list:
             field_key = list(need_update_field_value.keys())[0]
             field_value_column = cls.get_field_value_column(field_key_type_dict.get(field_key))
-            TicketCustomField.objects.filter(ticket_id=ticket_id, tenant_id=tenant_id, field_key=field_key).update(**{field_value_column: need_update_field_value['field_key']})
+            TicketCustomField.objects.filter(ticket_id=ticket_id, tenant_id=tenant_id, field_key=field_key).update(**{field_value_column: need_update_field_value[field_key]})
 
         for need_add_field_value in need_add_field_value_list:
             field_key = list(need_add_field_value.keys())[0]

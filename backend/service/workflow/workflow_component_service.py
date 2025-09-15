@@ -153,6 +153,7 @@ class WorkflowComponentService(BaseService):
                         type=child_obj.type,
                         component_key=child_obj.component_key,
                         component_name=child_obj.component_name,
+                        component_permission = 'readonly',
                         description=child_obj.description,
                         props=child_obj.props,
                         label=child_obj.label,

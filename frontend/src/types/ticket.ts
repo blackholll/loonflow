@@ -21,12 +21,19 @@ export interface INewTicketReqParam {
   fields: any;
 }
 
+export interface IActionProps {
+  nodeId?: string;
+  targetAssigneeId?: string;
+  comment?: string;
+}
+
 export interface IHandleTicketReqParam {
   ticketId: string;
   actionType: string;
   actionId: string;
   comment?: string;
   fields: any;
+  actionProps?: IActionProps;
 }
 
 export interface ITicketDetailReqParam {
@@ -91,7 +98,7 @@ export interface ITicketListRes extends IApiResponse<ITicketListResData> { }
 export interface INewTicketRes extends IApiResponse<INewTicketResData> { }
 
 
-export interface ITicketActionsRes extends IApiResponse<{ actions: IWorkflowAction }> { }
+export interface ITicketActionsRes extends IApiResponse<{ actions: IWorkflowAction, actionBaseNodeId: string }> { }
 
 export interface ITicketDetailFormRes extends IApiResponse<{ formSchema: IFormSchema }> { }
 

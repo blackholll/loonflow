@@ -48,9 +48,9 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <TextField
                     value={value}
-                    fieldRequired={component.props?.required}
+                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
-                    mode="edit"
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
                 />
             );

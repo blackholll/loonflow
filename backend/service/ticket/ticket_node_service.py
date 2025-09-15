@@ -1,6 +1,7 @@
 import time
-
 from apps.ticket.models import Node as TicketNode
+from service.workflow import workflow_node_service
+from service.exception.custom_common_exception import CustomCommonException
 from service.base_service import BaseService
 from service.util.archive_service import archive_service_ins
 
@@ -53,7 +54,7 @@ class TicketNodeService(BaseService):
         return True
 
     @classmethod
-    def update_ticket_node_record(cls, tenant_id:str, node_info_list:list) -> bool:
+    def update_ticket_node_record(cls, tenant_id:str, operator_id:str, node_info_list:list) -> bool:
         """
         update ticket node record
         :param tenant_id:
@@ -84,7 +85,7 @@ class TicketNodeService(BaseService):
 
         ## get need delete records
         for node_info in exist_ticket_node_queryset:
-            if node_info.get("node_id") not in node_id_list:
+            if node_info.node_id not in node_id_list:
                 need_delete_node_list.append(node_info)
         
         ## delete records
@@ -92,22 +93,23 @@ class TicketNodeService(BaseService):
             tenant_id=tenant_id, 
             id__in=[node_info.id for node_info in need_delete_node_list]
         )
-        archive_service_ins.archive_record_list("TicketNode", for_archive_ticket_node_queryset, '')
+        archive_service_ins.archive_record_list("TicketNode", for_archive_ticket_node_queryset, operator_id)
 
         ## add records
         need_add_bulk_list = []
         for new_node_info in need_add_node_list:
             need_add_bulk_list.append(TicketNode(
                 tenant_id=tenant_id,
-                ticket_id=node_info.get("ticket_id"),
-                node_id=node_info.get("node_id"),
-                in_add_node = new_node_info.get("in_add_node"),
-                add_node_target = new_node_info.get("add_node_target"),
+                ticket_id=new_node_info.get("ticket_id"),
+                node_id=new_node_info.get("node_id"),
+                in_consult = new_node_info.get("in_consult", False),
+                consult_from_id = new_node_info.get("operator_id"),
+                consult_target_id = new_node_info.get("consultant_id"),
                 is_active = new_node_info.get("is_active"),
                 hook_state = new_node_info.get("hook_state"),
                 all_assignee_result = new_node_info.get("all_assignee_result"),
                 assignee_type = new_node_info.get("target_assignee_type"),
-                assignee = new_node_info.get("target_assignee_list"),
+                assignee = ','.join(new_node_info.get("target_assignee_list",[])),
                 in_parallel = new_node_info.get("in_parallel", False)
             ))
         TicketNode.objects.bulk_create(need_add_bulk_list)
@@ -135,5 +137,116 @@ class TicketNodeService(BaseService):
         """
         ticket_node_queryset = TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, is_active=True)
         return list(ticket_node_queryset)
+
+    @classmethod
+    def replace_node_assignee(cls, tenant_id: str, ticket_id: str, node_id: str, source_assignee_id: str, target_assignee_id: str) -> bool:
+        """
+        replace node assignee, source_assignee may be empty
+        :param tenant_id:
+        :param ticket_id:
+        :param node_id:
+        :param source_assignee_id:
+        :param target_assignee_id:
+        :return:
+        """
+        # todo: 考虑source_assignee_id为空的情况
+        try:
+            exist_ticket_node_record = TicketNode.objects.get(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id)
+        except TicketNode.DoesNotExist:
+            raise CustomCommonException("Node not found")
+        
+        if exist_ticket_node_record.assignee_type == "user":
+            exist_assignee_list = exist_ticket_node_record.assignee.split(',')
+            if source_assignee_id:
+                if source_assignee_id in exist_assignee_list:
+                    new_assignee_list = [target_assignee_id if user_id == source_assignee_id else user_id for user_id in exist_assignee_list]
+                    new_assignee = ",".join(new_assignee_list)
+                    currnet_all_assignee_result = exist_ticket_node_record.all_assignee_result
+                    if currnet_all_assignee_result:
+                        value = currnet_all_assignee_result.get(source_assignee_id)
+                        currnet_all_assignee_result.pop(source_assignee_id)
+                        currnet_all_assignee_result[target_assignee_id] = value
+                else:
+                    raise CustomCommonException("Source assignee not found")
+                
+            else:
+                # all assignee replace
+                new_assignee = target_assignee_id
+                currnet_all_assignee_result = exist_ticket_node_record.all_assignee_result
+                if currnet_all_assignee_result:
+                    for key, value in currnet_all_assignee_result.items():
+                        if not value:
+                            value = currnet_all_assignee_result.get(key)
+                            currnet_all_assignee_result.pop(key)
+                currnet_all_assignee_result[target_assignee_id] = value
+                exist_ticket_node_record.all_assignee_result = currnet_all_assignee_result
+            
+            TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id).update(assignee=new_assignee, all_assignee_result=currnet_all_assignee_result)
+        else:
+            raise CustomCommonException("This ticket does not support replace assignee")
+        
+        return True
+
+    @classmethod
+    def update_ticket_node_consult_record(cls, tenant_id: str, ticket_id:str, node_id:str, operator_id:str, consultant_id:str) -> bool:
+        """
+        update ticket node consult record
+        :param tenant_id:
+        :param ticket_id:
+        :param node_id:
+        :param operator_id:
+        :param consultant_id:
+        :return:
+        """
+        TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id).update(in_consult=True, consult_from_id=operator_id, 
+        consult_target_id=consultant_id, assignee=consultant_id, assignee_type='user')
+        return True
+
+
+    @classmethod
+    def update_ticket_node_consult_submit(cls, tenant_id:str, ticket_id:str, node_id:str) -> bool:
+        """
+        update ticket node consult submit record
+        :param tenant_id:
+        :param ticket_id:
+        :param node_id:
+        :param operator_id:
+        :param consultant_id:
+        :return:
+        """
+        ticket_record = TicketNode.objects.get(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id)
+        consult_from = ticket_record.consult_from
+        all_assignee_result = ticket_record.all_assignee_result
+        next_assignee_list = []
+    
+
+        if all_assignee_result:
+            for key, value in all_assignee_result.items():
+                if not value:
+                    next_assignee_list.append(key)
+        else:
+            next_assignee_list = [consult_from]
+        TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id).update(in_consult=False, consult_from=None, 
+        consult_target=None, assignee=','.join(next_assignee_list), assignee_type='users')
+        return True
+
+    def update_ticket_node_accept(cls, tenant_id: str, ticket_id: str, node_id: str, operator_id: str) -> bool:
+        """
+        update ticket node accept record
+        :param tenant_id:
+        :param ticket_id:
+        :param node_id:
+        :param operator_id:
+        :return:
+        """
+        ticket_node_record = TicketNode.objects.get(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id)
+        if not ticket_node_record.in_accept_wait:
+            raise CustomCommonException("Node is not in accept wait status")
+        ticket_node_record.in_accept_wait = False
+        ticket_node_record.assignee = operator_id
+        ticket_node_record.assignee_type = 'users'
+        ticket_node_record.save()
+        return True
+
 
 ticket_node_service_ins = TicketNodeService()

@@ -1,6 +1,7 @@
 import time
 
 from apps.ticket.models import User as TicketUser
+from service.exception.custom_common_exception import CustomCommonException
 from service.account.account_user_service import account_user_service_ins
 from service.base_service import BaseService
 
@@ -81,8 +82,10 @@ class TicketUserService(BaseService):
                 TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=key).update(as_assignee=True, assignee_node_ids= ','.join(value))
             else:
                 TicketUser.objects.create(tenant_id=tenant_id, ticket_id=ticket_id, user_id=key, as_assignee=True, assignee_node_ids=','.join(value))
-            
-        
+        # update as_assignee =False
+        for user_id in exist_user_id_str_list:
+            if user_id not in user_assignee_node_ids_dict.keys():
+                TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=user_id).update(as_assignee=False, assignee_node_ids='')
 
     @classmethod
     def get_ticket_current_assignee_info(cls, tenant_id: str, ticket_id: str)->dict:
@@ -109,6 +112,88 @@ class TicketUserService(BaseService):
         ticket_user_queryset = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id)
         return [ticket_user.user_id for ticket_user in ticket_user_queryset]
 
+    @classmethod
+    def replace_user_assignee(cls, tenant_id: str, ticket_id: str, operator_id: str, node_id: str, source_assignee_id: str, target_assignee_id: str) -> bool:
+        """
+        replace user assignee
+        :param tenant_id:
+        :param ticket_id:
+        :param node_id:
+        :param operator_id:
+        :param source_assignee_id:
+        :param target_assignee_id:
+        :return:
+        """
+        # todo: 
+        
+        try:
+            ticekt_user_record = TicketUser.objects.get(tenant_id=tenant_id, ticket_id=ticket_id, user_id=source_assignee_id)
+        except TicketUser.DoesNotExist:
+            raise CustomCommonException("Source assignee not found")
+        assignee_node_id_list = ticekt_user_record.assignee_node_ids.split(',')
+        if node_id in assignee_node_id_list:
+            assignee_node_id_list.remove(node_id)
+            ticekt_user_record.assignee_node_ids = ','.join(assignee_node_id_list)
+            if len(assignee_node_id_list) == 0:
+                ticekt_user_record.as_assignee = False
+            ticekt_user_record.save()
+        else:
+            raise CustomCommonException("Node not found")
+
+        # target_assignee
+        target_assignee_record = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=target_assignee_id)
+        if target_assignee_record:
+            current_assignee_node_id_list = target_assignee_record[0].assignee_node_ids.split(',')
+            current_assignee_node_id_list.append(node_id)
+            current_assignee_node_id_list = list(set(current_assignee_node_id_list))
+            target_assignee_record.update(as_assignee=True, assignee_node_ids=','.join(current_assignee_node_id_list))
+        else:
+            TicketUser.objects.create(tenant_id=tenant_id, ticket_id=ticket_id, user_id=target_assignee_id, as_assignee=True, assignee_node_ids=','.join(assignee_node_id_list),creator_id=operator_id)
+        return True
+
+    @classmethod
+    def update_ticket_user_consult_record(cls, tenant_id: str, ticket_id: str, node_id: str, operator_id: str, consultant_id: str) -> bool:
+        """
+        update ticket user consult record
+        :param tenant_id:
+        :param ticket_id:
+        :param node_id:
+        :param operator_id:
+        :param consultant_id:
+        :return:
+        """
+        # todo: replace current assignee and with consultant, 
+        
+        ticket_user_queryset= TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=operator_id)
+        for ticket_user in ticket_user_queryset:
+            assignee_node_id_list = ticket_user.assignee_node_ids.split(',')
+            if node_id in assignee_node_id_list:
+                if len(assignee_node_id_list) == 1:
+                    ticket_user.update(as_assignee=False, assignee_node_ids='')
+                else:
+                    assignee_node_id_list.remove(node_id)
+                    ticket_user.update(as_assignee=True, assignee_node_ids=','.join(assignee_node_id_list))
+                
+                # consultant replace operator
+                consultant_queryset = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=consultant_id)
+                if consultant_queryset:
+                    current_assignee_node_id_list = consultant_queryset[0].assignee_node_ids.split(',')
+                    current_assignee_node_id_list.append(node_id)
+                    current_assignee_node_id_list = list(set(current_assignee_node_id_list))
+                    consultant_queryset.update(as_assignee=True, assignee_node_ids=','.join(current_assignee_node_id_list))
+                else:
+                    TicketUser.objects.create(tenant_id=tenant_id, ticket_id=ticket_id, user_id=consultant_id, as_assignee=True, assignee_node_ids=node_id)
+        return True
+
+    def update_ticket_user_accept(cls, tenant_id: str, ticket_id: str, operator_id: str) -> bool:
+        """
+        update ticket user accept record
+        :param tenant_id:
+        :param ticket_id:
+        :param operator_id:
+        :return:
+        """
+        ticket_nn
 
 ticket_user_service_ins = TicketUserService()
 

@@ -319,7 +319,7 @@ class WorkflowBaseService(BaseService):
                 for child_component in component['children']:
                     children_length = 0
                     if node_form_permission.get(child_component['component_key']) is not None and node_form_permission.get(child_component['component_key']) != 'hidden' :
-                        child_component['required'] = (node_form_permission.get(child_component['component_key'])== 'required')
+                        child_component['component_permission'] = (node_form_permission.get(child_component['component_key']))
                         new_children.append(child_component)
                         children_length += 1
                 if children_length != 0:

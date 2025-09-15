@@ -28,7 +28,7 @@ class TicketListView(BaseView):
         Optional('stage_ids'): str,
         Optional('ticket_ids'): str,
         Optional('node_ids'): str,
-        Optional('act_state'): And(str, Or('in_draft', 'in_process', 'refused', 'revoked', 'end', 'closed')),
+        Optional('act_state'): And(str, Or('in_draft', 'on_going', 'rejected', 'withdrawn', 'finished', 'closed')),
         Optional('reverse', default=1): And(Use(int), lambda n: n in [0, 1]),
         Optional('creator_id'): And(Use(int), lambda n: n > 0, error='parent_ticket_id should be int and greater than 0'),
         Optional('parent_ticket_id'): And(Use(int), lambda n: n > 0, error='parent_ticket_id should be int and greater than 0'),
@@ -186,8 +186,8 @@ class TicketDetailActionsView(BaseView):
             return api_response(-1, "Internal Server Error", '')
         
         try:
-            result = ticket_base_service_ins.get_ticket_detail_actions(tenant_id, ticket_id, user_id)
-            return api_response(0, '', dict(actions=result))
+            actions, action_base_node_id = ticket_base_service_ins.get_ticket_detail_actions(tenant_id, ticket_id, user_id)
+            return api_response(0, '', dict(actions=actions, action_base_node_id=action_base_node_id))
         except CustomCommonException as e:
             return api_response(-1, str(e), '')
         except Exception:
@@ -221,7 +221,7 @@ class TicketHandleView(BaseView):
             if not ticket_base_service_ins.ticket_action_permission_check(tenant_id, ticket_id, user_id, request_data_dict.get('action_type'), request_data_dict.get('action_id')):
                 return api_response(-1, "user has no permission to handle this ticket", '')
 
-            result = ticket_base_service_ins.handle_ticket(tenant_id, ticket_id, user_id, request_data_dict)
+            result = ticket_base_service_ins.handle_ticket(tenant_id, app_name, ticket_id, user_id, request_data_dict)
             return api_response(0, '', dict(ticket_id=result))
         except CustomCommonException as e:
             return api_response(-1, str(e), '')

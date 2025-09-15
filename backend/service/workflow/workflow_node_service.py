@@ -117,7 +117,19 @@ class WorkflowNodeService(BaseService):
         """
         init_node = Node.objects.get(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, type='start')
         return init_node
-
+    
+    @classmethod
+    def get_end_node(cls, tenant_id: str, workflow_id: str, version_id: str) -> dict:
+        """
+        get end node
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :return:
+        """
+        end_node = Node.objects.get(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, type='end')
+        return end_node
+    
     @classmethod
     def get_node_by_id(cls, tenant_id: str, workflow_id: str, version_id: str, node_id: str) -> dict:
         """

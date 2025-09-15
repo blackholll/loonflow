@@ -84,6 +84,7 @@ export interface IWorkflowComponent {
   id: string,
   componentKey: string,
   componentName: string,
+  componentPermission?: 'readonly' | 'optional' | 'required' | 'hidden',
   value?: any,
   description: string,
   type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'link' | 'richText' | 'externalData' | 'customCreator' | 'customCreatedAt' | 'ticketStatus' | 'approvalStatus' | 'ticketType' | 'currentHandler',

@@ -532,11 +532,11 @@ function PropertyPanel(props: PropertyPanelProps) {
                     <FormControl size="small" fullWidth>
                         <InputLabel>类型</InputLabel>
                         <Select
-                            value={properties.type || 'accept'}
+                            value={properties.type || 'agree'}
                             label="连线类型"
                             onChange={(e) => handlePropertyChange('type', e.target.value)}
                         >
-                            <MenuItem value="accept">同意</MenuItem>
+                            <MenuItem value="agree">同意</MenuItem>
                             <MenuItem value="reject">拒绝</MenuItem>
                             <MenuItem value="other">其他</MenuItem>
                         </Select>

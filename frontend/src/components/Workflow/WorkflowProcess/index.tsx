@@ -254,7 +254,7 @@ function WorkflowProcess({
                     properties: {
                         name: '同意',
                         condition: '',
-                        type: 'accept'
+                        type: 'agree'
                     }
                 },
                 style: {

@@ -27,7 +27,7 @@ function TextField({
     // view mode only show value
     if (mode === 'view') {
         return (
-            <ViewField type={props.type} value={value} props={props} />
+            <ViewField type='text' value={value} props={props} />
         );
     }
 
