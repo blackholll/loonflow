@@ -1,4 +1,4 @@
-import { IApiResponse, IApiErrResponse, ISimpleEntity } from './common';
+import { IApiResponse, ISimpleEntity } from './common';
 import { ISimpleUser } from './user';
 import { IWorkflowAction, IFormSchema } from './workflow';
 
@@ -32,7 +32,7 @@ export interface IHandleTicketReqParam {
   actionType: string;
   actionId: string;
   comment?: string;
-  fields: any;
+  fields?: any;
   actionProps?: IActionProps;
 }
 
@@ -103,3 +103,29 @@ export interface ITicketActionsRes extends IApiResponse<{ actions: IWorkflowActi
 export interface ITicketDetailFormRes extends IApiResponse<{ formSchema: IFormSchema }> { }
 
 export interface IHandleTicketRes extends IApiResponse<{ ticketId: string }> { }
+
+// flowlogs
+export interface ITicketFlowHistoryItem {
+  id: string;
+  processorInfo: ITicketProcessorInfo;
+  createdAt: string; // ISO string
+  actionName: string;
+  actionType: string;
+  comment: string;
+}
+
+export interface ITicketProcessorInfo {
+  processorAlias: string;
+  processorEmail: string;
+  processorPhone: string;
+  processorType: string;
+  processor: string;
+}
+export interface ITicketFlowHistoryResData {
+  page: number;
+  perPage: number;
+  total: number;
+  value: ITicketFlowHistoryItem[];
+}
+
+export interface ITicketFlowHistoryRes extends IApiResponse<ITicketFlowHistoryResData> { }

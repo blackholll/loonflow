@@ -23,7 +23,7 @@ function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://wwww.loonapp.com/">
+      <Link color="inherit" href="https://github.com/blackholll/loonflow">
         loonflow
       </Link>{' '}
       {'2018-' + new Date().getFullYear()}
@@ -92,9 +92,8 @@ export default function SignIn() {
               justifyContent: 'center',
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
+
+            <img src={"/loonflow_logo1.png"} alt="Logo" style={{ width: '50px', height: '50px', display: 'block' }} />
             <Typography variant="h5" sx={{ ml: 2 }}>
               {t('signIn.title')}
             </Typography>
@@ -138,6 +137,6 @@ export default function SignIn() {
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }

@@ -3,7 +3,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Button from '@mui/material/Button';
@@ -13,7 +12,8 @@ import { getSimpleWorkflowList } from '../services/workflow';
 import TicketList from './Ticket/TicketList';
 import useSnackbar from '../hooks/useSnackbar';
 import TicketDetail from './Ticket/TicketDetail';
-import { Link } from '@mui/material';
+import { Alert, Link } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 
 function Workbench() {
@@ -22,8 +22,11 @@ function Workbench() {
   const [openTicketDetail, setOpenTicketDetail] = useState(false);
   const [openedTicketId, setOpenedTicketId] = useState<string | null>(null);
   const [newTicketWorkflowId, setNewTicketWorkflowId] = useState<string | null>(null);
+  const [ticketListRefreshToken, setTicketListRefreshToken] = useState<number>(0);
 
   const { showMessage } = useSnackbar();
+  const { t } = useTranslation();
+
 
   useEffect(() => {
     const fetchSimpleWorkflow = async () => {
@@ -43,7 +46,7 @@ function Workbench() {
     };
     fetchSimpleWorkflow();
 
-  }, [])
+  }, [showMessage])
 
   const handleClose = () => {
     setOpenTicketDetail(false);
@@ -87,7 +90,8 @@ function Workbench() {
     setOpenTicketDetail(false);
     setOpenedTicketId('');
     setNewTicketWorkflowId(null);
-    // todo: trigger ticket list refresh
+    // 触发 TicketList 刷新
+    setTicketListRefreshToken((prev) => prev + 1);
   }
 
   return (
@@ -96,25 +100,36 @@ function Workbench() {
         <CardContent>
           <Grid container spacing={1} justifyContent="left" alignItems="center">
             {/* 搜索部分 */}
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid size={{ xs: 8, sm: 6, md: 4 }}>
               <Autocomplete
                 value={workflowValue}
                 onChange={(event, newValue) => setWorkflowValue(newValue)}
                 getOptionLabel={(option) => option.name}
                 disablePortal
                 options={workflowList}
-                sx={{ margeLeft: 0, margeRight: 0 }}
-                renderInput={(params) => <TextField {...params} label="Select Ticke Type" />}
+                sx={{ marginLeft: 0, marginRight: 0 }}
+                renderInput={(params) => <TextField {...params} label={t("common.pleaseSelectTicketType")} />}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }} justifyContent="left" >
-              <Button variant="outlined" sx={{ margeLeft: 0, margeRight: 0, height: '55px' }} onClick={() => { setNewTicketWorkflowId(workflowValue?.workflowId ?? ''); setOpenTicketDetail(true) }}>New Ticket</Button>
+            <Grid size={{ xs: 4, sm: 3, md: 2 }} justifyContent="left" >
+              <Button
+                variant="outlined"
+                sx={{ marginLeft: 0, marginRight: 0, height: '55px' }}
+                disabled={!workflowValue}
+                onClick={() => {
+                  if (!workflowValue) return;
+                  setNewTicketWorkflowId(workflowValue?.workflowId ?? '');
+                  setOpenTicketDetail(true);
+                }}
+              >
+                New Ticket
+              </Button>
             </Grid>
           </Grid>
         </CardContent>
       </Card>
 
-      <TicketList category="duty" />
+      <TicketList category="duty" refreshToken={ticketListRefreshToken} />
       <Dialog
         maxWidth="lg"
         fullWidth
@@ -123,9 +138,6 @@ function Workbench() {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {newTicketWorkflowId ? 'New Ticket' : 'Ticket Detail'}
-        </DialogTitle>
         <DialogContent>
           <TicketDetail workflowId={newTicketWorkflowId ?? ''} ticketId={openedTicketId ?? ''} onTicketHandledChange={handleTicketHandledChange} />
         </DialogContent>

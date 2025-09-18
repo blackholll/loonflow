@@ -7,6 +7,9 @@
   },
   "actions": "Actions",
   "common": {
+    "search": "Search",
+    "pleaseSelectTicketType": "Please Select Ticket Type to create a new ticket",
+    "language": "Language",
     "cancel": "Cancel",
     "close": "Close",
     "save": "Save",
@@ -35,7 +38,7 @@
   },
   "signIn": {
     "title": "Loonflow",
-    "description": "Focused on delivering unified workflow solutions",
+    "description": "Powering unified workflow solutions for the enterprise.",
     "emailLabel": "Email Address",
     "passwordLabel": "Password",
     "rememberMe": "Remember me",

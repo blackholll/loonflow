@@ -16,7 +16,7 @@ import {
     NodeChange,
     EdgeChange
 } from '@xyflow/react';
-import { Box, Paper, Drawer, IconButton, Tooltip, Divider, Snackbar, Alert } from '@mui/material';
+import { Box, Drawer, Snackbar, Alert } from '@mui/material';
 import '@xyflow/react/dist/style.css';
 
 import NodePanel from './NodePanel';
@@ -130,12 +130,14 @@ const convertReactFlowEdgeToWorkflowEdge = (edge: Edge): IWorkflowEdge => {
 interface WorkflowProcessProps {
     processSchema?: IProcessSchema;
     formSchema?: IFormSchema;
+    simpleViewMode?: boolean;
     onProcessSchemaChange?: (processSchema: IProcessSchema) => void;
 }
 
 function WorkflowProcess({
     processSchema = { nodeInfoList: [], edgeInfoList: [] },
     formSchema = { componentInfoList: [] },
+    simpleViewMode = false,
     onProcessSchemaChange
 }: WorkflowProcessProps) {
     // 初始化节点和边
@@ -148,9 +150,18 @@ function WorkflowProcess({
     const [selectedElement, setSelectedElement] = useState<Node | Edge | null>(null);
     const [propertyPanelOpen, setPropertyPanelOpen] = useState(false);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'warning' | 'info' | 'success'>('error');
+    const [snackbarMessage] = useState('');
+    const [snackbarSeverity] = useState<'error' | 'warning' | 'info' | 'success'>('error');
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
+
+    // 悬停提示状态（仅 simpleViewMode 时启用）
+    const [hoverTooltip, setHoverTooltip] = useState<{
+        visible: boolean;
+        x: number;
+        y: number;
+        title: string;
+        lines: string[];
+    }>({ visible: false, x: 0, y: 0, title: '', lines: [] });
 
     // 撤销重做历史记录
     const [history, setHistory] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([
@@ -277,15 +288,85 @@ function WorkflowProcess({
 
     // 节点选择处理
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+        if (simpleViewMode) {
+            return;
+        }
         setSelectedElement(node);
         setPropertyPanelOpen(true);
-    }, []);
+    }, [simpleViewMode]);
 
     // 边选择处理
     const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+        if (simpleViewMode) {
+            return;
+        }
         setSelectedElement(edge);
         setPropertyPanelOpen(true);
+    }, [simpleViewMode]);
+
+    // 节点/边 悬停提示（仅在 simpleViewMode 下）
+    const updateTooltipPosition = useCallback((event: React.MouseEvent) => {
+        if (!reactFlowWrapper.current) return { x: 0, y: 0 };
+        const rect = reactFlowWrapper.current.getBoundingClientRect();
+        return { x: event.clientX - rect.left + 12, y: event.clientY - rect.top + 12 };
     }, []);
+
+    const onNodeMouseEnter = useCallback((event: React.MouseEvent, node: Node) => {
+        if (!simpleViewMode) return;
+        const pos = updateTooltipPosition(event);
+        const props: any = (node.data as any)?.properties || {};
+        setHoverTooltip({
+            visible: true,
+            x: pos.x,
+            y: pos.y,
+            title: props.name || props.label || '节点',
+            lines: [
+                `类型: ${node.type || ''}`,
+                ...(props.assignee ? [`处理人: ${props.assignee}`] : []),
+                ...(props.description ? [`描述: ${props.description}`] : [])
+            ]
+        });
+    }, [simpleViewMode, updateTooltipPosition]);
+
+    const onNodeMouseMove = useCallback((event: React.MouseEvent, node: Node) => {
+        if (!simpleViewMode) return;
+        if (!hoverTooltip.visible) return;
+        const pos = updateTooltipPosition(event);
+        setHoverTooltip(prev => ({ ...prev, x: pos.x, y: pos.y }));
+    }, [simpleViewMode, hoverTooltip.visible, updateTooltipPosition]);
+
+    const onNodeMouseLeave = useCallback(() => {
+        if (!simpleViewMode) return;
+        setHoverTooltip(prev => ({ ...prev, visible: false }));
+    }, [simpleViewMode]);
+
+    const onEdgeMouseEnter = useCallback((event: React.MouseEvent, edge: Edge) => {
+        if (!simpleViewMode) return;
+        const pos = updateTooltipPosition(event);
+        const props: any = (edge.data as any)?.properties || {};
+        setHoverTooltip({
+            visible: true,
+            x: pos.x,
+            y: pos.y,
+            title: props.name || props.label || '连线',
+            lines: [
+                `类型: ${props.type || 'other'}`,
+                ...(props.condition ? [`条件: ${props.condition}`] : [])
+            ]
+        });
+    }, [simpleViewMode, updateTooltipPosition]);
+
+    const onEdgeMouseMove = useCallback((event: React.MouseEvent, edge: Edge) => {
+        if (!simpleViewMode) return;
+        if (!hoverTooltip.visible) return;
+        const pos = updateTooltipPosition(event);
+        setHoverTooltip(prev => ({ ...prev, x: pos.x, y: pos.y }));
+    }, [simpleViewMode, hoverTooltip.visible, updateTooltipPosition]);
+
+    const onEdgeMouseLeave = useCallback(() => {
+        if (!simpleViewMode) return;
+        setHoverTooltip(prev => ({ ...prev, visible: false }));
+    }, [simpleViewMode]);
 
     // 监听连线标签点击事件
     React.useEffect(() => {
@@ -505,24 +586,26 @@ function WorkflowProcess({
         <ReactFlowProvider>
             <Box sx={{ display: 'flex', height: '100vh', width: '100vw' }}>
                 {/* 左侧节点面板 */}
-                <Box sx={{ width: 280, borderRight: 1, borderColor: 'divider' }}>
-                    <NodePanel onAddNode={onAddNode} />
-                </Box>
+                {!simpleViewMode ?
+                    <Box sx={{ width: 280, borderRight: 1, borderColor: 'divider' }}>
+                        <NodePanel onAddNode={onAddNode} />
+                    </Box> : null}
 
                 {/* 主要内容区域 */}
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     {/* 顶部工具栏 */}
-                    <Toolbar
-                        onClear={handleClear}
-                        onUndo={handleUndo}
-                        onRedo={handleRedo}
-                        onDelete={handleDelete}
-                        onCopy={handleCopy}
-                        canDelete={!!selectedElement}
-                        canCopy={!!selectedElement}
-                        canUndo={historyIndex > 0}
-                        canRedo={historyIndex < history.length - 1}
-                    />
+                    {!simpleViewMode ?
+                        <Toolbar
+                            onClear={handleClear}
+                            onUndo={handleUndo}
+                            onRedo={handleRedo}
+                            onDelete={handleDelete}
+                            onCopy={handleCopy}
+                            canDelete={!!selectedElement}
+                            canCopy={!!selectedElement}
+                            canUndo={historyIndex > 0}
+                            canRedo={historyIndex < history.length - 1}
+                        /> : null}
 
                     {/* 流程图画布 */}
                     <Box sx={{ flex: 1, position: 'relative' }} ref={reactFlowWrapper}>
@@ -535,6 +618,12 @@ function WorkflowProcess({
                             onNodeClick={onNodeClick}
                             onEdgeClick={onEdgeClick}
                             onPaneClick={onPaneClick}
+                            onNodeMouseEnter={onNodeMouseEnter}
+                            onNodeMouseMove={onNodeMouseMove}
+                            onNodeMouseLeave={onNodeMouseLeave}
+                            onEdgeMouseEnter={onEdgeMouseEnter}
+                            onEdgeMouseMove={onEdgeMouseMove}
+                            onEdgeMouseLeave={onEdgeMouseLeave}
                             nodeTypes={nodeTypes}
                             edgeTypes={edgeTypes}
                             connectionMode={ConnectionMode.Loose}
@@ -553,12 +642,36 @@ function WorkflowProcess({
                             <Controls />
                             <Background color="#aaa" gap={16} />
 
+                            {/* 悬停提示浮层 */}
+                            {simpleViewMode && hoverTooltip.visible ? (
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        left: hoverTooltip.x,
+                                        top: hoverTooltip.y,
+                                        pointerEvents: 'none',
+                                        backgroundColor: 'rgba(33, 33, 33, 0.9)',
+                                        color: '#fff',
+                                        p: 1,
+                                        borderRadius: 1,
+                                        boxShadow: 3,
+                                        maxWidth: 260,
+                                        fontSize: 12,
+                                        zIndex: 20
+                                    }}
+                                >
+                                    <div style={{ fontWeight: 600, marginBottom: 4 }}>{hoverTooltip.title}</div>
+                                    {hoverTooltip.lines.map((line, idx) => (
+                                        <div key={idx} style={{ whiteSpace: 'pre-wrap' }}>{line}</div>
+                                    ))}
+                                </Box>
+                            ) : null}
                         </ReactFlow>
                     </Box>
                 </Box>
 
                 {/* 右侧属性面板 */}
-                <Drawer
+                {!simpleViewMode ? <Drawer
                     anchor="right"
                     open={propertyPanelOpen}
                     onClose={() => setPropertyPanelOpen(false)}
@@ -570,7 +683,7 @@ function WorkflowProcess({
                     }}
                 >
                     {propertyPanelComponent}
-                </Drawer>
+                </Drawer> : null}
             </Box>
 
             {/* 提示信息 Snackbar */}

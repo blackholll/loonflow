@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Container, TextField, Select, MenuItem, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TablePagination } from '@mui/material';
+import { Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CardContent } from '@mui/material';
 import Card from '@mui/material/Card';
-import { CardContent, CardHeader } from '@mui/material';
+import { CardHeader } from '@mui/material';
 import { Link } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useTranslation } from 'react-i18next';
@@ -16,16 +16,15 @@ import Grid from '@mui/material/Grid2';
 import { ITicketListResEntity } from '@/types/ticket';
 
 
-function TicketList({ category }: { category: string }) {
+function TicketList({ category, refreshToken }: { category: string; refreshToken?: number | string | boolean }) {
   const { t } = useTranslation();
   const [workflowList, setWorkflowList] = useState<ISimpleWorkflowEntity[]>([]);
   const [workflowValue, setWorkflowValue] = useState<ISimpleWorkflowEntity | null>(null);
   const [ticketList, setTicketList] = useState<ITicketListResEntity[]>([]);
-  const [ticketListLoading, setTicketListLoading] = useState<Boolean>(false);
 
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(10)
-  const [total, setTotal] = useState(0)
+  const [total] = useState(0)
 
   const { showMessage } = useSnackbar();
   let listTitle = t('ticketList.allTickets');
@@ -57,26 +56,24 @@ function TicketList({ category }: { category: string }) {
       }
     };
     fetchSimpleWorkflow();
-  }, []);
+  }, [showMessage]);
 
   useEffect(() => {
     const fetchTicketList = async () => {
       try {
-        setTicketListLoading(true);
         const res = await getTicketList({ category, page, perPage });
         if (res.code === 0) {
           setTicketList(res.data.ticketList);
         } else {
           showMessage(res.msg, 'error');
         }
-        setTicketListLoading(false);
       } catch (error: any) {
         showMessage(error.message, 'error');
         console.log(error);
       }
     };
     fetchTicketList();
-  }, [category, page, perPage])
+  }, [category, page, perPage, refreshToken, showMessage])
 
   const handleChangePage = (_event: any, newPage: number) => {
     setPage(newPage);
@@ -88,74 +85,85 @@ function TicketList({ category }: { category: string }) {
   };
 
   return (
-    <Card>
-      <CardHeader title={listTitle} />
-      <Grid container spacing={2} justifyContent="center" alignItems="center">
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <TextField fullWidth label={t('ticketList.searchWithKeyword')} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <TextField fullWidth label={t('ticketList.searchWithCreator')} />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <TextField fullWidth label={t('ticketList.searchWithTimeRange')} type="date" />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Autocomplete
-            value={workflowValue}
-            onChange={(event, newValue) => setWorkflowValue(newValue)}
-            getOptionLabel={(option) => option.name}
-            disablePortal
-            options={workflowList}
-            sx={{ margeLeft: 0, margeRight: 0 }}
-            renderInput={(params) => <TextField {...params} label={t('ticketList.ticketType')} />}
+    <React.Fragment>
+      <Card>
+        <CardHeader title={listTitle} />
+        <CardContent>
+          <Grid container spacing={1} justifyContent="left" alignItems="center">
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <TextField fullWidth label={t('ticketList.keyword')} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <TextField fullWidth label={t('ticketList.creator')} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <TextField fullWidth label={t('ticketList.createDateStart')} type="date" slotProps={{ inputLabel: { shrink: true } }} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <TextField fullWidth label={t('ticketList.createDateEnd')} type="date" slotProps={{ inputLabel: { shrink: true } }} />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <Autocomplete
+                value={workflowValue}
+                onChange={(event, newValue) => setWorkflowValue(newValue)}
+                getOptionLabel={(option) => option.name}
+                disablePortal
+                options={workflowList}
+                sx={{ marginLeft: 0, marginRight: 0 }}
+                renderInput={(params) => <TextField {...params} label={t('ticketList.ticketType')} />}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <Button variant="outlined" size={'large'} sx={{ height: '55px', width: '150px' }}>{t('common.search')}</Button>
+            </Grid>
+
+          </Grid>
+
+          <TableContainer sx={{ marginTop: '10px', boxShadow: 'none' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Id</TableCell>
+                  <TableCell>{t('ticketList.ticketTitle')}</TableCell>
+                  <TableCell>审批状态</TableCell>
+                  <TableCell>{t('ticketList.ticketCreator')}</TableCell>
+                  <TableCell>{t('ticketList.ticketCreateTime')}</TableCell>
+                  <TableCell>{t('actions')}</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {ticketList ? ticketList.map((ticket) => (
+                  <TableRow key={ticket.id}>
+                    <TableCell>{ticket.id}</TableCell>
+                    <TableCell>{ticket.title}</TableCell>
+                    <TableCell>{ticket.actState}</TableCell>
+                    <TableCell>{ticket.creatorInfo.alias}</TableCell>
+                    <TableCell>{new Date(ticket.createdAt).toLocaleString()}</TableCell>
+                    <TableCell>
+                      <div>
+                        <Link to={`/ticket/${ticket.id}`}>
+                          <Button variant="text" size={'large'} sx={{ width: '150px' }}>详情</Button>
+                        </Link>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )) : null}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 100]}
+            component="div"
+            count={total}
+            rowsPerPage={perPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
           />
-        </Grid>
+        </CardContent>
 
-      </Grid>
-
-      <TableContainer component={Paper} sx={{ marginTop: '10px' }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Id</TableCell>
-              <TableCell>{t('ticketList.ticketTitle')}</TableCell>
-              <TableCell>审批状态</TableCell>
-              <TableCell>{t('ticketList.ticketCreator')}</TableCell>
-              <TableCell>{t('ticketList.ticketCreateTime')}</TableCell>
-              <TableCell>{t('actions')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {ticketList ? ticketList.map((ticket) => (
-              <TableRow key={ticket.id}>
-                <TableCell>{ticket.id}</TableCell>
-                <TableCell>{ticket.title}</TableCell>
-                <TableCell>{ticket.actState}</TableCell>
-                <TableCell>{ticket.creatorInfo.alias}</TableCell>
-                <TableCell>{new Date(ticket.createdAt).toLocaleString()}</TableCell>
-                <TableCell>
-                  <div>
-                    <Link to={`/ticket/${ticket.id}`}>
-                      <Button variant="text" size={'large'} sx={{ width: '150px' }}>详情</Button>
-                    </Link>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )) : null}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={total}
-        rowsPerPage={perPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </Card>
+      </Card>
+    </React.Fragment >
   );
 }
 

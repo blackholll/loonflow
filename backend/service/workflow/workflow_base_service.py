@@ -240,13 +240,21 @@ class WorkflowBaseService(BaseService):
                 for child_component in component['children']:
                     children_length = 0
                     if init_node_field_permissions.get(child_component['component_key']) is not None and init_node_field_permissions.get(child_component['component_key']) != 'hidden' :
-                        child_component['required'] = (init_node_field_permissions.get(child_component['component_key'])== 'required')
+                        child_component['component_permission'] = (init_node_field_permissions.get(child_component['component_key']))
                         result_component_list.append(child_component)
                         children_length += 1
                 if children_length != 0:
                     result_component_list.append(component)
-                
-        return result_component_list
+        workflow_basic_obj = workflow_base_service_ins.get_workflow_basic_info_by_id(tenant_id, workflow_id, version_obj.id)
+
+        workflow_metadata = dict(
+            id=workflow_id,
+            name=workflow_basic_obj.get('name'),
+            version_id=str(version_obj.id),
+            version_name=version_obj.name,
+            description=workflow_basic_obj.get('description')
+        )        
+        return result_component_list, workflow_metadata
 
     @classmethod
     def get_ticket_creation_actions(cls, workflow_id: str, tenant_id: str, operator_id: str, version_name: str) -> dict:
@@ -357,46 +365,27 @@ class WorkflowBaseService(BaseService):
         return workflow_obj.get_dict()
 
 
-############## below are waiting for update
     @classmethod
-    @auto_log
-    def get_workflow_manage_list(cls, user_id: str)->tuple:
+    def get_workflow_basic_info_by_id(cls, tenant_id: str, workflow_id: str, version_id: str) -> dict:
         """
-        获取有管理权限的工作流列表
-        :param user_id:
-        :return:
-        """
-        # 如果是超级管理员,拥有所有工作流的权限
-        flag, result = account_base_service_ins.admin_permission_check(username=username)
-        if flag:
-            workflow_queryset = WorkflowRecord.objects.filter(is_deleted=0).all()
-        else:
-            # 作为工作流创建人+工作流管理员的工作流
-            workflow_admin_queryset = WorkflowPermission.objects.filter(permission='admin', user_type='user', user=username).all()
-            workflow_admin_id_list = [workflow_admin.workflow_id for workflow_admin in workflow_admin_queryset]
-
-            workflow_queryset = WorkflowRecord.objects.filter(
-                Q(creator=username) | Q(id__in=workflow_admin_id_list)).all()
-
-        workflow_restful_list = [workflow.get_dict() for workflow in workflow_queryset]
-
-        return True, dict(workflow_list=workflow_restful_list)
-
-
-    @classmethod
-    @auto_log
-    def get_by_id(cls, workflow_id: int)->tuple:
-        """
-        获取工作流 by id
-        get workflow object by workflow id
+        get workflow basic info by id
+        :param tenant_id:
         :param workflow_id:
         :return:
         """
-        workflow_obj = WorkflowRecord.objects.filter(is_deleted=0, id=workflow_id).first()
-        if not workflow_obj:
-            return False, 'workflow is not existed or has been deleted'
-        return True, workflow_obj
+        return BasicInfo.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id).get_dict()
 
+
+    @classmethod
+    def get_workflow_version_info_by_id(cls, tenant_id: str, workflow_id: str, id: str) -> dict:
+        """
+        get workflow version by id
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :return:
+        """
+        return WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, id=id).get_dict()
     @classmethod
     def get_full_definition_info_by_id(cls, tenant_id: str, workflow_id: str, version_name: str='')->tuple:
         """
@@ -456,238 +445,18 @@ class WorkflowBaseService(BaseService):
             label=label
         )
 
-
-
-    @classmethod
-    @auto_log
-    def edit_workflow(cls, workflow_id: int, name: str, description: str, notices: str, view_permission_check: int,
-                      limit_expression: str, display_form_str: str, workflow_admin: str, title_template: str,
-                      content_template: str, intervener: str, view_depts: str, view_persons: str, api_permission_apps:str)->tuple:
+    def get_process_single_schema(cls, workflow_id: str, tenant_id: str, version_id: str) -> dict:
         """
-        更新工作流
-        update workfow
+        get process single schema
         :param workflow_id:
-        :param name:
-        :param description:
-        :param notices:
-        :param view_permission_check:
-        :param limit_expression:
-        :param display_form_str:
-        :param workflow_admin:
-        :param title_template:
-        :param content_template:
+        :param tenant_id:
+        :param version_name:
         :return:
         """
-        workflow_obj = WorkflowRecord.objects.filter(id=workflow_id)
-        if workflow_obj:
-            workflow_obj.update(name=name, description=description, notices=notices,
-                                view_permission_check=view_permission_check,
-                                limit_expression=limit_expression, display_form_str=display_form_str,
-                                title_template=title_template, content_template=content_template)
-        # 更新管理员信息
-        workflow_permission_existed_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id).all()
-
-        existed_intervener,  existed_workflow_admin, existed_view_depts, existed_view_persons, \
-        existed_app_permission_apps = [], [], [], [], []
-        for workflow_permission_existed in workflow_permission_existed_queryset:
-            if workflow_permission_existed.permission == 'intervene':
-                existed_intervener.append(workflow_permission_existed.user)
-            if workflow_permission_existed.permission == 'admin':
-                existed_workflow_admin.append(workflow_permission_existed.user)
-            if workflow_permission_existed.permission == 'view' and workflow_permission_existed.user_type == 'department':
-                existed_view_depts.append(workflow_permission_existed.user)
-            if workflow_permission_existed.permission == 'view' and workflow_permission_existed.user_type == 'user':
-                existed_view_persons.append(workflow_permission_existed.user)
-            if workflow_permission_existed.permission == 'api' and workflow_permission_existed.user_type == 'app':
-                existed_app_permission_apps.append(workflow_permission_existed.user)
-
-        # need del
-
-        intervener_list = intervener.split(',') if intervener else []
-        workflow_admin_list = workflow_admin.split(',') if workflow_admin else []
-        view_depts_list = view_depts.split(',') if view_depts else []
-        view_persons_list = view_persons.split(',') if view_persons else []
-        api_list = api_permission_apps.split(',') if api_permission_apps else []
-
-
-        flag, need_del_intervener_list = common_service_ins.list_subtraction(existed_intervener, intervener_list)
-
-        flag, need_del_admin_list = common_service_ins.list_subtraction(existed_workflow_admin, workflow_admin_list)
-
-        flag, need_del_view_depts_list = common_service_ins.list_subtraction(existed_view_depts, view_depts_list)
-
-        flag, need_del_view_persons_list = common_service_ins.list_subtraction(existed_view_persons, view_persons_list)
-
-        flag, need_del_app_list = common_service_ins.list_subtraction(existed_app_permission_apps, api_list)
-
-        WorkflowPermission.objects.filter(
-            Q(workflow_id=workflow_id, permission='intervene', user_type='user', user__in=need_del_intervener_list) |
-            Q(workflow_id=workflow_id, permission='admin', user_type='user', user__in=need_del_admin_list) |
-            Q(workflow_id=workflow_id, permission='view', user_type='user', user__in=need_del_view_persons_list) |
-            Q(workflow_id=workflow_id, permission='view', user_type='department', user__in=need_del_view_depts_list) |
-            Q(workflow_id=workflow_id, permission='api', user_type='app', user__in=need_del_app_list)
-        ).update(is_deleted=1)
-
-        # need add
-        flag, need_add_intervener_list = common_service_ins.list_subtraction(intervener_list, existed_intervener)
-        flag, need_add_admin_list = common_service_ins.list_subtraction(workflow_admin_list, existed_workflow_admin)
-        flag, need_add_view_depts_list = common_service_ins.list_subtraction(view_depts_list, existed_view_depts)
-        flag, need_add_view_persons_list = common_service_ins.list_subtraction(view_persons_list, existed_view_persons)
-        flag, need_add_app_list = common_service_ins.list_subtraction(api_list, existed_app_permission_apps)
-
-        need_add_permission_queryset = []
-        for need_add_intervener in need_add_intervener_list:
-            need_add_permission_queryset.append(WorkflowPermission(
-                workflow_id=workflow_id, permission='intervene', user_type='user', user=need_add_intervener))
-
-        for need_add_admin in need_add_admin_list:
-            need_add_permission_queryset.append(WorkflowPermission(
-                workflow_id=workflow_id, permission='admin', user_type='user', user=need_add_admin))
-
-        for need_add_view_depts in need_add_view_depts_list:
-            need_add_permission_queryset.append(WorkflowPermission(
-                workflow_id=workflow_id, permission='view', user_type='department', user=need_add_view_depts))
-
-        for need_add_view_persons in need_add_view_persons_list:
-            need_add_permission_queryset.append(WorkflowPermission(
-                workflow_id=workflow_id, permission='view', user_type='user', user=need_add_view_persons))
-
-        for need_add_app in need_add_app_list:
-            need_add_permission_queryset.append(WorkflowPermission(
-                workflow_id=workflow_id, permission='api', user_type='app', user=need_add_app))
-
-        WorkflowPermission.objects.bulk_create(need_add_permission_queryset)
-
-        return True, ''
-
-    @classmethod
-    @auto_log
-    def delete_workflow(cls, workflow_id: int)->tuple:
-        """
-        删除工作流
-        delete workflow
-        :param workflow_id:
-        :return:
-        """
-        workflow_obj = WorkflowRecord.objects.filter(id=workflow_id)
-        if workflow_obj:
-            workflow_obj.update(is_deleted=True)
-        return True, ''
-
-    @classmethod
-    @auto_log
-    def get_simple_description(cls, workflow_id: int)->tuple:
-        """
-        获取简单描述
-        :param workflow_id:
-        :return:
-        """
-        flag, workflow_detail = cls.get_by_id(workflow_id)
-        if flag is False:
-            return flag, workflow_detail
-
-        flag, state_list = workflow_state_service_ins.get_workflow_states(workflow_id)
-        if flag is False:
-            return flag, state_list
-
-        flag, transition_list = workflow_transition_service_ins.get_transition_by_args(dict(workflow_id=workflow_id))
-        if flag is False:
-            return flag, transition_list
-
-        workflow_basic_info = dict(id=workflow_detail.id, name=workflow_detail.name)
-        workflow_state_info = []
-        for state in state_list:
-            workflow_state_info.append(dict(id=state.id, name=state.name))
-        workflow_transition_info = []
-        for transition in transition_list:
-            workflow_transition_info.append(
-                dict(id=transition.id, name=transition.name, source_state_id=transition.source_state_id,
-                     destination_state_id=transition.destination_state_id,
-                     condition_expression=transition.condition_expression,
-                     attribute_type_id=transition.attribute_type_id, timer=transition.timer
-                     ))
-        result = dict(workflow_basic_info=workflow_basic_info, workflow_state_info=workflow_state_info,
-                      workflow_transition_info=workflow_transition_info)
-        return True, result
-
-    @classmethod
-    @auto_log
-    def get_permission_list_by_args(cls, app_namelist, role):
-        pass
-
-    @classmethod
-    @auto_log
-    def can_intervene(cls, workflow_id, username):
-        """
-        判断用户是否有对此工作流对应工单的干预权限
-        :param workflow_id:
-        :param username:
-        :return:
-        """
-        workflow_query_obj = WorkflowRecord.objects.filter(id=workflow_id).first()
-        if not workflow_query_obj:
-            return False, 'workflow is not existed'
-        if username == workflow_query_obj.creator:
-            return True, True
-
-        permission_queryset = WorkflowPermission.objects.filter(permission__in=['admin', 'intervene'],
-                                                                    user_type='user').all()
-        for permission in permission_queryset:
-            if permission.user == username:
-                return True, True
-        return True, False
-
-    @classmethod
-    @auto_log
-    def get_statistics(cls, workflow_id, start_time, end_time):
-        """
-        对应工单数量统计数据
-        :param workflow_id:
-        :param start_time:
-        :param end_time:
-        :return:
-        """
-        from django.db.models import Count
-        query_params = {'is_deleted': 0, 'workflow_id': workflow_id}
-        if start_time:
-            query_params['gmt_created__gte'] = start_time
-        if end_time:
-            query_params['gmt_created__lte'] = end_time
-
-        from apps.ticket.models import TicketRecord
-        queryset_result = TicketRecord.objects.filter(**query_params).extra(
-            select={'year': 'year(gmt_created)', 'month': 'month(gmt_created)', 'day': 'day(gmt_created)',
-                    'workflow_id': 'workflow_id'}).values('year', 'month', 'day', 'workflow_id').annotate(
-            count_len=Count('gmt_created')).order_by()
-
-        result_list = []
-        for queryset in queryset_result:
-            date_str = '%d-%02d-%02d' % (queryset['year'], queryset['month'], queryset['day'])
-
-            result_list.append(dict(day=date_str, count=queryset['count_len']))
-        # 按日期排序
-        result_list = sorted(result_list, key=lambda r: r['day'])
-
-        return True, dict(result_list=result_list)
-
-    @classmethod
-    @auto_log
-    def hook_host_valid_check(cls, url):
-        """
-        check the hook host is valid or not
-        """
-        try:
-            host_allowed_list = settings.HOOK_HOST_ALLOWED
-        except Exception as e:
-            # In order to maintain compatibility with older versions, no configure means allow all
-            return True, ''
-        if host_allowed_list:
-            from urllib.parse import urlparse
-            res = urlparse(url)
-            host = res.netloc
-            if host in host_allowed_list:
-                return True, ''
-        return False, 'hook host is not allowed, please contact the administrator to alter the configure'
-
+        process_schema_node_list = workflow_node_service_ins.get_workflow_fd_node_list(tenant_id, workflow_id, version_id)
+        process_schema_edge_list = workflow_edge_service_ins.get_workflow_fd_edge_list(tenant_id, workflow_id, version_id)
+        
+        # remove 
+        return dict(node_info_list=process_schema_node_list, edge_info_list=process_schema_edge_list)
 
 workflow_base_service_ins = WorkflowBaseService()

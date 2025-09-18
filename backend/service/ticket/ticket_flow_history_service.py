@@ -34,7 +34,7 @@ class TicketFlowHistoryService(BaseService):
         return record.id
 
     @classmethod
-    def get_ticket_flow_history(cls, tenant_id: int, ticket_id: int, per_page: int=10, page: int=1, include_ticket_data: int=0, desc: int=1) -> dict:
+    def get_ticket_flow_history(cls, tenant_id: str, ticket_id: str, per_page: int=10, page: int=1, include_ticket_data: int=0, desc: int=1) -> dict:
         """
         get ticket flow history
         :param tenant_id:
@@ -46,9 +46,9 @@ class TicketFlowHistoryService(BaseService):
         :return:
         """
         if desc == 0:
-            ticket_flow_history_queryset = TicketFlowHistory.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id).order_by("id")
+            ticket_flow_history_queryset = FlowHistory.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id).select_related('node', 'action').order_by("created_at")
         else:
-            ticket_flow_history_queryset = TicketFlowHistory.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id).order_by("-id")
+            ticket_flow_history_queryset = FlowHistory.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id).select_related('node', 'action').order_by("-created_at")
         paginator = Paginator(ticket_flow_history_queryset, per_page)
 
         try:
@@ -59,36 +59,36 @@ class TicketFlowHistoryService(BaseService):
             # If page is out of range (e.g. 9999), deliver last page of results
             ticket_history_result_paginator = paginator.page(paginator.num_pages)
         ticket_flow_history_object_format_list = []
-        for ticket_flow_history in ticket_flow_history_queryset:
-            node_info = dict(id=ticket_flow_history.node.id, name=ticket_flow_history.node.name)
-            transition_id = ticket_flow_history.transition_id
-            transition_info_dict = dict(id=transition_id)
-            flow_type = ticket_flow_history.flow_type
-            if transition_id == 0:
-                transition_name = flow_type
-            else:
-                transition_obj = workflow_transition_service_ins.get_workflow_transition_by_id(transition_id)
-                transition_name = transition_obj.name
-            transition_info_dict["name"] = transition_name
-            participant_info = dict(participant_type=ticket_flow_history.participant_type,
-                                    participant=ticket_flow_history.participant,
-                                    participant_alias=ticket_flow_history.participant,
-                                    participant_email='', participant_phone=''
+        for ticket_flow_history in ticket_history_result_paginator:
+            node_info = dict(id=str(ticket_flow_history.node.id), name=ticket_flow_history.node.name)
+            action_name= ''
+            if ticket_flow_history.action:
+                action_name = ticket_flow_history.action.name
+
+
+            processor_info = dict(processor_type=ticket_flow_history.processor_type,
+                                    processor=ticket_flow_history.processor,
+                                    processor_alias='',
+                                    processor_email='',
+                                    processor_phone=''
                                     )
-            if ticket_flow_history.participant_type == "personal":
-                user_info = account_user_service_ins.get_user_by_user_id(ticket_flow_history.participant)
-                participant_info.update(participant_alias=user_info.alias, participant_email=user_info.email,
+
+            if ticket_flow_history.processor_type == "user":
+                user_info = account_user_service_ins.get_user_by_user_id(tenant_id, ticket_flow_history.processor)
+                processor_info.update(processor_alias=user_info.alias, processor_email=user_info.email,
                                         participant_phone=user_info.phone)
-            ticket_flow_history_restful = dict(id=ticket_flow_history.id, ticket_id=ticket_id,
-                                               node_info=node_info, participant_info=participant_info,
+            ticket_flow_history_restful = dict(id=str(ticket_flow_history.id), ticket_id=str(ticket_id),
+                                               node_info=node_info, processor_info=processor_info,
                                                comment=ticket_flow_history.comment,
-                                               create_at=ticket_flow_history.created_at.strftime('%Y-%m-%d %H:%M:%S %z'))
+                                               action_type=ticket_flow_history.action_type,
+                                               action_name=action_name,
+                                               created_at=ticket_flow_history.created_at.strftime('%Y-%m-%d %H:%M:%S %z'))
             if include_ticket_data:
                 ticket_flow_history_restful.update(ticket_data=ticket_flow_history.ticket_data)
             ticket_flow_history_object_format_list.append(ticket_flow_history_restful)
 
-            return dict(ticket_flow_history_object_format_list=ticket_flow_history_object_format_list,
-                        paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
+        return dict(ticket_flow_history_object_format_list=ticket_flow_history_object_format_list,
+                    paginator_info=dict(per_page=per_page, page=page, total=paginator.count))
 
 
 

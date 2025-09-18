@@ -2,7 +2,7 @@
 import apiClient from './api';
 import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes, IWorkflowVersionListRes, IWorkflowReleaseRes, IWorkflowInitNodeRes } from '../types/workflow';
 import { IApiErrResponse, } from '@/types/common';
-import { IWorkflowActionsRes, IWorkflowCreationFormRes } from '../types/workflow';
+import { IWorkflowActionsRes, IWorkflowCreationFormRes, IWorkflowDiagramRes } from '../types/workflow';
 
 
 
@@ -169,6 +169,14 @@ export const getTicketCreationActions = async (workflowId: string, versionName?:
   }
 };
 
+export const getWorkflowDiagram = async (workflowId: string, versionId?: string): Promise<IWorkflowDiagramRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}/process_single_schema`, { params: { version_id: versionId } });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 // export async function getWorkflowDetail(workflowId: Number) {

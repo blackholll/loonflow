@@ -110,7 +110,8 @@ class TicketNodeService(BaseService):
                 all_assignee_result = new_node_info.get("all_assignee_result"),
                 assignee_type = new_node_info.get("target_assignee_type"),
                 assignee = ','.join(new_node_info.get("target_assignee_list",[])),
-                in_parallel = new_node_info.get("in_parallel", False)
+                in_parallel = new_node_info.get("in_parallel", False),
+                in_accept_wait = new_node_info.get("in_accept_wait", False)
             ))
         TicketNode.objects.bulk_create(need_add_bulk_list)
         
@@ -124,9 +125,19 @@ class TicketNodeService(BaseService):
                 all_assignee_result = need_update_node.get("all_assignee_result"),
                 assignee_type = need_update_node.get("assignee_type"),
                 assignee = need_update_node.get("assignee"),
-                in_paraller = need_update_node.get("in_paraller")
+                in_paraller = need_update_node.get("in_paraller"),
+                in_accept_wait = need_update_node.get("in_accept_wait", False)
             )
-
+    @classmethod
+    def get_ticket_node_by_node_id(cls, tenant_id: str, ticket_id: str, node_id: str) -> TicketNode:
+        """
+        get ticket node by id
+        :param tenant_id:
+        :param ticket_id:
+        :param node_id:
+        :return:
+        """
+        return TicketNode.objects.get(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id)
     @classmethod
     def get_ticket_current_nodes(cls, tenant_id: str, ticket_id: str) -> list:
         """
@@ -138,12 +149,14 @@ class TicketNodeService(BaseService):
         ticket_node_queryset = TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, is_active=True)
         return list(ticket_node_queryset)
 
+
     @classmethod
-    def replace_node_assignee(cls, tenant_id: str, ticket_id: str, node_id: str, source_assignee_id: str, target_assignee_id: str) -> bool:
+    def replace_node_assignee(cls, tenant_id: str, ticket_id: str, operator_id: str, node_id: str, source_assignee_id: str, target_assignee_id: str) -> bool:
         """
         replace node assignee, source_assignee may be empty
         :param tenant_id:
         :param ticket_id:
+        :param operator_id:
         :param node_id:
         :param source_assignee_id:
         :param target_assignee_id:
@@ -155,7 +168,7 @@ class TicketNodeService(BaseService):
         except TicketNode.DoesNotExist:
             raise CustomCommonException("Node not found")
         
-        if exist_ticket_node_record.assignee_type == "user":
+        if exist_ticket_node_record.assignee_type == "users":
             exist_assignee_list = exist_ticket_node_record.assignee.split(',')
             if source_assignee_id:
                 if source_assignee_id in exist_assignee_list:
@@ -215,7 +228,7 @@ class TicketNodeService(BaseService):
         :return:
         """
         ticket_record = TicketNode.objects.get(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id)
-        consult_from = ticket_record.consult_from
+        consult_from_id = str(ticket_record.consult_from_id)
         all_assignee_result = ticket_record.all_assignee_result
         next_assignee_list = []
     
@@ -225,7 +238,7 @@ class TicketNodeService(BaseService):
                 if not value:
                     next_assignee_list.append(key)
         else:
-            next_assignee_list = [consult_from]
+            next_assignee_list = [consult_from_id]
         TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id).update(in_consult=False, consult_from=None, 
         consult_target=None, assignee=','.join(next_assignee_list), assignee_type='users')
         return True

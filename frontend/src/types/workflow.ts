@@ -158,8 +158,16 @@ export interface IWorkflowHook {
   eventList: ('pre_start' | 'started' | 'force_closed' | 'nomal_end' | 'rejected' | 'withdrawn')[],
 }
 
+export interface IWorkflowMetadata {
+  id: string,
+  name: string,
+  versionId: string,
+  versionName: string,
+  description: string
+}
 export interface IFormSchema {
   componentInfoList: (IWorkflowComponentRow | IWorkflowComponent)[]
+  workflowMetadata?: IWorkflowMetadata
 }
 
 export interface IProcessSchema {
@@ -252,10 +260,17 @@ export interface IWorkflowInitNodeRes extends IApiResponse<{ initNode: IWorkflow
 export interface IWorkflowAction {
   id: string,
   name: string,
-  type: 'accept' | 'reject' | 'other',
+  type: 'accept' | 'reject' | 'other' | 'add_comment' | 'forward' | 'consult' | 'consult_submit',
   props: IWorkflowEdgeProps,
 }
 
 export interface IWorkflowActionsRes extends IApiResponse<{ actions: IWorkflowAction }> { }
 
 export interface IWorkflowCreationFormRes extends IApiResponse<{ formSchema: IFormSchema }> { }
+
+export interface IWorkflowDiagram {
+  nodeInfoList: IWorkflowNode[],
+  edgeInfoList: IWorkflowEdge[],
+}
+
+export interface IWorkflowDiagramRes extends IApiResponse<{ processSchema: IWorkflowDiagram }> { }

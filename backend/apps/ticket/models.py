@@ -2,7 +2,7 @@ import datetime, time
 from django.db import models
 from apps.loon_base_model import BaseCommonModel
 from django.utils.translation import gettext_lazy as _
-from apps.workflow.models import Record as WorkflowRecord, Node, Edge, Version as WorkflowVersion
+from apps.workflow.models import Record as WorkflowRecord, Node as WorkflowNode, Edge, Version as WorkflowVersion
 from apps.account.models import User as accountUser
 
 
@@ -23,7 +23,7 @@ class Record(BaseCommonModel):
     workflow = models.ForeignKey(WorkflowRecord, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_workflow")
     workflow_version = models.ForeignKey(WorkflowVersion, db_constraint=False, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="ticket_workflow_version")
     parent_ticket = models.ForeignKey("self", db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket", null=True, blank=True)
-    parent_ticket_node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket_node", null=True, blank=True)
+    parent_ticket_node = models.ForeignKey(WorkflowNode, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket_node", null=True, blank=True)
     act_state = models.CharField("act state", choices=ACT_STATE_CHOICE)
 
 
@@ -39,7 +39,7 @@ class Node(BaseCommonModel):
     ]
 
     ticket = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_ticket")
-    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_node")
+    node = models.ForeignKey(WorkflowNode, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_node")
     assignee_type = models.CharField('assignee type', max_length=50, null=True) # user, hook, timer etc.
     assignee = models.CharField('assignee', max_length=2000, default='', null=True) # if user,  joined by ','
     is_active = models.BooleanField('is active', default=True, help_text='whether the node is active')
@@ -58,8 +58,9 @@ class FlowHistory(BaseCommonModel):
     """
     PARTICIPANT_TYPE_CHOICE = [
         ('', 'none'),
-        ('person', 'person'),
+        ('user', 'user'),
         ('hook', 'hook'),
+        ('timer', 'timer'),
     ]
 
     ACTION_TYPE_CHOICE = [
@@ -79,11 +80,11 @@ class FlowHistory(BaseCommonModel):
     ticket = models.ForeignKey(Record, db_constraint=False, on_delete=models.DO_NOTHING)
     action_type = models.CharField("action type", max_length=50, choices=ACTION_TYPE_CHOICE, null=True)
     action = models.ForeignKey(Edge, db_constraint=False, on_delete=models.DO_NOTHING, null=True)
-    comment = models.CharField(_('comment'), max_length=10000, default='', blank=True)
+    comment = models.CharField(_('comment'), max_length=10000, default='', null=True)
 
     processor_type = models.CharField(_('processor_type'), max_length=50, choices=PARTICIPANT_TYPE_CHOICE)
     processor = models.CharField(_('processor'), max_length=50, default='', blank=True)
-    node = models.ForeignKey(Node, db_constraint=False, on_delete=models.DO_NOTHING, null=True)
+    node = models.ForeignKey(WorkflowNode, db_constraint=False, on_delete=models.DO_NOTHING, null=True)
     ticket_data = models.JSONField(_('ticket_data'), default=dict, blank=True)
 
 

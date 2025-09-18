@@ -18,7 +18,7 @@ class AccountBaseService(BaseService):
     account
     """
     @classmethod
-    def app_ticket_permission_check(cls, tenant_id: str, app_name: str, ticket_id: str) -> tuple:
+    def app_ticket_permission_check(cls, tenant_id: str, app_name: str, ticket_id: str) -> bool:
         """
         appname has permission to ticket,  check with app_name and ticket_id
         :param tenant_id:

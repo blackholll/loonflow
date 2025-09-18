@@ -72,10 +72,11 @@ class AccountUserService(BaseService):
     def get_user_by_user_id(cls, tenant_id:str, user_id: str) -> User.objects:
         """
         get user by user id
+        :param tenant_id:
         :param user_id:
         :return:
         """
-        result = User.objects.filter(id=user_id).first()
+        result = User.objects.filter(id=user_id, tenant_id=tenant_id).first()
         if not result:
             return CustomCommonException("user is not exist or has been deleted")
         return result

@@ -275,6 +275,7 @@ class TicketBaseService(BaseService):
             next_node_result['all_assignee_result'] = next_node_assignee_info.get("all_assignee_result")
             next_node_result['target_assignee_type'] = next_node_assignee_info.get("target_assignee_type")
             next_node_result['target_assignee_list'] = next_node_assignee_info.get("target_assignee_list")
+            next_node_result['in_accept_wait'] = next_node_assignee_info.get("in_accept_wait", False)
             next_ticket_node_result_list.append(next_node_result)
 
         ticket_node_service_ins.update_ticket_node_record(tenant_id, operator_id, next_ticket_node_result_list)
@@ -432,7 +433,7 @@ class TicketBaseService(BaseService):
             ticket_value_info = ticket_req_dict.get('fields', {})
 
         target_assignee_type, target_assignee, target_assignee_list = node_obj.props.get('assignee_type'), node_obj.props.get('assignee'), []
-
+        in_accept_wait = False
         if target_assignee_type == "users":
             target_assignee_list = target_assignee.split(',')
         elif target_assignee_type == "ticket_field":
@@ -470,16 +471,21 @@ class TicketBaseService(BaseService):
                 target_assignee_list = result.get("participant_list")
 
         if len(target_assignee_list) > 1:
-            if node_obj.distribute_type == "random":
+            if node_obj.props.get('assignment_strategy') == "random":
                 target_assignee_list = random.choice(target_assignee_list)
-                target_assignee_type = "person"
-            elif node_obj.distribute_type == "whole":
+                target_assignee_type = "users"
+            elif node_obj.props.get('assignment_strategy') == "whole":
                 if not all_assignee_result:
                     for target_assignee0 in target_assignee_list:
                         all_assignee_result[target_assignee0] = {}
+            elif node_obj.props.get('assignment_strategy') == "voluntary":
+                target_assignee_type = "users"
+                in_accept_wait = True
+                
         return dict(target_assignee_type=target_assignee_type,
                     target_assignee_list=target_assignee_list,
-                    all_assignee_result=all_assignee_result)
+                    all_assignee_result=all_assignee_result,
+                    in_accept_wait=in_accept_wait)
 
 
     @classmethod
@@ -535,7 +541,18 @@ class TicketBaseService(BaseService):
                     field_component['props']['value'] = field_value
                     # component.get('children').append(field_component)
             new_component_result_list.append(component)
-        return new_component_result_list
+        workflow_basic_obj = workflow_base_service_ins.get_workflow_basic_info_by_id(tenant_id, workflow_id, workflow_version_id)
+
+        version_obj = workflow_base_service_ins.get_workflow_version_info_by_id(tenant_id, workflow_id, workflow_version_id)
+
+        workflow_metadata = dict(
+            id=str(workflow_id),
+            name=workflow_basic_obj.get('name'),
+            version_id=str(workflow_version_id),
+            version_name=version_obj.get('name'),
+            description=workflow_basic_obj.get('description')
+        )  
+        return new_component_result_list, workflow_metadata
                 
     @classmethod
     def ticket_view_permission_check(cls, tenant_id:str, ticket_id: str, user_id: str)-> bool:
@@ -614,9 +631,29 @@ class TicketBaseService(BaseService):
         # check handle permission
         current_assignee_info = ticket_user_service_ins.get_ticket_current_assignee_info(tenant_id, ticket_id)
         action_result_list = []
+        
+
         if user_id in current_assignee_info.keys():
             # has hendle permission, get edge list, base first node
             action_base_node_id = current_assignee_info.get(user_id).split(',')[0]
+            # in consult status, only show consult action
+            if ticket_node_service_ins.get_ticket_node_by_node_id(tenant_id, ticket_id, action_base_node_id).in_consult:
+                action_result_list.append(dict(
+                    id='consult_submit',
+                    name='consult submit',
+                    type='consult_submit',
+                    props= {}
+                ))
+                return action_result_list, str(action_base_node_id)
+            
+            if ticket_node_service_ins.get_ticket_node_by_node_id(tenant_id, ticket_id, action_base_node_id).in_accept_wait:
+                action_result_list.append(dict(
+                    id='accept',
+                    name='accept',
+                    type='accept',
+                    props= {}
+                ))
+                return action_result_list, str(action_base_node_id)
             edge_info_list = workflow_edge_service_ins.get_workflow_edges_by_source_node_id(tenant_id, workflow_id, workflow_version_id, current_assignee_info.get(user_id).split(',')[0])
             
             for edge_info in edge_info_list:
@@ -681,7 +718,7 @@ class TicketBaseService(BaseService):
         workflow_permission_service_ins.app_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, app_name)
 
         if action_type == "add_comment":
-            cls.add_comment(tenant_id, ticket_id, operator_id, request_data_dict.get('comment'))
+            cls.add_comment(tenant_id, ticket_id, operator_id, request_data_dict)
         elif action_type in ("forward", "consult", "consult_submit", "accept", "agree", "reject", "other"):
             cls.handle_ticket_assignee_action(tenant_id, ticket_id, operator_id, request_data_dict)
         elif action_type in ("force_forward", "force_close", "force_alter_node"):
@@ -706,11 +743,11 @@ class TicketBaseService(BaseService):
         node_id = request_data_dict.get('action_props', {}).get('node_id')
         if action_type == "forward":
             target_assignee_id = request_data_dict.get('action_props', {}).get('target_assignee_id')
-            cls.forward_ticket(tenant_id, ticket_id, operator_id, node_id, operator_id, target_assignee_id)
+            cls.forward_ticket(tenant_id, ticket_id, operator_id, node_id, operator_id, target_assignee_id, action_props.get('commment'))
         elif action_type == "consult":
-            cls.consult_ticket(tenant_id, ticket_id, operator_id, node_id, action_id, action_props)
+            cls.consult_ticket(tenant_id, ticket_id, operator_id, node_id, action_props)
         elif action_type == "consult_submit":
-            cls.consult_submit_ticket(tenant_id, ticket_id, operator_id, node_id, action_id, action_props)
+            cls.consult_submit_ticket(tenant_id, ticket_id, operator_id, node_id, action_props)
         elif action_type == "accept":
             cls.accept_ticket(tenant_id, ticket_id, node_id, operator_id, action_props)
         elif action_type in ("agree", "reject", "other"):
@@ -745,7 +782,7 @@ class TicketBaseService(BaseService):
         return True
     
     @classmethod
-    def add_comment(cls, tenant_id: str, ticket_id: str, operator_id: str, comment: str) -> str:
+    def add_comment(cls, tenant_id: str, ticket_id: str, operator_id: str, request_data_dict: dict) -> str:
         """
         add comment to ticket
         :param tenant_id:
@@ -754,9 +791,10 @@ class TicketBaseService(BaseService):
         :param comment:
         :return:
         """
+        action_props = request_data_dict.get('action_props', {})
         ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
-        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "add_comment", None, comment,
-        "user", operator_id, None, ticket_data)
+        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "add_comment", None, action_props.get('comment', ''),
+        "user", operator_id, action_props.get('node_id', ''), ticket_data)
     @classmethod
     def ticket_admin_permission_check(cls, tenant_id:str, ticket_id: str, user_id: str = '') -> bool:
         """
@@ -776,7 +814,7 @@ class TicketBaseService(BaseService):
             return workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'admin')
 
     @classmethod
-    def forward_ticket(cls, tenant_id: str, ticket_id: str, operator_id: str, node_id: str, source_assignee_id: str, target_assignee_id: str) -> bool:
+    def forward_ticket(cls, tenant_id: str, ticket_id: str, operator_id: str, node_id: str, source_assignee_id: str, target_assignee_id: str, commment:str) -> bool:
         """
         force forward ticket
         :param tenant_id:
@@ -790,6 +828,9 @@ class TicketBaseService(BaseService):
         # 1.get ticket assignee from ticket_user table, 2.change assignee, 3. send email
         ticket_node_service_ins.replace_node_assignee(tenant_id, ticket_id, operator_id, node_id, source_assignee_id, target_assignee_id)
         ticket_user_service_ins.replace_user_assignee(tenant_id, ticket_id, operator_id, node_id, source_assignee_id, target_assignee_id)
+        # add flow history
+        ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, 'forward', '', commment,'user', operator_id, node_id, ticket_data)
         # todo: send notification
         return True
 
@@ -857,6 +898,7 @@ class TicketBaseService(BaseService):
             all_assignee_result= next_node_assignee_info.get("all_assignee_result"),
             target_assignee_type=next_node_assignee_info.get("target_assignee_type"),
             target_assignee_list=next_node_assignee_info.get("target_assignee_list"),
+            in_accept_wait = next_node_assignee_info.get("in_accept_wait", False),
             in_parallel=False
 
         )]
@@ -881,8 +923,8 @@ class TicketBaseService(BaseService):
         :return:
         """
         # 1. update ticket_node, 2.update ticket_user, 3. send notification
-        consultant_id = action_props.get('action_props', {}).get('consultant_id')
-        comment = action_props.get('action_props', {}).get('comment')
+        consultant_id = action_props.get('target_assignee_id')
+        comment = action_props.get('comment')
         ticket_node_service_ins.update_ticket_node_consult_record(tenant_id, ticket_id, node_id, operator_id, consultant_id)
         ticket_user_service_ins.update_ticket_user_consult_record(tenant_id, ticket_id, node_id, operator_id, consultant_id)
         # update ticket_flow_history
@@ -892,7 +934,7 @@ class TicketBaseService(BaseService):
         return True
     
     @classmethod
-    def consult_submit_ticket(cls, tenant_id: str, ticket_id: str, node_id: str, operator_id: str, action_props: dict) -> bool:
+    def consult_submit_ticket(cls, tenant_id: str, ticket_id: str, operator_id: str, node_id: str, action_props: dict) -> bool:
         """
         consult submit ticket
         :param tenant_id:
@@ -903,8 +945,8 @@ class TicketBaseService(BaseService):
         :return:
         """
         # 1. update ticket_node, 2.update ticket_user, 3. send notification
-        comment = action_props.get('action_props', {}).get('comment')
-        cc_to_user_id_list = action_props.get('action_props', {}).get('cc_to_user_id_list', [])
+        comment = action_props.get('comment')
+        cc_to_user_id_list = action_props.get('cc_to_user_id_list', [])
         ticket_node_service_ins.update_ticket_node_consult_submit(tenant_id, ticket_id, node_id)
 
         # generate next node info list
@@ -915,9 +957,9 @@ class TicketBaseService(BaseService):
                 next_node_info_list.append(dict(
                     ticket_id=ticket_id,
                     node_id=ticket_node.node_id,
-                    node_type=ticket_node.node_type,
                     target_assignee_type=ticket_node.assignee_type,
                     target_assignee=ticket_node.assignee,
+                    target_assignee_list=ticket_node.assignee.split(',')
                 ))
             else:
                 ticket_node_all_assignee_result = ticket_node.all_assignee_result
@@ -927,14 +969,14 @@ class TicketBaseService(BaseService):
                         if not value:
                             node_assignee_list.append(key)
                 else:
-                    node_assignee_list.apeend(ticket_node.consult_from)
+                    node_assignee_list.apeend(str(ticket_node.consult_from_id))
                 
                 next_node_info_list.append(dict(
                     ticket_id=ticket_id,
                     node_id=ticket_node.node_id,
-                    node_type=ticket_node.node_type,
                     target_assignee_type=ticket_node.assignee_type,
-                    target_assignee=ticket_node.consult_from,
+                    target_assignee=str(ticket_node.consult_from_id),
+                    target_assignee_list=ticket_node.assignee.split(',')
                 ))
         
 
@@ -970,17 +1012,17 @@ class TicketBaseService(BaseService):
                 next_node_info_list.append(dict(
                     ticket_id=ticket_id,
                     node_id=ticket_node.node_id,
-                    node_type=ticket_node.node_type,
                     target_assignee_type=ticket_node.assignee_type,
                     target_assignee=ticket_node.assignee,
+                    target_assignee_list=ticket_node.assignee.split(',')
                 ))
             else:
                 next_node_info_list.append(dict(
                     ticket_id=ticket_id,
                     node_id=ticket_node.node_id,
-                    node_type=ticket_node.node_type,
                     target_assignee_type='users',
                     target_assignee=operator_id,
+                    target_assignee_list=ticket_node.assignee.split(',')
                 ))
         
         ticket_user_service_ins.update_ticket_user_by_all_next_node_result(tenant_id, ticket_id, operator_id, [], next_node_info_list)
@@ -1082,6 +1124,7 @@ class TicketBaseService(BaseService):
             next_node_result['all_assignee_result'] = next_node_assignee_info.get("all_assignee_result")
             next_node_result['target_assignee_type'] = next_node_assignee_info.get("target_assignee_type")
             next_node_result['target_assignee_list'] = next_node_assignee_info.get("target_assignee_list", [])
+            next_node_result['in_accept_wait'] = next_node_assignee_info.get("in_accept_wait", False)
             next_ticket_node_result_list.append(next_node_result)
 
         ticket_node_service_ins.update_ticket_node_record(tenant_id, operator_id, next_ticket_node_result_list)

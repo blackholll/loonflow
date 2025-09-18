@@ -225,9 +225,9 @@ const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetai
             }}
           >
             <FormControlLabel value="hook" control={<Radio />} label={t('common.hook')} />
-            <FormControlLabel value="dingtalk" control={<Radio />} label={t('common.dingtalk')} />
-            <FormControlLabel value="wecom" control={<Radio />} label={t('common.wecom')} />
-            <FormControlLabel value="feishu" control={<Radio />} label={t('common.feishu')} />
+            <FormControlLabel value="dingtalk" control={<Radio />} label={t('common.dingtalk')} disabled />
+            <FormControlLabel value="wecom" control={<Radio />} label={t('common.wecom')} disabled />
+            <FormControlLabel value="feishu" control={<Radio />} label={t('common.feishu')} disabled />
           </RadioGroup>
           {errors.type && <FormHelperText style={{ "color": "red" }}>{errors.type}</FormHelperText>}
         </FormControl>

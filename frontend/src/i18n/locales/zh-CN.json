@@ -7,6 +7,9 @@
   },
   "actions": "操作",
   "common": {
+    "search": "查询",
+    "pleaseSelectTicketType": "请选择工单类型后新建工单",
+    "language": "语言",
     "userInfo": "用户信息",
     "cancel": "取消",
     "close": "关闭",
@@ -90,7 +93,7 @@
   },
   "signIn": {
     "title": "Loonflow",
-    "description": "致力于为企业提供统一的工作流解决方案.",
+    "description": "致力于提供企业级的统一工作流解决方案.",
     "emailLabel": "电子邮件地址",
     "passwordLabel": "密码",
     "rememberMe": "记住我",
@@ -121,9 +124,10 @@
     "signin": "登录"
   },
   "ticketList": {
-    "searchWithKeyword": "关键字搜索",
-    "searchWithCreator": "创建人搜索",
-    "searchWithTimeRange": "时间范围搜索",
+    "keyword": "关键字",
+    "creator": "创建人",
+    "createDateStart": "创建起始日期",
+    "createDateEnd": "创建结束日期",
     "ticketType": "工单类型",
     "ticketStatus": "工单状态",
     "ticketTitle": "工单标题",

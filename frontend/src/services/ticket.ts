@@ -1,6 +1,6 @@
 
 import apiClient from './api';
-import { ITicketListRes, ITicketListQueryParam, ICommentTicketParam, IDelTicketParam, INewTicketReqParam, INewTicketRes } from '../types/ticket';
+import { ITicketListRes, ITicketListQueryParam, ICommentTicketParam, IDelTicketParam, INewTicketReqParam, INewTicketRes, ITicketFlowHistoryRes } from '../types/ticket';
 import { IApiErrResponse } from '@/types/common';
 import { ITicketDetailFormRes, ITicketActionsRes, IHandleTicketReqParam, IHandleTicketRes } from '../types/ticket';
 
@@ -42,6 +42,11 @@ export const handleTicket = async (params: IHandleTicketReqParam): Promise<IHand
     { action_type: params.actionType, action_id: params.actionId, fields: params.fields, action_props: params.actionProps });
   return response.data;
 };
+
+export const getTicketFlowHistory = async (ticketId: string): Promise<ITicketFlowHistoryRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_flow_history`, { params: { desc: 0 } });
+  return response.data;
+}
 
 // export const getWorkflowList = async (params: IWorkflowParam) => {
 //   try {
