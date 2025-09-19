@@ -1,20 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CardContent } from '@mui/material';
+import { Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CardContent, CircularProgress } from '@mui/material';
 import Card from '@mui/material/Card';
 import { CardHeader } from '@mui/material';
 import { Link } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../../i18n';
 import { ISimpleWorkflowEntity } from '@/types/workflow';
 import { getTicketList } from '../../../services/ticket';
 import { getSimpleWorkflowList } from '../../../services/workflow';
+import { getSimpleUsers } from '../../../services/user';
+
 import useSnackbar from '../../../hooks/useSnackbar';
 
 
 
 import Grid from '@mui/material/Grid2';
 import { ITicketListResEntity } from '@/types/ticket';
+import { ISimpleUser } from '@/types/user';
 
+interface IOption {
+  label: string;
+  value: string;
+}
 
 function TicketList({ category, refreshToken }: { category: string; refreshToken?: number | string | boolean }) {
   const { t } = useTranslation();
@@ -22,9 +30,18 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
   const [workflowValue, setWorkflowValue] = useState<ISimpleWorkflowEntity | null>(null);
   const [ticketList, setTicketList] = useState<ITicketListResEntity[]>([]);
 
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(0)
   const [perPage, setPerPage] = useState(10)
-  const [total] = useState(0)
+  const [total, setTotal] = useState(0)
+  const [users, setUsers] = useState<IOption[]>([]);
+  const [searchValue, setSearchValue] = useState('');
+  const [createDateStart, setCreateDateStart] = useState('');
+  const [createDateEnd, setCreateDateEnd] = useState('');
+
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<IOption | null>(null);
+
+
 
   const { showMessage } = useSnackbar();
   let listTitle = t('ticketList.allTickets');
@@ -38,6 +55,25 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
     listTitle = t('ticketList.relationTickets');
   } else if (category === 'intervene') {
     listTitle = t('ticketList.interveneTickets')
+
+  }
+
+  const loadUsers = async (searchValue: string = '') => {
+    if (loadingUsers) return;
+    setLoadingUsers(true);
+    try {
+      const response = await getSimpleUsers(searchValue);
+      if (response.code === 0) {
+        setUsers(response.data.userInfoList.map((user: ISimpleUser) => ({ label: `${user.name}(${user.alias})`, value: user.id })) || []);
+      }
+    } catch (error) {
+      console.error('加载用户列表失败:', error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+  const handleUserSelectChange = (value: IOption | null) => {
+    setSelectedUser(value);
   }
 
   useEffect(() => {
@@ -59,11 +95,12 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
   }, [showMessage]);
 
   useEffect(() => {
-    const fetchTicketList = async () => {
+    const fetchTicketList = async (searchValue: string = '') => {
       try {
-        const res = await getTicketList({ category, page, perPage });
+        const res = await getTicketList({ category, page, perPage, searchValue, creatorId: selectedUser?.value, createDateStart, createDateEnd, workflowId: workflowValue?.id });
         if (res.code === 0) {
           setTicketList(res.data.ticketList);
+          setTotal(res.data.total);
         } else {
           showMessage(res.msg, 'error');
         }
@@ -84,6 +121,15 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
     setPage(0);
   };
 
+  const handleTicketSearch = async () => {
+    const res = await getTicketList({ category, page, perPage, searchValue, creatorId: selectedUser?.value, createDateStart, createDateEnd, workflowId: workflowValue?.id });
+    if (res.code === 0) {
+      setTicketList(res.data.ticketList);
+    } else {
+      showMessage(res.msg, 'error');
+    }
+  }
+
   return (
     <React.Fragment>
       <Card>
@@ -91,16 +137,61 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
         <CardContent>
           <Grid container spacing={1} justifyContent="left" alignItems="center">
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <TextField fullWidth label={t('ticketList.keyword')} />
+              <TextField fullWidth label={t('ticketList.keyword')} size="small" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <TextField fullWidth label={t('ticketList.creator')} />
+              <Autocomplete
+                options={users}
+                getOptionLabel={(option) => option.label}
+                value={selectedUser}
+                onChange={(e, value) => handleUserSelectChange(value)}
+                onInputChange={(e, value) => {
+                  if (value.length > 0) {
+                    loadUsers(value);
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={t('ticketList.creator')}
+                    placeholder={t('common.userSearchTip')}
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loadingUsers ? <CircularProgress color="inherit" size={20} /> : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                  />
+                )}
+                loading={loadingUsers}
+                size="small"
+                fullWidth
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <TextField fullWidth label={t('ticketList.createDateStart')} type="date" slotProps={{ inputLabel: { shrink: true } }} />
+              <TextField
+                fullWidth
+                label={t('ticketList.createDateStart')}
+                type="date"
+                slotProps={{ inputLabel: { shrink: true }, input: { lang: i18n.language } }}
+                size="small"
+                value={createDateStart}
+                onChange={(e) => setCreateDateStart(e.target.value)}
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <TextField fullWidth label={t('ticketList.createDateEnd')} type="date" slotProps={{ inputLabel: { shrink: true } }} />
+              <TextField
+                fullWidth
+                label={t('ticketList.createDateEnd')}
+                type="date"
+                slotProps={{ inputLabel: { shrink: true }, input: { lang: i18n.language } }}
+                size="small"
+                value={createDateEnd}
+                onChange={(e) => setCreateDateEnd(e.target.value)}
+              />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <Autocomplete
@@ -110,11 +201,11 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 disablePortal
                 options={workflowList}
                 sx={{ marginLeft: 0, marginRight: 0 }}
-                renderInput={(params) => <TextField {...params} label={t('ticketList.ticketType')} />}
+                renderInput={(params) => <TextField {...params} label={t('ticketList.ticketType')} size="small" />}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <Button variant="outlined" size={'large'} sx={{ height: '55px', width: '150px' }}>{t('common.search')}</Button>
+              <Button variant="outlined" sx={{ height: '40px', width: '100px' }} size="small" onClick={handleTicketSearch}>{t('common.search')}</Button>
             </Grid>
 
           </Grid>
@@ -142,7 +233,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                     <TableCell>
                       <div>
                         <Link to={`/ticket/${ticket.id}`}>
-                          <Button variant="text" size={'large'} sx={{ width: '150px' }}>详情</Button>
+                          <Button variant="text" size={'large'} sx={{ width: '150px' }}>{t('common.detail')}</Button>
                         </Link>
                       </div>
                     </TableCell>

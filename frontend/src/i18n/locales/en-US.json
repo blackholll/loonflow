@@ -7,7 +7,9 @@
   },
   "actions": "Actions",
   "common": {
+    "detail": "Detail",
     "search": "Search",
+    "userSearchTip": "Search with keyword",
     "pleaseSelectTicketType": "Please Select Ticket Type to create a new ticket",
     "language": "Language",
     "cancel": "Cancel",
@@ -69,9 +71,10 @@
     "signin": "Sign In"
   },
   "ticketList": {
-    "searchWithKeyword": "Search With Keyword",
-    "searchWithCreator": "Search",
-    "searchWithTimeRange": "Search with Time Range",
+    "keyword": "Search with keyword",
+    "creator": "Creator",
+    "createDateStart": "Create Date Start",
+    "createDateEnd": "Create Date End",
     "ticketType": "Ticekt Type",
     "ticketStatus": "Ticket Status",
     "ticketTitle": "Ticket Title",

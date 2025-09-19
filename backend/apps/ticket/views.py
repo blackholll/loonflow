@@ -20,8 +20,7 @@ logger = logging.getLogger("django")
 class TicketListView(BaseView):
     get_schema = Schema({
         'category': And(str, Or('all', 'duty', 'owner', 'relation', 'worked', 'intervene', 'view')),
-        Optional('sn'): str,
-        Optional('title'): str,
+        Optional('search_value'): str,
         Optional('username'): str,
         Optional('create_start'): str,
         Optional('create_end'): str,
@@ -31,9 +30,9 @@ class TicketListView(BaseView):
         Optional('node_ids'): str,
         Optional('act_state'): And(str, Or('in_draft', 'on_going', 'rejected', 'withdrawn', 'finished', 'closed')),
         Optional('reverse', default=1): And(Use(int), lambda n: n in [0, 1]),
-        Optional('creator_id'): And(Use(int), lambda n: n > 0, error='parent_ticket_id should be int and greater than 0'),
-        Optional('parent_ticket_id'): And(Use(int), lambda n: n > 0, error='parent_ticket_id should be int and greater than 0'),
-        Optional('parent_ticket_node_id'): And(Use(int), lambda n: n > 0, error='parent_ticket_node_id should be int and greater than 0'),
+        Optional('creator_id'): str,
+        Optional('parent_ticket_id'): str,
+        Optional('parent_ticket_node_id'): str,
         Optional('page', default=1): And(Use(int), lambda n: n > 0, error='page should be int and greater than 0'),
         Optional('per_page', default=10): And(Use(int), lambda n: n > 0, error='per_page should be int and greater than 0'),
         Optional('act_state', default=10): And(Use(int), lambda n: n > 0, error='per_page should be int and greater than 0'),
@@ -58,8 +57,7 @@ class TicketListView(BaseView):
         tenant_id = request.META.get('HTTP_TENANTID')
 
         request_data = request.GET
-        sn = request_data.get('sn', '')
-        title = request_data.get('title', '')
+        search_value = request_data.get('search_value', '')
         user_id = str(request.META.get('HTTP_USERID'))
         create_start = request_data.get('create_start', '')
         create_end = request_data.get('create_end', '')
@@ -71,9 +69,9 @@ class TicketListView(BaseView):
         page = int(request_data.get('page', 1))
         act_state_id = request_data.get('act_state_id', '')
         from_admin = request_data.get('from_admin', '')
-        creator = request_data.get('creator', '')
-        parent_ticket_id = int(request_data.get('parent_ticket_id', 0))
-        parent_ticket_state_id = int(request_data.get('parent_ticket_state_id', 0))
+        creator_id = request_data.get('creator_id', '')
+        parent_ticket_id = request_data.get('parent_ticket_id', '')
+        parent_ticket_state_id = request_data.get('parent_ticket_state_id', '')
 
         # 待办,关联的,创建
         category = request_data.get('category')
@@ -89,10 +87,10 @@ class TicketListView(BaseView):
             create_end = str(end_time)[:19]
         try:
             result = ticket_base_service_ins.get_ticket_list(
-                tenant_id=tenant_id, title=title, user_id=user_id, create_start=create_start, create_end=create_end,
-                workflow_ids=workflow_ids, node_ids=node_ids, ticket_ids=ticket_ids, category=category, reverse=reverse,
-                per_page=per_page, page=page, app_name=app_name, act_state_id=act_state_id, from_admin=from_admin,
-                creator=creator, parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id)
+                tenant_id, search_value, user_id, creator_id, create_start, create_end,
+                workflow_ids, node_ids, ticket_ids, category, reverse,
+                per_page, page, app_name, act_state_id=act_state_id, from_admin=from_admin,
+                parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id)
             paginator_info = result.get('paginator_info')
             data = dict(ticket_list=result.get('ticket_result_restful_list'), per_page=paginator_info.get('per_page'),
                         page=paginator_info.get('page'), total=paginator_info.get('total'))

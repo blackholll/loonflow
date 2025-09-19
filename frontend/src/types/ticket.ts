@@ -4,6 +4,7 @@ import { IWorkflowAction, IFormSchema } from './workflow';
 
 
 export interface ITicketListQueryParam {
+  searchKey?: string;
   page: number;
   perPage: number;
   category: string;

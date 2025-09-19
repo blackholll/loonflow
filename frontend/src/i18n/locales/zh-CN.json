@@ -7,7 +7,9 @@
   },
   "actions": "操作",
   "common": {
+    "detail": "详情",
     "search": "查询",
+    "userSearchTip": "请输入关键词搜索用户...",
     "pleaseSelectTicketType": "请选择工单类型后新建工单",
     "language": "语言",
     "userInfo": "用户信息",

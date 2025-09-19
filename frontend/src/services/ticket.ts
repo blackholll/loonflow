@@ -9,10 +9,15 @@ export const getTicketList = async (params: ITicketListQueryParam): Promise<ITic
   try {
     const response = await apiClient.get('/api/v1.0/tickets', {
       params: {
-        'page': params.page,
+        'page': params.page + 1,
         'per_page': params.perPage,
         'category': params.category,
-        'parent_ticket_id': params.parentTicketId
+        'parent_ticket_id': params.parentTicketId,
+        'search_value': params.searchValue,
+        'create_start': params.createDateStart,
+        'create_end': params.createDateEnd,
+        'workflow_ids': params.workflowId,
+        'creator_id': params.creatorId,
       }
     }
     );

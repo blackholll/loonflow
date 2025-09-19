@@ -50,14 +50,15 @@ class TicketBaseService(BaseService):
 
 
     @classmethod
-    def get_ticket_list(cls, tenant_id:str='', title: str='', user_id: str='', create_start: str='', create_end: str='',
+    def get_ticket_list(cls, tenant_id:str='', search_value: str='', user_id: str='', creator_id: str='', create_start: str='', create_end: str='',
                         workflow_ids: str='', node_ids: str='', ticket_ids: str='', category: str='', reverse: int=1,
                         per_page: int=10, page: int=1, app_name: str='', **kwargs):
         """
         ticket list
         :param tenant_id:
-        :param title:
+        :param search_value:
         :param user_id:
+        :param creator_id:
         :param create_start:
         :param create_end:
         :param workflow_ids: workflow ids, join with ','
@@ -80,8 +81,9 @@ class TicketBaseService(BaseService):
         app_workflow_id_list = workflow_permission_service_ins.get_workflow_id_list_by_permission('api', 'app', app_name)
         if not app_workflow_id_list:
             return dict(ticket_result_restful_list=[], paginator_info=dict(per_page=per_page, page=page, total=0))
-
-
+         
+        if creator_id:
+            query_params &= Q(creator_id=creator_id)
         if kwargs.get('act_state'):
             query_params &= Q(act_state=kwargs.get('act_state'))
 
@@ -93,8 +95,8 @@ class TicketBaseService(BaseService):
             query_params &= Q(parent_ticket_state_id=kwargs.get('parent_ticket_state_id'))
 
 
-        if title:
-            query_params &= Q(title__contains=title)
+        if search_value:
+            query_params &= Q(title__contains=search_value)
         if create_start:
             query_params &= Q(created_at__gte=create_start)
         if create_end:
