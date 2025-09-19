@@ -71,6 +71,7 @@
     "signin": "Sign In"
   },
   "ticketList": {
+    "approveState": "Approve State",
     "keyword": "Search with keyword",
     "creator": "Creator",
     "createDateStart": "Create Date Start",

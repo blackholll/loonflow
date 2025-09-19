@@ -126,6 +126,7 @@
     "signin": "登录"
   },
   "ticketList": {
+    "approveState": "审批状态",
     "keyword": "关键字",
     "creator": "创建人",
     "createDateStart": "创建起始日期",

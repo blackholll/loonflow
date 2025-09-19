@@ -216,7 +216,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 <TableRow>
                   <TableCell>Id</TableCell>
                   <TableCell>{t('ticketList.ticketTitle')}</TableCell>
-                  <TableCell>审批状态</TableCell>
+                  <TableCell>{t('ticketList.approveState')}</TableCell>
                   <TableCell>{t('ticketList.ticketCreator')}</TableCell>
                   <TableCell>{t('ticketList.ticketCreateTime')}</TableCell>
                   <TableCell>{t('actions')}</TableCell>
