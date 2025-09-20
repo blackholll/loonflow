@@ -4,6 +4,7 @@ import { ISimpleDept } from './dept';
 export interface IUser {
     id: string;
     name: string;
+    type: string;
     alias: string;
     email: string;
     tenantId: string;

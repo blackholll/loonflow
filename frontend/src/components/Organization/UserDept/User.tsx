@@ -340,7 +340,7 @@ function User() {
                     <CardHeader title={t('common.users')} />
                     <Grid container spacing={2} sx={{ mb: 2, paddingLeft: 2, paddingRight: 2, alignItems: 'center' }}>
                         <Grid size={{ xs: 4, sm: 6, md: 3 }}>
-                            <TextField size="small" fullWidth label={t('ticketList.searchWithKeyword')} onChange={handleChangeKeyword} />
+                            <TextField size="small" fullWidth label={t('common.searchWithKeyword')} onChange={handleChangeKeyword} />
                         </Grid>
                         <Grid size={{ xs: 8, sm: 6, md: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Button variant="outlined" onClick={handleOpenAddUserDialog} startIcon={<AddIcon />}>{t('common.new')}</Button>
@@ -365,6 +365,7 @@ function User() {
                                         <TableCell>{t('common.name')}</TableCell>
                                         <TableCell>{t('common.email')}</TableCell>
                                         <TableCell>{t('common.dept')}</TableCell>
+                                        <TableCell>{t('common.type')}</TableCell>
                                         <TableCell>{t('common.status')}</TableCell>
                                         <TableCell>{t('common.actions')}</TableCell>
                                     </TableRow>
@@ -375,12 +376,21 @@ function User() {
                                             <TableCell>{user.name}</TableCell>
                                             <TableCell>{user.email}</TableCell>
                                             <TableCell>{user.deptInfoList?.map(dept => dept.name).join(', ') || '-'}</TableCell>
+                                            <TableCell>{t(`common.${user.type}`)}</TableCell>
                                             <TableCell>
-                                                <Chip
-                                                    label="active"
-                                                    color="success"
-                                                    size="small"
-                                                />
+                                                {user.isActive ? (
+                                                    <Chip
+                                                        label="active"
+                                                        color="success"
+                                                        size="small"
+                                                    />
+                                                ) : (
+                                                    <Chip
+                                                        label="inactive"
+                                                        color="error"
+                                                        size="small"
+                                                    />
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 <Box sx={{ display: 'flex', gap: 1 }}>

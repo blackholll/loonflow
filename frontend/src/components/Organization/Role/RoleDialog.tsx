@@ -25,9 +25,6 @@ const RoleDialog = (props: RoleDialogProps) => {
         if (roleId) {
             try {
                 const result = await getRoleDetail(roleId);
-                console.log('1111111');
-                console.log(result);
-                console.log('11111111');
                 if (result.code === -1) {
                     showMessage(`fail to get role info: ${result.message}`, 'error');
                 } else {
@@ -80,12 +77,12 @@ const RoleDialog = (props: RoleDialogProps) => {
     return (
         <Dialog open={open} onClose={handleClose}>
             <DialogTitle>
-                {t('common.add')}
-                <HelpOutlineIcon sx={{ marginLeft: '10px' }} />
+                {roleId ? t('common.edit') : t('common.new')}
             </DialogTitle>
             <DialogContent>
                 <TextField
                     label={t('common.name')}
+                    style={{ marginTop: '10px' }}
                     fullWidth
                     value={name}
                     onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setName(event.target.value); }}

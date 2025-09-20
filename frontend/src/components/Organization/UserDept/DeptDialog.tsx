@@ -149,7 +149,7 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth style={{ maxWidth: 600, margin: '0 auto' }}>
-      <DialogTitle>{deptId ? '更新部门' : '新增部门'}</DialogTitle>
+      <DialogTitle>{deptId ? t('common.update') : t('common.add')}</DialogTitle>
       <DialogContent>
         <TextField
           label="Name"

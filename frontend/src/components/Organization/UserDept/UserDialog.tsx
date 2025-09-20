@@ -77,10 +77,10 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onClose, userId, selected
                         });
                         setSelectedDeptPaths(userData.deptInfoList || []);
                     } else {
-                        showMessage(result.msg || '获取用户详情失败', 'error');
+                        showMessage(result.msg || 'failed to get user details', 'error');
                     }
                 }).catch(error => {
-                    showMessage(error.message || '获取用户详情失败', 'error');
+                    showMessage(error.message || 'failed to get user details', 'error');
                 }).finally(() => {
                     setFormLoading(false);
                 });
@@ -313,9 +313,9 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onClose, userId, selected
                                         value={formData.type}
                                         onChange={(e) => handleChange(e, "type")}
                                     >
-                                        <FormControlLabel value="admin" control={<Radio />} label={t('user.admin')} />
-                                        <FormControlLabel value="workflow_admin" control={<Radio />} label={t('user.workflow_admin')} />
-                                        <FormControlLabel value="normal" control={<Radio />} label={t('user.normal')} />
+                                        <FormControlLabel value="admin" control={<Radio />} label={t('common.admin')} />
+                                        <FormControlLabel value="workflow_admin" control={<Radio />} label={t('common.workflow_admin')} />
+                                        <FormControlLabel value="normal" control={<Radio />} label={t('common.normal')} />
                                     </RadioGroup>
                                 }
                                 label={''}

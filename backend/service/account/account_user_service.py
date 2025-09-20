@@ -286,7 +286,9 @@ class AccountUserService(BaseService):
         if search_value:
             query_params &= Q(name__contains=search_value) | Q(alias__contains=search_value) | Q(email__contains=search_value)
         if dept_id and dept_id != '0' and dept_id!='00000000-0000-0000-0000-000000000000':
-            query_params &= Q(dept__id__in=Dept.objects.filter(id=dept_id))
+            # 通过UserDept中间表查询用户
+            user_ids_in_dept = UserDept.objects.filter(dept_id=dept_id).values_list('user_id', flat=True)
+            query_params &= Q(id__in=user_ids_in_dept)
         if user_ids:
             query_params &= Q(id__in=user_ids.split(','))
         user_objects = User.objects.filter(query_params).order_by("id")

@@ -255,7 +255,7 @@ function Dept() {
         <div style={{ flex: 1, paddingLeft: '20px' }}>
             <h3>{t('common.dept')}</h3>
             <Box display="flex" justifyContent="flex-end" sx={{ marginRight: '10px' }}>
-                <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={handleOpenDept}>新增部门</Button>
+                <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={handleOpenDept}>{t('common.new')}</Button>
             </Box>
             {deptloading ? (
                 <Box display="flex" justifyContent="center" alignItems="center" height="200px">
@@ -267,7 +267,7 @@ function Dept() {
                         <TableHead>
                             <TableRow>
                                 <TableCell>{t('common.name')}</TableCell>
-                                <TableCell>{t('common.leader')}</TableCell>
+                                <TableCell>{t('user.leader')}</TableCell>
                                 <TableCell>{t('common.actions')}</TableCell>
                             </TableRow>
                         </TableHead>
@@ -278,9 +278,9 @@ function Dept() {
                                     <TableCell>{dept.leaderInfo.alias}</TableCell>
                                     <TableCell>
                                         <Box sx={{ display: 'flex', gap: 1 }}>
-                                            <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenDeptEdit(dept.id)}>编辑</Button>
-                                            <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenParentDeptEdit(dept.id, dept.parentDeptInfo?.id ?? '')}>修改父部门</Button>
-                                            <Button size="small" startIcon={<DeleteIcon />} onClick={() => handleConfirmDelete(dept.id)} color="error">删除</Button>
+                                            <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenDeptEdit(dept.id)}>{t('common.edit')}</Button>
+                                            <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenParentDeptEdit(dept.id, dept.parentDeptInfo?.id ?? '')}>{t('user.changeParentDept')}</Button>
+                                            <Button size="small" startIcon={<DeleteIcon />} onClick={() => handleConfirmDelete(dept.id)} color="error">{t('common.delete')}</Button>
                                         </Box>
                                     </TableCell>
                                 </TableRow>

@@ -7,6 +7,8 @@
   },
   "actions": "操作",
   "common": {
+    "noData": "暂无数据",
+    "searchWithKeyword": "请输入关键词搜索",
     "detail": "详情",
     "search": "查询",
     "userSearchTip": "请输入关键词搜索用户...",
@@ -22,6 +24,8 @@
     "new": "新建",
     "type": "类型",
     "admin": "管理员",
+    "normal": "普通用户",
+    "workflow_admin": "工作流管理员",
     "workflowAdmin": "工作流管理员",
     "workflowPermission": "工作流权限",
     "addRecordSuccess": "添加记录成功",
@@ -45,7 +49,6 @@
     "status": "状态",
     "edit": "编辑",
     "delete": "删除",
-    "noData": "暂无数据",
     "noOptions": "无选项",
     "pleaseEnterToSearch": "请输入关键字搜索",
     "passwordNotMatch": "两次输入的密码不一致",
@@ -67,6 +70,8 @@
     "ago": "前"
   },
   "user": {
+    "leader": "负责人",
+    "changeParentDept": "修改父部门",
     "passwordNotMatch": "两次输入的密码不一致",
     "resetPassword": "重置密码",
     "confirmResetPassword": "确认重置密码",

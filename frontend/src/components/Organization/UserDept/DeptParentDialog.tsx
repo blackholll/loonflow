@@ -27,9 +27,6 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
 
 
     const fetchDeptPathList = useCallback(async (keyword: string) => {
-        if (keyword.length < 2) {
-            return;
-        }
         try {
             setLoading(true);
             const result = await getDeptPaths(keyword, '', 1, 1000);
@@ -82,7 +79,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth style={{ maxWidth: 600, margin: '0 auto' }}>
-            <DialogTitle>{"更新上级部门"}</DialogTitle>
+            <DialogTitle>{t('user.changeParentDept')}</DialogTitle>
             <DialogContent>
                 <Autocomplete
                     value={deptPath}
@@ -103,7 +100,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
                     disablePortal
                     options={deptPathList}
                     loading={loading}
-                    noOptionsText={parentDeptInputValue.length < 2 ? "请至少输入2个字符搜索" : "无匹配结果"}
+                    noOptionsText={parentDeptInputValue.length < 1 ? t('common.pleaseEnterToSearch') : t('common.noData')}
                     sx={{ marginTop: 2, marginBottom: 2 }}
                     renderInput={(params) => (
                         <TextField
@@ -114,7 +111,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
                                     ...params.InputProps,
                                     endAdornment: (
                                         <>
-                                            {loading ? <InputAdornment position="end">搜索中...</InputAdornment> : null}
+                                            {loading ? <InputAdornment position="end">{t('common.searching')}</InputAdornment> : null}
                                             {params.InputProps.endAdornment}
                                         </>
                                     ),

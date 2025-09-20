@@ -58,7 +58,7 @@ class UserView(BaseView):
         page = int(request_data.get('page')) if request_data.get('page') else 1
         dept_id = request_data.get('dept_id') if request_data.get('dept_id') else '00000000-0000-0000-0000-000000000000'
         try:
-            result = account_user_service_ins.get_user_list(search_value, dept_id, page, per_page)
+            result = account_user_service_ins.get_user_list(search_value, '', dept_id, page, per_page)
             data = dict(user_info_list=result.get('user_result_object_format_list'),
                         per_page=result.get('paginator_info').get('per_page'),
                         page=result.get('paginator_info').get('page'),
@@ -191,8 +191,8 @@ class UserDetailView(BaseView):
         Optional('phone'): str,
         Optional('dept_id_list'): list,
         Optional('role_id_list'): list,
-        'type': And(str, lambda n: n in ["admin", "workflow_admin", "nomal"],
-                    error="type should be admin, workflow_admin, common"),
+        'type': And(str, lambda n: n in ["admin", "workflow_admin", "normal"],
+                    error="type should be admin, workflow_admin, normal"),
         'is_active': bool,
         Optional('avatar'): str,
         Optional('lang'): str,

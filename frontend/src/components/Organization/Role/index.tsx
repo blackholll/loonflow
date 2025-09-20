@@ -75,7 +75,7 @@ export function Role() {
             <CardHeader title={t('role.roleList')} />
             <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{ 'marginLeft': '10px' }}>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={(e) => setSearchKey(e.target.value)} />
+                    <TextField fullWidth label={t('common.searchWithKeyword')} onChange={(e) => setSearchKey(e.target.value)} />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={() => setOpenRole(true)}>{t('common.new')}</Button>
