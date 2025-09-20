@@ -1,13 +1,14 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Card, CardHeader, Dialog, DialogTitle, DialogContent, DialogActions, CardContent, TextField, Button, Paper, Table, TableBody, TableRow, TableCell, TableContainer, TableHead, TablePagination, CircularProgress } from '@mui/material'
+import { Box, Card, CardHeader, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Paper, Table, TableBody, TableRow, TableCell, TableContainer, TableHead, TablePagination, CircularProgress } from '@mui/material'
 import GroupIcon from '@mui/icons-material/Group';
 import Grid from '@mui/material/Grid2';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { getRoleList, deleteRole } from '../../../services/role';
 import { IRoleResEntity } from '@/types/role';
 import RoleDialog from './RoleDialog';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
+import RoleMember from './RoleMember';
+import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 
 
 
@@ -24,6 +25,9 @@ export function Role() {
     const [openRole, setOpenRole] = useState<boolean>(false);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState<boolean>(false);
     const [deleteRoleId, setDeleteRoleId] = useState('');
+    const [openRoleMember, setOpenRoleMember] = useState<boolean>(false);
+    const [selectedRoleId, setSelectedRoleId] = useState('');
+    const [selectedRoleName, setSelectedRoleName] = useState('');
     const { showMessage } = useSnackbar();
 
     const fetchRoleList = useCallback(async () => {
@@ -53,9 +57,6 @@ export function Role() {
             showMessage(error.message, 'error');
         }
     };
-    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement>, newPage: number) => {
-        setPage(newPage);
-    };
 
     const closeDialog = () => {
         setOpenRole(false);
@@ -68,6 +69,12 @@ export function Role() {
     const handleDeleteClick = (roleId: string) => {
         setOpenDeleteConfirm(true);
         setDeleteRoleId(roleId);
+    }
+
+    const handleRoleMemberClick = (roleId: string, roleName: string) => {
+        setSelectedRoleId(roleId);
+        setSelectedRoleName(roleName);
+        setOpenRoleMember(true);
     }
 
     return (
@@ -100,7 +107,7 @@ export function Role() {
                                     <TableCell>
                                         <Box sx={{ display: 'flex', gap: 1 }}>
                                             <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenRole(roleData.id)}>{t('common.edit')}</Button>
-                                            <Button size="small" startIcon={<GroupIcon />} color="warning" onClick={() => handleOpenRole(roleData.id)}>{t('role.roleMember')}</Button>
+                                            <Button size="small" startIcon={<GroupIcon />} color="warning" onClick={() => handleRoleMemberClick(roleData.id, roleData.name)}>{t('role.roleMember')}</Button>
                                             <Button size="small" startIcon={<DeleteIcon />} color="error" onClick={() => handleDeleteClick(roleData.id)}>{t('common.delete')}</Button>
                                         </Box>
                                     </TableCell>
@@ -122,6 +129,12 @@ export function Role() {
                 }}
             />
             <RoleDialog open={openRole} roleId={openedRoleId} onClose={() => closeDialog()} />
+            <RoleMember
+                open={openRoleMember}
+                roleId={selectedRoleId}
+                roleName={selectedRoleName}
+                onClose={() => setOpenRoleMember(false)}
+            />
             <Dialog open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)}>
                 <DialogTitle>{t('common.confirm')}</DialogTitle>
                 <DialogContent>

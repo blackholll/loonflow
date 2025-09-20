@@ -12,7 +12,7 @@ from service.util.archive_service import archive_service_ins
 
 class AccountRoleService(BaseService):
     @classmethod
-    def get_role_user_info_by_role_id(cls, role_id: int, search_value: str = '', page: int = 1,
+    def get_role_user_info_list_by_role_id(cls, tenant_id: str, role_id: str, search_value: str = '', page: int = 1,
                                       per_page: int = 10) -> dict:
         """
         get role's user info list by role_id
@@ -22,11 +22,11 @@ class AccountRoleService(BaseService):
         :param per_page:
         :return:
         """
-        user_role_queryset = UserRole.objects.filter(role_id=role_id).all()
+        user_role_queryset = UserRole.objects.filter(role_id=role_id, tenant_id=tenant_id).all()
         role_user_id_list = [user_role.user_id for user_role in user_role_queryset]
         query_params = Q(id__in=role_user_id_list)
         if search_value:
-            query_params &= Q(username__contains=search_value) | Q(alias__contains=search_value)
+            query_params &= Q(name__contains=search_value) | Q(alias__contains=search_value) | Q(email__contains=search_value)
         user_info_queryset = User.objects.filter(query_params).all()
         paginator = Paginator(user_info_queryset, per_page)
         try:
@@ -40,7 +40,7 @@ class AccountRoleService(BaseService):
         user_result_format_list = []
         for user_info in user_result_list:
             user_result_format_list.append(user_info.get_dict())
-        return dict(user_list=user_result_format_list, per_page=per_page, page=page, total=paginator.count)
+        return dict(user_info_list=user_result_format_list, per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
     @auto_log
@@ -121,7 +121,7 @@ class AccountRoleService(BaseService):
         return str(role_obj.id)
 
     @classmethod
-    def add_role_user(cls, role_id: int, user_id_list: int, creator: str) -> bool:
+    def add_role_user(cls, tenant_id:str, role_id: str, user_id_list: list, creator: str) -> bool:
         """
         add role's user
         :param role_id:
@@ -134,14 +134,13 @@ class AccountRoleService(BaseService):
         exist_user_id_list = [role_user.user_id for role_user in role_user_queryset]
         for user_id in user_id_list:
             if user_id not in exist_user_id_list:
-                user_role_obj = UserRole(role_id=role_id, user_id=user_id)
+                user_role_obj = UserRole(role_id=role_id, user_id=user_id, tenant_id=tenant_id)
                 need_add_user_list.append(user_role_obj)
-                time.sleep(0.001)  # temporarily for SnowflakeIDGenerator bug
         UserRole.objects.bulk_create(need_add_user_list)
         return True
 
     @classmethod
-    def delete_role_user(cls, role_user_id_list: list, operator_id:int) -> bool:
+    def delete_role_user(cls, tenant_id:str, role_id:str, role_user_id_list: list, operator_id:int) -> bool:
         """
         del role user
         :param role_user_id_list:
@@ -149,7 +148,7 @@ class AccountRoleService(BaseService):
         :return:
         """
 
-        role_user_queryset = UserRole.objects.filter(id__in=role_user_id_list).all()
+        role_user_queryset = UserRole.objects.filter(role_id=role_id,user_id__in=role_user_id_list, tenant_id=tenant_id).all()
         archive_service_ins.archive_record_list("UserRole", role_user_queryset, operator_id)
         return True
 

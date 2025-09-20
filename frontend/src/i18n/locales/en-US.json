@@ -7,6 +7,8 @@
   },
   "actions": "Actions",
   "common": {
+    "addSuccess": "Add Success",
+    "add": "Add",
     "noData": "No Data",
     "searchWithKeyword": "Search with keyword",
     "detail": "Detail",
@@ -96,7 +98,11 @@
     "roleName": "Role Name",
     "roleDescription": "Role Description",
     "rolePermission": "Role Permission",
-    "roleMember": "Role Member"
+    "roleMember": "Role Member",
+    "deleteMemberConfirm": "Confirm Delete Member",
+    "deleteMemberConfirmMsg": "Are you sure you want to remove this member from the role? The member will lose all permissions associated with this role.",
+    "deleteMemberSuccess": "Delete Member Success",
+    "deleteMemberFail": "Delete Member Fail"
   },
   "signIn": {
     "title": "Loonflow",

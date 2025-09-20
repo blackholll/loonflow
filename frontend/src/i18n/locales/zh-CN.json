@@ -7,6 +7,8 @@
   },
   "actions": "操作",
   "common": {
+    "addSuccess": "新增成功",
+    "add": "新增",
     "noData": "暂无数据",
     "searchWithKeyword": "请输入关键词搜索",
     "detail": "详情",
@@ -96,7 +98,11 @@
     "roleName": "角色名称",
     "roleDescription": "角色描述",
     "rolePermission": "角色权限",
-    "roleMember": "角色成员"
+    "roleMember": "角色成员",
+    "deleteMemberConfirm": "确认删除成员",
+    "deleteMemberConfirmMsg": "确定要从角色中删除该成员吗？删除后该成员将失去此角色的所有权限。",
+    "deleteMemberSuccess": "删除成员成功",
+    "deleteMemberFail": "删除成员失败"
   },
   "signIn": {
     "title": "Loonflow",

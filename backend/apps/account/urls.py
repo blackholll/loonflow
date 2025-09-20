@@ -16,7 +16,7 @@ urlpatterns = [
     path('/roles', RoleView.as_view()),
     path('/roles/<str:role_id>', RoleDetailView.as_view()),
     path('/simple_roles', SimpleRolesView.as_view()),
-    path('/roles/<int:role_id>/users', RoleUserView.as_view()),
+    path('/roles/<str:role_id>/users', RoleUserView.as_view()),
     path('/depts_tree', DeptTreeView.as_view()),
     path('/dept_paths', DeptPathsView.as_view()),
     path('/dept_paths/<str:dept_id>', DeptPathView.as_view()),

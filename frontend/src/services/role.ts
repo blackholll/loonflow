@@ -36,3 +36,8 @@ export const deleteRoleUser = async (roleId: string, userIds: string[]) => {
     const response = await apiClient.delete(`/api/v1.0/accounts/roles/${roleId}/users`, { data: { user_ids: userIds } });
     return response.data;
 }
+
+export const getRoleUserList = async (roleId: string, searchValue: string, page: number, perPage: number) => {
+    const response = await apiClient.get(`/api/v1.0/accounts/roles/${roleId}/users`, { params: { search_value: searchValue, page, per_page: perPage } });
+    return response.data;
+}

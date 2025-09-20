@@ -827,10 +827,10 @@ class UserRoleView(BaseView):
 
 class RoleUserView(BaseView):
     post_schema = Schema({
-        'user_id': And(int, error='user_id is needed and should be int')
+        'user_ids': And(list, error='user_ids is required, and should be a list')
     })
     delete_schema = Schema({
-        'role_user_id_list': list
+        'user_ids': And(list, error='user_ids is required, and should be a list')
     })
 
     @user_permission_check('admin')
@@ -842,13 +842,15 @@ class RoleUserView(BaseView):
         :param kwargs:
         :return:
         """
-        role_id = kwargs.get('role_id', 0)
+        role_id = kwargs.get('role_id', '')
         request_data = request.GET
+        tenant_id = request.META.get('HTTP_TENANTID')
+
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         search_value = request.GET.get('search_value', '')
         try:
-            result = account_role_service_ins.get_role_user_info_by_role_id(role_id, search_value, page, per_page)
+            result = account_role_service_ins.get_role_user_info_list_by_role_id(tenant_id,role_id, search_value, page, per_page)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
@@ -865,14 +867,15 @@ class RoleUserView(BaseView):
         :param kwargs:
         :return:
         """
-        role_id = kwargs.get('role_id', 0)
+        role_id = kwargs.get('role_id', '')
         creator = request.user.username
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
-        user_id_list = request_data_dict.get('user_id_list', 0)
+        user_id_list = request_data_dict.get('user_ids', [])
+        tenant_id = request.META.get('HTTP_TENANTID')
 
         try:
-            account_base_service_ins.add_role_user(role_id, user_id_list, creator)
+            account_role_service_ins.add_role_user(tenant_id, role_id, user_id_list, creator)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
@@ -892,9 +895,11 @@ class RoleUserView(BaseView):
         operator_id = request.META.get('HTTP_USERID')
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
-        role_user_id_list = request_data_dict.get("role_user_id_list")
+        user_ids = request_data_dict.get("user_ids", [])
+        role_id = kwargs.get('role_id', '')
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            account_role_service_ins.delete_role_user(role_user_id_list, operator_id)
+            account_role_service_ins.delete_role_user(tenant_id, role_id, user_ids, operator_id)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
