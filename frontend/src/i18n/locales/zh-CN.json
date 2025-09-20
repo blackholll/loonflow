@@ -7,6 +7,8 @@
   },
   "actions": "操作",
   "common": {
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
     "addSuccess": "新增成功",
     "add": "新增",
     "noData": "暂无数据",
@@ -162,11 +164,14 @@
   },
   "setting": {
     "tenant": {
+      "tenantInfo": "租户信息",
+      "tenantDetail": "租户详情",
       "name": "名称",
       "domain": "域名",
       "workflowLimit": "工作流限制",
       "ticketLimit": "工单限制",
-      "unLimited": "无限制"
+      "unLimited": "无限制",
+      "tenantId": "租户ID"
     },
     "application": {
       "applicationList": "应用列表",

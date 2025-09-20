@@ -7,6 +7,8 @@
   },
   "actions": "Actions",
   "common": {
+    "createdAt": "Create At",
+    "updatedAt": "Updated At",
     "addSuccess": "Add Success",
     "add": "Add",
     "noData": "No Data",
@@ -160,7 +162,10 @@
       "domain": "Domain",
       "workflowLimit": "Workflow Limit",
       "ticketLimit": "Ticket Limit",
-      "unLimited": "Unlimited"
+      "unLimited": "Unlimited",
+      "tenantInfo": "Tenant Info",
+      "tenantDetail": "Tenant Detail",
+      "tenantId": "Tenant Id"
     },
     "application": {
       "applicationList": "Application List",

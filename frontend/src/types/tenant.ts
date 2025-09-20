@@ -11,6 +11,7 @@ export interface ITenantDetailResEntity {
   icon: string;
   workflowLimit: number;
   ticketLimit: number;
+  isActive: boolean;
 }
 
 export interface ITenantBasicInfo {

@@ -6,6 +6,8 @@ import { IApplicationResEntity } from '@/types/application';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { getApplicationList, delApplicationDetail } from '../../../services/application';
 import ApplicationDialog from './ApplicationDialog';
+import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+
 
 
 export function ApplicationList() {
@@ -13,7 +15,7 @@ export function ApplicationList() {
   const [applicationDatas, setApplicationDatas] = useState<IApplicationResEntity[]>([]);
   const [applicationListLoading, setApplicationListLoading] = useState<Boolean>(false);
   const [searchKey, setSearchKey] = useState('');
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [total, setTotal] = useState(0);
   const [openApp, setOpenApp] = useState(false);
@@ -93,7 +95,7 @@ export function ApplicationList() {
       <CardHeader title={t('setting.application.applicationList')} />
       <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{ 'marginLeft': '10px' }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={handleChangeKeyword} />
+          <TextField fullWidth label={t('common.searchWithKeyword')} onChange={handleChangeKeyword} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={handleOpenNewApp}>{t('common.new')}</Button>
@@ -118,7 +120,11 @@ export function ApplicationList() {
                   <TableCell>{application.description}</TableCell>
                   <TableCell>{t(`common.${application.type}`)}</TableCell>
                   <TableCell>
-                    <div><Button onClick={() => handleOpenApp(application.id)}>edit</Button><Button onClick={() => handleDeleteClick(application.id)}>delete</Button>{application.type === 'workflow_admin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div>
+                    <div>
+                      <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenApp(application.id)}>{t('common.edit')}</Button>
+                      <Button size="small" startIcon={<DeleteIcon />} color="error" onClick={() => handleDeleteClick(application.id)}>{t('common.delete')}</Button>
+                      {application.type === 'workflow_admin' ? <Button >{t('common.workflowPermission')}</Button> : null}
+                    </div>
                   </TableCell>
                 </TableRow>
               )) : null}

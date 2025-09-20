@@ -20,6 +20,7 @@ class Tenant(BaseModel):
     logo_path = models.CharField("logo_path", max_length=100, null=False, default="", help_text="the logo image of the tenant to be displayed on website, such as logo.jpg")
     workflow_limit = models.BigIntegerField("workflow_limit", null=False, default=0)
     ticket_limit = models.BigIntegerField("ticket_limit", null=False, default=0)
+    is_active = models.BooleanField("is_active", null=False, default=True)
 
 
 class UserDept(BaseCommonModel):

@@ -1,7 +1,7 @@
 import apiClient from './api';
 
 export const getApplicationList = async (searchValue: string, page: number, perPage: number, type: string) => {
-  const response = await apiClient.get('/api/v1.0/accounts/applications', { params: { search_value: searchValue, page, per_page: perPage, type } });
+  const response = await apiClient.get('/api/v1.0/accounts/applications', { params: { search_value: searchValue, page: page + 1, per_page: perPage, type } });
   return response.data;
 };
 export const getSimpletApplicationList = async (searchValue: string, appIds: string, page: number, perPage: number, type: string) => {
