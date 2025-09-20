@@ -1182,14 +1182,77 @@ class ApplicationWorkflowView(BaseView):
         search_value = request_data.get('search_value', '')
         per_page = int(request_data.get('per_page', 10))
         page = int(request_data.get('page', 1))
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            result = account_application_service_ins.get_application_workflow_list(application_id, search_value, page, per_page)
+            result = account_application_service_ins.get_application_workflow_list(tenant_id, application_id, search_value, page, per_page)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", result)
+
+    @user_permission_check("admin")
+    def post(self, request, *args, **kwargs):
+        """
+        add application workflow permission
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        application_id = kwargs.get("application_id")
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        workflow_ids = request_data_dict.get('workflow_ids', [])
+        operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        
+        try:
+            result = account_application_service_ins.add_application_workflow_permission(
+                tenant_id, application_id, workflow_ids, operator_id
+            )
+            if result:
+                return api_response(0, "添加工作流权限成功", {})
+            else:
+                return api_response(-1, "添加工作流权限失败", {})
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
+
+    @user_permission_check("admin")
+    def delete(self, request, *args, **kwargs):
+        """
+        delete application workflow permission
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        application_id = kwargs.get("application_id")
+        request_data = request.GET
+        workflow_id = request_data.get('workflow_id')
+        operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        
+        if not workflow_id:
+            return api_response(-1, "workflow_id is required", {})
+        
+        try:
+            result = account_application_service_ins.delete_application_workflow_permission(
+                tenant_id, application_id, workflow_id, operator_id
+            )
+            if result:
+                return api_response(0, "删除工作流权限成功", {})
+            else:
+                return api_response(-1, "删除工作流权限失败", {})
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error")
 
 
 class TenantDetailView(BaseView):
@@ -1234,3 +1297,26 @@ class TenantDomainView(BaseView):
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", dict(tenant_info=result))
 
+
+class ApplicationWorkflowPermissionListView(BaseView):
+    @user_permission_check("admin")
+    def get(self, request, *args, **kwargs):
+        """
+        get application workflow permission list
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        application_id = kwargs.get("application_id")
+        request_data = request.GET
+        search_value = request_data.get('search_value', '')
+        per_page = int(request_data.get('per_page', 10))
+        page = int(request_data.get('page', 1))
+        tenant_id = request.META.get('HTTP_TENANTID')
+        from service.workflow.workflow_permission_service import workflow_permission_service_ins
+        try:
+            result = workflow_permission_service_ins.get_workflow_info_list_by_app_id(tenant_id, application_id, search_value, page, per_page)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        return api_response(0, "", result)

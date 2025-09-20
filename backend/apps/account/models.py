@@ -198,12 +198,6 @@ class Role(BaseCommonModel):
                              help_text="label info,you can use set a json data include role info id in your internal system")
 
 
-class ApplicationWorkflow(BaseCommonModel):
-    """application permissioned workflow list"""
-    application = models.ForeignKey("Application", db_constraint=False, on_delete=models.DO_NOTHING)
-    workflow = models.ForeignKey(WorkflowRecord, db_constraint=False, on_delete=models.DO_NOTHING)
-
-
 class Application(BaseCommonModel):
     """
     Application which can call loonflow's api. admin type can manage user and manage all workflow

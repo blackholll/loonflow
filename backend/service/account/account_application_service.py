@@ -3,7 +3,7 @@ import uuid
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 
-from apps.account.models import Application, ApplicationWorkflow
+from apps.account.models import Application
 from service.base_service import BaseService
 from service.exception.custom_common_exception import CustomCommonException
 from service.util.archive_service import archive_service_ins
@@ -111,34 +111,6 @@ class AccountApplicationService(BaseService):
             raise CustomCommonException('application is not exist or has been deleted')
         application_queryset.update(name=name, description=description, type=type)
         return True
-
-    @classmethod
-    def get_application_workflow_list(cls, application_id: int, search_value: str, page: int, per_page: int):
-        """
-        get application authorized workflow_list
-        :param application_id:
-        :param search_value:
-        :param page:
-        :param per_page:
-        :return:
-        """
-        query_params = Q(application_id=application_id)
-        if search_value:
-            query_params &= Q(application__name__contains=search_value) | Q(application__description__contains=search_value)
-        application_workflow_queryset = ApplicationWorkflow.objects.filter(query_params)
-        workflow_obj_queryset = [application_workflow.workflow for application_workflow in application_workflow_queryset]
-
-        paginator = Paginator(workflow_obj_queryset, per_page)
-        try:
-            workflow_result_paginator = paginator.page(page)
-        except PageNotAnInteger:
-            workflow_result_paginator = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results
-            workflow_result_paginator = paginator.page(paginator.num_pages)
-        workflow_result_object_list = workflow_result_paginator.object_list
-        workflow_result_list = [workflow_result_object.get_dict() for workflow_result_object in workflow_result_object_list]
-        return dict(workflow_list=workflow_result_list, page=page, per_page=per_page, total=paginator.count)
 
     @classmethod
     def app_type_check(cls, tenant_id:str, application_name:str, type:str, workflow_id:str)->bool:

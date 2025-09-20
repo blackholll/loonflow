@@ -187,7 +187,7 @@ const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetai
       <DialogTitle>{notificationId ? t('setting.notification.notificationDetial') : t('setting.notification.newNotification')}</DialogTitle>
       <DialogContent>
         <TextField
-          label="Name"
+          label={t('common.name')}
           name="name"
           value={formData.name}
           required
@@ -198,7 +198,7 @@ const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetai
           helperText={errors.name}
         />
         <TextField
-          label="Description"
+          label={t('common.description')}
           name="description"
           value={formData.description}
           fullWidth
@@ -234,7 +234,7 @@ const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetai
         {formData.type === 'hook' ?
           <React.Fragment>
             <TextField
-              label="hook url"
+              label="URL"
               name="hookUrl"
               value={formData.hookUrl}
               required
@@ -244,7 +244,7 @@ const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetai
               margin="normal"
               onChange={handleChange}
             /><TextField
-              label="hook token"
+              label="Token"
               name="hookToken"
               value={formData.hookToken}
               required

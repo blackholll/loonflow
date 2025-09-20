@@ -29,4 +29,25 @@ export const delApplicationDetail = async (applicationId: string) => {
   return response.data
 };
 
+export const getApplicationWorkflowList = async (applicationId: string, searchValue: string, page: number, perPage: number) => {
+  const response = await apiClient.get(`/api/v1.0/accounts/applications/${applicationId}/workflows`, {
+    params: { search_value: searchValue, page: page + 1, per_page: perPage }
+  });
+  return response.data;
+};
+
+export const addApplicationWorkflowPermission = async (applicationId: string, workflowIds: string[]) => {
+  const response = await apiClient.post(`/api/v1.0/accounts/applications/${applicationId}/workflows`, {
+    workflow_ids: workflowIds
+  });
+  return response.data;
+};
+
+export const deleteApplicationWorkflowPermission = async (applicationId: string, workflowId: string) => {
+  const response = await apiClient.delete(`/api/v1.0/accounts/applications/${applicationId}/workflows`, {
+    params: { workflow_id: workflowId }
+  });
+  return response.data;
+};
+
 

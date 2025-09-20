@@ -168,6 +168,7 @@
       "tenantId": "Tenant Id"
     },
     "application": {
+      "appTypeDescription": "Admin can call all apis, workflow_admin can only call ticket and workflow related apis and some common apis",
       "applicationList": "Application List",
       "searchWithKeyword": "Search With Keyword",
       "applicationDetial": "Application",

@@ -9,7 +9,7 @@ interface INotificationNew {
 }
 
 export const getNotificationList = async (searchValue: string, page: number, perPage: number) => {
-  const response = await apiClient.get('/api/v1.0/manage/notifications', { params: { search_value: searchValue, page, per_page: perPage } });
+  const response = await apiClient.get('/api/v1.0/manage/notifications', { params: { search_value: searchValue, page: page + 1, per_page: perPage } });
   return response.data;
 };
 

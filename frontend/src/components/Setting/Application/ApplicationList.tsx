@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardHeader, Button, Dialog, DialogTitle, DialogActions, DialogContent, Autocomplete, Container, TextField, Select, MenuItem, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TablePagination, CircularProgress } from '@mui/material';
+import { Card, CardHeader, Button, Dialog, DialogTitle, DialogActions, DialogContent, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { IApplicationResEntity } from '@/types/application';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { getApplicationList, delApplicationDetail } from '../../../services/application';
 import ApplicationDialog from './ApplicationDialog';
+import ApplicationWorkflowPermissionDialog from './ApplicationWorkflowPermissionDialog';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 
 
@@ -22,6 +23,9 @@ export function ApplicationList() {
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
   const [openedAppId, setOpenedAppId] = useState('');
   const [delAppId, setDelAppId] = useState('');
+  const [openWorkflowPermission, setOpenWorkflowPermission] = useState(false);
+  const [workflowPermissionAppId, setWorkflowPermissionAppId] = useState('');
+  const [workflowPermissionAppName, setWorkflowPermissionAppName] = useState('');
   const { showMessage } = useSnackbar();
 
   const fetchApplicationList = useCallback(async () => {
@@ -90,6 +94,18 @@ export function ApplicationList() {
     setOpenedAppId('');
   }
 
+  const handleOpenWorkflowPermission = (applicationId: string, applicationName: string) => {
+    setWorkflowPermissionAppId(applicationId);
+    setWorkflowPermissionAppName(applicationName);
+    setOpenWorkflowPermission(true);
+  }
+
+  const closeWorkflowPermissionDialog = () => {
+    setOpenWorkflowPermission(false);
+    setWorkflowPermissionAppId('');
+    setWorkflowPermissionAppName('');
+  }
+
   return (
     <Card>
       <CardHeader title={t('setting.application.applicationList')} />
@@ -123,7 +139,7 @@ export function ApplicationList() {
                     <div>
                       <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenApp(application.id)}>{t('common.edit')}</Button>
                       <Button size="small" startIcon={<DeleteIcon />} color="error" onClick={() => handleDeleteClick(application.id)}>{t('common.delete')}</Button>
-                      {application.type === 'workflow_admin' ? <Button >{t('common.workflowPermission')}</Button> : null}
+                      {/* {application.type === 'workflow_admin' ? <Button size="small" startIcon={<PermissionIcon />} onClick={() => handleOpenWorkflowPermission(application.id, application.name)}>{t('common.workflowPermission')}</Button> : null} */}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -141,6 +157,12 @@ export function ApplicationList() {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
       <ApplicationDialog open={openApp} applicationId={openedAppId} onClose={() => closeDialog()} />
+      <ApplicationWorkflowPermissionDialog
+        open={openWorkflowPermission}
+        applicationId={workflowPermissionAppId}
+        applicationName={workflowPermissionAppName}
+        onClose={() => closeWorkflowPermissionDialog()}
+      />
       <Dialog open={openDeleteConfirm} onClose={handleConfirmClose}>
         <DialogTitle>{t('common.confirm')}</DialogTitle>
         <DialogContent>

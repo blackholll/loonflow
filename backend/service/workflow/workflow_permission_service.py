@@ -1,5 +1,7 @@
 from distutils import ccompiler
 import time
+
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from apps.workflow.models import Permission as WorkflowPermission
 from service.account import account_base_service, account_dept_service
 from service.account.account_user_service import account_user_service_ins
@@ -286,6 +288,31 @@ class WorkflowPermissionService(BaseService):
                 permission_create_list.append(permission_create)
         WorkflowPermission.objects.bulk_create(permission_create_list)
         return True
+
+    @classmethod
+    def get_workflow_info_list_by_app_id(cls, tenant_id: str, app_id: str, search_value: str, page: int, per_page: int):
+        """
+        get workflow id list by app id
+        :param tenant_id:
+        :param app_name:
+        :param search_value:
+        :param page:
+        :param per_page:
+        :return:
+        """
+        permission_queryset = WorkflowPermission.objects.filter(tenant_id=tenant_id, permission="api", target_type="app", target=app_id).all()
+        paginator = Paginator(permission_queryset, per_page)
+        try:
+            permission_result_paginator = paginator.page(page)
+        except PageNotAnInteger:
+            permission_result_paginator = paginator.page(1)
+        except EmptyPage:
+            permission_result_paginator = paginator.page(paginator.num_pages)
+        permission_result_list = permission_result_paginator.object_list
+        workflow_info_list = []
+        for permission_result in permission_result_list:
+            workflow_info_list.append(permission_result.workflow.get_dict())
+        return dict(workflow_info_list=workflow_info_list, per_page=per_page, page=page, total=paginator.count)
 
 
 workflow_permission_service_ins = WorkflowPermissionService()

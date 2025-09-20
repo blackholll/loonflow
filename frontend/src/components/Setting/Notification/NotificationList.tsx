@@ -6,6 +6,7 @@ import { INotificationResEntity } from '@/types/notification';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { getNotificationList, delNotification } from '../../../services/notification';
 import NotificationDialog from './NotificationDialog';
+import { Edit as EditIcon, Delete as DeleteIcon, Settings as PermissionIcon } from '@mui/icons-material';
 
 
 export const NotificationList = () => {
@@ -13,7 +14,7 @@ export const NotificationList = () => {
   const [notificationDatas, setNotificationDatas] = useState<INotificationResEntity[]>([]);
   const [notificationListLoading, setNotificationListLoading] = useState<Boolean>(false);
   const [searchKey, setSearchKey] = useState('');
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [total, setTotal] = useState(0);
   const [openNotification, setOpenNotification] = useState(false);
@@ -94,7 +95,7 @@ export const NotificationList = () => {
       <CardHeader title={t('setting.notification.notificationList')} />
       <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{ 'marginLeft': '10px' }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={handleChangeKeyword} />
+          <TextField fullWidth label={t('common.searchWithKeyword')} onChange={handleChangeKeyword} />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={handleOpenNewNotifacation}>{t('common.new')}</Button>
@@ -119,7 +120,8 @@ export const NotificationList = () => {
                   <TableCell>{notification.description}</TableCell>
                   <TableCell>{t(`common.${notification.type}`)}</TableCell>
                   <TableCell>
-                    <div><Button onClick={() => handleOpenNotification(notification.id)}>edit</Button><Button onClick={() => handleDeleteClick(notification.id)}>delete</Button>{notification.type === 'workflow_admin' ? <Button >{t('common.workflowPermission')}</Button> : null}</div>
+                    <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenNotification(notification.id)}>{t('common.edit')}</Button>
+                    <Button size="small" startIcon={<DeleteIcon />} color="error" onClick={() => handleDeleteClick(notification.id)}>{t('common.delete')}</Button>
                   </TableCell>
                 </TableRow>
               )) : null}

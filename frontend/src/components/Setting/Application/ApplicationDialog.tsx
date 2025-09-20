@@ -68,7 +68,7 @@ const ApplicationDialog = ({ open, onClose, applicationId }: ApplicationDetailPr
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{applicationId ? t('settings.application.applicationDetial') : t('settings.application.newApplication')}</DialogTitle>
+      <DialogTitle>{applicationId ? t('common.edit') : t('common.new')}</DialogTitle>
       <DialogContent>
         <TextField
           label="Name"
