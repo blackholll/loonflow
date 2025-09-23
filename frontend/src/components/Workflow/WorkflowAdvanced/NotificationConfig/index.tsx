@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Paper, Typography, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Tooltip, InputAdornment, Stack, Chip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import TemplateEditor from './TemplateEditor';
+import TemplateEditor from '../../../commonComponents/inputs/TemplateEditor';
 import Autocomplete from '@mui/material/Autocomplete';
 import { getSimpleNotificationList } from '../../../../services/notification';
 import { INotification, IFormSchema } from '../../../../types/workflow';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -32,6 +33,7 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
     const [notificationList, setNotificationList] = useState<NotificationItem[]>([]);
     const [selectedNotifications, setSelectedNotifications] = useState<NotificationItem[]>([]);
     const [availableFields, setAvailableFields] = useState<{ key: string; label: string }[]>([]);
+    const { t } = useTranslation();
 
     useEffect(() => {
         getSimpleNotificationList('', 1, 1000).then((res) => {
@@ -64,10 +66,9 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
                 });
             }
         });
-        fields.push({ key: 'title', label: '标题' });
-        fields.push({ key: 'createdAt', label: '创建时间' });
-        fields.push({ key: 'updatedAt', label: '更新时间' });
-        fields.push({ key: 'creator', label: '创建人' });
+        fields.push({ key: 'createdAt', label: t('common.createdAt') });
+        fields.push({ key: 'updatedAt', label: t('common.updatedAt') });
+        fields.push({ key: 'creator', label: t('common.creator') });
 
         setAvailableFields(fields);
     }, [formSchema]);
@@ -83,33 +84,33 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
             <Stack spacing={3}>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>通知标题模板</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.notificationSettingLabel.notificationTitleTemplate')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <TemplateEditor
                             value={notificationConfigInfo.titleTemplate}
                             onChange={(e) => handlePropertyChange('titleTemplate', e)}
                             availableFields={availableFields}
-                            placeholder="请输入通知标题模板"
+                            placeholder={t('workflow.advancedSettingLabel.notificationSettingLabel.notificationTitleTemplatePlaceholder')}
                         />
                     </Grid>
                 </Grid>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>通知内容模板</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.notificationSettingLabel.notificationContentTemplate')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <TemplateEditor
                             value={notificationConfigInfo.contentTemplate}
                             onChange={(e) => handlePropertyChange('contentTemplate', e)}
                             availableFields={availableFields}
-                            placeholder="请输入通知内容模板"
+                            placeholder={t('workflow.advancedSettingLabel.notificationSettingLabel.notificationContentTemplatePlaceholder')}
                         />
                     </Grid>
                 </Grid>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>通知方式</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.notificationSettingLabel.notificationSelectedChannelList')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <Autocomplete
@@ -123,13 +124,13 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}
                             sx={{ width: 300 }}
-                            renderInput={(params) => <TextField {...params} label="通知方式" />}
+                            renderInput={(params) => <TextField {...params} label={t('workflow.advancedSettingLabel.notificationSettingLabel.notificationSelectedChannelList')} />}
                             renderOption={(props, option) => (
                                 <li {...props} key={option.id}>
                                     <div>
-                                        <div>{option.name || '未命名'}</div>
+                                        <div>{option.name}</div>
                                         <div style={{ fontSize: '0.8em', color: '#666' }}>
-                                            {option.description || '无描述'}
+                                            {option.description}
                                         </div>
                                     </div>
                                 </li>

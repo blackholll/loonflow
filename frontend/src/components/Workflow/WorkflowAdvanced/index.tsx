@@ -1,11 +1,10 @@
-import react, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Paper, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Box, Tooltip, InputAdornment } from '@mui/material';
+import { useState, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Paper, Box } from '@mui/material';
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid2';
-import Markdown from 'react-markdown';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import NotificationConfig from './NotificationConfig';
@@ -19,15 +18,16 @@ interface WorkflowAdvancedProps {
     formSchema: IFormSchema;
 }
 
-const tabList = [
-    { label: '通知配置', value: 0 },
-    { label: '权限配置', value: 1 },
-    { label: '定制配置', value: 2 },
-];
-
 function WorkflowAdvanced({ onAdvancedChange, advancedSchema, formSchema }: WorkflowAdvancedProps) {
+    const { t } = useTranslation();
     const [advancedSchemaInfo, setAdvancedSchemaInfo] = useState(advancedSchema);
     const [tabIndex, setTabIndex] = useState(0);
+
+    const tabList = useMemo(() => ([
+        { label: t('workflow.advancedSettingLabel.notificationSetting'), value: 0 },
+        { label: t('workflow.advancedSettingLabel.permissionSetting'), value: 1 },
+        { label: t('workflow.advancedSettingLabel.customizeSetting'), value: 2 },
+    ]), [t]);
 
     const onNotificationConfigChange = useCallback((notificationConfig: INotification) => {
         setAdvancedSchemaInfo(prev => {

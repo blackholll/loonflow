@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid2';
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
 import { FormStructure, IFormField, RowContainer } from '../../../../types/workflowDesign';
 import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema } from '../../../../types/workflow';
+import { useTranslation } from 'react-i18next';
 
 interface FormPreviewProps {
     formSchemaInfo: IFormSchema;
@@ -11,9 +12,10 @@ interface FormPreviewProps {
 }
 
 function FormPreview({ formSchemaInfo, renderFieldComponent }: FormPreviewProps) {
-    // 在预览模式下，我们不需要处理组件更新，所以传递一个空的更新函数
+    const { t } = useTranslation();
+    // in preview mode, we don't need to handle component update, so pass an empty update function
     const handleComponentUpdate = (updatedComponent: IWorkflowComponent) => {
-        // 预览模式下不执行任何更新操作
+        // in preview mode, we don't need to handle component update, so do nothing
         console.log('Preview mode: component update ignored', updatedComponent);
     };
 
@@ -90,8 +92,8 @@ function FormPreview({ formSchemaInfo, renderFieldComponent }: FormPreviewProps)
                         color: 'text.secondary'
                     }}
                 >
-                    <Typography variant="h6">暂无表单内容</Typography>
-                    <Typography variant="body2">请在设计模式下添加组件</Typography>
+                    <Typography variant="h6">{t('workflow.noFormContent')}</Typography>
+                    <Typography variant="body2">{t('workflow.pleaseAddComponentsInDesignMode')}</Typography>
                 </Box>
             )}
         </Paper>

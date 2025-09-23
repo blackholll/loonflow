@@ -27,6 +27,7 @@ import { getSimpleRoles } from '../../../services/role';
 import { ISimpleUser } from '../../../types/user';
 import { ISimpleDeptPath } from '../../../types/dept';
 import { ISimpleRole } from '../../../types/role';
+import { useTranslation } from 'react-i18next';
 
 interface PropertyPanelProps {
     element: Node | Edge | null;
@@ -106,6 +107,7 @@ function PropertyPanel(props: PropertyPanelProps) {
     const [users, setUsers] = useState<IOption[]>([]);
     const [departments, setDepartments] = useState<IOption[]>([]);
     const [roles, setRoles] = useState<IOption[]>([]);
+    const { t } = useTranslation();
 
 
     const fetchSimpleUsers = async (searchValue: string = '', userIds: string = '', page = 1, perPage: 1000) => {
@@ -192,26 +194,26 @@ function PropertyPanel(props: PropertyPanelProps) {
 
     // 处理人类型选项
     const assigneeTypeOptions = [
-        { name: '用户', value: 'users' },
-        { name: '部门', value: 'depts' },
-        { name: '角色', value: 'roles' },
-        { name: '变量', value: 'variables' },
-        { name: '工单字段', value: 'ticket_field' },
-        { name: '父工单字段', value: 'parent_ticket_field' },
-        { name: '外部获取', value: 'external' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.users'), value: 'users' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.depts'), value: 'depts' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.roles'), value: 'roles' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.variables'), value: 'variables' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.ticket_field'), value: 'ticket_field' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.parent_ticket_field'), value: 'parent_ticket_field' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.external'), value: 'external' },
     ];
 
     const assignmentStrategyOptions = [
-        { name: '主动接单', value: 'voluntary' },
-        { name: '直接处理', value: 'direct' },
-        { name: '随机分配', value: 'random' },
-        { name: '全部处理', value: 'all' },
+        { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.voluntary'), value: 'voluntary' },
+        { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.direct'), value: 'direct' },
+        { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.random'), value: 'random' },
+        { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.all'), value: 'all' },
     ];
 
     // 变量选项
     const variableOptions = [
-        { name: '工单创建人', value: 'creator' },
-        { name: '部门审批人', value: 'dept_approver' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.creator'), value: 'creator' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.dept_approver'), value: 'dept_approver' },
     ];
 
     // 加载用户列表
@@ -224,7 +226,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                 setUsers(response.data.userInfoList.map((user: ISimpleUser) => ({ label: `${user.name}(${user.alias})`, value: user.id })) || []);
             }
         } catch (error) {
-            console.error('加载用户列表失败:', error);
+            console.error(t('workflow.propertyPanelLabel.loadUsersFailed'), error);
         } finally {
             setLoadingUsers(false);
         }
@@ -240,7 +242,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                 setDepartments(response.data?.deptPathList.map((dept: ISimpleDeptPath) => ({ label: dept.name, value: dept.id })) || []);
             }
         } catch (error) {
-            console.error('加载部门列表失败:', error);
+            console.error(t('workflow.propertyPanelLabel.loadDeptsFailed'), error);
         } finally {
             setLoadingDepts(false);
         }
@@ -256,7 +258,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                 setRoles(response.data?.roleList || []);
             }
         } catch (error) {
-            console.error('加载角色列表失败:', error);
+            console.error(t('workflow.propertyPanelLabel.loadRolesFailed'), error);
         } finally {
             setLoadingRoles(false);
         }
@@ -311,8 +313,8 @@ function PropertyPanel(props: PropertyPanelProps) {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                label="选择处理人"
-                                placeholder="输入关键词后搜索用户..."
+                                label={t('workflow.propertyPanelLabel.assigneeTypeUsersLabel.label')}
+                                placeholder={t('workflow.propertyPanelLabel.assigneeTypeUsersLabel.placeholder')}
                                 InputProps={{
                                     ...params.InputProps,
                                     endAdornment: (
@@ -350,8 +352,8 @@ function PropertyPanel(props: PropertyPanelProps) {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                label="选择部门"
-                                placeholder="搜索部门..."
+                                label={t('workflow.propertyPanelLabel.assigneeTypeDeptsLabel.label')}
+                                placeholder={t('workflow.propertyPanelLabel.assigneeTypeDeptsLabel.placeholder')}
                                 InputProps={{
                                     ...params.InputProps,
                                     endAdornment: (
@@ -385,8 +387,8 @@ function PropertyPanel(props: PropertyPanelProps) {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
-                                label="选择角色"
-                                placeholder="搜索角色..."
+                                label={t('workflow.propertyPanelLabel.assigneeTypeRolesLabel.label')}
+                                placeholder={t('workflow.propertyPanelLabel.assigneeTypeRolesLabel.placeholder')}
                                 InputProps={{
                                     ...params.InputProps,
                                     endAdornment: (
@@ -412,7 +414,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                         value={variableOptions.find(v => v.value === assigneeValue) || null}
                         onChange={(e, value) => handlePropertyChange('assignee', value?.value || '')}
                         renderInput={(params) => (
-                            <TextField {...params} label="选择变量" placeholder="选择系统变量" />
+                            <TextField {...params} label={t("workflow.propertyPanelLabel.assigneeTypeRolesLabel.label")} placeholder={t("workflow.propertyPanelLabel.assigneeTypeRolesLabel.placeholder")} />
                         )}
                         size="small"
                         fullWidth
@@ -422,41 +424,41 @@ function PropertyPanel(props: PropertyPanelProps) {
             case 'ticket_field':
                 return (
                     <TextField
-                        label="工单字段"
+                        label={t('workflow.propertyPanelLabel.assigneeTypeTicketFieldLabel.label')}
                         value={assigneeValue}
                         onChange={(e) => handlePropertyChange('assignee', e.target.value)}
                         size="small"
                         fullWidth
-                        placeholder="输入工单字段标识，如：username, agent"
-                        helperText="请输入工单中的字段标识，该字段应包含用户名信息"
+                        placeholder={t('workflow.propertyPanelLabel.assigneeTypeTicketFieldLabel.placeholder')}
+                        helperText={t('workflow.propertyPanelLabel.assigneeTypeTicketFieldLabel.helperText')}
                     />
                 );
 
             case 'parent_ticket_field':
                 return (
                     <TextField
-                        label="父工单字段"
+                        label={t('workflow.propertyPanelLabel.assigneeTypeParentTicketFieldLabel.label')}
                         value={assigneeValue}
                         onChange={(e) => handlePropertyChange('assignee', e.target.value)}
                         size="small"
                         fullWidth
-                        placeholder="输入父工单字段标识，如：po, manager"
-                        helperText="请输入父工单中的字段标识，该字段应包含用户名信息"
+                        placeholder={t('workflow.propertyPanelLabel.assigneeTypeParentTicketFieldLabel.placeholder')}
+                        helperText={t('workflow.propertyPanelLabel.assigneeTypeParentTicketFieldLabel.helperText')}
                     />
                 );
 
             case 'hook':
                 return (
                     <TextField
-                        label="钩子配置"
+                        label={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.label')}
                         value={assigneeValue}
                         onChange={(e) => handlePropertyChange('assignee', e.target.value)}
                         size="small"
                         multiline
                         rows={3}
                         fullWidth
-                        placeholder='{"hook_url":"http://xxx.com/xxx", "hook_token":"xxxx", "wait":true, "extra_info":"xxx"}'
-                        helperText="请输入JSON格式的钩子配置"
+                        placeholder={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.placeholder')}
+                        helperText={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.helperText')}
                     />
                 );
 
@@ -468,20 +470,8 @@ function PropertyPanel(props: PropertyPanelProps) {
                         onChange={(e) => handlePropertyChange('assignee', e.target.value)}
                         size="small"
                         fullWidth
-                        placeholder="输入外部接口URL"
-                        helperText="系统将通过该接口获取处理人信息"
-                    />
-                );
-
-            default:
-                return (
-                    <TextField
-                        label="处理人"
-                        value={assigneeValue}
-                        onChange={(e) => handlePropertyChange('assignee', e.target.value)}
-                        size="small"
-                        fullWidth
-                        placeholder="请先选择处理人类型"
+                        placeholder={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.placeholder')}
+                        helperText={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.helperText')}
                     />
                 );
         }
@@ -491,18 +481,18 @@ function PropertyPanel(props: PropertyPanelProps) {
         return (
             <Box sx={{ p: 2 }}>
                 <Typography variant="h6" gutterBottom>
-                    属性面板
+                    {t('workflow.propertyPanelLabel.propertyPanel')}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                    请选择一个节点或连线来查看和编辑属性
+                    {t('workflow.propertyPanelLabel.pleaseSelectNodeOrEdge')}
                 </Typography>
             </Box>
         );
     }
 
     const isEdgeElement = isEdge(element);
-    const elementType = isEdgeElement ? '连线' : '节点';
-    const elementLabel = isEdgeElement ? '连线属性' : (element.data?.label as string) || '节点属性';
+    const elementType = isEdgeElement ? t('workflow.propertyPanelLabel.edge') : t('workflow.propertyPanelLabel.node');
+    const elementLabel = isEdgeElement ? t('workflow.propertyPanelLabel.edgeProperties') : (element.data?.label as string) || t('workflow.propertyPanelLabel.nodeProperties');
 
     return (
         <Box sx={{ p: 2, height: '100%', overflow: 'auto' }}>
@@ -521,37 +511,37 @@ function PropertyPanel(props: PropertyPanelProps) {
                 // 边属性
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField
-                        label="名称"
-                        value={properties.name || '同意'}
+                        label={t('workflow.propertyPanelLabel.name')}
+                        value={properties.name || t('workflow.propertyPanelLabel.edgeNameAccept')}
                         onChange={(e) => handlePropertyChange('name', e.target.value)}
                         size="small"
                         fullWidth
-                        placeholder="输入连线名称"
+                        placeholder={t('workflow.propertyPanelLabel.inputEdgeName')}
                     />
 
                     <FormControl size="small" fullWidth>
-                        <InputLabel>类型</InputLabel>
+                        <InputLabel>{t('workflow.propertyPanelLabel.edgeType')}</InputLabel>
                         <Select
                             value={properties.type || 'agree'}
-                            label="连线类型"
+                            label={t('workflow.propertyPanelLabel.edgeType')}
                             onChange={(e) => handlePropertyChange('type', e.target.value)}
                         >
-                            <MenuItem value="agree">同意</MenuItem>
-                            <MenuItem value="reject">拒绝</MenuItem>
-                            <MenuItem value="other">其他</MenuItem>
+                            <MenuItem value="agree">{t('workflow.propertyPanelLabel.edgeNameAccept')}</MenuItem>
+                            <MenuItem value="reject">{t('workflow.propertyPanelLabel.edgeNameReject')}</MenuItem>
+                            <MenuItem value="other">{t('workflow.propertyPanelLabel.edgeNameOther')}</MenuItem>
                         </Select>
                     </FormControl>
 
                     {properties.type === 'conditional' && (
                         <TextField
-                            label="条件表达式"
+                            label={t('workflow.propertyPanelLabel.conditionExpression')}
                             value={properties.condition || ''}
                             onChange={(e) => handlePropertyChange('condition', e.target.value)}
                             size="small"
                             multiline
                             rows={2}
                             fullWidth
-                            placeholder="例如: status === 'approved'"
+                            placeholder={t('workflow.propertyPanelLabel.conditionExpressionPlaceholder')}
                         />
                     )}
                 </Box>
@@ -559,7 +549,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                 // 节点属性
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField
-                        label="节点名称"
+                        label={t('workflow.propertyPanelLabel.nodeLabel')}
                         value={properties.name || ''}
                         disabled={properties.type === 'start' || properties.type === 'end'}
                         onChange={(e) => handleNodeNameChange(e.target.value)}
@@ -573,7 +563,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                                 options={assigneeTypeOptions}
                                 getOptionLabel={(option) => option.name}
                                 value={properties.assigneeType ? assigneeTypeOptions.find(option => option.value === properties.assigneeType) || null : null}
-                                renderInput={(params) => <TextField {...params} label="处理人类型" />}
+                                renderInput={(params) => <TextField {...params} label={t('workflow.propertyPanelLabel.assigneeType')} />}
                                 onChange={(e, value) => handleAssigneeTypeChange(value?.value || '')}
                                 size="small"
                                 fullWidth
@@ -583,7 +573,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                                 options={assignmentStrategyOptions}
                                 getOptionLabel={(option) => option.name}
                                 value={properties.assignmentStrategy ? assignmentStrategyOptions.find(option => option.value === properties.assignmentStrategy) || null : null}
-                                renderInput={(params) => <TextField {...params} label="分配策略" />}
+                                renderInput={(params) => <TextField {...params} label={t('workflow.propertyPanelLabel.assignmentStrategy')} />}
                                 onChange={(e, value) => handleAssignmentStrategyChange(value?.value || '')}
                                 size="small"
                                 fullWidth
@@ -594,7 +584,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                                     control={
                                         <Switch checked={properties.allowWithdraw} onChange={(event: React.ChangeEvent<HTMLInputElement>) => handlePropertyChange('allowWithdraw', event.target.checked)} />
                                     }
-                                    label="允许撤回"
+                                    label={t('workflow.propertyPanelLabel.allowWithdraw')}
                                     labelPlacement='start'
 
                                 />
@@ -605,7 +595,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                                     control={
                                         <Switch checked={properties.rememberLastAssignee} onChange={(event: React.ChangeEvent<HTMLInputElement>) => handlePropertyChange('rememberLastAssignee', event.target.checked)} />
                                     }
-                                    label="记忆上次处理人"
+                                    label={t('workflow.propertyPanelLabel.rememberLastAssignee')}
                                     labelPlacement='start'
                                 />
                             </Box>
@@ -617,18 +607,18 @@ function PropertyPanel(props: PropertyPanelProps) {
                         <>
                             <Divider sx={{ my: 1 }} />
                             <Typography variant="subtitle2" color="primary">
-                                网关配置
+                                {t('workflow.propertyPanelLabel.gatewayConfig')}
                             </Typography>
 
                             <FormControl size="small" fullWidth>
-                                <InputLabel>网关类型</InputLabel>
+                                <InputLabel>{t('workflow.propertyPanelLabel.gatewaytype')}</InputLabel>
                                 <Select
                                     value={properties.gatewayType || element.data?.nodeType}
-                                    label="网关类型"
+                                    label={t('workflow.propertyPanelLabel.gatewaytype')}
                                     onChange={(e) => handlePropertyChange('gatewayType', e.target.value)}
                                 >
-                                    <MenuItem value="parallel">并行网关</MenuItem>
-                                    <MenuItem value="exclusive">排他网关</MenuItem>
+                                    <MenuItem value="parallel">{t('workflow.propertyPanelLabel.gatewaytypeOptions.parallel')}</MenuItem>
+                                    <MenuItem value="exclusive">{t('workflow.propertyPanelLabel.gatewaytypeOptions.exclusive')}</MenuItem>
                                 </Select>
                             </FormControl>
 
@@ -647,7 +637,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                     {element.data?.nodeType !== 'end' && (
                         <>
 
-                            <div style={{ fontSize: '14px', fontWeight: 'bold' }}>字段权限</div>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{t('workflow.propertyPanelLabel.fieldPermission')}</div>
                             {currentFormSchema.componentInfoList.map((component: any) => {
                                 if (component.type === 'row') {
                                     return component.children.map((child: any) => {
@@ -661,10 +651,10 @@ function PropertyPanel(props: PropertyPanelProps) {
                                                 value={properties?.fieldPermissions?.[child.componentKey] || 'hidden'}
                                                 onChange={(e) => handleFieldPermissionChange(child.componentKey, e.target.value)}
                                             >
-                                                <FormControlLabel value="readonly" control={<Radio />} label="只读" />
-                                                <FormControlLabel value="optional" control={<Radio />} label="选填" />
-                                                <FormControlLabel value="required" control={<Radio />} label="必填" />
-                                                <FormControlLabel value="hidden" control={<Radio />} label="隐藏" />
+                                                <FormControlLabel value="readonly" control={<Radio />} label={t('workflow.propertyPanelLabel.fieldPermissionOptions.readonly')} />
+                                                <FormControlLabel value="optional" control={<Radio />} label={t('workflow.propertyPanelLabel.fieldPermissionOptions.optional')} />
+                                                <FormControlLabel value="required" control={<Radio />} label={t('workflow.propertyPanelLabel.fieldPermissionOptions.required')} />
+                                                <FormControlLabel value="hidden" control={<Radio />} label={t('workflow.propertyPanelLabel.fieldPermissionOptions.hidden')} />
                                             </RadioGroup>
                                         </Box>)
                                     })

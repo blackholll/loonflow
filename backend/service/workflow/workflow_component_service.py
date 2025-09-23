@@ -70,6 +70,7 @@ class WorkflowComponentService(BaseService):
                             # update existed child component
                             update_child_component_info = copy.deepcopy(child_info)
                             update_child_component_info.pop('id')
+                            update_child_component_info.pop('component_permission')
                             update_child_component_info = {**update_child_component_info, 'tenant_id': tenant_id, 'workflow_id': workflow_id, 'version_id': version_id, 'parent_component_id': id_to_new_id_dict.get(component_info.get("id"))}
                             Component.objects.filter(id=child_info.get('id')).update(**update_child_component_info)
                             id_to_new_id_dict[child_info.get("id")] = child_info.get("id")

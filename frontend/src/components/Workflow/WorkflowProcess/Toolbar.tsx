@@ -14,7 +14,7 @@ import {
     Delete as DeleteIcon,
     ContentCopy as CopyIcon,
 } from '@mui/icons-material';
-
+import { useTranslation } from 'react-i18next';
 interface ToolbarProps {
     onClear: () => void;
     onUndo: () => void;
@@ -38,6 +38,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     canUndo,
     canRedo,
 }) => {
+    const { t } = useTranslation();
     return (
         <MuiToolbar
             variant="dense"
@@ -49,14 +50,14 @@ const Toolbar: React.FC<ToolbarProps> = ({
             }}
         >
             <Typography variant="h6" component="h1" sx={{ flexGrow: 0, mr: 3 }}>
-                流程图编辑器
+                {t('workflow.toolbarLabel.workflowEditor')}
             </Typography>
 
             <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
 
             {/* 编辑操作 */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Tooltip title="撤销">
+                <Tooltip title={t('workflow.toolbarLabel.undo')}>
                     <span>
                         <IconButton
                             onClick={onUndo}
@@ -68,7 +69,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                     </span>
                 </Tooltip>
 
-                <Tooltip title="重做">
+                <Tooltip title={t('workflow.toolbarLabel.redo')}>
                     <span>
                         <IconButton
                             onClick={onRedo}
@@ -85,7 +86,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
             {/* 选择操作 */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Tooltip title="复制">
+                <Tooltip title={t('workflow.toolbarLabel.copy')}>
                     <span>
                         <IconButton
                             onClick={onCopy}
@@ -97,7 +98,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
                     </span>
                 </Tooltip>
 
-                <Tooltip title="删除">
+                <Tooltip title={t('workflow.toolbarLabel.delete')}>
                     <span>
                         <IconButton
                             onClick={onDelete}
@@ -115,7 +116,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
             {/* 画布操作 */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <Tooltip title="清空画布">
+                <Tooltip title={t('workflow.toolbarLabel.clearCanvas')}>
                     <span>
                         <IconButton
                             onClick={onClear}

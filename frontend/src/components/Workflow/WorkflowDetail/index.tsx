@@ -228,13 +228,13 @@ function WorkflowDetail() {
                 const newWorkflowId = response.data.workflowId;
                 navigate(`/workflow/${newWorkflowId}?version_name=${versionName}`)
             } else {
-                showMessage(t('common.releaseWorkflowFailed'), 'error');
+                showMessage(t('workflow.releaseWorkflowFailed'), 'error');
             }
         } else {
             // update workflow
             const response = await updateWorkflow(workflowId!, { ...workflowDetailInfo, basicInfo: { ...workflowDetailInfo.basicInfo, version: versionName } })
             if (response.code === 0) {
-                showMessage(t('common.releaseWorkflowSuccess'), 'success');
+                showMessage(t('workflow.releaseWorkflowSuccess'), 'success');
                 setShowVersionDialog(false);
                 handleConfirmClear();
                 navigate(`/workflow/${workflowId}?version_name=${versionName}`)
@@ -309,7 +309,7 @@ function WorkflowDetail() {
                 position: 'relative'
             }}>
                 <ArrowBackIosNewOutlinedIcon style={{ marginRight: '16px' }} onClick={() => navigate(`/workflow`)} />
-                {workflowDetailInfo?.basicInfo?.name || '未命名1'}
+                {workflowDetailInfo?.basicInfo?.name || t('workflow.unnamed')}
                 <Box sx={{
                     position: 'absolute',
                     left: '50%',
@@ -320,10 +320,10 @@ function WorkflowDetail() {
                         onChange={handleTabChange}
                         centered
                     >
-                        <Tab label="基本信息" value="basicInfo" />
-                        <Tab label="表单设计" value="formDesign" />
-                        <Tab label="流程设计" value="processDesign" />
-                        <Tab label="高级设置" value="advancedSetting" />
+                        <Tab label={t('workflow.basicInfo')} value="basicInfo" />
+                        <Tab label={t('workflow.formDesign')} value="formDesign" />
+                        <Tab label={t('workflow.processDesign')} value="processDesign" />
+                        <Tab label={t('workflow.advancedSetting')} value="advancedSetting" />
                     </Tabs>
                 </Box>
                 {problems.length > 0 && (
@@ -364,7 +364,7 @@ function WorkflowDetail() {
                     sx={{ marginLeft: 'auto' }}
                     onClick={handleReleaseClick}
                 >
-                    发布
+                    {t('workflow.release')}
                 </Button>
             </Box>
             <Box>
@@ -379,18 +379,18 @@ function WorkflowDetail() {
                 open={showConfirmDialog}
                 onClose={() => setShowConfirmDialog(false)}
             >
-                <DialogTitle>发现草稿</DialogTitle>
+                <DialogTitle>{t('workflow.draftFound')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        发现本地保存的草稿，是否要加载？
+                        {t('workflow.loadDraftDescription')}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleConfirmClear} color="primary">
-                        清空草稿
+                        {t('workflow.clearDraft')}
                     </Button>
                     <Button onClick={handleConfirmLoad} color="primary" variant="contained">
-                        加载草稿
+                        {t('workflow.loadDraft')}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -399,29 +399,29 @@ function WorkflowDetail() {
                 onClose={() => setShowVersionDialog(false)}
                 fullWidth
             >
-                <DialogTitle>设置版本 {versionPathName ? `(当前版本: ${versionPathName})` : null}</DialogTitle>
+                <DialogTitle>{t('workflow.setVersion')} ({versionPathName ? `${t('workflow.currentVersion')} : ${versionPathName}` : null})</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         <TextField
                             fullWidth
-                            label="版本名称"
+                            label={t('workflow.versionName')}
                             required
                             value={versionName}
                             onChange={(e) => setVersionName(e.target.value)}
                         />
-                        {!versionName && <Alert severity="error">请输入版本名称</Alert>}
-                        <Alert severity="info">你可以设置任意格式的版本,如1.0.1, 1, v1, v1.0等, 可以在工作流列表页管理版本</Alert>
-                        {isCheckingCompatibility && <Alert severity="info">正在检查兼容性...</Alert>}
-                        {!isCompatible && <Alert severity="error">建议创建一个新版本，因为本次修改与旧版本不兼容: {compatibilityMessages.join(', ')}</Alert>}
+                        {!versionName && <Alert severity="error">{t('workflow.setVersionDescription')}</Alert>}
+                        <Alert severity="info">{t('workflow.setVersionDescription2')}</Alert>
+                        {isCheckingCompatibility && <Alert severity="info">{t('workflow.checkCompatibilityDescription')}</Alert>}
+                        {!isCompatible && <Alert severity="error">{t('workflow.compatibilityMessages', { compatibilityMessages: compatibilityMessages.join(', ') })}</Alert>}
 
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={(e) => setShowVersionDialog(false)} color="primary">
-                        取消
+                        {t('common.cancel')}
                     </Button>
                     <Button onClick={handleReleaseWorkflow} color="primary" variant="contained" disabled={!versionName}>
-                        确定
+                        {t('common.confirm')}
                     </Button>
                 </DialogActions>
             </Dialog>

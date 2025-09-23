@@ -14,13 +14,14 @@ import {
 } from '@mui/icons-material';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { FormStructure, ComponentTemplate, FormDesignProps } from '../../../types/workflowDesign';
-import componentCategories from './ComponentCategories';
+import getComponentCategories from './ComponentCategories';
 import ComponentProperties from './ComponentProperties';
 import FormDesign from './FormDesign';
 import FormPreview from './FormPreview';
 import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, createEmptyWorkflowFullDefinition } from '../../../types/workflow';
 import { v4 as uuidv4 } from 'uuid';
 import RenderFormComponent from './RenderFormComponent';
+import { useTranslation } from 'react-i18next';
 
 import {
     TextField,
@@ -38,6 +39,7 @@ interface WorkflowFormProps {
 
 
 function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
+    const { t } = useTranslation();
     const [formSchemaInfo, setFormSchemaInfo] = useState<IFormSchema>(formSchema);
     const [selectedComponent, setSelectedComponent] = useState<IWorkflowComponent | IWorkflowComponentRow | null>(null);
     const [isDragging, setIsDragging] = useState(false);
@@ -64,7 +66,10 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
     };
 
     // 生成唯一的字段标识
-    const generateUniqueFieldKey = (existingComponents: (IWorkflowComponent | IWorkflowComponentRow)[]) => {
+    const generateUniqueFieldKey = (existingComponents: (IWorkflowComponent | IWorkflowComponentRow)[], type: string) => {
+        if (type === 'title') {
+            return 'title';
+        }
         const getAllFieldKeys = (components: (IWorkflowComponent | IWorkflowComponentRow)[]): string[] => {
             const keys: string[] = [];
             components.forEach(comp => {
@@ -141,7 +146,13 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
 
     const handleDragStart = (e: React.DragEvent, template: ComponentTemplate) => {
         setIsDragging(true);
-        e.dataTransfer.setData('application/json', JSON.stringify(template));
+        // 创建一个不包含React组件的纯数据对象
+        const templateData = {
+            type: template.type,
+            componentName: template.componentName,
+            defaultProps: template.defaultProps
+        };
+        e.dataTransfer.setData('application/json', JSON.stringify(templateData));
     };
 
     const handleComponentUpdate = (updatedComponent: IWorkflowComponent | IWorkflowComponentRow) => {
@@ -178,11 +189,11 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
             {/* 左侧组件库 */}
             <Paper sx={{ width: 250, p: 2, overflow: 'auto' }}>
                 <Typography variant="h6" gutterBottom>
-                    组件库
+                    {t('workflow.componentLibrary')}
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
 
-                {Object.entries(componentCategories).map(([categoryKey, category]) => (
+                {Object.entries(getComponentCategories(t)).map(([categoryKey, category]) => (
                     <Box key={categoryKey} sx={{ mb: 3 }}>
                         <Typography variant="subtitle2" color="primary" gutterBottom>
                             {category.title}
@@ -235,12 +246,12 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
                     <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)}>
                         <Tab
                             icon={<EditIcon />}
-                            label="设计"
+                            label={t('workflow.design')}
                             iconPosition="start"
                         />
                         <Tab
                             icon={<PreviewIcon />}
-                            label="预览"
+                            label={t('workflow.preview')}
                             iconPosition="start"
                         />
                     </Tabs>
@@ -277,7 +288,7 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
             {/* 右侧属性面板 */}
             <Paper sx={{ width: 350, p: 2, overflow: 'auto' }}>
                 <Typography variant="h6" gutterBottom>
-                    属性设置
+                    {t('workflow.componentProperties.componentProperties')}
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
 
@@ -285,10 +296,11 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
                     <ComponentProperties
                         component={selectedComponent}
                         onUpdate={handleComponentUpdate}
+                        formSchema={formSchemaInfo}
                     />
                 ) : (
                     <Typography variant="body2" color="text.secondary">
-                        选择一个组件来编辑其属性
+                        {t('workflow.componentProperties.selectComponentToEditProperties')}
                     </Typography>
                 )}
             </Paper>

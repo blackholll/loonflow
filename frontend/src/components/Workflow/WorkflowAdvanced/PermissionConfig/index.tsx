@@ -6,6 +6,7 @@ import { getDeptPaths } from '../../../../services/dept';
 import { ISimpleUser } from '../../../../types/user';
 import { ISimpleDeptPath } from '../../../../types/dept';
 import { IpermissionInfo } from '../../../../types/workflow';
+import { useTranslation } from 'react-i18next';
 
 interface PermissionConfigProps {
     onPermissionConfigChange: (permissionConfig: IpermissionInfo) => void;
@@ -29,11 +30,11 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
     const [selectedViewerDepts, setSelectedViewerDepts] = useState<{ label: string, value: string }[]>([]);
 
 
-    // 为不同的权限配置创建独立的状态变量
     const [adminUsers, setAdminUsers] = React.useState<IOption[]>([]);
     const [dispatcherUsers, setDispatcherUsers] = React.useState<IOption[]>([]);
     const [viewerUsers, setViewerUsers] = React.useState<IOption[]>([]);
     const [viewerDepts, setViewerDepts] = React.useState<IOption[]>([]);
+    const { t } = useTranslation();
 
     const handleAdminSelectChange = (value: { label: string, value: string }[]) => {
         const newPermissionConfig = { ...permissionConfigInfo, adminIdList: value.map((v: any) => v.value) };
@@ -156,7 +157,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
             <Stack spacing={3}>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>管理员</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.permissionSettingLabel.admin')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <Autocomplete
@@ -173,8 +174,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="选择管理员"
-                                    placeholder="输入关键词后搜索用户..."
+                                    placeholder={t('common.searchWithKeyword')}
                                     InputProps={{
                                         ...params.InputProps,
                                         endAdornment: (
@@ -194,7 +194,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
                 </Grid>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>调度员</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.permissionSettingLabel.dispatcher')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <Autocomplete
@@ -211,8 +211,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="选择调度员"
-                                    placeholder="输入关键词后搜索用户..."
+                                    placeholder={t('common.searchWithKeyword')}
                                     InputProps={{
                                         ...params.InputProps,
                                         endAdornment: (
@@ -232,7 +231,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
                 </Grid>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>查看者</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.permissionSettingLabel.viewer')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <Autocomplete
@@ -249,8 +248,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="选择处理人"
-                                    placeholder="输入关键词后搜索用户..."
+                                    placeholder={t('common.searchWithKeyword')}
                                     InputProps={{
                                         ...params.InputProps,
                                         endAdornment: (
@@ -270,7 +268,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
                 </Grid>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>查看部门</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.permissionSettingLabel.viewerDept')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <Autocomplete
@@ -287,8 +285,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="选择查看部门"
-                                    placeholder="输入关键词后搜索用户..."
+                                    placeholder={t('common.searchWithKeyword')}
                                     InputProps={{
                                         ...params.InputProps,
                                         endAdornment: (

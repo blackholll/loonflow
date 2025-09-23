@@ -157,8 +157,9 @@ class TicketFieldService(BaseService):
         for need_add_field_value in need_add_field_value_list:
             field_key = list(need_add_field_value.keys())[0]
             field_value_column = cls.get_field_value_column(field_key_type_dict.get(field_key))
-            TicketCustomField.objects.create(ticket_id=ticket_id, tenant_id=tenant_id, field_key=field_key, 
-                                             field_type=field_key_type_dict.get(field_key), **{field_value_column: need_add_field_value[field_key]})
+            if field_value_column:
+                TicketCustomField.objects.create(ticket_id=ticket_id, tenant_id=tenant_id, field_key=field_key, 
+                                                field_type=field_key_type_dict.get(field_key), **{field_value_column: need_add_field_value[field_key]})
         return True
 
 

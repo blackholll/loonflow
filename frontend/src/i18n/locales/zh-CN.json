@@ -7,6 +7,9 @@
   },
   "actions": "操作",
   "common": {
+    "insert": "插入",
+    "unnamed": "未命名",
+    "creator": "创建人",
     "createdAt": "创建时间",
     "updatedAt": "更新时间",
     "addSuccess": "新增成功",
@@ -157,10 +160,291 @@
     "interveneTickets": "干预工单"
   },
   "workflow": {
+    "release": "发布",
+    "releaseWorkflowSuccess": "发布工作流成功",
+    "releaseWorkflowFail": "发布工作流失败",
+    "currentVersion": "当前版本",
+    "setVersion": "设置版本",
+    "versionName": "版本名称",
+    "checkCompatibilityDescription": "正在检查兼容性...",
+    "compatibilityMessages": "建议创建一个新版本，因为本次修改与旧版本不兼容: {compatibilityMessages}",
+    "setVersionDescription": "请输入版本名称",
+    "setVersionDescription2": "你可以设置任意格式的版本,如1.0.1, 1, v1, v1.0等, 可以在工作流列表页管理版本",
     "workflowList": "流程列表",
+    "versionList": "版本列表",
+    "editVersion": "编辑版本",
+    "editWorkflow": "编辑工作流",
     "activeVersion": "当前版本",
     "candidateVersion": "候选版本",
-    "archivedVersion": "归档版本"
+    "archivedVersion": "归档版本",
+    "basicInfo": "基本信息",
+    "formDesign": "表单设计",
+    "processDesign": "流程设计",
+    "advancedSetting": "高级设置",
+    "design": "设计",
+    "preview": "预览",
+    "addRow": "添加行",
+    "dragComponentToHere": "拖拽组件到此处",
+    "addRowAfterDragComponentToRow": "添加行后,从左侧组件库将组件拖拽到行容器中",
+    "componentLibrary": "组件库",
+    "dragComponentToThisRow": "拖拽组件到此行",
+    "rowContainer": "行容器",
+    "noFormContent": "暂无表单内容",
+    "pleaseAddComponentsInDesignMode": "请在设计模式下添加组件",
+    "draftFound": "发现草稿",
+    "loadDraftDescription": "发现本地保存的草稿，是否要加载？",
+    "clearDraft": "清空草稿",
+    "loadDraft": "加载草稿",
+    "componentProperties": {
+      "componentProperties": "属性设置",
+      "selectComponentToEditProperties": "选择一个组件来编辑其属性",
+      "fieldKey": "字段标识",
+      "fieldKeyHelperText": "系统自动生成的唯一标识，不可修改, 用于定时开发时的API调用",
+      "titleGenerateMode": "标题生成方式",
+      "titleTemplate": "标题模板",
+      "fieldNameHelperText": "名称为必填项",
+      "fieldDescriptionHelperText": "输入字段描述，将在表单中显示为提示信息",
+      "manualInput": "手动填写",
+      "autoGenerate": "自动生成",
+      "placeholder": "占位符",
+      "supportMultiple": "支持多选",
+      "width": "宽度",
+      "fullWidth": "全宽",
+      "timeFormat": "时间格式",
+      "timeFormatHourMinSec": "时:分:秒 上午/下午",
+      "timeFormatHour": "时 上午/下午",
+      "timeFormatMinSec": "分:秒",
+      "options": "选项",
+      "addOption": "添加选项",
+      "hideOptionKeys": "隐藏选项标识",
+      "showOptionKeys": "显示选项标识",
+      "optionKeysInfo": "选项标识可用于API调用的参数",
+      "titleTemplatePlaceholder": "请输入通知标题模板"
+    },
+    "componentCategories": {
+      "basicComponent": "基础组件",
+      "infoComponent": "信息组件",
+      "textComponent": "单行文本",
+      "textareaComponent": "多行文本",
+      "numberComponent": "数字",
+      "selectComponent": "下拉选择",
+      "radioComponent": "单选框",
+      "checkboxComponent": "复选框",
+      "timeComponent": "时间选择",
+      "dateComponent": "日期选择",
+      "fileComponent": "附件",
+      "userComponent": "用户",
+      "departmentComponent": "部门",
+      "linkComponent": "链接",
+      "richTextComponent": "富文本",
+      "externalDataComponent": "外部数据源",
+      "customCreatorComponent": "创建人",
+      "customCreatedAtComponent": "创建时间",
+      "ticketNodesComponent": "工单节点",
+      "approvalStatusComponent": "审批状态",
+      "ticketTypeComponent": "工单类型",
+      "currentHandlerComponent": "当前处理人",
+      "titleComponent": "标题",
+      "textComponentDefaultPlaceholder": "文本输入",
+      "textareaComponentDefaultPlaceholder": "多行文本输入",
+      "numberComponentDefaultPlaceholder": "数字输入",
+      "selectComponentDefaultPlaceholder": "下拉选择",
+      "radioComponentDefaultPlaceholder": "单选框",
+      "checkboxComponentDefaultPlaceholder": "复选框",
+      "timeComponentDefaultPlaceholder": "时间选择",
+      "dateComponentDefaultPlaceholder": "日期选择",
+      "fileComponentDefaultPlaceholder": "附件",
+      "userComponentDefaultPlaceholder": "用户",
+      "departmentComponentDefaultPlaceholder": "部门",
+      "linkComponentDefaultPlaceholder": "链接",
+      "richTextComponentDefaultPlaceholder": "富文本",
+      "externalDataComponentDefaultPlaceholder": "外部数据源",
+      "customCreatorComponentDefaultPlaceholder": "创建人",
+      "customCreatedAtComponentDefaultPlaceholder": "创建时间",
+      "ticketStatusComponentDefaultPlaceholder": "工单状态",
+      "approvalStatusComponentDefaultPlaceholder": "审批状态",
+      "ticketTypeComponentDefaultPlaceholder": "工单类型",
+      "currentHandlerComponentDefaultPlaceholder": "当前处理人",
+      "titleComponentDefaultPlaceholder": "标题",
+      "optionComponentOption1": "选项1",
+      "optionComponentOption2": "选项2",
+      "optionComponentOption3": "选项3"
+    },
+    "nodePanelLabel": {
+      "nodeLibrary": "节点库",
+      "basicNodes": "基础节点",
+      "gatewayNodes": "网关节点",
+      "advancedNodes": "高级节点",
+      "startNode": "开始节点",
+      "normalNode": "普通节点",
+      "endNode": "结束节点",
+      "parallelGateway": "并行网关节点",
+      "exclusiveGateway": "排他网关节点",
+      "timerNode": "定时器节点",
+      "hookNode": "钩子节点"
+    },
+    "toolbarLabel": {
+      "workflowEditor": "流程图编辑器",
+      "undo": "撤销",
+      "redo": "重做",
+      "copy": "复制",
+      "delete": "删除",
+      "clearCanvas": "清空画布"
+    },
+    "propertyPanelLabel": {
+      "name": "名称",
+      "inputEdgeName": "输入连线名称",
+      "propertyPanel": "属性面板",
+      "pleaseSelectNodeOrEdge": "请选择一个节点或连线来查看和编辑属性",
+      "edgeNameAccept": "同意",
+      "edgeNameReject": "拒绝",
+      "edgeNameOther": "其他",
+      "edgeType": "连线类型",
+      "edgeTypeOptions": {
+        "agree": "同意",
+        "reject": "拒绝",
+        "other": "其他"
+      },
+      "conditionExpression": "条件表达式",
+      "conditionExpressionPlaceholder": "例如: {{status}} == 'approved'",
+      "edge": "连线",
+      "node": "节点",
+      "nodeProperties": "节点属性",
+      "edgeProperties": "连线属性",
+      "nodeLabel": "节点名称",
+      "edgeLabel": "连线名称",
+      "assigneeType": "处理人类型",
+      "loadUsersFailed": "加载用户列表失败",
+      "loadDeptsFailed": "加载部门列表失败",
+      "loadRolesFailed": "加载角色列表失败",
+      "assigneePlaceholder": "输入关键词后搜索...",
+      "assigneeTypeOptions": {
+        "users": "用户",
+        "depts": "部门",
+        "roles": "角色",
+        "variables": "变量",
+        "ticket_field": "工单字段",
+        "parent_ticket_field": "父工单字段",
+        "external": "外部获取"
+      },
+      "assigneeTypeUsersLabel": {
+        "label": "用户",
+        "placeholder": "输入用户标识，如：username, agent",
+        "helperText": "请输入用户中的字段标识，该字段应包含用户名信息"
+      },
+      "assigneeTypeDeptsLabel": {
+        "label": "部门",
+        "placeholder": "输入部门标识，如：department, agent",
+        "helperText": "请输入部门中的字段标识，该字段应包含部门名信息"
+      },
+      "assigneeTypeRolesLabel": {
+        "label": "角色",
+        "placeholder": "输入角色标识，如：role, agent",
+        "helperText": "请输入角色中的字段标识，该字段应包含角色名信息"
+      },
+      "assigneeTypeTicketFieldLabel": {
+        "label": "工单字段",
+        "placeholder": "输入工单字段标识，如：username, agent",
+        "helperText": "请输入工单中的字段标识，该字段应包含用户名信息"
+      },
+      "assigneeTypeParentTicketFieldLabel": {
+        "label": "父工单字段",
+        "placeholder": "输入父工单字段标识，如：po, manager",
+        "helperText": "请输入父工单中的字段标识，该字段应包含用户名信息"
+      },
+      "assigneeTypeExternalLabel": {
+        "label": "外部获取",
+        "placeholder": "输入外部接口URL",
+        "helperText": "系统将通过该接口获取处理人信息"
+      },
+      "assigneeTypeNoneLabel": {
+        "label": "请先选择处理人类型",
+        "placeholder": "请先选择处理人类型"
+      },
+      "assigneeTypeHookLabel": {
+        "label": "钩子配置",
+        "placeholder": "输入钩子配置",
+        "helperText": "请输入钩子配置"
+      },
+      "assigneeTypeTimerLabel": {
+        "label": "定时器",
+        "placeholder": "输入定时器配置",
+        "helperText": "请输入定时器配置"
+      },
+      "assigneeTypeFromExternalLabel": {
+        "label": "外部获取",
+        "placeholder": "输入外部接口URL",
+        "helperText": "系统将通过该接口获取处理人信息"
+      },
+      "assignmentStrategy": "分配策略",
+      "assignmentStrategyOptions": {
+        "voluntary": "主动接单",
+        "direct": "直接处理",
+        "random": "随机分配",
+        "all": "全部处理"
+      },
+      "assignee": "处理人",
+      "assigneeTypeVariableOptions": {
+        "creator": "工单创建人",
+        "dept_approver": "部门审批人"
+      },
+      "allowWithdraw": "允许撤回",
+      "rememberLastAssignee": "记忆上次处理人",
+      "gatewayType": "网关类型",
+      "gatewayTypeOptions": {
+        "parallel": "并行网关",
+        "exclusive": "排他网关"
+      },
+      "gatewayConfig": "网关配置",
+      "gatewaytype": "网关类型",
+      "gatewaytypeOptions": {
+        "parallel": "并行网关",
+        "exclusive": "排他网关"
+      },
+      "defaultBranch": "默认分支",
+      "defaultBranchPlaceholder": "默认分支的连线ID",
+      "fieldPermission": "字段权限",
+      "fieldPermissionOptions": {
+        "readonly": "只读",
+        "optional": "选填",
+        "required": "必填",
+        "hidden": "隐藏"
+      }
+    },
+    "advancedSettingLabel": {
+      "notificationSetting": "通知配置",
+      "permissionSetting": "权限配置",
+      "customizeSetting": "定制配置",
+      "notificationSettingLabel": {
+        "notificationTitleTemplate": "通知标题模板",
+        "notificationTitleTemplatePlaceholder": "请输入通知标题模板",
+        "notificationContentTemplate": "通知内容模板",
+        "notificationContentTemplatePlaceholder": "请输入通知内容模板",
+        "notificationSelectedChannelList": "通知渠道",
+        "notificationSelectedChannelListPlaceholder": "请选择通知渠道"
+      },
+      "permissionSettingLabel": {
+        "admin": "管理员",
+        "dispatcher": "调度员",
+        "viewer": "查看员",
+        "viewerDept": "查看部门"
+      },
+      "customizeSettingLabel": {
+        "authorizedApp": "应用授权",
+        "labelConfig": "标签配置",
+        "hookConfig": "Hook配置",
+        "hookUrl": "Hook地址",
+        "hookEvent": "事件类型",
+        "eventTypeOptions": {
+          "pre_start": "创建前",
+          "started": "创建后",
+          "force_closed": "强制关闭",
+          "nomal_end": "正常结束",
+          "rejected": "被拒绝",
+          "withdrawn": "被撤回"
+        }
+      }
+    }
   },
   "setting": {
     "tenant": {

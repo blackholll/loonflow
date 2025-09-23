@@ -19,22 +19,22 @@ import {
     Timer as TimerIcon,
     Webhook as WebhookIcon
 } from '@mui/icons-material';
-
+import { useTranslation } from 'react-i18next';
 interface NodePanelProps {
     onAddNode: (nodeType: string, nodeData: any) => void;
 }
 
-// 节点配置
-const nodeConfigs = {
+// 创建获取节点配置的函数
+const getNodeConfigs = (t: any) => ({
     // 基础节点
     basicNodes: [
         {
             type: 'start',
-            label: '开始节点',
+            label: t('workflow.nodePanelLabel.startNode'),
             icon: StartIcon,
             color: '#4caf50',
             properties: {
-                name: '新建中',
+                name: t('workflow.nodePanelLabel.startNode'),
                 type: 'start',
                 canConnect: true,
                 canDisconnect: false,
@@ -42,11 +42,11 @@ const nodeConfigs = {
         },
         {
             type: 'normal',
-            label: '普通节点',
+            label: t('workflow.nodePanelLabel.normalNode'),
             icon: NormalIcon,
             color: '#2196f3',
             properties: {
-                name: '处理中',
+                name: t('workflow.nodePanelLabel.normalNode'),
                 type: 'normal',
                 canConnect: true,
                 canDisconnect: true,
@@ -54,11 +54,11 @@ const nodeConfigs = {
         },
         {
             type: 'end',
-            label: '结束节点',
+            label: t('workflow.nodePanelLabel.endNode'),
             icon: EndIcon,
             color: '#f44336',
             properties: {
-                name: '已结束',
+                name: t('workflow.nodePanelLabel.endNode'),
                 type: 'end',
                 canConnect: false,
                 canDisconnect: true,
@@ -69,7 +69,7 @@ const nodeConfigs = {
     gatewayNodes: [
         {
             type: 'parallelGateway',
-            label: '并行网关',
+            label: t('workflow.nodePanelLabel.parallelGateway'),
             icon: ParallelIcon,
             color: '#ff9800',
             properties: {
@@ -81,7 +81,7 @@ const nodeConfigs = {
         },
         {
             type: 'exclusiveGateway',
-            label: '排他网关',
+            label: t('workflow.nodePanelLabel.exclusiveGateway'),
             icon: ExclusiveIcon,
             color: '#9c27b0',
             properties: {
@@ -97,7 +97,7 @@ const nodeConfigs = {
         {
             type: 'timer',
             icon: TimerIcon,
-            label: '定时器节点',
+            label: t('workflow.nodePanelLabel.timerNode'),
             color: '#9c27b0',
             properties: {
                 type: 'timer',
@@ -108,7 +108,7 @@ const nodeConfigs = {
         {
             type: 'hook',
             icon: WebhookIcon,
-            label: '钩子节点',
+            label: t('workflow.nodePanelLabel.hookNode'),
             color: '#9c27b0',
             properties: {
                 type: 'hook',
@@ -117,10 +117,12 @@ const nodeConfigs = {
             }
         }
     ]
-};
+});
 
 function NodePanel(props: NodePanelProps) {
     const { onAddNode } = props;
+    const { t } = useTranslation();
+    const nodeConfigs = getNodeConfigs(t);
     const handleNodeDrag = (nodeConfig: any) => {
         onAddNode(nodeConfig.type, {
             label: nodeConfig.properties.name,
@@ -134,14 +136,14 @@ function NodePanel(props: NodePanelProps) {
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
                 <Typography variant="h6" component="h2">
-                    节点库
+                    {t('workflow.nodePanelLabel.nodeLibrary')}
                 </Typography>
             </Box>
 
             <Box sx={{ flex: 1, overflow: 'auto', p: 1 }}>
-                {/* 基础节点 */}
+                {/* basic nodes */}
                 <Typography variant="subtitle2" sx={{ px: 1, py: 1, fontWeight: 'bold' }}>
-                    基础节点
+                    {t('workflow.nodePanelLabel.basicNodes')}
                 </Typography>
                 <Paper variant="outlined" sx={{ mb: 2 }}>
                     <List dense>
@@ -170,9 +172,8 @@ function NodePanel(props: NodePanelProps) {
 
                 <Divider sx={{ my: 1 }} />
 
-                {/* 网关节点 */}
                 <Typography variant="subtitle2" sx={{ px: 1, py: 1, fontWeight: 'bold' }}>
-                    网关节点
+                    {t('workflow.nodePanelLabel.gatewayNodes')}
                 </Typography>
                 <Paper variant="outlined">
                     <List dense>
@@ -201,7 +202,7 @@ function NodePanel(props: NodePanelProps) {
 
                 {/* 高级节点 */}
                 <Typography variant="subtitle2" sx={{ px: 1, py: 1, fontWeight: 'bold' }}>
-                    高级节点
+                    {t('workflow.nodePanelLabel.advancedNodes')}
                 </Typography>
                 <Paper variant="outlined">
                     <List dense>

@@ -79,7 +79,7 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
         <div>
             <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{ 'marginLeft': '10px' }}>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={handleChangeKeyword} />
+                    <TextField fullWidth label={t('common.searchWithKeyword')} onChange={handleChangeKeyword} />
                 </Grid>
             </Grid>
 
@@ -103,8 +103,8 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                                     <TableCell>{workflowVersion.type}</TableCell>
                                     <TableCell>{new Date(workflowVersion.createdAt).toLocaleString()}</TableCell>
                                     <TableCell>
-                                        <div><Button onClick={() => handleEditVersion(workflowVersion)}>编辑版本</Button>
-                                            <Button disabled={workflowVersion.type === 'archived'} onClick={() => workflowVersion.type !== 'archived' && navigate(`/workflow/${workflowId}?version_name=${workflowVersion.name}`)}>编辑工作流</Button>
+                                        <div><Button onClick={() => handleEditVersion(workflowVersion)}>{t('workflow.editVersion')}</Button>
+                                            <Button disabled={workflowVersion.type === 'archived'} onClick={() => workflowVersion.type !== 'archived' && navigate(`/workflow/${workflowId}?version_name=${workflowVersion.name}`)}>{t('workflow.editWorkflow')}</Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>

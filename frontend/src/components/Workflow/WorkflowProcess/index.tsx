@@ -26,6 +26,7 @@ import { CustomNode } from './CustomNode';
 import { CustomEdge } from './CustomEdge';
 import { IProcessSchema, IWorkflowNode, IWorkflowEdge, IFormSchema } from '../../../types/workflow';
 import { v4 as uuidv4 } from 'uuid';
+import { useTranslation } from 'react-i18next';
 
 // edge definition, move to the outside of the component to avoid re-creation
 const edgeTypes: EdgeTypes = {
@@ -153,6 +154,7 @@ function WorkflowProcess({
     const [snackbarMessage] = useState('');
     const [snackbarSeverity] = useState<'error' | 'warning' | 'info' | 'success'>('error');
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
+    const { t } = useTranslation();
 
     // 悬停提示状态（仅 simpleViewMode 时启用）
     const [hoverTooltip, setHoverTooltip] = useState<{
@@ -263,7 +265,7 @@ function WorkflowProcess({
                 type: 'custom',
                 data: {
                     properties: {
-                        name: '同意',
+                        name: t('workflow.propertyPanelLabel.edgeNameAccept'),
                         condition: '',
                         type: 'agree'
                     }

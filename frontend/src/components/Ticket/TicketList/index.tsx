@@ -18,6 +18,7 @@ import useSnackbar from '../../../hooks/useSnackbar';
 import Grid from '@mui/material/Grid2';
 import { ITicketListResEntity } from '@/types/ticket';
 import { ISimpleUser } from '@/types/user';
+import MuiLink from '@mui/material/Link';
 
 interface IOption {
   label: string;
@@ -214,7 +215,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Id</TableCell>
+                  {/* <TableCell>Id</TableCell> */}
                   <TableCell>{t('ticketList.ticketTitle')}</TableCell>
                   <TableCell>{t('ticketList.approveState')}</TableCell>
                   <TableCell>{t('ticketList.ticketCreator')}</TableCell>
@@ -225,17 +226,15 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
               <TableBody>
                 {ticketList ? ticketList.map((ticket) => (
                   <TableRow key={ticket.id}>
-                    <TableCell>{ticket.id}</TableCell>
+                    {/* <TableCell>{ticket.id}</TableCell> */}
                     <TableCell>{ticket.title}</TableCell>
                     <TableCell>{ticket.actState}</TableCell>
                     <TableCell>{ticket.creatorInfo.alias}</TableCell>
                     <TableCell>{new Date(ticket.createdAt).toLocaleString()}</TableCell>
-                    <TableCell>
-                      <div>
-                        <Link to={`/ticket/${ticket.id}`}>
-                          <Button variant="text" size={'large'} sx={{ width: '150px' }}>{t('common.detail')}</Button>
-                        </Link>
-                      </div>
+                    <TableCell align="left">
+                      <MuiLink component={Link} to={`/ticket/${ticket.id}`} underline="none" color="primary">
+                        {t('common.detail')}
+                      </MuiLink>
                     </TableCell>
                   </TableRow>
                 )) : null}

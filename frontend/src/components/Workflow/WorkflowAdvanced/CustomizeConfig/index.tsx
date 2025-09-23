@@ -6,6 +6,7 @@ import { ISimpleApplicationResEntity } from '../../../../types/application';
 import { v4 as uuidv4 } from 'uuid';
 import { ICustomizationInfo, IWorkflowHook } from '../../../../types/workflow';
 import useSnackbar from '../../../../hooks/useSnackbar';
+import { useTranslation } from 'react-i18next';
 
 
 interface IHookEvent {
@@ -32,6 +33,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
     const [hookUrl, setHookUrl] = useState('');
     const [appSearchValue, setAppSearchValue] = useState('');
     const [loadingApplications, setLoadingApplications] = useState(false);
+    const { t } = useTranslation();
 
     const { showMessage } = useSnackbar();
 
@@ -72,27 +74,27 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
     const hookEvents = [
         {
             key: 'pre_start',
-            label: '创建前'
+            label: t('workflow.advancedSettingLabel.customizeSettingLabel.eventTypeOptions.pre_start')
         },
         {
             key: 'started',
-            label: '创建后'
+            label: t('workflow.advancedSettingLabel.customizeSettingLabel.eventTypeOptions.started')
         },
         {
             key: 'force_closed',
-            label: '强制关闭'
+            label: t('workflow.advancedSettingLabel.customizeSettingLabel.eventTypeOptions.force_closed')
         },
         {
             key: 'nomal_end',
-            label: '正常结束'
+            label: t('workflow.advancedSettingLabel.customizeSettingLabel.eventTypeOptions.nomal_end')
         },
         {
             key: 'rejected',
-            label: '被拒绝'
+            label: t('workflow.advancedSettingLabel.customizeSettingLabel.eventTypeOptions.rejected')
         },
         {
             key: 'withdrawn',
-            label: '被撤回'
+            label: t('workflow.advancedSettingLabel.customizeSettingLabel.eventTypeOptions.withdrawn')
         }
     ]
 
@@ -175,7 +177,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
             <Stack spacing={3}>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>应用授权</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.customizeSettingLabel.authorizedApp')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <Autocomplete
@@ -193,8 +195,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="选择应用"
-                                    placeholder="输入关键词后搜索应用..."
+                                    placeholder={t('common.searchWithKeyword')}
                                     InputProps={{
                                         ...params.InputProps,
                                         endAdornment: (
@@ -214,7 +215,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                 </Grid>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={3} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>标签配置</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.customizeSettingLabel.labelConfig')}</FormLabel>
                     </Grid>
                     <Grid size={9}>
                         <TextField
@@ -234,9 +235,9 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                 </Grid>
                 <Grid container alignItems="flex-start" spacing={2}>
                     <Grid size={12} sx={{ minWidth: 100, pt: 1 }}>
-                        <FormLabel>hook配置</FormLabel>
+                        <FormLabel>{t('workflow.advancedSettingLabel.customizeSettingLabel.hookConfig')}</FormLabel>
                         <Button onClick={() => setOpen(true)}>
-                            新增
+                            {t('common.add')}
                         </Button>
                         {addedHookToken !== "" ? (<Alert severity="info">{addedHookToken} <Button onClick={() => handleCopy()}>复制Token</Button></Alert>) : null}
 
@@ -244,9 +245,9 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                     <Table sx={{ minWidth: 650 }} aria-label="caption table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>HOOK地址</TableCell>
-                                <TableCell align="right">事件类型</TableCell>
-                                <TableCell align="right">操作</TableCell>
+                                <TableCell>{t('workflow.advancedSettingLabel.customizeSettingLabel.hookUrl')}</TableCell>
+                                <TableCell align="right">{t('workflow.advancedSettingLabel.customizeSettingLabel.hookEvent')}</TableCell>
+                                <TableCell align="right">{t('common.actions')}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -264,10 +265,10 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                 </Grid>
             </Stack>
             <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-                <DialogTitle>新增hook</DialogTitle>
+                <DialogTitle>{t('common.add')} Hook</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2}>
-                        <TextField label="HOOK地址" fullWidth value={hookUrl} onChange={(e) => setHookUrl(e.target.value)} />
+                        <TextField label={t('workflow.advancedSettingLabel.customizeSettingLabel.hookUrl')} fullWidth value={hookUrl} onChange={(e) => setHookUrl(e.target.value)} />
                         <Autocomplete
                             value={selectedHookEvent}
                             onChange={(event, newValue) => {
@@ -282,7 +283,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="事件类型"
+                                    label={t('workflow.advancedSettingLabel.customizeSettingLabel.hookEvent')}
                                     placeholder="Favorites"
                                 />
                             )}
@@ -290,8 +291,8 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>取消</Button>
-                    <Button onClick={handleAddHook}>确定</Button>
+                    <Button onClick={handleClose}>{t('common.cancel')}</Button>
+                    <Button onClick={handleAddHook}>{t('common.confirm')}</Button>
                 </DialogActions>
             </Dialog>
         </Box >

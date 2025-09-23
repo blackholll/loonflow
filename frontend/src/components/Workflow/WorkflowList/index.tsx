@@ -56,7 +56,7 @@ export function WorkflowList() {
             <CardHeader title={t('workflow.workflowList')} />
             <Grid container spacing={4} justifyContent="left" alignItems="center" sx={{ 'marginLeft': '10px' }}>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-                    <TextField fullWidth label={t('ticketList.searchWithKeyword')} onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setSearchKey(event.target.value) }} />
+                    <TextField fullWidth label={t('common.searchWithKeyword')} onChange={(event: React.ChangeEvent<HTMLInputElement>) => { setSearchKey(event.target.value) }} />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                     <Link to="/workflow/00000000-0000-0000-0000-000000000000">
@@ -83,7 +83,7 @@ export function WorkflowList() {
                                     <TableCell>{workflowData.description}</TableCell>
                                     <TableCell>{workflowData.version}</TableCell>
                                     <TableCell>
-                                        <div><Button onClick={() => setOpenedWorkflowIdVersion(workflowData.workflowId)}>编辑</Button></div>
+                                        <div><Button onClick={() => setOpenedWorkflowIdVersion(workflowData.workflowId)}>{t('common.edit')}</Button></div>
                                     </TableCell>
                                 </TableRow>
                             )) : null}
@@ -110,7 +110,7 @@ export function WorkflowList() {
                 aria-describedby="alert-dialog-slide-description"
                 fullWidth
             >
-                <DialogTitle>{"版本列表"}</DialogTitle>
+                <DialogTitle>{t('workflow.versionList')}</DialogTitle>
                 <DialogContent>
                     <WorkflowVersion workflowId={openedWorkflowIdVersion} />
                 </DialogContent>

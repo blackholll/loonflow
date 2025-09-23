@@ -8,6 +8,7 @@ import {
     Tooltip
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { useTranslation } from 'react-i18next';
 
 import {
     Delete as DeleteIcon,
@@ -33,7 +34,7 @@ interface FormDesignProps {
     onIsMovingChange: (moving: boolean) => void;
     onMovingComponentChange: (componentId: string | null) => void;
     generateId: () => string;
-    generateUniqueFieldKey: (existingComponents: (IWorkflowComponentRow | IWorkflowComponent)[]) => string;
+    generateUniqueFieldKey: (existingComponents: (IWorkflowComponentRow | IWorkflowComponent)[], type: string) => string;
     generateUniqueOptionKey: (existingComponents: (IWorkflowComponentRow | IWorkflowComponent)[]) => string;
     renderFieldComponent: (component: IWorkflowComponent, handleComponentUpdate: (updatedComponent: IWorkflowComponent) => void) => React.ReactNode;
 }
@@ -59,7 +60,7 @@ function FormDesign(props: FormDesignProps) {
     const canvasRef = useRef<HTMLDivElement>(null);
     const { showMessage } = useSnackbar();
     const [formSchemaDesignInfo, setFormSchemaDesignInfo] = useState<IFormSchema>(formSchemaInfo);
-
+    const { t } = useTranslation();
     // 同步 props 到本地状态
     useEffect(() => {
         setFormSchemaDesignInfo(formSchemaInfo);
@@ -103,7 +104,11 @@ function FormDesign(props: FormDesignProps) {
                 return;
             }
 
-            const template: ComponentTemplate = parsedData;
+            // 重新构造ComponentTemplate对象，添加默认的icon
+            const template: ComponentTemplate = {
+                ...parsedData,
+                icon: <div /> // 添加一个默认的icon，因为拖拽时不需要显示icon
+            };
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
@@ -117,11 +122,11 @@ function FormDesign(props: FormDesignProps) {
 
             const newComponent: IWorkflowComponent = {
                 id: generateId(),
-                type: template.type as 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file',
+                type: template.type as 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'title' | 'customCreator' | 'customCreatedAt' | 'ticketNodes' | 'approvalStatus' | 'ticketType',
                 componentName: template.componentName || '新字段',
                 label: {},
                 description: template.defaultProps.description || '',
-                componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList),
+                componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, template.type),
                 props: {
                     placeholder: template.defaultProps.placeholder || '',
                     multiple: template.defaultProps.extendedProps?.multiple || false,
@@ -160,7 +165,7 @@ function FormDesign(props: FormDesignProps) {
                 id: generateId(),
                 type: 'row',
                 layout: { span: 6 },
-                componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList),
+                componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, 'row'),
                 componentName: '新行',
                 description: '',
                 label: {},
@@ -196,7 +201,7 @@ function FormDesign(props: FormDesignProps) {
             id: generateId(),
             type: 'row',
             layout: { span: 12 },
-            componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList),
+            componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, 'row'),
             componentName: '新行',
             description: '',
             label: {},
@@ -418,7 +423,11 @@ function FormDesign(props: FormDesignProps) {
             }
 
             // 原有的从组件库拖拽逻辑
-            const template: ComponentTemplate = parsedData;
+            // 重新构造ComponentTemplate对象，添加默认的icon
+            const template: ComponentTemplate = {
+                ...parsedData,
+                icon: <div /> // 添加一个默认的icon，因为拖拽时不需要显示icon
+            };
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
@@ -435,7 +444,7 @@ function FormDesign(props: FormDesignProps) {
                 type: template.type,
                 componentName: template.componentName || '新字段',
                 description: template.defaultProps.description || '',
-                componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList),
+                componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, template.type),
                 label: {},
                 props: {
                     placeholder: template.defaultProps.placeholder || '',
@@ -494,7 +503,7 @@ function FormDesign(props: FormDesignProps) {
                     startIcon={<AddIcon />}
                     onClick={addNewRow}
                 >
-                    添加行
+                    {t('workflow.addRow')}
                 </Button>
             </Box>
 
@@ -527,7 +536,7 @@ function FormDesign(props: FormDesignProps) {
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                     <DragIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
                                     <Typography variant="caption" color="text.secondary">
-                                        行容器
+                                        {t('workflow.rowContainer')}
                                     </Typography>
                                     <Box sx={{ flex: 1 }} />
                                     <IconButton
@@ -671,7 +680,7 @@ function FormDesign(props: FormDesignProps) {
                                             color: 'text.secondary'
                                         }}
                                     >
-                                        <Typography variant="body2">拖拽组件到此行</Typography>
+                                        <Typography variant="body2">{t('workflow.dragComponentToThisRow')}</Typography>
                                     </Box>
                                 )}
                             </Box>
@@ -693,8 +702,8 @@ function FormDesign(props: FormDesignProps) {
                     }}
                 >
                     <DragIcon sx={{ fontSize: 48, mb: 2 }} />
-                    <Typography variant="h6">拖拽组件到此处</Typography>
-                    <Typography variant="body2">添加行后,从左侧组件库将组件拖拽到行容器中</Typography>
+                    <Typography variant="h6">{t('workflow.dragComponentToHere')}</Typography>
+                    <Typography variant="body2">{t('workflow.addRowAfterDragComponentToRow')}</Typography>
                 </Box>
             )}
         </Paper>
