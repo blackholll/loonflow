@@ -54,7 +54,8 @@ class WorkflowComponentService(BaseService):
                     update_component_info = copy.deepcopy(component_info)
                     update_component_info.pop('id')
                     update_component_info.pop('children')
-                    Component.objects.filter(id=component_info.get('id')).update(**update_component_info )
+                    id_to_new_id_dict[component_info.get("id")] = component_info.get("id")
+                    Component.objects.filter(id=component_info.get('id'), version_id=version_id).update(**update_component_info )
                     
                     # for children
                     for child_info in component_info.get("children"):
@@ -65,7 +66,7 @@ class WorkflowComponentService(BaseService):
                             new_child_component_info = {**new_child_component_info, 'tenant_id': tenant_id, 'workflow_id': workflow_id, 'version_id': version_id, 'parent_component_id': id_to_new_id_dict.get(component_info.get("id"))}
                             new_child_component_record = Component(**new_child_component_info)
                             new_child_component_record.save()
-                            id_to_new_id_dict[child_info.get("id")] = new_child_component_record.id
+                            id_to_new_id_dict[child_info.get("id")] = str(new_child_component_record.id)
                         else:
                             # update existed child component
                             update_child_component_info = copy.deepcopy(child_info)
@@ -78,7 +79,7 @@ class WorkflowComponentService(BaseService):
                     raise('new component id shoud start with temp_')
 
         # todo: delete componet that not contain is new component list
-        for component_id in exist_componet_dict:
+        for component_id in exist_componet_dict.keys():
             if component_id not in id_to_new_id_dict.values():
                 archive_service_ins.archive_record('workflow_component', exist_componet_dict[component_id], operator_id)
         return id_to_new_id_dict

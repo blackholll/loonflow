@@ -145,7 +145,7 @@ class WorkflowDetailView(BaseView):
     @user_permission_check('workflow_admin,admin', workflow_id_source='url')
     def get(self, request, *args, **kwargs):
         """
-        获取工作流详情
+        get workflow detail
         :param request:
         :param args:
         :param kwargs:

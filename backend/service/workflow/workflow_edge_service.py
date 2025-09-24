@@ -47,7 +47,7 @@ class WorkflowEdgeService(BaseService):
         exist_edge_id_list = [edge_info.get("id") for edge_info in edge_info_list]
         exist_edge_queryset = Edge.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id)
         for edge_obj in exist_edge_queryset:
-            if edge_obj.id not in exist_edge_id_list:
+            if str(edge_obj.id) not in exist_edge_id_list:
                 archive_service_ins.archive_record('workflow_edge', edge_obj, operator_id)
 
 
@@ -74,7 +74,7 @@ class WorkflowEdgeService(BaseService):
                     target_node_id=edge_info.get("target_node_id"),
                     type=edge_info.get("type"),
                     name=edge_info.get("name"),
-                    label=edge_info.get("label"),
+                    label=edge_info.get("label", {}),
                     props=edge_info.get("props"),
                 )
         return True

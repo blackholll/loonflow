@@ -170,7 +170,7 @@ class WorkflowNodeService(BaseService):
         exist_node_id_list = [node_info.get("id") for node_info in node_info_list]
         exist_node_queryset = Node.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id)
         for node_obj in exist_node_queryset:
-            if node_obj.id not in exist_node_id_list:
+            if str(node_obj.id) not in exist_node_id_list:
                 archive_service_ins.archive_record('workflow_node', node_obj, operator_id)
         
         for node_info in node_info_list:
@@ -198,6 +198,7 @@ class WorkflowNodeService(BaseService):
                     layout=node_info.get("layout", {}),
                     label=node_info.get("label", {})
                 )
+                node_id_dict[node_info.get("id")] = node_info.get("id")
         return node_id_dict
                 
 
