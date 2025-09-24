@@ -41,6 +41,13 @@ interface IOption {
     value: string;
 }
 
+function toCamelCase(input: string): string {
+    if (!input) return input;
+    return input
+        .replace(/[-_ ]+([a-zA-Z0-9])/g, (_, c) => c.toUpperCase())
+        .replace(/^[A-Z]/, (c) => c.toLowerCase());
+}
+
 // 类型守卫函数，用于明确区分 Node 和 Edge
 function isNode(element: Node | Edge): element is Node {
     return !('source' in element) && !('target' in element);
@@ -648,8 +655,8 @@ function PropertyPanel(props: PropertyPanelProps) {
                                                 row
                                                 aria-labelledby="demo-controlled-radio-buttons-group"
                                                 name="controlled-radio-buttons-group"
-                                                value={properties?.fieldPermissions?.[child.componentKey] || 'hidden'}
-                                                onChange={(e) => handleFieldPermissionChange(child.componentKey, e.target.value)}
+                                                value={properties?.fieldPermissions?.[toCamelCase(child.componentKey)] || 'hidden'}
+                                                onChange={(e) => handleFieldPermissionChange(toCamelCase(child.componentKey), e.target.value)}
                                             >
                                                 <FormControlLabel value="readonly" control={<Radio />} label={t('workflow.propertyPanelLabel.fieldPermissionOptions.readonly')} />
                                                 <FormControlLabel value="optional" control={<Radio />} label={t('workflow.propertyPanelLabel.fieldPermissionOptions.optional')} />
@@ -659,6 +666,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                                         </Box>)
                                     })
                                 }
+                                return null;
                             })}
 
                         </>
