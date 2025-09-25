@@ -59,9 +59,9 @@ class Node(BaseWorkflowModel):
         ('start', 'start'),
         ('common', 'common'),
         ('end', 'end'),
-        ('parallel_gw', 'parallel_gw'),
-        ('mutual_gw', 'mutual_gw'),
-        ('include_gw', 'include_gw'),
+        ('parallel', 'parallel'), # 平行网关
+        ('exclusive', 'exclusive'), # 排他网关
+        ('include_gw', 'include_gw'), # 包含网关
         ('timer', 'timer')
     ]
     PARTICIPANT_TYPE_CHOICE = [

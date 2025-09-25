@@ -119,7 +119,7 @@ export interface IWorkflowNodeProps {
 }
 export interface IWorkflowNode {
   id: string,
-  type: 'start' | 'end' | 'common' | 'parallel' | 'exclusive' | 'timer' | 'hook',
+  type: 'start' | 'end' | 'normal' | 'parallel' | 'exclusive' | 'timer' | 'hook',
   name: string,
   label: ILabel,
   layout: INodeLayout,

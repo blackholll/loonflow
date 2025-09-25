@@ -58,7 +58,7 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
     }
 
     const handleViewerDeptSelectChange = (value: { label: string, value: string }[]) => {
-        const newPermissionConfig = { ...permissionConfigInfo, viewDepartmentIdList: value.map((v: any) => v.value) };
+        const newPermissionConfig = { ...permissionConfigInfo, viewerDeptIdList: value.map((v: any) => v.value) };
         setPermissionConfigInfo(newPermissionConfig);
         onPermissionConfigChange(newPermissionConfig);
         setSelectedViewerDepts(value);

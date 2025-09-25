@@ -45,6 +45,11 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
         }
     }, [customizeConfig]);
 
+    useEffect(() => {
+        setLabel(customizeConfig.label);
+        setLabelJson(JSON.stringify(customizeConfig.label, null, 2));
+    }, [customizeConfig.label]);
+
     const handleClose = () => {
         setOpen(false);
     };

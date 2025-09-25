@@ -1,4 +1,4 @@
-import react, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -20,11 +20,12 @@ import WorkflowBasic from '../WorkflowBasic';
 import WorkflowForm from '../WorkflowForm';
 import WorkflowProcess from '../WorkflowProcess';
 import WorkflowAdvanced from '../WorkflowAdvanced';
-import { IWorkflowFullDefinition, createEmptyWorkflowFullDefinition, IFormSchema, IProcessSchema, IpermissionInfo, ICustomizationInfo, IAdvancedSchema } from '../../../types/workflow';
+import { IWorkflowFullDefinition, createEmptyWorkflowFullDefinition, IFormSchema, IProcessSchema, IAdvancedSchema } from '../../../types/workflow';
 import { getWorkflowDetail, addWorkflow, updateWorkflow } from '../../../services/workflow';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { useSearchParams } from 'react-router-dom';
 import checkWorkflowCompatibility from './checkWorkflowCompatibility';
+import { checkWorkflowProblems } from '../../../utils/workflowValidation';
 
 function WorkflowDetail() {
     const { t } = useTranslation();
@@ -165,14 +166,8 @@ function WorkflowDetail() {
     }, []);
 
     const checkProblems = useCallback((workflowData: IWorkflowFullDefinition) => {
-        const problems = [];
-        if (workflowData.formSchema.componentInfoList.length === 0) {
-            problems.push('表单设计不能为空');
-        }
-        if (workflowData.processSchema.nodeInfoList.length === 0) {
-            problems.push('流程设计不能为空');
-        }
-        setProblems(problems);
+        const result = checkWorkflowProblems(workflowData);
+        setProblems(result.problems);
     }, []);
 
     // 更新基础信息的回调函数
@@ -243,7 +238,7 @@ function WorkflowDetail() {
             }
         }
 
-    }, [showMessage, t, workflowDetailInfo, versionName]);
+    }, [showMessage, t, workflowDetailInfo, versionName, handleConfirmClear, navigate, workflowId]);
 
     const handleCheckCompatibility = useCallback(async () => {
         setIsCheckingCompatibility(true);
@@ -262,6 +257,12 @@ function WorkflowDetail() {
         }
         setShowVersionDialog(true);
     }, [workflowId, handleCheckCompatibility]);
+
+    const handleUseCurrentVersion = useCallback(() => {
+        if (versionPathName) {
+            setVersionName(versionPathName);
+        }
+    }, [versionPathName]);
 
     // 使用 useMemo 优化子组件渲染，避免不必要的重新渲染
     const basicComponent = useMemo(() => (
@@ -295,7 +296,7 @@ function WorkflowDetail() {
             advancedSchema={workflowDetailInfo.advancedSchema}
             key="workflow-advanced"
         />
-    ), [workflowDetailInfo.advancedSchema, onBasicChange]);
+    ), [workflowDetailInfo.advancedSchema, onAdvancedSchemaChange, workflowDetailInfo.formSchema]);
 
     return (
         <Box sx={{ width: '100%' }} >
@@ -402,13 +403,34 @@ function WorkflowDetail() {
                 <DialogTitle>{t('workflow.setVersion')} ({versionPathName ? `${t('workflow.currentVersion')} : ${versionPathName}` : null})</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        <TextField
-                            fullWidth
-                            label={t('workflow.versionName')}
-                            required
-                            value={versionName}
-                            onChange={(e) => setVersionName(e.target.value)}
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }} style={{ marginTop: '10px' }}>
+                            <TextField
+                                fullWidth
+                                label={t('workflow.versionName')}
+                                required
+                                value={versionName}
+                                onChange={(e) => setVersionName(e.target.value)}
+                            />
+                            {versionPathName && (
+                                <Button
+                                    variant="text"
+                                    size="small"
+                                    onClick={handleUseCurrentVersion}
+                                    sx={{
+                                        minWidth: 'auto',
+                                        whiteSpace: 'nowrap',
+                                        textDecoration: 'underline',
+                                        color: 'primary.main',
+                                        '&:hover': {
+                                            backgroundColor: 'transparent',
+                                            textDecoration: 'underline'
+                                        }
+                                    }}
+                                >
+                                    {t('workflow.useCurrentVersion')}
+                                </Button>
+                            )}
+                        </Box>
                         {!versionName && <Alert severity="error">{t('workflow.setVersionDescription')}</Alert>}
                         <Alert severity="info">{t('workflow.setVersionDescription2')}</Alert>
                         {isCheckingCompatibility && <Alert severity="info">{t('workflow.checkCompatibilityDescription')}</Alert>}

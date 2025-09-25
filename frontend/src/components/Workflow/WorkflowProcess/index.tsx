@@ -94,7 +94,7 @@ const convertReactFlowNodeToWorkflowNode = (node: Node): IWorkflowNode => {
 
     return {
         id: node.id,
-        type: node.type as 'start' | 'end' | 'common' | 'parallel' | 'exclusive' | 'timer' | 'hook',
+        type: node.type as 'start' | 'end' | 'normal' | 'parallel' | 'exclusive' | 'timer' | 'hook',
         name: workflowNodeName,
         label: workflowLabel,
         layout: {

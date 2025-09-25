@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Tooltip, InputAdornment, Stack, Chip } from '@mui/material';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { Box, TextField, FormLabel, Stack, Chip } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import TemplateEditor from '../../../commonComponents/inputs/TemplateEditor';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -26,14 +26,29 @@ interface NotificationConfigProps {
 
 
 function NotificationConfig({ onNotificationConfigChange, notificationConfig, formSchema }: NotificationConfigProps) {
-    console.log(formSchema);
     const [notificationConfigInfo, setNotificationConfigInfo] = useState(notificationConfig);
-    const [titleTemplate, setTitleTemplate] = useState('');
-    const [contentTemplate, setContentTemplate] = useState('');
+    const [titleTemplate, setTitleTemplate] = useState(notificationConfig.titleTemplate || '');
+    const [contentTemplate, setContentTemplate] = useState(notificationConfig.contentTemplate || '');
     const [notificationList, setNotificationList] = useState<NotificationItem[]>([]);
-    const [selectedNotifications, setSelectedNotifications] = useState<NotificationItem[]>([]);
     const [availableFields, setAvailableFields] = useState<{ key: string; label: string }[]>([]);
     const { t } = useTranslation();
+
+    // 使用useMemo计算选中的通知项，避免无限循环
+    const selectedNotifications = useMemo(() => {
+        if (!notificationConfig.selectedChannelList || !Array.isArray(notificationConfig.selectedChannelList) || notificationConfig.selectedChannelList.length === 0) {
+            return [];
+        }
+        return notificationList.filter((item) =>
+            notificationConfig.selectedChannelList.includes(item.id)
+        );
+    }, [notificationConfig.selectedChannelList, notificationList]);
+
+    // 同步notificationConfig prop到独立状态
+    useEffect(() => {
+        setTitleTemplate(notificationConfig.titleTemplate || '');
+        setContentTemplate(notificationConfig.contentTemplate || '');
+        setNotificationConfigInfo(notificationConfig);
+    }, [notificationConfig]);
 
     useEffect(() => {
         getSimpleNotificationList('', 1, 1000).then((res) => {
@@ -71,13 +86,34 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
         fields.push({ key: 'creator', label: t('common.creator') });
 
         setAvailableFields(fields);
-    }, [formSchema]);
+    }, [formSchema, t]);
 
-    const handlePropertyChange = (key: string, value: any) => {
-        const newNotificationConfig = { ...notificationConfigInfo, [key]: value };
-        setNotificationConfigInfo(newNotificationConfig);
-        onNotificationConfigChange(newNotificationConfig);
-    };
+
+    const handleTitleTemplateChange = useCallback((value: string) => {
+        setTitleTemplate(value);
+        setNotificationConfigInfo(prevConfig => {
+            const newNotificationConfig = { ...prevConfig, titleTemplate: value };
+            onNotificationConfigChange(newNotificationConfig);
+            return newNotificationConfig;
+        });
+    }, [onNotificationConfigChange]);
+
+    const handleContentTemplateChange = useCallback((value: string) => {
+        setContentTemplate(value);
+        setNotificationConfigInfo(prevConfig => {
+            const newNotificationConfig = { ...prevConfig, contentTemplate: value };
+            onNotificationConfigChange(newNotificationConfig);
+            return newNotificationConfig;
+        });
+    }, [onNotificationConfigChange]);
+
+    const handleSelectedChannelListChange = useCallback((value: NotificationItem[]) => {
+        setNotificationConfigInfo(prevConfig => {
+            const newNotificationConfig = { ...prevConfig, selectedChannelList: value.map((item: any) => item.id) };
+            onNotificationConfigChange(newNotificationConfig);
+            return newNotificationConfig;
+        });
+    }, [onNotificationConfigChange]);
 
     return (
         <Box>
@@ -88,8 +124,8 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
                     </Grid>
                     <Grid size={9}>
                         <TemplateEditor
-                            value={notificationConfigInfo.titleTemplate}
-                            onChange={(e) => handlePropertyChange('titleTemplate', e)}
+                            value={titleTemplate}
+                            onChange={handleTitleTemplateChange}
                             availableFields={availableFields}
                             placeholder={t('workflow.advancedSettingLabel.notificationSettingLabel.notificationTitleTemplatePlaceholder')}
                         />
@@ -101,8 +137,8 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
                     </Grid>
                     <Grid size={9}>
                         <TemplateEditor
-                            value={notificationConfigInfo.contentTemplate}
-                            onChange={(e) => handlePropertyChange('contentTemplate', e)}
+                            value={contentTemplate}
+                            onChange={handleContentTemplateChange}
                             availableFields={availableFields}
                             placeholder={t('workflow.advancedSettingLabel.notificationSettingLabel.notificationContentTemplatePlaceholder')}
                         />
@@ -117,9 +153,9 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
                             multiple
                             disablePortal
                             options={notificationList || []}
-                            value={notificationList.filter((item) => notificationConfigInfo.selectedChannelList.includes(item.id))}
+                            value={selectedNotifications}
                             onChange={(event, newValue) => {
-                                handlePropertyChange('selectedChannelList', newValue.map((item: any) => item.id));
+                                handleSelectedChannelListChange(newValue);
                             }}
                             getOptionLabel={(option) => option.name || ''}
                             isOptionEqualToValue={(option, value) => option.id === value.id}

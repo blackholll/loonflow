@@ -168,6 +168,7 @@
     "compatibilityMessages": "It is recommended to create a new version because this change is incompatible with the old version: {compatibilityMessages}",
     "setVersionDescription": "Please enter the version name",
     "setVersionDescription2": "You can set any version format, such as 1.0.1, 1, v1, v1.0, etc. You can manage versions on the workflow list page",
+    "useCurrentVersion": "Use Current Version",
     "workflowList": "Workflow List",
     "versionList": "Version List",
     "editVersion": "Version Edit",

@@ -170,6 +170,7 @@
     "compatibilityMessages": "建议创建一个新版本，因为本次修改与旧版本不兼容: {compatibilityMessages}",
     "setVersionDescription": "请输入版本名称",
     "setVersionDescription2": "你可以设置任意格式的版本,如1.0.1, 1, v1, v1.0等, 可以在工作流列表页管理版本",
+    "useCurrentVersion": "使用当前版本",
     "workflowList": "流程列表",
     "versionList": "版本列表",
     "editVersion": "编辑版本",

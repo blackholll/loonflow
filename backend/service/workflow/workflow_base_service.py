@@ -39,9 +39,10 @@ class WorkflowBaseService(BaseService):
         new_version_record = WorkflowVersion(tenant_id=tenant_id, name=basic_info.get('version'), workflow_id=workflow_id, type='default')
         new_version_record.save()
         new_version_id = new_version_record.id
+        label = request_data.get("advanced_schema", {}).get("customization_info", {}).get("label", {})
         
 
-        workflow_basic_info = BasicInfo(tenant_id=tenant_id, name=basic_info.get('name'), description=basic_info.get("description"), workflow_id=workflow_id, version_id=new_version_id)
+        workflow_basic_info = BasicInfo(tenant_id=tenant_id, name=basic_info.get('name'), description=basic_info.get("description"), workflow_id=workflow_id, version_id=new_version_id, label=label)
         workflow_basic_info.save()
         
         workflow_notification_service_ins.add_workflow_notification(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("advanced_schema", {}).get("notification_info", {}))
@@ -119,6 +120,7 @@ class WorkflowBaseService(BaseService):
         """
         current_version = request_data.get("basic_info", {}).get("version")
         current_version_queryset = WorkflowVersion.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, name=current_version).all()
+        label = request_data.get("advanced_schema", {}).get("customization_info", {}).get("label", {})
         if current_version_queryset.count() == 0:
             # add a new version
             new_version_record = WorkflowVersion(tenant_id=tenant_id, name=current_version, workflow_id=workflow_id, type='candidate')
@@ -126,7 +128,7 @@ class WorkflowBaseService(BaseService):
             new_version_id = new_version_record.id
 
             # add new version whole info
-            workflow_basic_info = BasicInfo(tenant_id=tenant_id, name=request_data.get("basic_info", {}).get('name'), description=request_data.get("basic_info", {}).get("description"), workflow_id=workflow_id, version_id=new_version_id)
+            workflow_basic_info = BasicInfo(tenant_id=tenant_id, name=request_data.get("basic_info", {}).get('name'), description=request_data.get("basic_info", {}).get("description"), workflow_id=workflow_id, version_id=new_version_id, label=label)
             workflow_basic_info.save()
 
             workflow_notification_service_ins.add_workflow_notification(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("advanced_schema", {}).get("notification_info", {}))
@@ -146,7 +148,7 @@ class WorkflowBaseService(BaseService):
         else:
             # todo: update exist version's info
             version_id = current_version_queryset.first().id
-            BasicInfo.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id).update(name=request_data.get("basic_info", {}).get('name'), description=request_data.get("basic_info", {}).get("description"))
+            BasicInfo.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id).update(name=request_data.get("basic_info", {}).get('name'), description=request_data.get("basic_info", {}).get("description"), label=label)
 
             workflow_notification_service_ins.update_workflow_notification(tenant_id, workflow_id, version_id, request_data.get("advanced_schema", {}).get("notification_info", {}))
 
@@ -440,9 +442,9 @@ class WorkflowBaseService(BaseService):
             process_schema={'node_info_list': process_schema_node_list, 'edge_info_list': process_schema_edge_list},
             advanced_schema={'notification_info': notification_result, 'permission_info': workflow_permission_result, 'customization_info': {
                 'authorized_app_id_list': workflow_authorized_app_id_list,
-                'hook_info_list': workflow_hook_result
-            }},
-            label=label
+                'hook_info_list': workflow_hook_result,
+                'label': label
+            }}
         )
 
     def get_process_single_schema(cls, workflow_id: str, tenant_id: str, version_id: str) -> dict:
