@@ -327,18 +327,23 @@
       },
       "assigneeTypeUsersLabel": {
         "label": "Users",
-        "placeholder": "Enter user identifier, e.g.: username, agent",
-        "helperText": "Please enter the field key in users that contains the username"
+        "placeholder": "Please enter keyword to search...",
+        "helperText": "Please enter keyword to search..."
       },
       "assigneeTypeDeptsLabel": {
         "label": "Departments",
-        "placeholder": "Enter department identifier, e.g.: department, agent",
-        "helperText": "Please enter the field key in departments that contains the department name"
+        "placeholder": "Please enter keyword to search...",
+        "helperText": "Please enter keyword to search..."
       },
       "assigneeTypeRolesLabel": {
         "label": "Roles",
-        "placeholder": "Enter role identifier, e.g.: role, agent",
-        "helperText": "Please enter the field key in roles that contains the role name"
+        "placeholder": "Please enter keyword to search...",
+        "helperText": "Please enter keyword to search..."
+      },
+      "assigneeTypeVariablesLabel": {
+        "label": "Variables",
+        "placeholder": "Please select variables",
+        "helperText": "Please select variables"
       },
       "assigneeTypeTicketFieldLabel": {
         "label": "Ticket Field",
@@ -353,7 +358,9 @@
       "assigneeTypeExternalLabel": {
         "label": "External",
         "placeholder": "Enter external API URL",
-        "helperText": "The system will obtain assignee information through this API"
+        "helperText": "The system will obtain assignee information through this API",
+        "tokenPlaceholder": "Enter token",
+        "tokenHelperText": "The token will be used to authenticate the external API, you can define any token, as long as you agree with the external service"
       },
       "assigneeTypeNoneLabel": {
         "label": "Please select assignee type first",
@@ -368,11 +375,6 @@
         "label": "Timer",
         "placeholder": "Enter timer configuration",
         "helperText": "Please enter timer configuration"
-      },
-      "assigneeTypeFromExternalLabel": {
-        "label": "External",
-        "placeholder": "Enter external API URL",
-        "helperText": "The system will obtain assignee information through this API"
       },
       "assignmentStrategy": "Assignment Strategy",
       "assignmentStrategyOptions": {

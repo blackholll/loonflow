@@ -106,7 +106,16 @@ export const getDeptDetail = async (deptId: string) => {
 export const getDeptPaths = async (search_value: string, dept_ids: string, page: number = 1, perPage: number = 100) => {
     try {
         const response = await apiClient.get(`/api/v1.0/accounts/dept_paths`, { params: { search_value: search_value, dept_ids: dept_ids, page: page, per_page: perPage } });
-        return response.data;
+        const data = response.data;
+        if (data && data.code === 0 && data.data) {
+            const deptPathList = (data.data.dept_path_list || data.data.deptPathList || []).map((item: any) => ({
+                id: item.id,
+                name: item.name,
+                path: item.path
+            }));
+            return { ...data, data: { deptPathList } };
+        }
+        return data;
     } catch (error) {
         throw error;
     }
@@ -114,7 +123,13 @@ export const getDeptPaths = async (search_value: string, dept_ids: string, page:
 export const getDeptPath = async (dept_id: string) => {
     try {
         const response = await apiClient.get(`/api/v1.0/accounts/dept_paths/${dept_id}`);
-        return response.data;
+        const data = response.data;
+        if (data && data.code === 0 && data.data) {
+            const raw = data.data.dept_path || data.data.deptPath;
+            const deptPath = raw ? { id: raw.id, name: raw.name, path: raw.path } : raw;
+            return { ...data, data: { deptPath } };
+        }
+        return data;
     } catch (error) {
         throw error;
     }

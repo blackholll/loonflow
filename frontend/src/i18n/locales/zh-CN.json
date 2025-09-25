@@ -329,33 +329,40 @@
       },
       "assigneeTypeUsersLabel": {
         "label": "用户",
-        "placeholder": "输入用户标识，如：username, agent",
-        "helperText": "请输入用户中的字段标识，该字段应包含用户名信息"
+        "placeholder": "请输入关键词搜索...",
+        "helperText": "请输入关键词搜索..."
       },
       "assigneeTypeDeptsLabel": {
         "label": "部门",
-        "placeholder": "输入部门标识，如：department, agent",
-        "helperText": "请输入部门中的字段标识，该字段应包含部门名信息"
+        "placeholder": "请输入关键词搜索...",
+        "helperText": "请输入关键词搜索..."
       },
       "assigneeTypeRolesLabel": {
         "label": "角色",
-        "placeholder": "输入角色标识，如：role, agent",
-        "helperText": "请输入角色中的字段标识，该字段应包含角色名信息"
+        "placeholder": "请输入关键词搜索...",
+        "helperText": "请输入关键词搜索..."
+      },
+      "assigneeTypeVariablesLabel": {
+        "label": "变量",
+        "placeholder": "请输入关键词搜索...",
+        "helperText": "请输入关键词搜索..."
       },
       "assigneeTypeTicketFieldLabel": {
         "label": "工单字段",
-        "placeholder": "输入工单字段标识，如：username, agent",
-        "helperText": "请输入工单中的字段标识，该字段应包含用户名信息"
+        "placeholder": "请输入关键词搜索...",
+        "helperText": "请输入关键词搜索..."
       },
       "assigneeTypeParentTicketFieldLabel": {
         "label": "父工单字段",
-        "placeholder": "输入父工单字段标识，如：po, manager",
-        "helperText": "请输入父工单中的字段标识，该字段应包含用户名信息"
+        "placeholder": "请输入关键词搜索...",
+        "helperText": "请输入关键词搜索..."
       },
       "assigneeTypeExternalLabel": {
         "label": "外部获取",
         "placeholder": "输入外部接口URL",
-        "helperText": "系统将通过该接口获取处理人信息"
+        "helperText": "系统将通过该接口获取处理人信息",
+        "tokenPlaceholder": "输入token",
+        "tokenHelperText": "token将用于认证外部接口,你可以任意定义token,主要与外部服务约定好即可"
       },
       "assigneeTypeNoneLabel": {
         "label": "请先选择处理人类型",
@@ -370,11 +377,6 @@
         "label": "定时器",
         "placeholder": "输入定时器配置",
         "helperText": "请输入定时器配置"
-      },
-      "assigneeTypeFromExternalLabel": {
-        "label": "外部获取",
-        "placeholder": "输入外部接口URL",
-        "helperText": "系统将通过该接口获取处理人信息"
       },
       "assignmentStrategy": "分配策略",
       "assignmentStrategyOptions": {

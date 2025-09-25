@@ -124,11 +124,12 @@ function PropertyPanel(props: PropertyPanelProps) {
         }
         return []
     }
-    const fetchDeptPaths = async (searchValue: string = '', userIds: string = '', page = 1, perPage: 1000) => {
-        const response = await getDeptPaths(searchValue, userIds, page, perPage);
+    const fetchDeptPaths = async (searchValue: string = '', deptIds: string = '', page = 1, perPage: 1000) => {
+        const response = await getDeptPaths(searchValue, deptIds, page, perPage);
         if (response.code === 0) {
-            return response.data?.deptPathList || [];
+            return (response.data?.deptPathList || []).map((dept: ISimpleDeptPath) => ({ label: dept.name, value: dept.id }));
         }
+        return [];
     }
 
     useEffect(() => {
@@ -149,14 +150,32 @@ function PropertyPanel(props: PropertyPanelProps) {
                 if (nodeProperties.assigneeType === 'users') {
                     if (nodeProperties.assignee) {
                         fetchSimpleUsers('', nodeProperties.assignee, 1, 1000).then(data => setSelectedAssignees(data));
+                    } else {
+                        setSelectedAssignees([]);
                     }
                 } else if (nodeProperties.assigneeType === 'depts') {
                     if (nodeProperties.assignee) {
                         fetchDeptPaths('', nodeProperties.assignee, 1, 1000).then(data => setSelectedAssignees(data));
+                    } else {
+                        setSelectedAssignees([]);
                     }
-                    setSelectedAssignees([]);
                 } else if (nodeProperties.assigneeType === 'roles') {
-                    setSelectedAssignees(nodeProperties.assignee || null);
+                    if (nodeProperties.assignee) {
+                        loadRoles('', nodeProperties.assignee).then(data => setSelectedAssignees(data));
+                    } else {
+                        setSelectedAssignees([]);
+                    }
+                } else if (nodeProperties.assigneeType === 'variables') {
+                    if (nodeProperties.assignee) {
+                        const selectedValues = nodeProperties.assignee.split(',');
+                        const selectedOptions = selectedValues.map((value: string) => {
+                            const option = variableOptions.find((opt: any) => opt.value === value);
+                            return { label: option?.name || value, value };
+                        }).filter((opt: any) => opt.label);
+                        setSelectedAssignees(selectedOptions);
+                    } else {
+                        setSelectedAssignees([]);
+                    }
                 }
             }
         }
@@ -174,6 +193,20 @@ function PropertyPanel(props: PropertyPanelProps) {
                 onUpdateEdgeProperties(currentElement.id, newProperties);
             } else if (isNode(currentElement)) {
                 // 更新节点属性
+                onUpdateNodeProperties(currentElement.id, newProperties);
+            }
+        }
+    };
+
+    // 支持一次性合并更新多个属性，避免连续更新时的状态覆盖问题
+    const updateProperties = (partial: Record<string, any>) => {
+        const newProperties = { ...properties, ...partial };
+        setProperties(newProperties);
+
+        if (currentElement) {
+            if (isEdge(currentElement)) {
+                onUpdateEdgeProperties(currentElement.id, newProperties);
+            } else if (isNode(currentElement)) {
                 onUpdateNodeProperties(currentElement.id, newProperties);
             }
         }
@@ -205,8 +238,8 @@ function PropertyPanel(props: PropertyPanelProps) {
         { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.depts'), value: 'depts' },
         { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.roles'), value: 'roles' },
         { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.variables'), value: 'variables' },
-        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.ticket_field'), value: 'ticket_field' },
-        { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.parent_ticket_field'), value: 'parent_ticket_field' },
+        // { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.ticket_field'), value: 'ticket_field' },
+        // { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.parent_ticket_field'), value: 'parent_ticket_field' },
         { name: t('workflow.propertyPanelLabel.assigneeTypeOptions.external'), value: 'external' },
     ];
 
@@ -256,16 +289,25 @@ function PropertyPanel(props: PropertyPanelProps) {
     };
 
     // 加载角色列表
-    const loadRoles = async (searchValue: string = '') => {
-        if (loadingRoles) return;
+    const loadRoles = async (searchValue: string = '', roleIds: string = '') => {
+        if (loadingRoles) return [];
         setLoadingRoles(true);
         try {
-            const response = await getSimpleRoles(searchValue, '', 1, 100);
+            const response = await getSimpleRoles(searchValue, roleIds, 1, 100);
             if (response.code === 0) {
-                setRoles(response.data?.roleList || []);
+                const rawList = response.data?.roleList || response.data?.role_list || [];
+                const fetched = rawList.map((role: any) => ({ label: role.name, value: String(role.id) }));
+                setRoles((prev) => {
+                    const map = new Map<string, { label: string, value: string }>();
+                    [...prev, ...fetched].forEach(item => map.set(item.value, item));
+                    return Array.from(map.values());
+                });
+                return fetched;
             }
+            return [];
         } catch (error) {
             console.error(t('workflow.propertyPanelLabel.loadRolesFailed'), error);
+            return [];
         } finally {
             setLoadingRoles(false);
         }
@@ -274,9 +316,10 @@ function PropertyPanel(props: PropertyPanelProps) {
     // 处理处理人类型变化
     const handleAssigneeTypeChange = (value: string) => {
         console.log('handleAssigneeTypeChangevalue:', value);
-        handlePropertyChange('assigneeType', value);
-        // 清空处理人值
-        // handlePropertyChange('assignee', '');
+        // 一次性更新类型并清空处理人，避免连续 set 覆盖
+        updateProperties({ assigneeType: value, assignee: '' });
+        // 同步清空已选的处理人选项
+        setSelectedAssignees([]);
     };
 
     const handleAssigneeSelectChange = (value: { label: string, value: string }[]) => {
@@ -301,6 +344,7 @@ function PropertyPanel(props: PropertyPanelProps) {
     const renderAssigneeInput = () => {
         const assigneeType = properties.assigneeType;
         const assigneeValue = properties.assignee || '';
+        const externalToken = properties.externalToken || '';
 
         switch (assigneeType) {
             case 'users':
@@ -381,13 +425,14 @@ function PropertyPanel(props: PropertyPanelProps) {
             case 'roles':
                 return (
                     <Autocomplete
+                        multiple
                         options={Array.isArray(roles) ? roles : []}
                         getOptionLabel={(option) => option.label}
-                        value={Array.isArray(roles) ? roles.find(r => r.value === assigneeValue) || null : null}
-                        onChange={(e, value) => handlePropertyChange('assignee', value?.value || '')}
+                        value={selectedAssignees ? selectedAssignees : []}
+                        onChange={(e, value) => handleAssigneeSelectChange(value)}
                         onInputChange={(e, value) => {
                             setRoleSearchValue(value);
-                            if (value.length > 0) {
+                            if (value && value.length > 0) {
                                 loadRoles(value);
                             }
                         }}
@@ -413,19 +458,37 @@ function PropertyPanel(props: PropertyPanelProps) {
                     />
                 );
 
-            case 'variable':
+            case 'variables':
                 return (
-                    <Autocomplete
-                        options={variableOptions}
-                        getOptionLabel={(option) => option.name}
-                        value={variableOptions.find(v => v.value === assigneeValue) || null}
-                        onChange={(e, value) => handlePropertyChange('assignee', value?.value || '')}
-                        renderInput={(params) => (
-                            <TextField {...params} label={t("workflow.propertyPanelLabel.assigneeTypeRolesLabel.label")} placeholder={t("workflow.propertyPanelLabel.assigneeTypeRolesLabel.placeholder")} />
-                        )}
-                        size="small"
-                        fullWidth
-                    />
+                    <FormControl size="small" fullWidth>
+                        <InputLabel>{t('workflow.propertyPanelLabel.assigneeTypeVariablesLabel.label')}</InputLabel>
+                        <Select
+                            multiple
+                            value={assigneeValue ? assigneeValue.split(',') : []}
+                            label={t('workflow.propertyPanelLabel.assigneeTypeVariablesLabel.label')}
+                            onChange={(e) => handlePropertyChange('assignee', Array.isArray(e.target.value) ? e.target.value.join(',') : '')}
+                            renderValue={(selected) => (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {selected.map((value: string) => {
+                                        const option = variableOptions.find((opt: any) => opt.value === value);
+                                        return (
+                                            <Chip
+                                                key={value}
+                                                label={option?.name || value}
+                                                size="small"
+                                            />
+                                        );
+                                    })}
+                                </Box>
+                            )}
+                        >
+                            {variableOptions.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 );
 
             case 'ticket_field':
@@ -456,30 +519,43 @@ function PropertyPanel(props: PropertyPanelProps) {
 
             case 'hook':
                 return (
-                    <TextField
-                        label={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.label')}
-                        value={assigneeValue}
-                        onChange={(e) => handlePropertyChange('assignee', e.target.value)}
-                        size="small"
-                        multiline
-                        rows={3}
-                        fullWidth
-                        placeholder={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.placeholder')}
-                        helperText={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.helperText')}
-                    />
+                    <>
+                        <TextField
+                            label={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.label')}
+                            value={assigneeValue}
+                            onChange={(e) => handlePropertyChange('assignee', e.target.value)}
+                            size="small"
+                            multiline
+                            rows={3}
+                            fullWidth
+                            placeholder={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.placeholder')}
+                            helperText={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.helperText')}
+                        />
+                    </>
                 );
 
             case 'external':
                 return (
-                    <TextField
-                        label="外部接口"
-                        value={assigneeValue}
-                        onChange={(e) => handlePropertyChange('assignee', e.target.value)}
-                        size="small"
-                        fullWidth
-                        placeholder={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.placeholder')}
-                        helperText={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.helperText')}
-                    />
+                    <>
+                        <TextField
+                            label="外部接口"
+                            value={assigneeValue}
+                            onChange={(e) => handlePropertyChange('assignee', e.target.value)}
+                            size="small"
+                            fullWidth
+                            placeholder={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.placeholder')}
+                            helperText={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.helperText')}
+                        />
+                        <TextField
+                            label="Token"
+                            value={externalToken}
+                            onChange={(e) => handlePropertyChange('externalToken', e.target.value)}
+                            size="small"
+                            fullWidth
+                            placeholder={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.tokenPlaceholder')}
+                            helperText={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.tokenHelperText')}
+                        />
+                    </>
                 );
         }
     };
