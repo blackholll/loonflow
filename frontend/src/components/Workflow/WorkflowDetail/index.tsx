@@ -25,7 +25,7 @@ import { getWorkflowDetail, addWorkflow, updateWorkflow } from '../../../service
 import useSnackbar from '../../../hooks/useSnackbar';
 import { useSearchParams } from 'react-router-dom';
 import checkWorkflowCompatibility from './checkWorkflowCompatibility';
-import { checkWorkflowProblems } from '../../../utils/workflowValidation';
+import { checkWorkflowProblems } from './WorkflowValidation';
 
 function WorkflowDetail() {
     const { t } = useTranslation();

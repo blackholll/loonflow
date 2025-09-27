@@ -46,7 +46,7 @@ const getNodeConfigs = (t: any) => ({
             icon: NormalIcon,
             color: '#2196f3',
             properties: {
-                name: t('workflow.nodePanelLabel.normalNode'),
+                name: t('workflow.nodePanelLabel.normalNodeName'),
                 type: 'normal',
                 canConnect: true,
                 canDisconnect: true,
@@ -69,7 +69,7 @@ const getNodeConfigs = (t: any) => ({
     gatewayNodes: [
         {
             type: 'parallelGateway',
-            label: t('workflow.nodePanelLabel.parallelGateway'),
+            label: t('workflow.nodePanelLabel.parallelNode'),
             icon: ParallelIcon,
             color: '#ff9800',
             properties: {
@@ -81,7 +81,7 @@ const getNodeConfigs = (t: any) => ({
         },
         {
             type: 'exclusiveGateway',
-            label: t('workflow.nodePanelLabel.exclusiveGateway'),
+            label: t('workflow.nodePanelLabel.exclusiveNode'),
             icon: ExclusiveIcon,
             color: '#9c27b0',
             properties: {

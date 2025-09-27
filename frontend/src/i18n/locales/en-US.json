@@ -274,13 +274,14 @@
       "basicNodes": "Basic Nodes",
       "gatewayNodes": "Gateway Nodes",
       "advancedNodes": "Advanced Nodes",
-      "startNode": "Start Node",
-      "normalNode": "Normal Node",
-      "endNode": "End Node",
-      "parallelGateway": "Parallel Gateway",
-      "exclusiveGateway": "Exclusive Gateway",
-      "timerNode": "Timer Node",
-      "hookNode": "Hook Node"
+      "startNode": "Start",
+      "normalNode": "Normal",
+      "normalNodeName": "Processing",
+      "endNode": "End",
+      "parallel": "Parallel",
+      "exclusive": "Exclusive",
+      "timerNode": "Timer",
+      "hookNode": "Hook"
     },
     "toolbarLabel": {
       "workflowEditor": "Workflow Diagram Editor",

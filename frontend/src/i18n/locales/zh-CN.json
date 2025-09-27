@@ -276,13 +276,14 @@
       "basicNodes": "基础节点",
       "gatewayNodes": "网关节点",
       "advancedNodes": "高级节点",
-      "startNode": "开始节点",
-      "normalNode": "普通节点",
-      "endNode": "结束节点",
-      "parallelGateway": "并行网关节点",
-      "exclusiveGateway": "排他网关节点",
-      "timerNode": "定时器节点",
-      "hookNode": "钩子节点"
+      "startNode": "开始",
+      "normalNode": "普通",
+      "normalNodeName": "处理中",
+      "endNode": "结束",
+      "parallelNode": "并行网关",
+      "exclusiveNode": "排他网关",
+      "timerNode": "定时器",
+      "hookNode": "钩子"
     },
     "toolbarLabel": {
       "workflowEditor": "流程图编辑器",
