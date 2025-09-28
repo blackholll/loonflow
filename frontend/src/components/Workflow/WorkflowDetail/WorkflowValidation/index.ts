@@ -1,9 +1,14 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
 import { WorkflowValidationResult } from './types';
+import { validateBasicInfo, validateNodeNames, validateStartNodeCount, validateEndNodeCount } from './basicValidation';
 import { validateFormSchema } from './formValidation';
+import { validateFieldPermissions } from './fieldPermissionValidation';
 import { validateNormalNodes } from './normalNodeValidation';
 import { validateNodeConnectivity } from './connectivityValidation';
 import { validateParallelNodes } from './parallelNodeValidation';
+import { validateExclusiveNodes } from './exclusiveNodeValidation';
+import { validateTimerNodes } from './timerNodeValidation';
+import { validateHookNodes } from './hookNodeValidation';
 
 /**
  * Check for problems in workflow definition
@@ -13,17 +18,29 @@ import { validateParallelNodes } from './parallelNodeValidation';
 export const checkWorkflowProblems = (workflowData: IWorkflowFullDefinition): WorkflowValidationResult => {
     const problems: string[] = [];
 
-    // Validate form schema
+    // Basic validation
+    problems.push(...validateBasicInfo(workflowData));
+    problems.push(...validateNodeNames(workflowData));
+    problems.push(...validateStartNodeCount(workflowData));
+    problems.push(...validateEndNodeCount(workflowData));
+
+    // Form validation
     problems.push(...validateFormSchema(workflowData));
 
-    // Validate normal nodes
+    // Field permission validation
+    problems.push(...validateFieldPermissions(workflowData));
+
+    // Node configuration validation
     problems.push(...validateNormalNodes(workflowData));
 
-    // Validate node connectivity
+    // Connectivity validation
     problems.push(...validateNodeConnectivity(workflowData));
 
-    // Validate parallel nodes
+    // Gateway validation
     problems.push(...validateParallelNodes(workflowData));
+    problems.push(...validateExclusiveNodes(workflowData));
+    problems.push(...validateTimerNodes(workflowData));
+    problems.push(...validateHookNodes(workflowData));
 
     return {
         problems,
@@ -43,7 +60,23 @@ export const canPublishWorkflow = (workflowData: IWorkflowFullDefinition): boole
 
 export type { WorkflowValidationResult } from './types';
 
+// Basic validation
+export { validateBasicInfo, validateNodeNames, validateStartNodeCount, validateEndNodeCount } from './basicValidation';
+
+// Form validation
 export { validateFormSchema } from './formValidation';
+
+// Field permission validation
+export { validateFieldPermissions } from './fieldPermissionValidation';
+
+// Node configuration validation
 export { validateNormalNodes } from './normalNodeValidation';
+
+// Connectivity validation
 export { validateNodeConnectivity } from './connectivityValidation';
+
+// Gateway validation
 export { validateParallelNodes } from './parallelNodeValidation';
+export { validateExclusiveNodes } from './exclusiveNodeValidation';
+export { validateTimerNodes } from './timerNodeValidation';
+export { validateHookNodes } from './hookNodeValidation';

@@ -27,7 +27,7 @@ export interface IFormField {
 
 
 export interface ComponentTemplate {
-    type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'link' | 'richText' | 'externalData' | 'customCreator' | 'customCreatedAt' | 'ticketStatus' | 'approvalStatus' | 'ticketType' | 'currentHandler' | 'title' | 'ticketNodes';
+    type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'link' | 'richText' | 'externalData' | 'creator' | 'createdAt' | 'ticketStatus' | 'approvalStatus' | 'ticketType' | 'currentHandler' | 'title' | 'ticketNodes';
     componentName: string;
     icon: React.ReactNode;
     defaultProps: Partial<IFormField>;

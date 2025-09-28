@@ -169,18 +169,20 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
             />
 
 
-            <FormLabel id="demo-row-radio-buttons-group-label" required>{t('workflow.componentProperties.titleGenerateMode')}</FormLabel>
             {component.type === 'title' && (
-                <RadioGroup
-                    row
-                    aria-labelledby="demo-row-radio-buttons-group-label"
-                    name="row-radio-buttons-group"
-                    onChange={(e) => handleChange('titleGenerateMode', e.target.value)}
-                    value={component.props.titleGenerateMode}
-                >
-                    <FormControlLabel value="manual" control={<Radio />} label={t('workflow.componentProperties.manualInput')} />
-                    <FormControlLabel value="automatic" control={<Radio />} label={t('workflow.componentProperties.autoGenerate')} />
-                </RadioGroup>
+                <>
+                    <FormLabel id="demo-row-radio-buttons-group-label" required>{t('workflow.componentProperties.titleGenerateMode')}</FormLabel>
+                    <RadioGroup
+                        row
+                        aria-labelledby="demo-row-radio-buttons-group-label"
+                        name="row-radio-buttons-group"
+                        onChange={(e) => handleChange('titleGenerateMode', e.target.value)}
+                        value={component.props.titleGenerateMode}
+                    >
+                        <FormControlLabel value="manual" control={<Radio />} label={t('workflow.componentProperties.manualInput')} />
+                        <FormControlLabel value="automatic" control={<Radio />} label={t('workflow.componentProperties.autoGenerate')} />
+                    </RadioGroup>
+                </>
             )}
 
             {component.type === 'title' && component.props.titleGenerateMode === 'automatic' ? (

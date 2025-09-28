@@ -216,7 +216,7 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
             layout: { span: 6 }
         }
     }, {
-        type: 'customCreator',
+        type: 'creator',
         componentName: t('workflow.componentCategories.customCreatorComponent'),
         icon: <SelectIcon />,
         defaultProps: {
@@ -226,7 +226,7 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
             layout: { span: 6 }
         }
     }, {
-        type: 'customCreatedAt',
+        type: 'createdAt',
         componentName: t('workflow.componentCategories.customCreatedAtComponent'),
         icon: <SelectIcon />,
         defaultProps: {

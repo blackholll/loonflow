@@ -68,7 +68,7 @@ const getNodeConfigs = (t: any) => ({
     // 网关节点
     gatewayNodes: [
         {
-            type: 'parallelGateway',
+            type: 'parallel',
             label: t('workflow.nodePanelLabel.parallelNode'),
             icon: ParallelIcon,
             color: '#ff9800',
@@ -80,7 +80,7 @@ const getNodeConfigs = (t: any) => ({
             }
         },
         {
-            type: 'exclusiveGateway',
+            type: 'exclusive',
             label: t('workflow.nodePanelLabel.exclusiveNode'),
             icon: ExclusiveIcon,
             color: '#9c27b0',
@@ -94,17 +94,17 @@ const getNodeConfigs = (t: any) => ({
     ],
 
     advancedNodes: [
-        {
-            type: 'timer',
-            icon: TimerIcon,
-            label: t('workflow.nodePanelLabel.timerNode'),
-            color: '#9c27b0',
-            properties: {
-                type: 'timer',
-                canConnect: true,
-                canDisconnect: true,
-            }
-        },
+        // {
+        //     type: 'timer',
+        //     icon: TimerIcon,
+        //     label: t('workflow.nodePanelLabel.timerNode'),
+        //     color: '#9c27b0',
+        //     properties: {
+        //         type: 'timer',
+        //         canConnect: true,
+        //         canDisconnect: true,
+        //     }
+        // },
         {
             type: 'hook',
             icon: WebhookIcon,

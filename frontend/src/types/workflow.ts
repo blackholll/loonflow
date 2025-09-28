@@ -87,7 +87,7 @@ export interface IWorkflowComponent {
   componentPermission?: 'readonly' | 'optional' | 'required' | 'hidden',
   value?: any,
   description: string,
-  type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'link' | 'richText' | 'externalData' | 'customCreator' | 'customCreatedAt' | 'ticketStatus' | 'approvalStatus' | 'ticketType' | 'currentHandler' | 'title' | 'ticketNodes',
+  type: 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'link' | 'richText' | 'externalData' | 'creator' | 'createdAt' | 'ticketStatus' | 'approvalStatus' | 'ticketType' | 'currentHandler' | 'title' | 'ticketNodes',
   layout: ILayout,
   label: ILabel,
   props: IProps,
@@ -106,7 +106,7 @@ export interface IWorkflowComponentRow {
 }
 
 export interface IWorkflowFiledPermission {
-  [key: string]: 'readonly' | 'write_optional' | 'write_required'
+  [key: string]: 'readonly' | 'optional' | 'required' | 'hidden'
 }
 export interface IWorkflowNodeProps {
   allowRetreat: boolean,

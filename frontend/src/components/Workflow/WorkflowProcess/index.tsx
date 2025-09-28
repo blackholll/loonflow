@@ -38,8 +38,8 @@ const nodeTypes: NodeTypes = {
     start: (props: any) => <CustomNode {...props} />,
     normal: (props: any) => <CustomNode {...props} />,
     end: (props: any) => <CustomNode {...props} />,
-    parallelGateway: (props: any) => <CustomNode {...props} />,
-    exclusiveGateway: (props: any) => <CustomNode {...props} />,
+    parallel: (props: any) => <CustomNode {...props} />,
+    exclusive: (props: any) => <CustomNode {...props} />,
     timer: (props: any) => <CustomNode {...props} />,
     hook: (props: any) => <CustomNode {...props} />,
 };
@@ -225,6 +225,29 @@ function WorkflowProcess({
 
 
 
+    // 根据源节点和目标节点属性确定边的名称和类型
+    const getEdgeNameAndType = useCallback((sourceNode: Node, targetNode: Node, sourceHandle?: string, targetHandle?: string) => {
+        const sourceType = sourceNode.type;
+        const targetType = targetNode.type;
+        const sourceProps = sourceNode.data?.properties as any || {};
+
+        // 默认边类型和名称
+        let edgeType: 'agree' | 'reject' | 'other' | 'condition' = 'agree';
+        let edgeName = t('workflow.propertyPanelLabel.edgeNameAccept');
+        if (sourceType === 'start') {
+            edgeType = 'agree';
+            edgeName = '提交'
+        } else if (sourceType === 'parallel') {
+            edgeType = 'other';
+            edgeName = '并行分支';
+        } else if (sourceType === 'exclusive') {
+            edgeType = 'condition';
+            edgeName = '条件分支';
+        }
+
+        return { edgeType, edgeName };
+    }, [t]);
+
     // 连接处理
     const onConnect = useCallback(
         (params: Connection) => {
@@ -258,6 +281,14 @@ function WorkflowProcess({
                 return;
             }
 
+            // 根据源节点和目标节点属性确定边的名称和类型
+            const { edgeType, edgeName } = getEdgeNameAndType(
+                sourceNode,
+                targetNode,
+                params.sourceHandle,
+                params.targetHandle
+            );
+
             // 使用React Flow的addEdge函数创建连线
             const newEdge: Edge = {
                 ...params,
@@ -265,9 +296,9 @@ function WorkflowProcess({
                 type: 'custom',
                 data: {
                     properties: {
-                        name: t('workflow.propertyPanelLabel.edgeNameAccept'),
+                        name: edgeName,
                         condition: '',
-                        type: 'agree'
+                        type: edgeType
                     }
                 },
                 style: {
@@ -284,7 +315,7 @@ function WorkflowProcess({
                 return newEdges;
             });
         },
-        [setEdges, nodes, saveToHistory, notifyParentChange]
+        [setEdges, nodes, saveToHistory, notifyParentChange, getEdgeNameAndType]
     );
 
 

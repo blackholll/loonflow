@@ -122,7 +122,7 @@ function FormDesign(props: FormDesignProps) {
 
             const newComponent: IWorkflowComponent = {
                 id: generateId(),
-                type: template.type as 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'title' | 'customCreator' | 'customCreatedAt' | 'ticketNodes' | 'approvalStatus' | 'ticketType',
+                type: template.type as 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'title' | 'creator' | 'createdAt' | 'ticketNodes' | 'approvalStatus' | 'ticketType',
                 componentName: template.componentName || '新字段',
                 label: {},
                 description: template.defaultProps.description || '',

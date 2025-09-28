@@ -16,7 +16,10 @@ import {
     RadioGroup,
     FormControlLabel,
     Radio,
-    Switch
+    Switch,
+    Button,
+    Snackbar,
+    Alert
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Node, Edge } from '@xyflow/react';
@@ -26,8 +29,9 @@ import { getDeptPaths } from '../../../services/dept';
 import { getSimpleRoles } from '../../../services/role';
 import { ISimpleUser } from '../../../types/user';
 import { ISimpleDeptPath } from '../../../types/dept';
-import { ISimpleRole } from '../../../types/role';
 import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import ConditionExpressionEditor from './ConditionExpressionEditor';
 
 interface PropertyPanelProps {
     element: Node | Edge | null;
@@ -46,6 +50,10 @@ function toCamelCase(input: string): string {
     return input
         .replace(/[-_ ]+([a-zA-Z0-9])/g, (_, c) => c.toUpperCase())
         .replace(/^[A-Z]/, (c) => c.toLowerCase());
+}
+
+function generateToken(): string {
+    return uuidv4();
 }
 
 // 类型守卫函数，用于明确区分 Node 和 Edge
@@ -114,6 +122,7 @@ function PropertyPanel(props: PropertyPanelProps) {
     const [users, setUsers] = useState<IOption[]>([]);
     const [departments, setDepartments] = useState<IOption[]>([]);
     const [roles, setRoles] = useState<IOption[]>([]);
+    const [copySuccess, setCopySuccess] = useState(false);
     const { t } = useTranslation();
 
 
@@ -608,23 +617,20 @@ function PropertyPanel(props: PropertyPanelProps) {
                             value={properties.type || 'agree'}
                             label={t('workflow.propertyPanelLabel.edgeType')}
                             onChange={(e) => handlePropertyChange('type', e.target.value)}
+                            disabled={properties.type === 'condition'}
                         >
                             <MenuItem value="agree">{t('workflow.propertyPanelLabel.edgeNameAccept')}</MenuItem>
                             <MenuItem value="reject">{t('workflow.propertyPanelLabel.edgeNameReject')}</MenuItem>
+                            <MenuItem value="condition">{t('workflow.propertyPanelLabel.edgeNameCondition')}</MenuItem>
                             <MenuItem value="other">{t('workflow.propertyPanelLabel.edgeNameOther')}</MenuItem>
                         </Select>
                     </FormControl>
 
-                    {properties.type === 'conditional' && (
-                        <TextField
-                            label={t('workflow.propertyPanelLabel.conditionExpression')}
-                            value={properties.condition || ''}
-                            onChange={(e) => handlePropertyChange('condition', e.target.value)}
-                            size="small"
-                            multiline
-                            rows={2}
-                            fullWidth
-                            placeholder={t('workflow.propertyPanelLabel.conditionExpressionPlaceholder')}
+                    {properties.type === 'condition' && (
+                        <ConditionExpressionEditor
+                            value={properties.conditionGroups || properties.condition || []}
+                            onChange={(groups) => handlePropertyChange('conditionGroups', groups)}
+                            formSchema={formSchema}
                         />
                     )}
                 </Box>
@@ -685,6 +691,60 @@ function PropertyPanel(props: PropertyPanelProps) {
                         </>
                     )}
 
+                    {properties.type === 'hook' && (
+                        <>
+                            <TextField
+                                label={t('workflow.propertyPanelLabel.hookUrl')}
+                                value={properties.hookUrl || ''}
+                                onChange={(e) => handlePropertyChange('hookUrl', e.target.value)}
+                                size="small"
+                                fullWidth
+                                required
+                                placeholder="https://example.com/webhook"
+                            />
+                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                <TextField
+                                    label={t('workflow.propertyPanelLabel.hookToken')}
+                                    value={properties.hookToken || ''}
+                                    onChange={(e) => handlePropertyChange('hookToken', e.target.value)}
+                                    size="small"
+                                    fullWidth
+                                    required
+                                    placeholder="Hook访问令牌"
+                                />
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => {
+                                        const token = generateToken();
+                                        handlePropertyChange('hookToken', token);
+                                    }}
+                                    sx={{ minWidth: 'auto', px: 2 }}
+                                >
+                                    {t('workflow.propertyPanelLabel.generateToken')}
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={async () => {
+                                        if (properties.hookToken) {
+                                            try {
+                                                await navigator.clipboard.writeText(properties.hookToken);
+                                                setCopySuccess(true);
+                                            } catch (error) {
+                                                console.error('复制失败:', error);
+                                            }
+                                        }
+                                    }}
+                                    disabled={!properties.hookToken}
+                                    sx={{ minWidth: 'auto', px: 2 }}
+                                >
+                                    {t('workflow.propertyPanelLabel.copyToken')}
+                                </Button>
+                            </Box>
+                        </>
+                    )}
+
                     {/* 网关特定属性 */}
                     {(element.data?.nodeType === 'parallel' || element.data?.nodeType === 'exclusive') && (
                         <>
@@ -717,7 +777,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                             )}
                         </>
                     )}
-                    {element.data?.nodeType !== 'end' && (
+                    {['end', 'hook', 'timer', 'exclusive', 'parallel'].indexOf(element.type as string) === -1 && (
                         <>
 
                             <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{t('workflow.propertyPanelLabel.fieldPermission')}</div>
@@ -749,6 +809,17 @@ function PropertyPanel(props: PropertyPanelProps) {
                     )}
                 </Box>
             )}
+
+            <Snackbar
+                open={copySuccess}
+                autoHideDuration={2000}
+                onClose={() => setCopySuccess(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setCopySuccess(false)} severity="success" sx={{ width: '100%' }}>
+                    {t('workflow.propertyPanelLabel.copySuccess')}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

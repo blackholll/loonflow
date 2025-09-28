@@ -1,55 +1,60 @@
 import { IWorkflowFullDefinition, IWorkflowNode, IWorkflowEdge } from '../../../../types/workflow';
 
 /**
- * Find the convergence node for a given starting node
- * A convergence node is typically a parallel gateway or end node that collects multiple paths
- * @param startNodeId Starting node ID
+ * Find the convergence node where all parallel paths first meet
+ * @param parallelNodeId The parallel node ID
  * @param nodeList List of all nodes
  * @param edgeList List of all edges
  * @returns The convergence node ID, or null if not found
  */
-const findConvergenceNode = (
-    startNodeId: string,
+const findParallelConvergenceNode = (
+    parallelNodeId: string,
     nodeList: IWorkflowNode[],
     edgeList: IWorkflowEdge[]
 ): string | null => {
-    const visited = new Set<string>();
-    const queue: string[] = [startNodeId];
+    // 获取并行节点的所有出边
+    const parallelOutputEdges = edgeList.filter(edge => edge.sourceNodeId === parallelNodeId);
 
-    while (queue.length > 0) {
-        const currentNodeId = queue.shift()!;
+    if (parallelOutputEdges.length === 0) {
+        return null;
+    }
 
-        if (visited.has(currentNodeId)) {
-            continue;
-        }
-        visited.add(currentNodeId);
+    // 记录每个节点被哪些路径访问过
+    const nodePathMap = new Map<string, Set<number>>();
 
-        const currentNode = nodeList.find(n => n.id === currentNodeId);
-        if (!currentNode) {
-            continue;
-        }
+    // 为每个路径独立进行BFS遍历
+    for (let pathIndex = 0; pathIndex < parallelOutputEdges.length; pathIndex++) {
+        const startNodeId = parallelOutputEdges[pathIndex].targetNodeId;
+        const visited = new Set<string>();
+        const queue: string[] = [startNodeId];
 
-        // 如果当前节点是并行网关或结束节点，说明找到了汇聚点
-        if (currentNode.type === 'parallel' || currentNode.type === 'end') {
-            return currentNodeId;
-        }
+        while (queue.length > 0) {
+            const currentNodeId = queue.shift()!;
 
-        // 如果当前节点是普通节点，继续追踪其出边
-        if (currentNode.type === 'normal') {
-            const outputEdges = edgeList.filter(edge => edge.sourceNodeId === currentNodeId);
-            for (const edge of outputEdges) {
-                if (!visited.has(edge.targetNodeId)) {
-                    queue.push(edge.targetNodeId);
-                }
+            if (visited.has(currentNodeId)) {
+                continue;
             }
-        }
+            visited.add(currentNodeId);
 
-        // 对于其他类型的节点（exclusive, timer, hook等），也继续追踪
-        if (['exclusive', 'timer', 'hook'].includes(currentNode.type)) {
-            const outputEdges = edgeList.filter(edge => edge.sourceNodeId === currentNodeId);
-            for (const edge of outputEdges) {
-                if (!visited.has(edge.targetNodeId)) {
-                    queue.push(edge.targetNodeId);
+            // 记录这个节点被当前路径访问
+            if (!nodePathMap.has(currentNodeId)) {
+                nodePathMap.set(currentNodeId, new Set());
+            }
+            nodePathMap.get(currentNodeId)!.add(pathIndex);
+
+            // 如果这个节点被所有路径访问，说明找到了汇聚点
+            if (nodePathMap.get(currentNodeId)!.size === parallelOutputEdges.length) {
+                return currentNodeId;
+            }
+
+            // 继续追踪这个节点的出边
+            const currentNode = nodeList.find(n => n.id === currentNodeId);
+            if (currentNode) {
+                const outputEdges = edgeList.filter(edge => edge.sourceNodeId === currentNodeId);
+                for (const edge of outputEdges) {
+                    if (!visited.has(edge.targetNodeId)) {
+                        queue.push(edge.targetNodeId);
+                    }
                 }
             }
         }
@@ -69,35 +74,22 @@ export const validateParallelNodes = (workflowData: IWorkflowFullDefinition): st
     for (const node of workflowData.processSchema.nodeInfoList) {
         // 并行网关后的并行节点需要汇聚到一个normal类型的节点
         if (node.type === 'parallel') {
-            // 获取并行节点的所有出边
-            const parallelOutputEdges = workflowData.processSchema.edgeInfoList.filter(
-                (edge) => edge.sourceNodeId === node.id
+            // 找到并行节点所有出边路径第一次同时指向的汇聚节点
+            const convergenceNodeId = findParallelConvergenceNode(
+                node.id,
+                workflowData.processSchema.nodeInfoList,
+                workflowData.processSchema.edgeInfoList
             );
 
-            if (parallelOutputEdges.length > 0) {
-                // 使用深度优先搜索找到所有出边路径最终汇聚的节点
-                const convergenceNodes = new Set<string>();
-
-                for (const edge of parallelOutputEdges) {
-                    const convergenceNode = findConvergenceNode(
-                        edge.targetNodeId,
-                        workflowData.processSchema.nodeInfoList,
-                        workflowData.processSchema.edgeInfoList
-                    );
-                    if (convergenceNode) {
-                        convergenceNodes.add(convergenceNode);
-                    }
+            if (convergenceNodeId) {
+                const convergenceNode = workflowData.processSchema.nodeInfoList.find(
+                    (n) => n.id === convergenceNodeId
+                );
+                if (convergenceNode && convergenceNode.type !== 'normal') {
+                    problems.push(`并行节点"${node.name}"的出边最终汇聚到的节点"${convergenceNode.name}"不是普通节点类型`);
                 }
-
-                // 检查汇聚节点是否都是normal类型
-                for (const convergenceNodeId of Array.from(convergenceNodes)) {
-                    const convergenceNode = workflowData.processSchema.nodeInfoList.find(
-                        (n) => n.id === convergenceNodeId
-                    );
-                    if (convergenceNode && convergenceNode.type !== 'normal') {
-                        problems.push(`并行节点"${node.name}"的出边最终汇聚到的节点"${convergenceNode.name}"必须是普通节点类型`);
-                    }
-                }
+            } else {
+                problems.push(`并行节点"${node.name}"的出边没有找到汇聚节点`);
             }
         }
     }

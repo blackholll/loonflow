@@ -12,7 +12,7 @@ export const validateNormalNodes = (workflowData: IWorkflowFullDefinition): stri
     for (const node of workflowData.processSchema.nodeInfoList) {
         if (node.type === 'normal') {
             if (node.props.assignee === '' || node.props.assigneeType === '') {
-                problems.push('普通节点不能没有处理人');
+                problems.push(`节点:"${node.name}"不能没有处理人`);
             }
         }
     }

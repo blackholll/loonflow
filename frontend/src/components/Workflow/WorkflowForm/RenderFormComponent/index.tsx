@@ -182,7 +182,7 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
                     value={value}
                     fieldRequired={false}
                     onChange={handleFieldChange}
-                    mode="edit"
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
                 />
             );
