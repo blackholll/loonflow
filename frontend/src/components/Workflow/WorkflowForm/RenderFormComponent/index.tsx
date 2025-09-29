@@ -1,3 +1,4 @@
+import { Typography, FormControl } from "@mui/material";
 import { IWorkflowComponent } from "../../../../types/workflow";
 import {
     TextField,
@@ -7,7 +8,7 @@ import {
     // UserField,
     // DepartmentField,
 } from '../../../formFields';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface RenderFormComponentProps {
     component: IWorkflowComponent;
@@ -54,6 +55,7 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
                     props={component.props}
                 />
             );
+
         // case 'textarea':
         //     return (
         //         <TextField

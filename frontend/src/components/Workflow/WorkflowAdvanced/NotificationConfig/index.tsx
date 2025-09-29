@@ -81,8 +81,8 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
                 });
             }
         });
-        fields.push({ key: 'createdAt', label: t('common.createdAt') });
-        fields.push({ key: 'updatedAt', label: t('common.updatedAt') });
+        fields.push({ key: 'created_at', label: t('common.createdAt') });
+        fields.push({ key: 'updated_at', label: t('common.updatedAt') });
         fields.push({ key: 'creator', label: t('common.creator') });
 
         setAvailableFields(fields);

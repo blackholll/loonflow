@@ -241,8 +241,11 @@ class TicketBaseService(BaseService):
         act_state = "on_going"
         if len(next_node_list) == 1:
             act_state = cls.get_act_state_by_node_and_edge_type(next_node_list[0].type, edge_obj.type)
+        
+        # title need check whether title need auto genirate
+        title = workflow_component_service_ins.get_title_from_template(tenant_id, workflow_id, version_id, request_data_dict.get('fields', {}))
 
-        ticket_record = TicketRecord(title=request_data_dict.get('fields', {}).get('title', ''), workflow_id=workflow_id,
+        ticket_record = TicketRecord(title=title, workflow_id=workflow_id,
                                      parent_ticket_id=parent_ticket_id,
                                      parent_ticket_node_id=parent_ticket_node_id,
                                      act_state=act_state, creator_id=operator_id, tenant_id=tenant_id,

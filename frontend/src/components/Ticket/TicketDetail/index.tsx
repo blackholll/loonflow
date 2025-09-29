@@ -7,9 +7,6 @@ import {
   Button,
   Dialog,
   DialogContent,
-  Divider,
-  Chip,
-  Avatar,
   TextField,
   DialogActions,
   Autocomplete,
@@ -17,10 +14,9 @@ import {
 } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 
-import { IFormField } from "../../../types/workflowDesign";
 import RenderFormComponent from "../../Workflow/WorkflowForm/RenderFormComponent";
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, IWorkflowNodeSchema, IWorkflowAction } from "../../../types/workflow";
+import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, IWorkflowAction } from "../../../types/workflow";
 import { getTicketCreationForm, getTicketCreationActions } from "../../../services/workflow";
 import { newTicket, getTicketDetailForm, getTicketDetailActions, handleTicket } from "../../../services/ticket";
 import useSnackbar from "../../../hooks/useSnackbar";
@@ -42,8 +38,7 @@ interface IOption {
   value: string;
 }
 function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToken }: TicketDetailProps) {
-  const [ticketFullDetail, setTicketFullDetail] = useState<IFormSchema>();
-  const [creationFormData, setCreationFormData] = useState<any>();
+
   const [creationFormActions, setCreationFormActions] = useState<any>();
   const [actionBaseNodeId, setActionBaseNodeId] = useState<string>();
   const [openWorkflowDiagram, setOpenWorkflowDiagram] = useState(false);
@@ -81,7 +76,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
     } else {
       showMessage(res.msg, 'error');
     }
-  }, [workflowId]);
+  }, [workflowId, showMessage]);
 
   const fetchTicketCreationActions = useCallback(async () => {
     const res = await getTicketCreationActions(workflowId!);
@@ -90,7 +85,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
     } else {
       showMessage(res.msg, 'error');
     }
-  }, [workflowId]);
+  }, [workflowId, showMessage]);
 
   const fetchTicketDetailFrom = useCallback(async (ticketId: string) => {
     const res = await getTicketDetailForm(ticketId);
@@ -111,7 +106,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
     } else {
       showMessage(res.msg, 'error');
     }
-  }, []);
+  }, [showMessage]);
 
   const fetchTicketDetailActions = useCallback(async (ticketId: string) => {
     const res = await getTicketDetailActions(ticketId);
@@ -121,7 +116,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
     } else {
       showMessage(res.msg, 'error');
     }
-  }, []);
+  }, [showMessage]);
 
   useEffect(() => {
     if (workflowId) {
@@ -194,6 +189,9 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
           onTicketHandledChange(res.data.ticketId)
         }
       }
+      else {
+        showMessage(res.msg, 'error')
+      }
     }
   }
 
@@ -255,7 +253,11 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
                               minWidth: 80,
                             }}
                           >
-                            {fieldComponent.componentName}{fieldComponent.description && (
+                            {fieldComponent.componentName}
+                            {fieldComponent.componentPermission === 'required' && (
+                              <Box component="span" sx={{ color: 'error.main', ml: 0.25 }}>*</Box>
+                            )}
+                            {fieldComponent.description && (
                               <Tooltip
                                 title={fieldComponent.description}
                                 placement="top"
@@ -272,9 +274,8 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
                               </Tooltip>
                             )}
                           </Typography>
-
                         </Box>
-                        <Box sx={{ flex: 1 }}>
+                        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', minHeight: 40 }}>
                           <RenderFormComponent
                             component={fieldComponent}
                             handleComponentUpdate={(updatedComponent) => {

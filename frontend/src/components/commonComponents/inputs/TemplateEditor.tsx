@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 function TagSpan(props: any) {
     const { availableFields } = props;
-    const keyMatch = /\{\{([\w.]+)\}\}/.exec(props.decoratedText);
+    const keyMatch = /\{([\w.]+)\}/.exec(props.decoratedText);
     let label = props.children;
     if (keyMatch && availableFields) {
         const found = availableFields.find((f: any) => f.key === keyMatch[1]);
@@ -24,7 +24,7 @@ function TagSpan(props: any) {
 
 function tagStrategy(contentBlock: any, callback: any, contentState: any) {
     const text = contentBlock.getText();
-    const regex = /\{\{([\w.]+)\}\}/g;
+    const regex = /\{([\w.]+)\}/g;
     let matchArr, start;
     while ((matchArr = regex.exec(text)) !== null) {
         start = matchArr.index;
@@ -60,7 +60,7 @@ export default function TemplateEditor({ value, onChange, availableFields, place
     const insertTag = (field: { key: string; label: string }) => {
         const contentState = editorState.getCurrentContent();
         const selection = editorState.getSelection();
-        const tagText = `{{${field.key}}}\u200B`;
+        const tagText = `{${field.key}}\u200B`;
         // insert tag + zero width space
         let newContentState = Modifier.insertText(contentState, selection, tagText);
         // calculate final cursor position

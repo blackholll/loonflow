@@ -1,3 +1,4 @@
+import copy
 import json
 from django.conf import settings
 from django.db.models import Q
@@ -239,14 +240,17 @@ class WorkflowBaseService(BaseService):
         result_component_list = []
         for component in form_schema_component_list:
             if component['type'] == 'row':
+                new_children_length = 0
+                new_children = []
                 for child_component in component['children']:
-                    children_length = 0
                     if init_node_field_permissions.get(child_component['component_key']) is not None and init_node_field_permissions.get(child_component['component_key']) != 'hidden' :
                         child_component['component_permission'] = (init_node_field_permissions.get(child_component['component_key']))
-                        result_component_list.append(child_component)
-                        children_length += 1
-                if children_length != 0:
-                    result_component_list.append(component)
+                        new_children.append(child_component)
+                        new_children_length += 1
+                if new_children_length != 0:
+                    new_component = copy.deepcopy(component)
+                    new_component['children'] = new_children
+                    result_component_list.append(new_component)
         workflow_basic_obj = workflow_base_service_ins.get_workflow_basic_info_by_id(tenant_id, workflow_id, version_obj.id)
 
         workflow_metadata = dict(

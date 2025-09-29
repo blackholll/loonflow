@@ -1,4 +1,5 @@
 from calendar import c
+import datetime
 import json
 from math import e
 import time
@@ -192,5 +193,22 @@ class WorkflowComponentService(BaseService):
                 custom_field_list.append(component_obj.get_dict())
         return custom_field_list
 
+    def get_title_from_template(cls, tenant_id: str, workflow_id: str, version_id: str, fields: dict):
+        """
+        get title from template
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param fields:
+        :return:
+        """
+        title_component = Component.objects.get(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, component_key='title')
+        fields['created_at'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        if title_component.props.get('title_generate_mode') == 'automatic':
+            title_template = title_component.props.get('title_template')
+            title_template_format = title_template.format(**fields)
+            return title_template_format
+        else:
+            return fields.get('title', '')
 
 workflow_component_service_ins = WorkflowComponentService()

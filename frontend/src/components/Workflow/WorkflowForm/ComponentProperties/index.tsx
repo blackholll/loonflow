@@ -45,20 +45,16 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
         formSchema.componentInfoList.forEach((component) => {
             if (component.type === 'row' && 'children' in component) {
                 component.children.forEach((childComponent) => {
-                    fields.push({
-                        key: childComponent.componentKey,
-                        label: childComponent.componentName
-                    });
-                });
-            } else {
-                fields.push({
-                    key: component.componentKey,
-                    label: component.componentName
+                    if (childComponent.componentKey !== 'title')
+                        fields.push({
+                            key: childComponent.componentKey,
+                            label: childComponent.componentName
+                        });
                 });
             }
         });
-        fields.push({ key: 'createdAt', label: t('common.createdAt') });
-        fields.push({ key: 'updatedAt', label: t('common.updatedAt') });
+        fields.push({ key: 'created_at', label: t('common.createdAt') });
+        fields.push({ key: 'updated_at', label: t('common.updatedAt') });
         fields.push({ key: 'creator', label: t('common.creator') });
 
         setAvailableFields(fields);
