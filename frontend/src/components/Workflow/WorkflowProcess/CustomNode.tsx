@@ -21,10 +21,11 @@ const CustomNode = ({ data, selected }: NodeProps) => {
 
 
     console.log('data333:', data);
-    // 当 data.label 变化时，更新 editName
+    // 当 name 变化时，更新 editName
+    const currentName = (data as any)?.properties?.name;
     React.useEffect(() => {
-        setEditName((data as any)?.properties?.name || '节点');
-    }, [(data as any)?.properties?.name]);
+        setEditName(currentName || '节点');
+    }, [currentName]);
 
     const getNodeIcon = (nodeType: string, isIconOnlyNode: boolean = false) => {
         const fontSize = isIconOnlyNode ? 18 : 12;
@@ -50,6 +51,9 @@ const CustomNode = ({ data, selected }: NodeProps) => {
     console.log('data1111:', data);
     const nodeType = (data as any)?.properties?.type || 'normal';
     const isCurrent = Boolean((data as any)?.properties?.isCurrent);
+    const isSelectedOnly = Boolean(selected && !isCurrent);
+    const borderColor = isCurrent ? '#ff6f00' : (isSelectedOnly ? '#1976d2' : '#ccc');
+    const bgColor = (isCurrent || isSelectedOnly) ? '#e3f2fd' : '#f5f5f5';
 
     const handleNodeClick = (event: React.MouseEvent) => {
         if (event.detail === 2) { // 双击编辑
@@ -77,8 +81,7 @@ const CustomNode = ({ data, selected }: NodeProps) => {
 
     const isDiamond = nodeType === 'exclusive' || nodeType === 'parallel';
     const isIconOnly = nodeType === 'timer' || nodeType === 'hook';
-    const isStart = nodeType === 'start';
-    const isEnd = nodeType === 'end';
+    // start/end 变量未使用，移除
 
     const rectHandleCommon = {
         opacity: showHandles ? 1 : 0,
@@ -116,8 +119,8 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                         width: 32,
                         height: 32,
                         borderRadius: '50%',
-                        backgroundColor: (selected || isCurrent) ? '#e3f2fd' : '#f5f5f5',
-                        border: (selected || isCurrent) ? '2px solid #ff6f00' : '2px solid #ccc',
+                        backgroundColor: bgColor,
+                        border: `2px solid ${borderColor}`,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -154,7 +157,7 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                     sx={{
                         width: 28, // 80 * 0.707 ≈ 56 (考虑旋转后的视觉效果)
                         height: 28,
-                        border: (selected || isCurrent) ? '2px solid #ff6f00' : '2px solid #ccc',
+                        border: `2px solid ${borderColor}`,
                         backgroundColor: 'transparent',
                         transform: 'rotate(45deg)',
                         display: 'flex',
@@ -179,12 +182,12 @@ const CustomNode = ({ data, selected }: NodeProps) => {
         ) : (
             // 普通矩形节点
             <Paper
-                elevation={(selected || isCurrent) ? 8 : 2}
+                elevation={(isCurrent || isSelectedOnly) ? 8 : 2}
                 sx={{
                     width: 100,
                     height: 30,
                     backgroundColor: 'transparent',
-                    border: (selected || isCurrent) ? '2px solid #ff6f00' : '2px solid #ccc',
+                    border: `2px solid ${borderColor}`,
                     display: 'flex',
                     alignItems: 'center',
                     position: 'relative',

@@ -176,15 +176,19 @@ function WorkflowProcess({
         setCurrentFormSchema(formSchema);
     }, [formSchema]);
 
-    // 根据选中节点ID高亮（只读模式下使用）
+    // 使用 isCurrent 标记“当前工单节点”，与交互选中状态(selected)解耦
     useEffect(() => {
-        if (!simpleViewMode) return;
-        if (!selectedNodeIds || selectedNodeIds.length === 0) {
-            setNodes((nds) => nds.map(n => ({ ...n, selected: false })));
-            return;
-        }
-        setNodes((nds) => nds.map(n => ({ ...n, selected: selectedNodeIds.includes(n.id) })));
-    }, [selectedNodeIds, simpleViewMode, setNodes]);
+        setNodes((nds) => nds.map((n) => ({
+            ...n,
+            data: {
+                ...n.data,
+                properties: {
+                    ...(n.data as any)?.properties,
+                    isCurrent: !!(selectedNodeIds && selectedNodeIds.includes(n.id))
+                }
+            }
+        })));
+    }, [selectedNodeIds, setNodes]);
 
 
     // 保存历史记录
@@ -217,12 +221,13 @@ function WorkflowProcess({
 
     // 自定义节点变化处理，添加通知父组件的逻辑
     const onNodesChange = useCallback((changes: NodeChange[]) => {
-        onNodesChangeBase(changes);
+        const processedChanges = simpleViewMode ? changes.filter((c: any) => c.type !== 'select') : changes;
+        onNodesChangeBase(processedChanges);
         // 延迟通知父组件，避免频繁更新
         setTimeout(() => {
             notifyParentChange(nodes, edges);
         }, 100);
-    }, [onNodesChangeBase, nodes, edges, notifyParentChange]);
+    }, [onNodesChangeBase, nodes, edges, notifyParentChange, simpleViewMode]);
 
     // 自定义边变化处理，添加通知父组件的逻辑
     const onEdgesChange = useCallback((changes: EdgeChange[]) => {
@@ -658,7 +663,7 @@ function WorkflowProcess({
                             onConnect={onConnect}
                             onNodeClick={onNodeClick}
                             onEdgeClick={onEdgeClick}
-                            onPaneClick={onPaneClick}
+                            onPaneClick={!simpleViewMode ? onPaneClick : undefined}
                             onNodeMouseEnter={onNodeMouseEnter}
                             onNodeMouseMove={onNodeMouseMove}
                             onNodeMouseLeave={onNodeMouseLeave}
@@ -705,6 +710,28 @@ function WorkflowProcess({
                                     {hoverTooltip.lines.map((line, idx) => (
                                         <div key={idx} style={{ whiteSpace: 'pre-wrap' }}>{line}</div>
                                     ))}
+                                </Box>
+                            ) : null}
+
+                            {/* 橙色边框说明提示：仅在存在 selectedNodeIds 时显示 */}
+                            {selectedNodeIds && selectedNodeIds.length > 0 ? (
+                                <Box
+                                    sx={{
+                                        position: 'absolute',
+                                        left: 12,
+                                        top: 12,
+                                        pointerEvents: 'none',
+                                        backgroundColor: 'rgba(33, 33, 33, 0.75)',
+                                        color: '#fff',
+                                        px: 1,
+                                        py: 0.5,
+                                        borderRadius: 1,
+                                        boxShadow: 2,
+                                        fontSize: 12,
+                                        zIndex: 20
+                                    }}
+                                >
+                                    橙色边框表示工单当前所在节点
                                 </Box>
                             ) : null}
                         </ReactFlow>
