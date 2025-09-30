@@ -373,6 +373,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
+                                required
                                 label={t('workflow.propertyPanelLabel.assigneeTypeUsersLabel.label')}
                                 placeholder={t('workflow.propertyPanelLabel.assigneeTypeUsersLabel.placeholder')}
                                 InputProps={{
@@ -412,6 +413,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
+                                required
                                 label={t('workflow.propertyPanelLabel.assigneeTypeDeptsLabel.label')}
                                 placeholder={t('workflow.propertyPanelLabel.assigneeTypeDeptsLabel.placeholder')}
                                 InputProps={{
@@ -448,6 +450,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                         renderInput={(params) => (
                             <TextField
                                 {...params}
+                                required
                                 label={t('workflow.propertyPanelLabel.assigneeTypeRolesLabel.label')}
                                 placeholder={t('workflow.propertyPanelLabel.assigneeTypeRolesLabel.placeholder')}
                                 InputProps={{
@@ -473,6 +476,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                         <InputLabel>{t('workflow.propertyPanelLabel.assigneeTypeVariablesLabel.label')}</InputLabel>
                         <Select
                             multiple
+                            required
                             value={assigneeValue ? assigneeValue.split(',') : []}
                             label={t('workflow.propertyPanelLabel.assigneeTypeVariablesLabel.label')}
                             onChange={(e) => handlePropertyChange('assignee', Array.isArray(e.target.value) ? e.target.value.join(',') : '')}
@@ -503,6 +507,7 @@ function PropertyPanel(props: PropertyPanelProps) {
             case 'ticket_field':
                 return (
                     <TextField
+                        required
                         label={t('workflow.propertyPanelLabel.assigneeTypeTicketFieldLabel.label')}
                         value={assigneeValue}
                         onChange={(e) => handlePropertyChange('assignee', e.target.value)}
@@ -516,6 +521,7 @@ function PropertyPanel(props: PropertyPanelProps) {
             case 'parent_ticket_field':
                 return (
                     <TextField
+                        required
                         label={t('workflow.propertyPanelLabel.assigneeTypeParentTicketFieldLabel.label')}
                         value={assigneeValue}
                         onChange={(e) => handlePropertyChange('assignee', e.target.value)}
@@ -530,6 +536,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                 return (
                     <>
                         <TextField
+                            required
                             label={t('workflow.propertyPanelLabel.assigneeTypeHookLabel.label')}
                             value={assigneeValue}
                             onChange={(e) => handlePropertyChange('assignee', e.target.value)}
@@ -548,6 +555,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                     <>
                         <TextField
                             label="外部接口"
+                            required
                             value={assigneeValue}
                             onChange={(e) => handlePropertyChange('assignee', e.target.value)}
                             size="small"
@@ -556,6 +564,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                             helperText={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.helperText')}
                         />
                         <TextField
+                            required
                             label="Token"
                             value={externalToken}
                             onChange={(e) => handlePropertyChange('externalToken', e.target.value)}
@@ -638,6 +647,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                 // 节点属性
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField
+                        required
                         label={t('workflow.propertyPanelLabel.nodeLabel')}
                         value={properties.name || ''}
                         disabled={properties.type === 'start' || properties.type === 'end'}
@@ -652,7 +662,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                                 options={assigneeTypeOptions}
                                 getOptionLabel={(option) => option.name}
                                 value={properties.assigneeType ? assigneeTypeOptions.find(option => option.value === properties.assigneeType) || null : null}
-                                renderInput={(params) => <TextField {...params} label={t('workflow.propertyPanelLabel.assigneeType')} />}
+                                renderInput={(params) => <TextField {...params} required label={t('workflow.propertyPanelLabel.assigneeType')} />}
                                 onChange={(e, value) => handleAssigneeTypeChange(value?.value || '')}
                                 size="small"
                                 fullWidth
@@ -662,7 +672,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                                 options={assignmentStrategyOptions}
                                 getOptionLabel={(option) => option.name}
                                 value={properties.assignmentStrategy ? assignmentStrategyOptions.find(option => option.value === properties.assignmentStrategy) || null : null}
-                                renderInput={(params) => <TextField {...params} label={t('workflow.propertyPanelLabel.assignmentStrategy')} />}
+                                renderInput={(params) => <TextField {...params} required label={t('workflow.propertyPanelLabel.assignmentStrategy')} />}
                                 onChange={(e, value) => handleAssignmentStrategyChange(value?.value || '')}
                                 size="small"
                                 fullWidth

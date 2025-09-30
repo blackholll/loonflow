@@ -13,6 +13,7 @@ from service.exception.custom_common_exception import CustomCommonException
 from service.format_response import api_response
 from service.permission.user_permission import user_permission_check
 from service.ticket.ticket_base_service import ticket_base_service_ins
+from service.ticket.ticket_node_service import ticket_node_service_ins
 
 logger = logging.getLogger("django")
 
@@ -333,3 +334,32 @@ class TicketFlowHistoryView(BaseView):
         return api_response(0, '', dict(ticket_flow_history_list = result['ticket_flow_history_object_format_list'], 
         total=result['paginator_info']['total'], page=result['paginator_info']['page'], per_page=result['paginator_info']['per_page']))
 
+class TicketCurrentNodeInfosView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get ticket current node infos
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        ticket_id = kwargs.get('ticket_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        user_id = request.META.get('HTTP_USERID')
+        try:
+            account_base_service_ins.app_ticket_permission_check(tenant_id, app_name, ticket_id)
+            current_node_infos = ticket_node_service_ins.get_ticket_current_nodes(tenant_id, ticket_id)
+            result_list = []
+            for current_node_info in current_node_infos:
+                result_list.append(dict(
+                    id=current_node_info.node_id,
+                    name=current_node_info.node.name,
+                ))
+            return api_response(0, '', dict(current_node_info_list=result_list))
+
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')

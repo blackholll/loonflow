@@ -1,4 +1,5 @@
-import json
+# import json
+from django.http import JsonResponse
 
 from django.http import HttpResponse
 
@@ -11,4 +12,4 @@ def api_response(code, msg='', data=''):
     :param data:
     :return:
     """
-    return HttpResponse(json.dumps(dict(code=code, data=data, msg=msg)), content_type="application/json")
+    return JsonResponse(dict(code=code, data=data, msg=msg))

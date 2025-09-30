@@ -397,7 +397,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
         aria-describedby="alert-dialog-description"
       >
         <DialogContent>
-          <WorkflowDiagram workflowId={formSchema?.workflowMetadata?.id ?? ''} workflowVersionId={formSchema?.workflowMetadata?.versionId ?? ''} />
+          <WorkflowDiagram workflowId={formSchema?.workflowMetadata?.id ?? ''} workflowVersionId={formSchema?.workflowMetadata?.versionId ?? ''} ticketId={ticketId ?? ''} />
         </DialogContent>
       </Dialog>
 

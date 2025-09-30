@@ -220,7 +220,16 @@
       "hideOptionKeys": "隐藏选项标识",
       "showOptionKeys": "显示选项标识",
       "optionKeysInfo": "选项标识可用于API调用的参数",
-      "titleTemplatePlaceholder": "请输入通知标题模板"
+      "titleTemplatePlaceholder": "请输入通知标题模板",
+      "allowDecimal": "允许小数",
+      "fixedDecimalScale": "固定精度",
+      "thousandSeparator": "千分位分隔符",
+      "allowNegative": "允许负数",
+      "precision": "小数位数",
+      "min": "最小值",
+      "max": "最大值",
+      "unitPrefix": "单位前缀",
+      "unitSuffix": "单位后缀"
     },
     "componentCategories": {
       "basicComponent": "基础组件",

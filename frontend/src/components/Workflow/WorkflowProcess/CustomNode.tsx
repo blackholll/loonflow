@@ -49,6 +49,7 @@ const CustomNode = ({ data, selected }: NodeProps) => {
 
     console.log('data1111:', data);
     const nodeType = (data as any)?.properties?.type || 'normal';
+    const isCurrent = Boolean((data as any)?.properties?.isCurrent);
 
     const handleNodeClick = (event: React.MouseEvent) => {
         if (event.detail === 2) { // 双击编辑
@@ -115,8 +116,8 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                         width: 32,
                         height: 32,
                         borderRadius: '50%',
-                        backgroundColor: selected ? '#e3f2fd' : '#f5f5f5',
-                        border: selected ? '2px solid #1976d2' : '2px solid #ccc',
+                        backgroundColor: (selected || isCurrent) ? '#e3f2fd' : '#f5f5f5',
+                        border: (selected || isCurrent) ? '2px solid #ff6f00' : '2px solid #ccc',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -153,7 +154,7 @@ const CustomNode = ({ data, selected }: NodeProps) => {
                     sx={{
                         width: 28, // 80 * 0.707 ≈ 56 (考虑旋转后的视觉效果)
                         height: 28,
-                        border: selected ? '2px solid #1976d2' : '2px solid #ccc',
+                        border: (selected || isCurrent) ? '2px solid #ff6f00' : '2px solid #ccc',
                         backgroundColor: 'transparent',
                         transform: 'rotate(45deg)',
                         display: 'flex',
@@ -178,12 +179,12 @@ const CustomNode = ({ data, selected }: NodeProps) => {
         ) : (
             // 普通矩形节点
             <Paper
-                elevation={selected ? 8 : 2}
+                elevation={(selected || isCurrent) ? 8 : 2}
                 sx={{
                     width: 100,
                     height: 30,
                     backgroundColor: 'transparent',
-                    border: selected ? '2px solid #1976d2' : '2px solid #ccc',
+                    border: (selected || isCurrent) ? '2px solid #ff6f00' : '2px solid #ccc',
                     display: 'flex',
                     alignItems: 'center',
                     position: 'relative',

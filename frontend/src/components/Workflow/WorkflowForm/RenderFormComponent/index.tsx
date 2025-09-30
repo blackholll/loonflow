@@ -2,7 +2,7 @@ import { Typography, FormControl } from "@mui/material";
 import { IWorkflowComponent } from "../../../../types/workflow";
 import {
     TextField,
-    // NumberField,
+    NumberField,
     // SelectField,
     // DateTimeField,
     // UserField,
@@ -48,6 +48,16 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
         case 'text':
             return (
                 <TextField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'number':
+            return (
+                <NumberField
                     value={value}
                     fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}

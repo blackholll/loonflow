@@ -61,8 +61,17 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
     }, [formSchema, t]);
 
     const handleChange = (key: string, value: any) => {
-        //todo: for props
-        if (['multiple', 'placeholder', 'defaultValue', 'format', 'timeFormat', 'dateFormat', 'timeZone', 'timeZoneName', 'titleTemplate', 'titleGenerateMode'].indexOf(key) !== -1) {
+        // 将需要写入 props 的键统一处理
+        if ([
+            'multiple', 'placeholder', 'defaultValue',
+            'format', 'timeFormat', 'dateFormat', 'timeZone', 'timeZoneName',
+            'titleTemplate', 'titleGenerateMode',
+            // number 组件相关 props
+            'allowDecimal', 'fixedPrecision', 'thousandSeparator', 'allowNegative',
+            'precision', 'min', 'max', 'unitPrefix', 'unitSuffix',
+            // 选项类
+            'optionsWithKeys'
+        ].indexOf(key) !== -1) {
             onUpdate({
                 ...component,
                 props: {
@@ -203,6 +212,7 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                 />
             )}
 
+
             {['select', 'user', 'department'].indexOf(component.type) !== -1 && (
                 <FormControlLabel
                     control={
@@ -241,6 +251,106 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                     <MenuItem value={"mm:ss"}>{t('workflow.componentProperties.timeFormatMinSec')}</MenuItem>
                 </Select>
             </FormControl>) : null}
+
+            {/* number 类型属性配置 */}
+            {component.type === 'number' && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                        label={t('workflow.componentProperties.placeholder')}
+                        value={(component as IWorkflowComponent).props?.placeholder || ''}
+                        onChange={(e) => handleChange('placeholder', e.target.value)}
+                        fullWidth
+                        size="small"
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={(component as IWorkflowComponent).props?.allowDecimal !== false}
+                                onChange={(e) => handleChange('allowDecimal', e.target.checked)}
+                                size="small"
+                            />
+                        }
+                        label={t('workflow.componentProperties.allowDecimal')}
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={(component as IWorkflowComponent).props?.fixedPrecision === true}
+                                onChange={(e) => handleChange('fixedPrecision', e.target.checked)}
+                                size="small"
+                            />
+                        }
+                        label={t('workflow.componentProperties.fixedDecimalScale')}
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={(component as IWorkflowComponent).props?.thousandSeparator ?? true}
+                                onChange={(e) => handleChange('thousandSeparator', e.target.checked)}
+                                size="small"
+                            />
+                        }
+                        label={t('workflow.componentProperties.thousandSeparator')}
+                    />
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={(component as IWorkflowComponent).props?.allowNegative ?? true}
+                                onChange={(e) => handleChange('allowNegative', e.target.checked)}
+                                size="small"
+                            />
+                        }
+                        label={t('workflow.componentProperties.allowNegative')}
+                    />
+
+                    <TextField
+                        label={t('workflow.componentProperties.precision')}
+                        type="number"
+                        value={(component as IWorkflowComponent).props?.precision ?? ''}
+                        onChange={(e) => handleChange('precision', e.target.value === '' ? '' : Number(e.target.value))}
+                        size="small"
+                        fullWidth
+                    />
+
+                    <TextField
+                        label={t('workflow.componentProperties.min')}
+                        type="number"
+                        value={(component as IWorkflowComponent).props?.min ?? ''}
+                        onChange={(e) => handleChange('min', e.target.value === '' ? '' : Number(e.target.value))}
+                        size="small"
+                        fullWidth
+                    />
+
+                    <TextField
+                        label={t('workflow.componentProperties.max')}
+                        type="number"
+                        value={(component as IWorkflowComponent).props?.max ?? ''}
+                        onChange={(e) => handleChange('max', e.target.value === '' ? '' : Number(e.target.value))}
+                        size="small"
+                        fullWidth
+                    />
+
+                    <TextField
+                        label={t('workflow.componentProperties.unitPrefix')}
+                        value={(component as IWorkflowComponent).props?.unitPrefix || ''}
+                        onChange={(e) => handleChange('unitPrefix', e.target.value)}
+                        size="small"
+                        fullWidth
+                    />
+
+                    <TextField
+                        label={t('workflow.componentProperties.unitSuffix')}
+                        value={(component as IWorkflowComponent).props?.unitSuffix || ''}
+                        onChange={(e) => handleChange('unitSuffix', e.target.value)}
+                        size="small"
+                        fullWidth
+                    />
+                </Box>
+            )}
 
             {(component.type === 'select' || component.type === 'radio' || component.type === 'checkbox') && (
                 <Box>

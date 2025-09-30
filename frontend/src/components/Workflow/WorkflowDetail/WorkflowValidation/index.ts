@@ -9,6 +9,7 @@ import { validateParallelNodes } from './parallelNodeValidation';
 import { validateExclusiveNodes } from './exclusiveNodeValidation';
 import { validateTimerNodes } from './timerNodeValidation';
 import { validateHookNodes } from './hookNodeValidation';
+import { validateEdgeConditions } from './edgeConditionValidation';
 
 /**
  * Check for problems in workflow definition
@@ -41,6 +42,9 @@ export const checkWorkflowProblems = (workflowData: IWorkflowFullDefinition): Wo
     problems.push(...validateExclusiveNodes(workflowData));
     problems.push(...validateTimerNodes(workflowData));
     problems.push(...validateHookNodes(workflowData));
+
+    // Edge validation
+    problems.push(...validateEdgeConditions(workflowData));
 
     return {
         problems,
@@ -80,3 +84,6 @@ export { validateParallelNodes } from './parallelNodeValidation';
 export { validateExclusiveNodes } from './exclusiveNodeValidation';
 export { validateTimerNodes } from './timerNodeValidation';
 export { validateHookNodes } from './hookNodeValidation';
+
+// Edge validation
+export { validateEdgeConditions } from './edgeConditionValidation';

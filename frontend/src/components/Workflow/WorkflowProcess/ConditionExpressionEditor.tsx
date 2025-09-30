@@ -165,9 +165,15 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
                             const updatedCondition = { ...condition, [field]: value };
                             // 如果更新的是字段名，需要重置操作符
                             if (field === 'fieldName') {
+                                console.log('-----------------value', value);
                                 const fieldType = getFieldType(value);
                                 const operatorOptions = getOperatorOptions(fieldType);
                                 updatedCondition.operator = operatorOptions[0]?.value || '==';
+                                // 同步更新条件内的字段类型，避免始终为 'text'
+                                updatedCondition.fieldType = fieldType;
+                                console.log('-----------------fieldType', fieldType);
+                                console.log('-----------------operatorOptions', operatorOptions);
+                                console.log('-----------------updatedCondition', updatedCondition);
                             }
                             return updatedCondition;
                         }
@@ -199,7 +205,7 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
                 }
             }
         }
-
+        console.log('-----------------field', field);
         if (!field) return 'text';
 
         switch (field.type) {
@@ -304,7 +310,8 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
                         {group.conditions.map((condition, conditionIndex) => {
                             const fieldType = getFieldType(condition.fieldName);
                             const operatorOptions = getOperatorOptions(fieldType);
-
+                            console.log('-----------------fieldType', fieldType);
+                            console.log('-----------------operatorOptions', operatorOptions);
                             return (
                                 <React.Fragment key={condition.id}>
                                     {conditionIndex > 0 && (

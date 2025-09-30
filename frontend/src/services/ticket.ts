@@ -2,7 +2,7 @@
 import apiClient from './api';
 import { ITicketListRes, ITicketListQueryParam, ICommentTicketParam, IDelTicketParam, INewTicketReqParam, INewTicketRes, ITicketFlowHistoryRes } from '../types/ticket';
 import { IApiErrResponse } from '@/types/common';
-import { ITicketDetailFormRes, ITicketActionsRes, IHandleTicketReqParam, IHandleTicketRes } from '../types/ticket';
+import { ITicketDetailFormRes, ITicketActionsRes, IHandleTicketReqParam, IHandleTicketRes, ITicketCurrentNodeInfosRes } from '../types/ticket';
 
 
 export const getTicketList = async (params: ITicketListQueryParam): Promise<ITicketListRes | IApiErrResponse> => {
@@ -50,6 +50,11 @@ export const handleTicket = async (params: IHandleTicketReqParam): Promise<IHand
 
 export const getTicketFlowHistory = async (ticketId: string): Promise<ITicketFlowHistoryRes | IApiErrResponse> => {
   const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_flow_history`, { params: { desc: 0 } });
+  return response.data;
+}
+
+export const getTicketCurrentNodeInfos = async (ticketId: string): Promise<ITicketCurrentNodeInfosRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/current_node_infos`, { params: {} });
   return response.data;
 }
 

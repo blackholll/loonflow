@@ -1,7 +1,9 @@
 import datetime
+import json
+import decimal
 from datetime import date, time
+from django.core.serializers.json import DjangoJSONEncoder
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-
 from apps.ticket.models import FlowHistory
 from service.account.account_user_service import account_user_service_ins
 from service.base_service import BaseService
@@ -24,6 +26,8 @@ class TicketFlowHistoryService(BaseService):
                 finally_ticket_data[key] = value.strftime('%Y-%m-%d')
             elif isinstance(value, time):
                 finally_ticket_data[key] = value.strftime('%H:%M:%S')
+            elif isinstance(value, decimal.Decimal):
+                finally_ticket_data[key] = json.dumps(value, cls=DjangoJSONEncoder)
             else:
                 finally_ticket_data[key] = value
 

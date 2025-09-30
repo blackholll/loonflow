@@ -135,7 +135,7 @@ export interface IWorkflowEdgeProps {
 export interface IWorkflowEdge {
   id: string,
   name: string,
-  type: 'accept' | 'reject' | 'other',
+  type: 'accept' | 'reject' | 'other' | 'condition',
   sourceNodeId: string,
   targetNodeId: string,
   label: ILabel,

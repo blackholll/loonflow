@@ -1,5 +1,5 @@
 import TextField from './TextField';
-// import NumberField from './NumberField';
+import NumberField from './NumberField';
 // import SelectField from './SelectField';
 // import DateTimeField from './DateTimeField';
 // import UserField from './UserField';
@@ -7,7 +7,7 @@ import TextField from './TextField';
 
 // 导出所有字段组件
 export { default as TextField } from './TextField';
-// export { default as NumberField } from './NumberField';
+export { default as NumberField } from './NumberField';
 // export { default as SelectField } from './SelectField';
 // export { default as DateTimeField } from './DateTimeField';
 // export { default as UserField } from './UserField';
@@ -20,7 +20,7 @@ export type { BaseFieldProps, FieldComponentConfig } from './types';
 export const fieldComponentMap = {
     text: TextField,
     textarea: TextField,
-    // number: NumberField,
+    number: NumberField,
     // select: SelectField,
     // radio: SelectField,
     // checkbox: SelectField,

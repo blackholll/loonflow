@@ -366,20 +366,91 @@ class TicketBaseService(BaseService):
             ticket_all_value_dict = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
             # todo: need merge request data and ticket_all_value_dict
             
+            # 合并请求中的字段值，优先使用本次请求的字段
             ticket_all_value_dict_copy = copy.deepcopy(ticket_all_value_dict)
-            ticket_all_value_dict_copy.update(request_data_dict.fields)
-            for key, value in ticket_all_value_dict_copy.items():
-                if isinstance(ticket_all_value_dict_copy[key], str):
-                    ticket_all_value_dict_copy[key] = "'''" + ticket_all_value_dict_copy[key] + "'''"
+            # request_data_dict 在新建时为完整请求字典，在处理节点时可能直接传 fields
+            req_fields = {}
+            if isinstance(request_data_dict, dict):
+                # 兼容两种调用方式：传入完整请求字典或仅传入 fields 字典
+                req_fields = request_data_dict.get('fields', request_data_dict)
+                if not isinstance(req_fields, dict):
+                    req_fields = {}
+            ticket_all_value_dict_copy.update(req_fields)
+            for key, value in list(ticket_all_value_dict_copy.items()):
+                if isinstance(value, str):
+                    ticket_all_value_dict_copy[key] = value
+
+            def _convert_value_by_type(raw_value, field_type):
+                if field_type == 'number':
+                    try:
+                        return float(raw_value)
+                    except Exception:
+                        return None
+                return raw_value
+
+            def _compare(lhs, operator_str, rhs):
+                if lhs is None:
+                    return False
+                if operator_str == '==':
+                    return lhs == rhs
+                if operator_str == '!=':
+                    return lhs != rhs
+                if operator_str == '<':
+                    return lhs < rhs
+                if operator_str == '<=':
+                    return lhs <= rhs
+                if operator_str == '>':
+                    return lhs > rhs
+                if operator_str == '>=':
+                    return lhs >= rhs
+                return False
 
             for next_edge_obj in next_edge_list:
-                condition_expression = next_edge_obj.props.get('condition_expression', '')
-                condition_expression_format = condition_expression.format(**ticket_all_value_dict_copy)
-                import datetime, time # for security， only support datetime, time, abs operation
-                if eval(condition_expression_format, {"__builtins__": None}, {"datetime":datetime, "time":time, "abs": abs}):
+                props = getattr(next_edge_obj, 'props', {}) or {}
+                condition_groups = props.get('condition_groups')
+                matched = False
+                if condition_groups:
+                    # 组间 OR，组内 AND
+                    for group in condition_groups:
+                        conditions = group.get('conditions', []) if isinstance(group, dict) else []
+                        if not conditions:
+                            continue
+                        all_pass = True
+                        for cond in conditions:
+                            field_name = cond.get('field_name')
+                            operator_str = cond.get('operator')
+                            target_value_raw = cond.get('value')
+                            field_type = cond.get('field_type')
+                            current_value_raw = ticket_all_value_dict_copy.get(field_name)
+                            current_value = _convert_value_by_type(current_value_raw, field_type)
+                            target_value = _convert_value_by_type(target_value_raw, field_type)
+                            if not _compare(current_value, operator_str, target_value):
+                                all_pass = False
+                                break
+                        if all_pass:
+                            matched = True
+                            break
+                else:
+                    # 兼容旧版 condition_expression 字符串表达式
+                    condition_expression = props.get('condition_expression', '')
+                    if condition_expression:
+                        try:
+                            # 将变量以安全方式提供给格式化与 eval
+                            fmt_expr = condition_expression.format(**{
+                                k: (f"'''{v}'''" if isinstance(v, str) else v)
+                                for k, v in ticket_all_value_dict_copy.items()
+                            })
+                            import datetime, time  # for security， only support datetime, time, abs operation
+                            matched = bool(eval(fmt_expr, {"__builtins__": None}, {"datetime": datetime, "time": time, "abs": abs}))
+                        except Exception:
+                            matched = False
+
+                if matched:
                     next_node_id = next_edge_obj.target_node_id
                     next_node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, workflow_id, version_id, next_node_id)
                     result_node_list.append(next_node_obj)
+                    # 仅支持命中一个条件分支
+                    break
         
         # add in-parallel node, but not current node
         for source_node in source_node_list:

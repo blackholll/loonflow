@@ -1,4 +1,4 @@
-import { FormControl } from "@mui/material";
+import { FormControl, Typography } from "@mui/material";
 
 
 interface ViewFieldProps {
@@ -30,17 +30,19 @@ function ViewField({
     }
 
 
-    return (<FormControl fullWidth={true}>
-        <div style={{
-            padding: '16.5px 14px',
-            border: '1px solid #c0c0c0',
-            borderRadius: '4px',
-            backgroundColor: '#f5f5f5',
-            minHeight: props.multiline ? `${props.rows * 24}px` : 'auto'
-        }}>
-            {displayValue || '-'}
-        </div>
-    </FormControl>)
+    // return (<FormControl fullWidth={true}>
+    //     <div style={{
+    //         padding: '16.5px 14px',
+    //         border: '1px solid #c0c0c0',
+    //         borderRadius: '4px',
+    //         backgroundColor: '#f5f5f5',
+    //         minHeight: props.multiline ? `${props.rows * 24}px` : 'auto'
+    //     }}>
+    //         {displayValue || '-'}
+    //     </div>
+    // </FormControl>)
+
+    return (<Typography variant="body2">{displayValue || '-'}</Typography>)
 }
 
 export default ViewField;

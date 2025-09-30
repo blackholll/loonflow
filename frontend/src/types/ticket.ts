@@ -130,3 +130,9 @@ export interface ITicketFlowHistoryResData {
 }
 
 export interface ITicketFlowHistoryRes extends IApiResponse<ITicketFlowHistoryResData> { }
+
+export interface ITicketCurrentNodeInfoItem {
+  id: string;
+  name: string;
+}
+export interface ITicketCurrentNodeInfosRes extends IApiResponse<{ currentNodeInfoList: ITicketCurrentNodeInfoItem[] }> { }

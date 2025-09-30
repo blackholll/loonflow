@@ -46,7 +46,6 @@ const nodeTypes: NodeTypes = {
 
 // 将 IWorkflowNode 转换为 React Flow Node
 const convertWorkflowNodeToReactFlowNode = (workflowNode: IWorkflowNode): Node => {
-    console.log(' workflowNode.type workflowNode.type:', workflowNode)
     return {
         id: workflowNode.id,
         type: workflowNode.type,
@@ -132,6 +131,7 @@ interface WorkflowProcessProps {
     processSchema?: IProcessSchema;
     formSchema?: IFormSchema;
     simpleViewMode?: boolean;
+    selectedNodeIds?: string[];
     onProcessSchemaChange?: (processSchema: IProcessSchema) => void;
 }
 
@@ -139,6 +139,7 @@ function WorkflowProcess({
     processSchema = { nodeInfoList: [], edgeInfoList: [] },
     formSchema = { componentInfoList: [] },
     simpleViewMode = false,
+    selectedNodeIds = [],
     onProcessSchemaChange
 }: WorkflowProcessProps) {
     // 初始化节点和边
@@ -173,8 +174,17 @@ function WorkflowProcess({
 
     useEffect(() => {
         setCurrentFormSchema(formSchema);
-        console.log('formSchema22222222', formSchema);
     }, [formSchema]);
+
+    // 根据选中节点ID高亮（只读模式下使用）
+    useEffect(() => {
+        if (!simpleViewMode) return;
+        if (!selectedNodeIds || selectedNodeIds.length === 0) {
+            setNodes((nds) => nds.map(n => ({ ...n, selected: false })));
+            return;
+        }
+        setNodes((nds) => nds.map(n => ({ ...n, selected: selectedNodeIds.includes(n.id) })));
+    }, [selectedNodeIds, simpleViewMode, setNodes]);
 
 
     // 保存历史记录
@@ -228,8 +238,6 @@ function WorkflowProcess({
     // 根据源节点和目标节点属性确定边的名称和类型
     const getEdgeNameAndType = useCallback((sourceNode: Node, targetNode: Node, sourceHandle?: string, targetHandle?: string) => {
         const sourceType = sourceNode.type;
-        const targetType = targetNode.type;
-        const sourceProps = sourceNode.data?.properties as any || {};
 
         // 默认边类型和名称
         let edgeType: 'agree' | 'reject' | 'other' | 'condition' = 'agree';
