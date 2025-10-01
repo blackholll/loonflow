@@ -261,7 +261,7 @@ class TicketBaseService(BaseService):
 
         # add ticket flow history
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "create", action_id,
-                                                                request_data_dict.get("action_props", {}).get("comment", ""), "users", str(operator_id),
+                                                                request_data_dict.get("action_props", {}).get("comment", ""), "user", str(operator_id),
                                                                 start_node_obj.id,
                                                                 request_data_dict.get('fields', {}))
         # add ticket custom field
@@ -1179,7 +1179,7 @@ class TicketBaseService(BaseService):
         # add ticket flow history
         ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, edge_record.type, action_id,
-                                                                request_data_dict.get("action_props", {}).get("comment"), "users", str(operator_id),
+                                                                request_data_dict.get("action_props", {}).get("comment"), "user", str(operator_id),
                                                                 node_id, ticket_data)
 
         # add ticket custom field

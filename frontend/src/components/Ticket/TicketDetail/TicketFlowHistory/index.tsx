@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, Divider } from '@mui/material';
+import { Box, Paper, Typography, List, ListItem, Divider } from '@mui/material';
 import { getTicketFlowHistory } from '../../../../services/ticket';
 import { ITicketFlowHistoryItem } from '../../../../types/ticket';
 
@@ -28,21 +28,17 @@ function TicketFlowHistory({ ticketId, refreshToken }: TicketHistoryProps) {
             <List>
                 {items.map((it, idx) => (
                     <React.Fragment key={it.id}>
-                        <ListItem alignItems="flex-start">
-                            <ListItemAvatar>
-                                <Avatar>user</Avatar>
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={it.actionName ? it.actionName : it.actionType}
-                                secondary={
-                                    <Box>
-                                        <Typography variant="caption" color="text.secondary">{new Date(it.createdAt).toLocaleString()}</Typography>
-                                        {it.comment && (
-                                            <Typography variant="body2" sx={{ mt: 0.5 }}>{it.comment}</Typography>
-                                        )}
-                                    </Box>
-                                }
-                            />
+                        <ListItem alignItems="flex-start" disableGutters>
+                            <Box sx={{ width: '100%' }}>
+                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                    <Typography variant="body2"><strong>处理人</strong>：{it.processorInfo?.processorAlias || it.processorInfo?.processor || '-'}</Typography>
+                                    <Typography variant="body2"><strong>操作类型</strong>：{it.actionName || it.actionType || '-'}</Typography>
+                                </Box>
+                                {it.comment && (
+                                    <Typography variant="body2" sx={{ mt: 0.5 }}><strong>留言</strong>：{it.comment}</Typography>
+                                )}
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}><strong>操作时间</strong>：{new Date(it.createdAt).toLocaleString()}</Typography>
+                            </Box>
                         </ListItem>
                         {idx < items.length - 1 && <Divider component="li" />}
                     </React.Fragment>
