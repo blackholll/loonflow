@@ -178,16 +178,32 @@ function WorkflowProcess({
 
     // 使用 isCurrent 标记“当前工单节点”，与交互选中状态(selected)解耦
     useEffect(() => {
-        setNodes((nds) => nds.map((n) => ({
-            ...n,
-            data: {
-                ...n.data,
-                properties: {
-                    ...(n.data as any)?.properties,
-                    isCurrent: !!(selectedNodeIds && selectedNodeIds.includes(n.id))
+        const key = Array.isArray(selectedNodeIds) ? selectedNodeIds.join(',') : '';
+        if (!key) {
+            return;
+        }
+        setNodes((nds) => {
+            let changed = false;
+            const updated = nds.map((n) => {
+                const nextIsCurrent = !!(selectedNodeIds && selectedNodeIds.includes(n.id));
+                const prevIsCurrent = !!((n.data as any)?.properties?.isCurrent);
+                if (nextIsCurrent !== prevIsCurrent) {
+                    changed = true;
+                    return {
+                        ...n,
+                        data: {
+                            ...n.data,
+                            properties: {
+                                ...(n.data as any)?.properties,
+                                isCurrent: nextIsCurrent
+                            }
+                        }
+                    };
                 }
-            }
-        })));
+                return n;
+            });
+            return changed ? updated : nds;
+        });
     }, [selectedNodeIds, setNodes]);
 
 
@@ -368,6 +384,7 @@ function WorkflowProcess({
             title: props.name || props.label || '节点',
             lines: [
                 `类型: ${node.type || ''}`,
+                `nodeId: ${node.id}`,
                 ...(props.assignee ? [`处理人: ${props.assignee}`] : []),
                 ...(props.description ? [`描述: ${props.description}`] : [])
             ]
@@ -397,6 +414,7 @@ function WorkflowProcess({
             title: props.name || props.label || '连线',
             lines: [
                 `类型: ${props.type || 'other'}`,
+                `edgeId: ${edge.id}`,
                 ...(props.condition ? [`条件: ${props.condition}`] : [])
             ]
         });

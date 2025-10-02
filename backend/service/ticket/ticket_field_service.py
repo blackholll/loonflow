@@ -32,7 +32,7 @@ class TicketFieldService(BaseService):
             return "rich_text_value"
     
     @classmethod
-    def get_ticket_all_field_value(cls, tenant_id: str, ticket_id: str) -> list:
+    def get_ticket_all_field_value(cls, tenant_id: str, ticket_id: str) -> dict:
         """
         get ticket all field value
         :param tenant_id:

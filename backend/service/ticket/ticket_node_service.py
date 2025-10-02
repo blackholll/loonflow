@@ -61,7 +61,8 @@ class TicketNodeService(BaseService):
         :param node_info_list:
         :return:
         """
-        # todo: 1. 其他node的is_active 设置false, 2. for update node record
+        # 1. 其他node的is_active 设置false, 2. for update node record 3. keep if keep_previous is True
+
         node_id_list = [node_info.get("node_id") for node_info in node_info_list]
         node_info_dict = dict()
         for node_info in node_info_list:
@@ -80,7 +81,7 @@ class TicketNodeService(BaseService):
 
         ## get need update records
         for node_info in node_info_list:
-            if node_info.get("node_id") in exist_ticket_node_queryset.values_list("node_id", flat=True):
+            if node_info.get("node_id") in exist_ticket_node_queryset.values_list("node_id", flat=True) and not node_info.get("keep_previous"):
                 need_update_node_list.append(node_info)
 
         ## get need delete records
@@ -111,21 +112,24 @@ class TicketNodeService(BaseService):
                 assignee_type = new_node_info.get("target_assignee_type"),
                 assignee = ','.join(new_node_info.get("target_assignee_list",[])),
                 in_parallel = new_node_info.get("in_parallel", False),
+                parallel_node_id = new_node_info.get("parallel_node_id"),
                 in_accept_wait = new_node_info.get("in_accept_wait", False)
             ))
         TicketNode.objects.bulk_create(need_add_bulk_list)
         
         ## update records
         for need_update_node in need_update_node_list:
-            TicketNode.objects.filter(id=need_update_node.id).update(
-                in_add_node = need_update_node.get("in_add_node"),
-                add_node_target = need_update_node.get("add_node_target"),
+            TicketNode.objects.filter(id=need_update_node.get("id")).update(
+                in_consult = need_update_node.get("in_consult", False),
+                consult_from_id = need_update_node.get("consult_from_id"),
+                consult_target_id = need_update_node.get("consult_target_id"),
                 is_active = need_update_node.get("is_active"),
                 hook_state = need_update_node.get("hook_state"),
                 all_assignee_result = need_update_node.get("all_assignee_result"),
                 assignee_type = need_update_node.get("assignee_type"),
                 assignee = need_update_node.get("assignee"),
-                in_paraller = need_update_node.get("in_paraller"),
+                in_parallel = need_update_node.get("in_parallel", False),
+                parallel_node_id = need_update_node.get("parallel_node_id"),
                 in_accept_wait = need_update_node.get("in_accept_wait", False)
             )
     @classmethod

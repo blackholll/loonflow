@@ -49,6 +49,7 @@ class Node(BaseCommonModel):
     consult_from = models.ForeignKey(accountUser, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_consult_from", null=True)
     consult_target = models.ForeignKey(accountUser, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_consult_target", null=True)
     hook_state = models.CharField("hook running state", max_length=50, choices=HOOK_STATE_CHOICE)
+    parallel_node = models.ForeignKey(WorkflowNode, db_constraint=False, on_delete=models.DO_NOTHING, null=True, related_name="ticket_node_parallel_node")
     all_assignee_result = models.JSONField('all assignee result', blank=True)
 
 

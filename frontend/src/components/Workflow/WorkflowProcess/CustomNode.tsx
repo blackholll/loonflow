@@ -20,7 +20,6 @@ const CustomNode = ({ data, selected }: NodeProps) => {
     const [showHandles, setShowHandles] = useState(false);
 
 
-    console.log('data333:', data);
     // 当 name 变化时，更新 editName
     const currentName = (data as any)?.properties?.name;
     React.useEffect(() => {
@@ -48,7 +47,6 @@ const CustomNode = ({ data, selected }: NodeProps) => {
         }
     };
 
-    console.log('data1111:', data);
     const nodeType = (data as any)?.properties?.type || 'normal';
     const isCurrent = Boolean((data as any)?.properties?.isCurrent);
     const isSelectedOnly = Boolean(selected && !isCurrent);

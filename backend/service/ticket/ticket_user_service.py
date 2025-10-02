@@ -71,7 +71,7 @@ class TicketUserService(BaseService):
         user_assignee_node_ids_dict = dict()
         
         for next_ticket_node_result in next_ticket_node_result_list:
-            for target_assignee in next_ticket_node_result.get("target_assignee_list"):
+            for target_assignee in next_ticket_node_result.get("target_assignee_list", []):
                 source_target_assignee_list = user_assignee_node_ids_dict.get(target_assignee, [])
                 source_target_assignee_list.append(str(next_ticket_node_result.get("node_id")))
                 user_assignee_node_ids_dict[target_assignee] = source_target_assignee_list

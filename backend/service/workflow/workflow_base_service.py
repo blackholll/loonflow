@@ -318,7 +318,7 @@ class WorkflowBaseService(BaseService):
         :param node_id:
         :return:
         """
-        node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, workflow_id, version_id, node_id)
+        node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, node_id)
         node_props = node_obj.props
         node_type = node_obj.type
         if node_type == 'end':

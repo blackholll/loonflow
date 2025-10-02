@@ -2,6 +2,7 @@ import json
 import time
 import logging
 from apps.workflow.models import Node
+from service.workflow.workflow_edge_service import workflow_edge_service_ins
 from service.base_service import BaseService
 from service.exception.custom_common_exception import CustomCommonException
 from service.util.archive_service import archive_service_ins
@@ -131,16 +132,16 @@ class WorkflowNodeService(BaseService):
         return end_node
     
     @classmethod
-    def get_node_by_id(cls, tenant_id: str, workflow_id: str, version_id: str, node_id: str) -> dict:
+    def get_node_by_id(cls, tenant_id: str, node_id: str) -> dict:
         """
         get node by id
         :param tenant_id:
-        :param workflow_id:
-        :param version_id:
         :param node_id:
         :return:
         """
-        node_obj = Node.objects.get(id=node_id, tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id)
+        print("node_id", node_id)
+        print("tenant_id", tenant_id)
+        node_obj = Node.objects.get(id=node_id, tenant_id=tenant_id)
         return node_obj
 
     @classmethod
@@ -200,7 +201,84 @@ class WorkflowNodeService(BaseService):
                 )
                 node_id_dict[node_info.get("id")] = node_info.get("id")
         return node_id_dict
-                
+
+    def get_parallel_merge_node(cls, tenant_id: str, workflow_id: str, version_id: str, node_id: str) -> dict:
+        """
+        get parallel merge node
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :param node_id:
+        :return:
+        """
+        # 获取并行节点后每条edge的目标节点， 然后每个节点继续根据出边获取目标节点。
+        # 当开始的所有edge可达的共同节点存在且相同时，那么这个节点即为汇聚节点。
+        # 实现：对每个分支做BFS，求可达节点集合的交集；选择距离各分支最小的共同节点。
+
+        # 获取并行网关的直接后继分支起点
+        branch_start_node_id_list = workflow_edge_service_ins.get_parallel_next_node_list(
+            tenant_id, workflow_id, version_id, node_id
+        )
+
+        if not branch_start_node_id_list or len(branch_start_node_id_list) < 2:
+            raise CustomCommonException('parallel node must have at least two outgoing edges')
+
+        # 对每个分支起点进行BFS，记录最短距离
+        def bfs_collect_distance(start_node_id: int) -> dict:
+            from collections import deque
+            visited = set()
+            distance = {}
+            queue = deque()
+            queue.append((start_node_id, 0))
+            visited.add(start_node_id)
+            distance[start_node_id] = 0
+
+            # 设置一个合理上限避免意外循环
+            step_guard = 0
+            max_steps = 10000
+
+            while queue:
+                current_node_id, current_dist = queue.popleft()
+                # 获取后继
+                next_node_id_list = workflow_edge_service_ins.get_parallel_next_node_list(
+                    tenant_id, workflow_id, version_id, current_node_id
+                )
+                for next_node_id in next_node_id_list:
+                    if next_node_id not in visited:
+                        visited.add(next_node_id)
+                        distance[next_node_id] = current_dist + 1
+                        queue.append((next_node_id, current_dist + 1))
+
+                step_guard += 1
+                if step_guard > max_steps:
+                    raise CustomCommonException('graph traversal exceeded step guard, please check for cycles')
+
+            return distance
+
+        branch_dist_list = [bfs_collect_distance(start_id) for start_id in branch_start_node_id_list]
+
+        # 计算共同可达节点
+        common_nodes = None
+        for dist_map in branch_dist_list:
+            keys = set(dist_map.keys())
+            if common_nodes is None:
+                common_nodes = keys
+            else:
+                common_nodes &= keys
+
+        if not common_nodes:
+            raise CustomCommonException('parallel merge node not found')
+
+        # 选择一个“最近的”共同节点：使各分支到它的最大距离最小，再按总和距离最小
+        def score_node(nid: int):
+            distances = [dm.get(nid, float('inf')) for dm in branch_dist_list]
+            return (max(distances), sum(distances))
+
+        merge_node_id = min(common_nodes, key=score_node)
+
+        # 返回节点对象
+        merge_node_obj = Node.objects.get(id=merge_node_id, tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id)
+        return merge_node_obj
 
 
 
