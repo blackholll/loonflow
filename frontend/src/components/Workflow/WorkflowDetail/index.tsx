@@ -120,7 +120,15 @@ function WorkflowDetail() {
                 if (!hasCheckedDraft) {
                     const storedData = loadFromLocalStorage();
                     if (storedData && Object.keys(storedData).length > 0) {
-                        setShowConfirmDialog(true);
+                        const draftId = storedData?.basicInfo?.id as unknown as string | undefined;
+                        if (typeof draftId === 'string' && draftId.startsWith('temp_')) {
+                            // 仅当草稿 id 以 temp_ 开头时，才提示加载草稿
+                            setShowConfirmDialog(true);
+                        } else {
+                            // 否则清空草稿并直接初始化
+                            clearLocalStorage();
+                            setIsInitialized(true);
+                        }
                     } else {
                         // 如果没有草稿，设置初始化完成标记
                         setIsInitialized(true);
