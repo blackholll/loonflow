@@ -124,7 +124,7 @@ class TicketNodeService(BaseService):
                 consult_from_id = need_update_node.get("consult_from_id"),
                 consult_target_id = need_update_node.get("consult_target_id"),
                 is_active = need_update_node.get("is_active"),
-                hook_state = need_update_node.get("hook_state"),
+                hook_status = need_update_node.get("hook_status"),
                 all_assignee_result = need_update_node.get("all_assignee_result"),
                 assignee_type = need_update_node.get("assignee_type"),
                 assignee = need_update_node.get("assignee"),
@@ -193,9 +193,8 @@ class TicketNodeService(BaseService):
                 if currnet_all_assignee_result:
                     for key, value in currnet_all_assignee_result.items():
                         if not value:
-                            value = currnet_all_assignee_result.get(key)
                             currnet_all_assignee_result.pop(key)
-                currnet_all_assignee_result[target_assignee_id] = value
+                currnet_all_assignee_result[target_assignee_id] = ''
                 exist_ticket_node_record.all_assignee_result = currnet_all_assignee_result
             
             TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id).update(assignee=new_assignee, all_assignee_result=currnet_all_assignee_result)

@@ -124,32 +124,52 @@ class TicketUserService(BaseService):
         :param target_assignee_id:
         :return:
         """
-        # todo: 
-        
-        try:
-            ticekt_user_record = TicketUser.objects.get(tenant_id=tenant_id, ticket_id=ticket_id, user_id=source_assignee_id)
-        except TicketUser.DoesNotExist:
-            raise CustomCommonException("Source assignee not found")
-        assignee_node_id_list = ticekt_user_record.assignee_node_ids.split(',') if ticekt_user_record.assignee_node_ids else []
-        if node_id in assignee_node_id_list:
-            assignee_node_id_list.remove(node_id)
-            ticekt_user_record.assignee_node_ids = ','.join(assignee_node_id_list)
-            if len(assignee_node_id_list) == 0:
-                ticekt_user_record.as_assignee = False
-            ticekt_user_record.save()
-        else:
-            raise CustomCommonException("Node not found")
+        # todo: need optimize, remove duplicate code
+        if source_assignee_id:
+            try:
+                ticekt_user_record = TicketUser.objects.get(tenant_id=tenant_id, ticket_id=ticket_id, user_id=source_assignee_id)
+            except TicketUser.DoesNotExist:
+                raise CustomCommonException("Source assignee not found")
+            assignee_node_id_list = ticekt_user_record.assignee_node_ids.split(',') if ticekt_user_record.assignee_node_ids else []
+            if node_id in assignee_node_id_list:
+                assignee_node_id_list.remove(node_id)
+                ticekt_user_record.assignee_node_ids = ','.join(assignee_node_id_list)
+                if len(assignee_node_id_list) == 0:
+                    ticekt_user_record.as_assignee = False
+                ticekt_user_record.save()
+            else:
+                raise CustomCommonException("Node not found")
 
-        # target_assignee
-        target_assignee_record = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=target_assignee_id)
-        if target_assignee_record:
-            current_assignee_node_id_list = target_assignee_record[0].assignee_node_ids.split(',') if target_assignee_record[0].assignee_node_ids else []
-            current_assignee_node_id_list.append(node_id)
-            current_assignee_node_id_list = list(set(current_assignee_node_id_list))
-            target_assignee_record.update(as_assignee=True, assignee_node_ids=','.join(current_assignee_node_id_list))
+            # target_assignee
+            target_assignee_record = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=target_assignee_id)
+            if target_assignee_record:
+                current_assignee_node_id_list = target_assignee_record[0].assignee_node_ids.split(',') if target_assignee_record[0].assignee_node_ids else []
+                current_assignee_node_id_list.append(node_id)
+                current_assignee_node_id_list = list(set(current_assignee_node_id_list))
+                target_assignee_record.update(as_assignee=True, assignee_node_ids=','.join(current_assignee_node_id_list))
+            else:
+                TicketUser.objects.create(tenant_id=tenant_id, ticket_id=ticket_id, user_id=target_assignee_id, as_assignee=True, assignee_node_ids=','.join(assignee_node_id_list),creator_id=operator_id)
+            return True
         else:
-            TicketUser.objects.create(tenant_id=tenant_id, ticket_id=ticket_id, user_id=target_assignee_id, as_assignee=True, assignee_node_ids=','.join(assignee_node_id_list),creator_id=operator_id)
-        return True
+            ticket_user_record_list = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id).exclude(user_id=target_assignee_id)
+            for ticket_user_record in ticket_user_record_list:
+                assignee_node_id_list = ticket_user_record.assignee_node_ids.split(',') if ticket_user_record.assignee_node_ids else []
+                if node_id in assignee_node_id_list:
+                    assignee_node_id_list.remove(node_id)
+                    if len(assignee_node_id_list) == 0:
+                        ticket_user_record.as_assignee = False
+                        ticket_user_record.assignee_node_ids = ''
+                    ticket_user_record.save()
+            
+            target_assignee_record = TicketUser.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, user_id=target_assignee_id)
+            if target_assignee_record:
+                current_assignee_node_id_list = target_assignee_record[0].assignee_node_ids.split(',') if target_assignee_record[0].assignee_node_ids else []
+                current_assignee_node_id_list.append(node_id)
+                current_assignee_node_id_list = list(set(current_assignee_node_id_list))
+                target_assignee_record.update(as_assignee=True, assignee_node_ids=','.join(current_assignee_node_id_list))
+            else:
+                TicketUser.objects.create(tenant_id=tenant_id, ticket_id=ticket_id, user_id=target_assignee_id, as_assignee=True, assignee_node_ids=node_id, creator_id=operator_id)
+            
 
     @classmethod
     def update_ticket_user_consult_record(cls, tenant_id: str, ticket_id: str, node_id: str, operator_id: str, consultant_id: str) -> bool:

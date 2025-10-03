@@ -841,6 +841,52 @@ class TicketBaseService(BaseService):
 
         return action_result_list, str(action_base_node_id)
 
+    @classmethod
+    def get_ticket_detail_admin_actions(cls, tenant_id: str, ticket_id: str, user_id: str) -> tuple:
+        """
+        get ticket detail admin actions, actions as workflow admin
+        :param tenant_id:
+        :param ticket_id:
+        :param user_id:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
+        if ticket_obj.act_state in ("finished", "closed", "force_closed"):
+            return [], ''
+
+        workflow_id = ticket_obj.workflow_id
+        workflow_version_id = ticket_obj.workflow_version_id
+        action_result_list = []
+        # check admin permission
+        user_obj = account_user_service_ins.get_user_by_user_id(tenant_id, user_id)
+        if user_obj.type == 'admin':
+            has_admin_permission = True
+        else:
+            has_admin_permission = workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'admin')
+            if not has_admin_permission:
+                has_admin_permission = has_admin_permission and workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'dispatcher')
+        if not has_admin_permission:
+            return action_result_list, ''
+        action_base_node_id = ticket_node_service_ins.get_ticket_current_nodes(tenant_id, ticket_id)[0].node_id
+        action_result_list.append(dict(
+            id='force_forward',
+            name='force forward',
+            type='force_forward',
+            props= {}
+        ))
+        action_result_list.append(dict(
+            id='force_close',
+            name='force close',
+            type='force_close',
+            props= {}
+        ))
+        # action_result_list.append(dict(
+        #     id='force_alter_node',
+        #     name='force alter node',
+        #     type='force_alter_node',
+        #     props= {}
+        # ))
+        return action_result_list, str(action_base_node_id)
 
     @classmethod
     @transaction.atomic
@@ -917,15 +963,13 @@ class TicketBaseService(BaseService):
         :param request_data_dict:
         :return:
         """
-        # todo: alert this func
+        # todo: permission check
+        cls.ticket_admin_permission_check(tenant_id, ticket_id, operator_id)
         action_type = request_data_dict.get('action_type')
         if action_type == "force_forward":
-            node_id = request_data_dict.get('action_props', {}).get('node_id')
-            source_assignee_id = request_data_dict.get('action_props', {}).get('source_assignee_id') # if specify source assignee, means only forward this assignee to target assignee
-            target_assignee_id = request_data_dict.get('action_props', {}).get('target_assignee_id')
-            cls.forward_ticket(tenant_id, ticket_id, operator_id, node_id, source_assignee_id, target_assignee_id)
+            cls.force_forward_ticket(tenant_id, ticket_id, operator_id, request_data_dict)
         elif action_type == "force_close":
-            cls.force_close_ticket(tenant_id, ticket_id, operator_id)
+            cls.force_close_ticket(tenant_id, ticket_id, operator_id, request_data_dict)
         elif action_type == "force_alter_node":
             cls.force_alter_node(tenant_id, ticket_id, operator_id, request_data_dict)
         
@@ -945,28 +989,28 @@ class TicketBaseService(BaseService):
         ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "add_comment", None, action_props.get('comment', ''),
         "user", operator_id, action_props.get('node_id', ''), ticket_data)
+    
     @classmethod
     def ticket_admin_permission_check(cls, tenant_id:str, ticket_id: str, user_id: str = '') -> bool:
         """
-        check whether user has ticket's admin permission
+        check whether user has ticket's admin permission,  admin or related workflow admin or related workflow dispatcher
         :param username:
         :param ticket_id:
         :return:
         """
         # admin has all ticket's permission
         user_record = account_user_service_ins.get_user_by_user_id(tenant_id, user_id)
-        if user_record.type_id == "admin":
+        if user_record.type == "admin":
             return True
-        if user_record.type_id == "workflow_admin":
-            ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
-            workflow_id = ticket_obj.workflow_id
-            workflow_version_id = ticket_obj.workflow_version_id
-            return workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'admin')
+        ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
+        workflow_id = ticket_obj.workflow_id
+        workflow_version_id = ticket_obj.workflow_version_id
+        return workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'admin') or workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'dispatcher')
 
     @classmethod
     def forward_ticket(cls, tenant_id: str, ticket_id: str, operator_id: str, node_id: str, source_assignee_id: str, target_assignee_id: str, commment:str) -> bool:
         """
-        force forward ticket
+        forward ticket
         :param tenant_id:
         :param ticket_id:
         :param operator_id:
@@ -984,11 +1028,36 @@ class TicketBaseService(BaseService):
         # send notification
         from tasks import flow_notification_task
         flow_notification_task.apply_async(args=[tenant_id, ticket_id, node_id], queue='loonflow')
-
         return True
 
     @classmethod
-    def force_close_ticket(cls, tenant_id: str, ticket_id: str, operator_id: str) -> bool:
+    def force_forward_ticket(cls, tenant_id: str, ticket_id: str, operator_id: str, request_data_dict:dict) -> bool:
+        """
+        force forward ticket, only for admin or workflow admin, workflow dispatcher
+        :param tenant_id:
+        :param ticket_id:
+        :param operator_id:
+        :param node_id:
+        :param source_assignee_id:
+        :param target_assignee_id:
+        :return:
+        """
+        # 1.get ticket assignee from ticket_user table, 2.change assignee, 3. send email
+        target_assignee_id = request_data_dict.get('action_props', {}).get('target_assignee_id')
+        comment = request_data_dict.get('action_props', {}).get('comment', '')
+        node_id = request_data_dict.get('action_props', {}).get('node_id')
+        ticket_node_service_ins.replace_node_assignee(tenant_id, ticket_id, operator_id, node_id, '', target_assignee_id)
+        ticket_user_service_ins.replace_user_assignee(tenant_id, ticket_id, operator_id, node_id, '', target_assignee_id)
+        # add flow history
+        ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, 'force_forward', '', comment,'user', operator_id, node_id, ticket_data)
+        # send notification
+        from tasks import flow_notification_task
+        flow_notification_task.apply_async(args=[tenant_id, ticket_id, node_id], queue='loonflow')
+        return True
+
+    @classmethod
+    def force_close_ticket(cls, tenant_id: str, ticket_id: str, operator_id: str, request_data_dict:dict) -> bool:
         """
         force close ticket
         :param tenant_id:
@@ -1015,6 +1084,11 @@ class TicketBaseService(BaseService):
         )]
         ticket_node_service_ins.update_ticket_node_record(tenant_id, operator_id, node_info_list)
         ticket_user_service_ins.update_ticket_user_by_all_next_node_result(tenant_id, ticket_id, operator_id, [], node_info_list)
+        ticket_record.act_state = "force_closed"
+        ticket_record.save()
+        # add flow history
+        ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, 'force_close', '', request_data_dict.get('action_props', {}).get('comment', ''),'user', operator_id, node_id, ticket_data)
         
         # send notification
         from tasks import flow_action_hook_task

@@ -42,6 +42,11 @@ export const getTicketDetailActions = async (ticketId: string): Promise<ITicketA
   return response.data;
 };
 
+export const getTicketDetailAdminActions = async (ticketId: string): Promise<ITicketActionsRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_detail_admin_actions`, { params: {} });
+  return response.data;
+};
+
 export const handleTicket = async (params: IHandleTicketReqParam): Promise<IHandleTicketRes | IApiErrResponse> => {
   const response = await apiClient.post(`/api/v1.0/tickets/${params.ticketId}/handle`,
     { action_type: params.actionType, action_id: params.actionId, fields: params.fields, action_props: params.actionProps });

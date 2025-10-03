@@ -193,6 +193,36 @@ class TicketDetailActionsView(BaseView):
         except Exception:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", '')
+
+class TicketDetailAdminActionsView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get ticket detail admin actions
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        ticket_id = kwargs.get('ticket_id')
+        app_name = request.META.get('HTTP_APPNAME')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        user_id = request.META.get('HTTP_USERID')
+        try:
+            account_base_service_ins.app_ticket_permission_check(tenant_id, app_name, ticket_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')
+        
+        try:
+            actions, action_base_node_id = ticket_base_service_ins.get_ticket_detail_admin_actions(tenant_id, ticket_id, user_id)
+            return api_response(0, '', dict(actions=actions, action_base_node_id=action_base_node_id))
+        except CustomCommonException as e:
+            return api_response(-1, str(e), '')
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", '')
         
 class TicketHandleView(BaseView):
     def post(self, request, *args, **kwargs):

@@ -18,12 +18,13 @@ import RenderFormComponent from "../../Workflow/WorkflowForm/RenderFormComponent
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
 import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, IWorkflowAction } from "../../../types/workflow";
 import { getTicketCreationForm, getTicketCreationActions } from "../../../services/workflow";
-import { newTicket, getTicketDetailForm, getTicketDetailActions, handleTicket } from "../../../services/ticket";
+import { newTicket, getTicketDetailForm, getTicketDetailActions, handleTicket, getTicketDetailAdminActions } from "../../../services/ticket";
 import useSnackbar from "../../../hooks/useSnackbar";
 import WorkflowDiagram from "./WorkflowDiagram";
 import TicketHistory from './TicketFlowHistory';
 import { getSimpleUsers } from '../../../services/user';
 import { ISimpleUser } from '../../../types/user';
+import getButtonProps from './getButtonProps';
 
 interface TicketDetailProps {
   workflowId?: string;
@@ -39,10 +40,13 @@ interface IOption {
 }
 function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToken }: TicketDetailProps) {
 
-  const [creationFormActions, setCreationFormActions] = useState<any>();
+  const [formActions, setFormActions] = useState<any>();
+  const [adminFormActions, setAdminFormActions] = useState<any>();
   const [actionBaseNodeId, setActionBaseNodeId] = useState<string>();
+  const [adminActionBaseNodeId, setAdminActionBaseNodeId] = useState<string>();
   const [openWorkflowDiagram, setOpenWorkflowDiagram] = useState(false);
   const [openCommentDialog, setOpenCommentDialog] = useState(false);
+  const [actionRunning, setActionRunning] = useState<('common' | 'admin')>('common');
   const [dialogComment, setDialogComment] = useState<string>('');
   const [dialogActionType, setDialogActionType] = useState<string>('');
   const [users, setUsers] = useState<IOption[]>([]);
@@ -81,7 +85,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
   const fetchTicketCreationActions = useCallback(async () => {
     const res = await getTicketCreationActions(workflowId!);
     if (res.code === 0) {
-      setCreationFormActions(res.data.actions);
+      setFormActions(res.data.actions);
     } else {
       showMessage(res.msg, 'error');
     }
@@ -111,8 +115,18 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
   const fetchTicketDetailActions = useCallback(async (ticketId: string) => {
     const res = await getTicketDetailActions(ticketId);
     if (res.code === 0) {
-      setCreationFormActions(res.data.actions);
+      setFormActions(res.data.actions);
       setActionBaseNodeId(res.data.actionBaseNodeId);
+    } else {
+      showMessage(res.msg, 'error');
+    }
+  }, [showMessage]);
+
+  const fetchTicketDetailAdminActions = useCallback(async (ticketId: string) => {
+    const res = await getTicketDetailAdminActions(ticketId);
+    if (res.code === 0) {
+      setAdminFormActions(res.data.actions);
+      setAdminActionBaseNodeId(res.data.actionBaseNodeId);
     } else {
       showMessage(res.msg, 'error');
     }
@@ -126,8 +140,9 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
     if (ticketId) {
       fetchTicketDetailFrom(ticketId);
       fetchTicketDetailActions(ticketId);
+      fetchTicketDetailAdminActions(ticketId);
     }
-  }, [workflowId, fetchTicketCreationForm, fetchTicketCreationActions, refreshToken, ticketId, fetchTicketDetailFrom, fetchTicketDetailActions]);
+  }, [workflowId, fetchTicketCreationForm, fetchTicketCreationActions, refreshToken, ticketId, fetchTicketDetailFrom, fetchTicketDetailActions, fetchTicketDetailAdminActions]);
 
   const updateFormValue = (component: IWorkflowComponent) => {
     setFields({
@@ -160,8 +175,13 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
         // show comment dialog
         setOpenCommentDialog(true)
         setDialogActionType(action.type)
-
-      } else {
+        setActionRunning('common')
+      } else if (["force_forward", "force_close", "force_alter_node"].indexOf(action.type) !== -1) {
+        setActionRunning('admin')
+        setOpenCommentDialog(true)
+        setDialogActionType(action.type)
+      }
+      else {
         const res = await handleTicket({
           ticketId: ticketId, actionType: action.type, actionId: action.id, fields: fields, actionProps: {
             comment: '',
@@ -200,7 +220,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
     const actionProps: any = {
       comment: dialogComment, nodeId: actionBaseNodeId
     }
-    if (["forward", "consult"].indexOf(actionType) !== -1) {
+    if (["forward", "consult", "force_forward"].indexOf(actionType) !== -1) {
       actionProps.targetAssigneeId = selectedAssignee?.value
     }
     const res = await handleTicket({
@@ -293,82 +313,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
           })}
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 2 }}>
-          {creationFormActions?.map((action: IWorkflowAction) => {
-            // 根据 actionType 设置不同的按钮样式
-            const getButtonProps = (actionType: string) => {
-              switch (actionType) {
-                case 'agree':
-                  return {
-                    variant: 'contained' as const,
-                    color: 'success' as const,
-                    sx: {
-                      backgroundColor: '#4caf50',
-                      '&:hover': {
-                        backgroundColor: '#45a049',
-                      }
-                    }
-                  };
-                case 'reject':
-                  return {
-                    variant: 'contained' as const,
-                    color: 'error' as const,
-                    sx: {
-                      backgroundColor: '#f44336',
-                      '&:hover': {
-                        backgroundColor: '#da190b',
-                      }
-                    }
-                  };
-                case 'forward':
-                case 'consult':
-                case 'consult_submit':
-                  return {
-                    variant: 'outlined' as const,
-                    color: 'primary' as const,
-                    sx: {
-                      borderColor: '#1976d2',
-                      color: '#1976d2',
-                      '&:hover': {
-                        backgroundColor: '#1976d2',
-                        color: 'white',
-                      }
-                    }
-                  };
-                case 'add_comment':
-                  return {
-                    variant: 'outlined' as const,
-                    color: 'primary' as const,
-                    sx: {
-                      borderColor: '#1976d2',
-                      color: '#1976d2',
-                      '&:hover': {
-                        backgroundColor: '#1976d2',
-                        color: 'white',
-                      }
-                    }
-                  };
-                case 'other':
-                  return {
-                    variant: 'outlined' as const,
-                    color: 'primary' as const,
-                    sx: {
-                      borderColor: '#1976d2',
-                      color: '#1976d2',
-                      '&:hover': {
-                        backgroundColor: '#1976d2',
-                        color: 'white',
-                      }
-                    }
-                  };
-
-                default:
-                  return {
-                    variant: 'contained' as const,
-                    color: 'primary' as const
-                  };
-              }
-            };
-
+          {formActions?.map((action: IWorkflowAction) => {
             const buttonProps = getButtonProps(action.type);
 
             return (
@@ -386,8 +331,32 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
         </Box>
       </Paper>
       {ticketId && (
-        <TicketHistory ticketId={ticketId} refreshToken={refreshToken} />
-      )}
+        <Paper sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider' }}>
+          <Typography variant="h6" sx={{ mb: 1 }}>管理员操作</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 2 }}>
+            {adminFormActions?.map((action: IWorkflowAction) => {
+              const buttonProps = getButtonProps(action.type);
+              return (
+                <Button
+                  key={action.id}
+                  {...buttonProps}
+                  onClick={() => {
+                    handleActionClick(action)
+                  }}
+                >
+                  {action.name}
+                </Button>
+              );
+            })}
+          </Box>
+        </Paper >
+      )
+      }
+      {
+        ticketId && (
+          <TicketHistory ticketId={ticketId} refreshToken={refreshToken} />
+        )
+      }
       <Dialog
         maxWidth="lg"
         fullWidth
@@ -409,7 +378,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        {["forward", "consult"].indexOf(dialogActionType) !== -1 && (
+        {["forward", "consult", "force_forward"].indexOf(dialogActionType) !== -1 && (
           <DialogContent>
             <Autocomplete
               options={users}
