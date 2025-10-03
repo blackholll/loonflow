@@ -73,6 +73,7 @@ export function WorkflowList() {
                                 <TableCell>{t('common.name')}</TableCell>
                                 <TableCell>{t('common.description')}</TableCell>
                                 <TableCell>{t('workflow.activeVersion')}</TableCell>
+                                <TableCell>{t('common.createdAt')}</TableCell>
                                 <TableCell>{t('common.actions')}</TableCell>
                             </TableRow>
                         </TableHead>
@@ -82,6 +83,7 @@ export function WorkflowList() {
                                     <TableCell>{workflowData.name}</TableCell>
                                     <TableCell>{workflowData.description}</TableCell>
                                     <TableCell>{workflowData.version}</TableCell>
+                                    <TableCell>{new Date(workflowData.createdAt).toLocaleString()}</TableCell>
                                     <TableCell>
                                         <div><Button onClick={() => setOpenedWorkflowIdVersion(workflowData.workflowId)}>{t('common.edit')}</Button></div>
                                     </TableCell>

@@ -86,7 +86,7 @@ class WorkflowBaseService(BaseService):
         query_params &= Q(version__type='default')
         if search_value:
             query_params &= Q(name__contains=search_value) | Q(description__contains=search_value)
-        workflow_queryset = BasicInfo.objects.filter(query_params).order_by('id')
+        workflow_queryset = BasicInfo.objects.filter(query_params).order_by('-created_at')
         paginator = Paginator(workflow_queryset, per_page)
         try:
             workflow_result_paginator = paginator.page(page)
