@@ -25,6 +25,16 @@ class Record(BaseCommonModel):
     parent_ticket = models.ForeignKey("self", db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket", null=True, blank=True)
     parent_ticket_node = models.ForeignKey(WorkflowNode, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_parent_ticket_node", null=True, blank=True)
     act_state = models.CharField("act state", choices=ACT_STATE_CHOICE)
+    def get_dict(self):
+        base_result_dict = super().get_dict()
+        from service.workflow.workflow_base_service import workflow_base_service_ins
+        workflow_info = workflow_base_service_ins.get_workflow_basic_info_by_id(self.tenant_id, self.workflow_id, self.workflow_version_id)
+        base_result_dict['workflow_info'] = dict(
+            id = workflow_info.get('id'),
+            name = workflow_info.get('name'),
+            description = workflow_info.get('description'),
+        )
+        return base_result_dict
 
 
 class Node(BaseCommonModel):

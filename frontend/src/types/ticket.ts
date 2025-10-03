@@ -77,7 +77,7 @@ export interface ITicketListResEntity {
   id: number;
   title: string;
   node: ISimpleEntity,
-  workflow: ISimpleEntity;
+  workflowInfo: ISimpleEntity;
   creatorInfo: ISimpleUser;
   actState: string
   createdAt: string;

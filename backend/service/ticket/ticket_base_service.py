@@ -241,7 +241,7 @@ class TicketBaseService(BaseService):
         
 
         # get next node list. next node can be more than one
-        next_node_dict_list = cls.get_action_next_node_dict_list(tenant_id, '', workflow_id, version_id, action_id, request_data_dict)
+        next_node_dict_list = cls.get_action_next_node_dict_list(tenant_id, '', operator_id, workflow_id, version_id, action_id, request_data_dict)
         act_state = "on_going"
         if len(next_node_dict_list) == 1:
             act_state = cls.get_act_state_by_node_and_edge_type(next_node_dict_list[0].get("type"), edge_obj.type)
@@ -337,11 +337,12 @@ class TicketBaseService(BaseService):
             return "on-going"
 
     @classmethod
-    def get_action_next_node_dict_list(cls, tenant_id: str, ticket_id: str, workflow_id: str, version_id: str, action_id: str, request_data_dict: dict) -> list:
+    def get_action_next_node_dict_list(cls, tenant_id: str, ticket_id: str, operator_id: str, workflow_id: str, version_id: str, action_id: str, request_data_dict: dict) -> list:
         """
         get next node
         :param tenant_id:
         :param ticket_id:
+        :param operator_id:
         :param workflow_id:
         :param version_id:
         :param action_id:
@@ -364,6 +365,36 @@ class TicketBaseService(BaseService):
         
             if str(edge_obj.source_node_id) != source_node_id:
                 raise CustomCommonException("current node has no permission to run this transition")
+            # whole assignment strategy need consider all previous node
+            all_assignee_finished = True
+            for previous_ticket_node in previous_ticket_node_list:
+                if str(previous_ticket_node.node_id) == source_node_id:
+                    now_all_assignee_result = previous_ticket_node.all_assignee_result
+                    if now_all_assignee_result:
+                        now_all_assignee_result[operator_id] = {"action_id": action_id}
+                    for key, value in now_all_assignee_result.items():
+                        if not value:
+                            all_assignee_finished = False
+                            break
+            if not all_assignee_finished:
+                for previous_ticket_node in previous_ticket_node_list:
+                    if str(previous_ticket_node.node_id) != source_node_id:
+                        previous_node_dict = workflow_node_service_ins.get_node_by_id(tenant_id, previous_ticket_node.node_id).get_dict()
+                        previous_node_dict['keep_previous'] = True
+                        result_node_list.append(previous_node_dict)
+                    else:
+                        workflow_node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, source_node_id)
+                        current_node_dict = workflow_node_obj.get_dict()
+                        current_node_dict['all_assignee_result'] = now_all_assignee_result
+                        current_node_dict['assignee_type'] = "users"
+                        next_assignee_list = []
+                        for key, value in now_all_assignee_result.items():
+                            if not value:
+                                next_assignee_list.append(key)
+                        current_node_dict['assignee'] = ','.join(next_assignee_list)
+                        current_node_dict['assignee_list'] = next_assignee_list
+                        result_node_list.append(current_node_dict)
+                return result_node_list
         
         target_node_id = edge_obj.target_node_id
         target_node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, target_node_id)
@@ -588,7 +619,7 @@ class TicketBaseService(BaseService):
 
         if len(target_assignee_list) > 1:
             if node_record.props.get('assignment_strategy') == "random":
-                target_assignee_list = random.choice(target_assignee_list)
+                target_assignee_list = [random.choice(target_assignee_list)]
                 target_assignee_type = "users"
             elif node_record.props.get('assignment_strategy') == "whole":
                 if not all_assignee_result:
@@ -1325,7 +1356,7 @@ class TicketBaseService(BaseService):
 
 
 
-        next_node_dict_list = cls.get_action_next_node_dict_list(tenant_id, ticket_id, workflow_id, workflow_version_id, action_id, request_data_dict)
+        next_node_dict_list = cls.get_action_next_node_dict_list(tenant_id, ticket_id, operator_id, workflow_id, workflow_version_id, action_id, request_data_dict)
         act_state = "on_going"
         if len(next_node_dict_list) == 1:
             act_state = cls.get_act_state_by_node_and_edge_type(next_node_dict_list[0].get("type"), edge_record.type)
@@ -1371,9 +1402,14 @@ class TicketBaseService(BaseService):
                 next_node_result['in_add_node'] = False
                 next_node_result['add_node_target'] = ""
                 next_node_result['hook_state'] = ""
-                next_node_result['all_assignee_result'] = next_node_assignee_info.get("all_assignee_result")
-                next_node_result['target_assignee_type'] = next_node_assignee_info.get("target_assignee_type")
-                next_node_result['target_assignee_list'] = next_node_assignee_info.get("target_assignee_list", [])
+                if next_node.get("assignee_type", "") == "users":
+                    next_node_result['target_assignee_list'] = next_node.get("assignee_list", [])
+                    next_node_result['target_assignee'] = next_node.get("assignee", "")
+                    next_node_result['all_assignee_result'] = next_node.get("all_assignee_result", {})
+                else:
+                    next_node_result['all_assignee_result'] = next_node_assignee_info.get("all_assignee_result")
+                    next_node_result['target_assignee_type'] = next_node_assignee_info.get("target_assignee_type")
+                    next_node_result['target_assignee_list'] = next_node_assignee_info.get("target_assignee_list", [])
                 next_node_result['in_accept_wait'] = next_node_assignee_info.get("in_accept_wait", False)
             next_ticket_node_result_list.append(next_node_result)
 

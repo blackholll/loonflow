@@ -256,7 +256,7 @@ function PropertyPanel(props: PropertyPanelProps) {
         { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.voluntary'), value: 'voluntary' },
         { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.direct'), value: 'direct' },
         { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.random'), value: 'random' },
-        { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.all'), value: 'all' },
+        { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.all'), value: 'whole' },
     ];
 
     // 变量选项

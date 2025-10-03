@@ -217,6 +217,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 <TableRow>
                   {/* <TableCell>Id</TableCell> */}
                   <TableCell>{t('ticketList.ticketTitle')}</TableCell>
+                  <TableCell>{t('ticketList.ticketType')}</TableCell>
                   <TableCell>{t('ticketList.approveState')}</TableCell>
                   <TableCell>{t('ticketList.ticketCreator')}</TableCell>
                   <TableCell>{t('ticketList.ticketCreateTime')}</TableCell>
@@ -228,6 +229,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                   <TableRow key={ticket.id}>
                     {/* <TableCell>{ticket.id}</TableCell> */}
                     <TableCell>{ticket.title}</TableCell>
+                    <TableCell>{ticket.workflowInfo.name}</TableCell>
                     <TableCell>{ticket.actState}</TableCell>
                     <TableCell>{ticket.creatorInfo.alias}</TableCell>
                     <TableCell>{new Date(ticket.createdAt).toLocaleString()}</TableCell>
