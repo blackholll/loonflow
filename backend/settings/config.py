@@ -2,7 +2,6 @@ from settings.common import *
 
 # for multi computer room deploy and use separate redis server
 DEPLOY_ZONE = ''
-MACHINE_ID = 0
 
 MIDDLEWARE = [
     'service.csrf_service.DisableCSRF',

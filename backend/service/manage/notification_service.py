@@ -131,4 +131,16 @@ class NotificationService(BaseService):
         return True
 
 
+    @classmethod
+    def get_notification_record_by_id_list(cls, tenant_id:str, notification_id_list: list):
+        """
+        get notification record by id
+        :param tenant_id:
+        :param notification_id_list:
+        :return:
+        """
+        print('notification_id_list:', notification_id_list)
+        
+        return Notification.objects.get(id__in=notification_id_list, tenant_id=tenant_id)
+
 notification_service_ins = NotificationService()

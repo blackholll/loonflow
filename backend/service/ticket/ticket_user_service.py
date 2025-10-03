@@ -71,7 +71,7 @@ class TicketUserService(BaseService):
         user_assignee_node_ids_dict = dict()
         
         for next_ticket_node_result in next_ticket_node_result_list:
-            for target_assignee in next_ticket_node_result.get("target_assignee_list", []):
+            for target_assignee in next_ticket_node_result.get("target_assignee_list", ):
                 source_target_assignee_list = user_assignee_node_ids_dict.get(target_assignee, [])
                 source_target_assignee_list.append(str(next_ticket_node_result.get("node_id")))
                 user_assignee_node_ids_dict[target_assignee] = source_target_assignee_list
@@ -189,15 +189,7 @@ class TicketUserService(BaseService):
                     TicketUser.objects.create(tenant_id=tenant_id, ticket_id=ticket_id, user_id=consultant_id, as_assignee=True, assignee_node_ids=node_id)
         return True
 
-    def update_ticket_user_accept(cls, tenant_id: str, ticket_id: str, operator_id: str) -> bool:
-        """
-        update ticket user accept record
-        :param tenant_id:
-        :param ticket_id:
-        :param operator_id:
-        :return:
-        """
-        ticket_nn
+
 
 ticket_user_service_ins = TicketUserService()
 

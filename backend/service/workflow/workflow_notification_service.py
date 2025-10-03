@@ -98,5 +98,16 @@ class WorkflowNotificationService(BaseService):
         """
         WorkflowNotification.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id).update(title_template=notification_info.get("title_template"), content_template=notification_info.get("content_template"), channels=','.join(notification_info.get("selected_channel_list")))
 
+    @classmethod
+    def get_notification_record_by_workflow_id_and_version_id(cls, tenant_id: str, workflow_id: str, version_id: str):
+        """
+        get notification id by workflow id and version id
+        :param tenant_id:
+        :param workflow_id:
+        :param version_id:
+        :return:
+        """
+        return WorkflowNotification.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id).first()
+        
 
 workflow_notification_service_ins = WorkflowNotificationService()

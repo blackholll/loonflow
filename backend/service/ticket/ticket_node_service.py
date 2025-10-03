@@ -107,7 +107,7 @@ class TicketNodeService(BaseService):
                 consult_from_id = new_node_info.get("operator_id"),
                 consult_target_id = new_node_info.get("consultant_id"),
                 is_active = new_node_info.get("is_active"),
-                hook_state = new_node_info.get("hook_state"),
+                hook_status = new_node_info.get("hook_status"),
                 all_assignee_result = new_node_info.get("all_assignee_result"),
                 assignee_type = new_node_info.get("target_assignee_type"),
                 assignee = ','.join(new_node_info.get("target_assignee_list",[])),
@@ -247,6 +247,7 @@ class TicketNodeService(BaseService):
         consult_target=None, assignee=','.join(next_assignee_list), assignee_type='users')
         return True
 
+    @classmethod
     def update_ticket_node_accept(cls, tenant_id: str, ticket_id: str, node_id: str, operator_id: str) -> bool:
         """
         update ticket node accept record
@@ -264,6 +265,18 @@ class TicketNodeService(BaseService):
         ticket_node_record.assignee_type = 'users'
         ticket_node_record.save()
         return True
+
+    @classmethod
+    def update_ticket_node_hook_status(cls, tenant_id: str, ticket_id: str, node_id: str, status: str) -> bool:
+        """
+        update ticket node hook state
+        :param tenant_id:
+        :param ticket_id:
+        :param node_id:
+        :param state:
+        :return:
+        """
+        TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=ticket_id, node_id=node_id).update(hook_status=status)
 
 
 ticket_node_service_ins = TicketNodeService()

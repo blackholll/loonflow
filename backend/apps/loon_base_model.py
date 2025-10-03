@@ -10,7 +10,6 @@ from django.conf import settings
 from django.db.migrations.serializer import BaseSerializer
 from django.db.migrations.writer import MigrationWriter
 
-machine_id = settings.MACHINE_ID
 base_dir = settings.BASE_DIR
 
 

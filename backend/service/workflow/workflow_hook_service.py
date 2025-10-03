@@ -75,7 +75,7 @@ class WorkflowHookService(BaseService):
                 archive_service_ins.archive_record('workflow_hook', hook_obj, operator_id)
         # need update existed hook
         for hook_info in hook_info_list:
-            if WorkflowHook.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, id=hook_info.get("id")).exists():
+            if hook_info.get("id") and  not hook_info.get("id").startswith('temp_') and WorkflowHook.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, id=hook_info.get("id")).exists():
                 WorkflowHook.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, name=hook_info.get("id")).update(
                     description=hook_info.get("description"),
                     url=hook_info.get("url"),
@@ -83,7 +83,7 @@ class WorkflowHookService(BaseService):
                 )
         # need add new hook
         for hook_info in hook_info_list:
-            if not WorkflowHook.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, id=hook_info.get("id")).exists():
+            if hook_info.get("id").startswith('temp_') or not WorkflowHook.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id, id=hook_info.get("id")).exists():
                 WorkflowHook.objects.create(
                     tenant_id=tenant_id,
                     workflow_id=workflow_id,

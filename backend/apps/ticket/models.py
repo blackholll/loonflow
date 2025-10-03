@@ -48,7 +48,7 @@ class Node(BaseCommonModel):
     in_accept_wait = models.BooleanField('in accept wait status', default=False, help_text='whether in accept wait status')
     consult_from = models.ForeignKey(accountUser, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_consult_from", null=True)
     consult_target = models.ForeignKey(accountUser, db_constraint=False, on_delete=models.DO_NOTHING, related_name="ticket_node_consult_target", null=True)
-    hook_state = models.CharField("hook running state", max_length=50, choices=HOOK_STATE_CHOICE)
+    hook_status = models.CharField("hook running status", max_length=50, null=True, choices=HOOK_STATE_CHOICE)
     parallel_node = models.ForeignKey(WorkflowNode, db_constraint=False, on_delete=models.DO_NOTHING, null=True, related_name="ticket_node_parallel_node")
     all_assignee_result = models.JSONField('all assignee result', blank=True)
 

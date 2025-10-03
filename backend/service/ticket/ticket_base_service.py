@@ -197,6 +197,10 @@ class TicketBaseService(BaseService):
         workflow_version = request_data_dict.get('workflow_version', '')
         version_id = workflow_base_service_ins.get_workflow_version_id_by_name(workflow_id, tenant_id, workflow_version)
 
+        # pre-create hook shoule be called synchronous
+        from tasks import flow_action_hook_task
+        flow_action_hook_task(tenant_id, '', "pre_create", request_data_dict.get('workflow_id', ''), version_id)
+
         # check whether current call source has permission to create this type ticket
         workflow_permission_service_ins.app_workflow_permission_check(tenant_id, workflow_id, version_id, app_name)
         # pre_create_hook check
@@ -301,21 +305,23 @@ class TicketBaseService(BaseService):
 
 
 
-        # todo: send notice
+        # send notice
+        from tasks import flow_notification_task
+        for next_ticket_node_result0 in next_ticket_node_result_list:
+            if not next_ticket_node_result0.get('keep_previous', False):
+                transaction.on_commit(lambda: flow_notification_task.apply_async(args=[tenant_id, ticket_id, next_ticket_node_result0.get("id")], queue='loonflow'))
 
-        # todo: next node handle
-        for next_ticket_node in next_ticket_node_result_list:
-            # hook
-            if next_ticket_node.get("target_assignee_type") == "hook":
-                ## todo: hook handle
-                pass
+        # flow hook
+        for next_ticket_node_result in next_ticket_node_result_list:
+            if next_ticket_node_result.get("type") == "hook":
+                from tasks import flow_hook_task
+                transaction.on_commit(lambda: flow_hook_task.apply_async(args=[tenant_id, ticket_id, next_ticket_node_result.get("id")], queue='loonflow'))
 
-            # timer handle
-            if next_ticket_node.get("node_type") == "timer":
-                ## todo: timer handle
-                pass
-
-            # todo:parent_ticket handle
+        # event hook
+        from tasks import flow_action_hook_task
+        transaction.on_commit(lambda: flow_action_hook_task.apply_async(args=[tenant_id, ticket_id, "create"], queue='loonflow'))
+        
+        # todo:parent_ticket handle
         return str(ticket_id)
 
 
@@ -474,7 +480,7 @@ class TicketBaseService(BaseService):
                 if matched:
                     next_node_id = next_edge_obj.target_node_id
                     next_node_obj = workflow_node_service_ins.get_node_by_id(tenant_id, next_node_id)
-                    result_node_list.append(next_node_obj)
+                    result_node_list.append(next_node_obj.get_dict())
                     # 仅支持命中一个条件分支
                     break
         
@@ -975,7 +981,10 @@ class TicketBaseService(BaseService):
         # add flow history
         ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, 'forward', '', commment,'user', operator_id, node_id, ticket_data)
-        # todo: send notification
+        # send notification
+        from tasks import flow_notification_task
+        flow_notification_task.apply_async(args=[tenant_id, ticket_id, node_id], queue='loonflow')
+
         return True
 
     @classmethod
@@ -1007,7 +1016,10 @@ class TicketBaseService(BaseService):
         ticket_node_service_ins.update_ticket_node_record(tenant_id, operator_id, node_info_list)
         ticket_user_service_ins.update_ticket_user_by_all_next_node_result(tenant_id, ticket_id, operator_id, [], node_info_list)
         
-        # todo:  send notification
+        # send notification
+        from tasks import flow_action_hook_task
+        flow_action_hook_task(tenant_id, ticket_id, "force_close")
+        
         return True
     
     @classmethod
@@ -1051,7 +1063,10 @@ class TicketBaseService(BaseService):
         # update ticket_flow_history
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "force_alter_node", None, comment, 'user', operator_id, current_node_id_list[0], {})
 
-        # todo: send notification
+        # send notification
+        from tasks import flow_notification_task
+        flow_notification_task.apply_async(args=[tenant_id, ticket_id, target_node_id], queue='loonflow')
+        
         
         return True
         
@@ -1075,6 +1090,9 @@ class TicketBaseService(BaseService):
         ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "consult_ticket", None, comment, 'user', operator_id, node_id, ticket_data)
         # send notification
+        from tasks import flow_notification_task
+        flow_notification_task.apply_async(args=[tenant_id, ticket_id, node_id], queue='loonflow')
+
         return True
     
     @classmethod
@@ -1129,7 +1147,9 @@ class TicketBaseService(BaseService):
 
         ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "consult_submit", None, comment, 'user', operator_id, node_id, ticket_data)
-        # todo : send notification
+        # send notification
+        from tasks import flow_notification_task
+        flow_notification_task.apply_async(args=[tenant_id, ticket_id, node_id], queue='loonflow')
 
         return True
 
@@ -1288,14 +1308,30 @@ class TicketBaseService(BaseService):
 
         # update relate user for next node
         ticket_user_service_ins.update_ticket_user_by_all_next_node_result(tenant_id, ticket_id, operator_id, request_data_dict.get("cc_to_user_id_list", []), next_ticket_node_result_list)
-        # todo: send notification
+        
+        # send notification
+        from tasks import flow_notification_task
+        for next_ticket_node_result0 in next_ticket_node_result_list:
+            if not next_ticket_node_result0.get('keep_previous', False):
+                transaction.on_commit(lambda: flow_notification_task.apply_async(args=[tenant_id, ticket_id, next_ticket_node_result0.get("id")], queue='loonflow'))
 
-        # todo: next node handle
-            # timer handle
-
-            # todo:parent_ticket handle
+        # flow hook
+        for next_ticket_node_result in next_ticket_node_result_list:
+            if next_ticket_node_result.get("type") == "hook":
+                #todo: trigger hook
+                from tasks import flow_hook_task
+                transaction.on_commit(lambda: flow_hook_task.apply_async(args=[tenant_id, ticket_id, next_ticket_node_result.get("id")], queue='loonflow'))
+        # event hook: reject, finish
+        if edge_record.type == "reject":
+            from tasks import flow_action_hook_task
+            transaction.on_commit(lambda: flow_action_hook_task.apply_async(args=[tenant_id, ticket_id, "reject"], queue='loonflow'))
+        if len(next_ticket_node_result_list) == 1 and next_ticket_node_result_list[0].get("type") == "end":
+            from tasks import flow_action_hook_task
+            transaction.on_commit(lambda: flow_action_hook_task.apply_async(args=[tenant_id, ticket_id, "finish"], queue='loonflow'))
         
         
+        # todo: timer handle
+        # todo:parent_ticket handle
         return True
     
 
