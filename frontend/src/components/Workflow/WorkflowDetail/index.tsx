@@ -50,13 +50,21 @@ function WorkflowDetail() {
 
     const NEW_WORKFLOW_ID = '00000000-0000-0000-0000-000000000000';
     const STORAGE_KEY = 'workflow_draft';
+    const EXIST_STORAGE_KEY = 'workflow_exist_draft';
 
     // 保存到 localStorage
     const saveToLocalStorage = useCallback((data: IWorkflowFullDefinition) => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            data,
-            timestamp: Date.now()
-        }));
+        if (data.basicInfo.id.startsWith('temp_')) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }));
+        } else {
+            localStorage.setItem(EXIST_STORAGE_KEY, JSON.stringify({
+                data,
+                timestamp: Date.now()
+            }));
+        }
     }, []);
 
     // 从 localStorage 加载
@@ -120,15 +128,7 @@ function WorkflowDetail() {
                 if (!hasCheckedDraft) {
                     const storedData = loadFromLocalStorage();
                     if (storedData && Object.keys(storedData).length > 0) {
-                        const draftId = storedData?.basicInfo?.id as unknown as string | undefined;
-                        if (typeof draftId === 'string' && draftId.startsWith('temp_')) {
-                            // 仅当草稿 id 以 temp_ 开头时，才提示加载草稿
-                            setShowConfirmDialog(true);
-                        } else {
-                            // 否则清空草稿并直接初始化
-                            clearLocalStorage();
-                            setIsInitialized(true);
-                        }
+                        setShowConfirmDialog(true);
                     } else {
                         // 如果没有草稿，设置初始化完成标记
                         setIsInitialized(true);
@@ -151,14 +151,15 @@ function WorkflowDetail() {
     }, [workflowId, fetchWorkflowFromAPI, hasCheckedDraft, loadFromLocalStorage, versionPathName]);
 
     // 当 workflowId 变化时重置草稿检查状态
-    useEffect(() => {
-        setHasCheckedDraft(false);
-        setIsInitialized(false);
-        setWorkflowSourceDetailInfo(null); // 重置原始数据
-    }, [workflowId]);
+    // useEffect(() => {
+    //     setHasCheckedDraft(false);
+    //     setIsInitialized(false);
+    //     setWorkflowSourceDetailInfo(null); // 重置原始数据
+    // }, [workflowId]);
 
     // 当 workflowDetailInfo 变化时保存到 localStorage（延迟保存，避免频繁更新）
     useEffect(() => {
+        console.log('useEffect 111')
         if (workflowId === NEW_WORKFLOW_ID && isInitialized && Object.keys(workflowDetailInfo).length > 0) {
             const timeoutId = setTimeout(() => {
                 saveToLocalStorage(workflowDetailInfo);
