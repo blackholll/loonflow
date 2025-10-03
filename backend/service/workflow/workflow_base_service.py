@@ -78,7 +78,7 @@ class WorkflowBaseService(BaseService):
         """
         query_params = Q(tenant_id=tenant_id)
         user_obj = account_user_service_ins.get_user_by_user_id(tenant_id, operator_id)
-        if user_obj.type != "admin":
+        if user_obj.type != "admin" and not simple:
             permission_workflow_id_list = workflow_permission_service_ins.get_user_permission_workflow_id_list(operator_id)
             if permission_workflow_id_list:
                 query_params &= Q(id__in=permission_workflow_id_list)

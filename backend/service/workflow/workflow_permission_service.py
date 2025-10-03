@@ -119,7 +119,7 @@ class WorkflowPermissionService(BaseService):
         :param user_id:
         :return:
         """
-        permission_queryset = WorkflowPermission.objects.filter(permission="admin", user_type="user", target=user_id, version__status='active')
+        permission_queryset = WorkflowPermission.objects.filter(permission="admin", target_type="user", target=user_id, version__type='default')
         result = [permission.id for permission in permission_queryset]
         return result
 

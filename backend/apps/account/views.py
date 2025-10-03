@@ -798,13 +798,15 @@ class JwtLoginView(BaseView):
         except Exception as e:
             return api_response(-1, e.__str__(), {})
         if user is not None:
+            if not user.is_active:
+                return api_response(-1, 'user is not active', {})
             flag, jwt_info = account_user_service_ins.get_user_jwt(email)
             if flag is False:
                 return api_response(-1, '', {})
             else:
                 return api_response(0, '', {'jwt': jwt_info})
         else:
-            return api_response(-1, 'username or password is invalid', {})
+            return api_response(-1, 'username or password is incorrect', {})
 
 
 class UserRoleView(BaseView):

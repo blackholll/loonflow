@@ -17,6 +17,7 @@ import { loginState } from './store'
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { getMyProfile } from './services/user';
+import useSnackbar from './hooks/useSnackbar';
 
 
 function Copyright(props: any) {
@@ -41,10 +42,15 @@ export default function SignIn() {
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showMessage } = useSnackbar();
 
   const handleSubmit = async () => {
     try {
       const responseData = await login(email, password);
+      if (responseData.code === -1) {
+        showMessage(responseData.msg, 'error');
+        return;
+      }
       const token = responseData.data.jwt;
       const expiration = getJwtExpiration(token);
       setCookie('jwtToken', token, {
