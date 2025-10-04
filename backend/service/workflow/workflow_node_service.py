@@ -139,8 +139,6 @@ class WorkflowNodeService(BaseService):
         :param node_id:
         :return:
         """
-        print("node_id", node_id)
-        print("tenant_id", tenant_id)
         node_obj = Node.objects.get(id=node_id, tenant_id=tenant_id)
         return node_obj
 

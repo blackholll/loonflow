@@ -53,6 +53,19 @@ export const getButtonProps = (actionType: string): Partial<ButtonProps> & { sx?
                     }
                 }
             };
+        case 'withdraw':
+            return {
+                variant: 'outlined',
+                color: 'primary',
+                sx: {
+                    borderColor: '#1976d2',
+                    color: '#1976d2',
+                    '&:hover': {
+                        backgroundColor: '#1976d2',
+                        color: 'white',
+                    }
+                }
+            };
         case 'other':
             return {
                 variant: 'outlined',

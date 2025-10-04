@@ -541,10 +541,10 @@ class TicketBaseService(BaseService):
         if ticket_id:
             ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
             if node_record.type == "start":
-                return dict(assignee_type="person", assignee_list=[ticket_obj.creator_id],
+                return dict(target_assignee_type="users", target_assignee_list=[str(ticket_obj.creator_id)],
                             all_assignee_result={})
             elif node_record.type == "end":
-                return dict(assignee_type="none", assignee_list=[],
+                return dict(target_assignee_type="none", target_assignee_list=[],
                             all_assignee_result={})
             
             parent_ticket_id = ticket_obj.parent_ticket_id
@@ -570,10 +570,10 @@ class TicketBaseService(BaseService):
             # ticket_id is '', means this is new ticket
             all_assignee_result = {}
             if node_record.type == "start":
-                return dict(assignee_type="person", assignee_list=[operator_id],
+                return dict(target_assignee_type="users", target_assignee_list=[str(operator_id)],
                             all_assignee_result={})
             elif node_record.type == "end":
-                return dict(assignee_type="none", assignee_list=[],
+                return dict(target_assignee_type="none", target_assignee_list=[],
                             all_assignee_result={})
             parent_ticket_id = ticket_req_dict.get("parent_ticket_id")
             creator_id = operator_id
@@ -769,6 +769,8 @@ class TicketBaseService(BaseService):
         """
         if action_type == "add_comment":
             return cls.ticket_view_permission_check(tenant_id, ticket_id, user_id)
+        if action_type == "withdraw":
+            return True
         elif action_type in ("forward", "consult", "consult_submit", "accept", "agree", "reject", "other"):
             return cls.ticket_assignee_permission_check(tenant_id,ticket_id, user_id)
         elif action_type in ("force_forward", "force_close", "force_alter_node"):
@@ -882,7 +884,18 @@ class TicketBaseService(BaseService):
                 type='consult',
                 props= {}
             ))
+        # 撤回 allowWithdraw
+        action_base_node_record = workflow_node_service_ins.get_node_by_id(tenant_id, action_base_node_id)
+        allow_withdraw = action_base_node_record.props.get('allow_withdraw', False)
+        if allow_withdraw and str(ticket_obj.creator_id) == user_id:
+            action_result_list.append(dict(
+                id='withdraw',
+                name='withdraw',
+                type='withdraw',
+                props= {}
+            ))
 
+        
         return action_result_list, str(action_base_node_id)
 
     @classmethod
@@ -959,6 +972,8 @@ class TicketBaseService(BaseService):
 
         if action_type == "add_comment":
             cls.add_comment(tenant_id, ticket_id, operator_id, request_data_dict)
+        elif action_type == "withdraw":
+            cls.withdraw_ticket(tenant_id, ticket_id, operator_id, request_data_dict)
         elif action_type in ("forward", "consult", "consult_submit", "accept", "agree", "reject", "other"):
             cls.handle_ticket_assignee_action(tenant_id, ticket_id, operator_id, request_data_dict)
         elif action_type in ("force_forward", "force_close", "force_alter_node"):
@@ -1035,6 +1050,54 @@ class TicketBaseService(BaseService):
         "user", operator_id, action_props.get('node_id', ''), ticket_data)
     
     @classmethod
+    def withdraw_ticket(cls, tenant_id: str, ticket_id: str, operator_id: str, request_data_dict: dict) -> bool:
+        """
+        withdraw ticket
+        :param tenant_id:
+        :param ticket_id:
+        :param operator_id:
+        :param request_data_dict:
+        :return:
+        """
+        # 1. ticket should only on one node, 2. current node should be allow withdraw, 3. opertor is ticket creator
+        ticket_node_queryset = ticket_node_service_ins.get_ticket_current_nodes(tenant_id, ticket_id)
+        if len(ticket_node_queryset) != 1:
+            raise CustomCommonException("ticket should only on one node")
+
+        current_node_id = ticket_node_queryset[0].node_id
+        workflow_node_record = workflow_node_service_ins.get_node_by_id(tenant_id, current_node_id)
+        allow_withdraw = workflow_node_record.props.get('allow_withdraw', False)
+        if not allow_withdraw:
+            raise CustomCommonException("current node should be allow withdraw")
+        
+        ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
+        if str(ticket_obj.creator_id) != operator_id:
+            raise CustomCommonException("opertor is not ticket creator")
+        
+        init_node_record = workflow_node_service_ins.get_init_node(tenant_id, ticket_obj.workflow_id, ticket_obj.workflow_version_id)
+        next_node_assignee_info = ticket_base_service_ins.get_ticket_node_assignee_info_by_node_id(tenant_id, operator_id, init_node_record.id, ticket_id, {})
+        
+        node_info_list = [dict(
+            ticket_id=ticket_id,
+            node_id = init_node_record.id,
+            node_type= 'start',
+            is_active = True,
+            all_assignee_result= next_node_assignee_info.get("all_assignee_result"),
+            target_assignee_type=next_node_assignee_info.get("target_assignee_type"),
+            target_assignee_list=next_node_assignee_info.get("target_assignee_list"),
+            in_accept_wait = next_node_assignee_info.get("in_accept_wait", False),
+            in_parallel=False
+        )]
+        ticket_node_service_ins.update_ticket_node_record(tenant_id, operator_id, node_info_list)
+        ticket_user_service_ins.update_ticket_user_by_all_next_node_result(tenant_id, ticket_id, operator_id, [], node_info_list)  
+        ticket_all_fields = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+        ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "withdraw", None, "withdraw", 'user', operator_id, current_node_id, ticket_all_fields)
+
+        # withdraw hook
+        from tasks import flow_action_hook_task
+        transaction.on_commit(lambda: flow_action_hook_task.apply_async(args=[tenant_id, ticket_id, "withdraw"], queue='loonflow'))
+        return True
+    @classmethod
     def ticket_admin_permission_check(cls, tenant_id:str, ticket_id: str, user_id: str = '') -> bool:
         """
         check whether user has ticket's admin permission,  admin or related workflow admin or related workflow dispatcher
@@ -1047,6 +1110,21 @@ class TicketBaseService(BaseService):
         if user_record.type == "admin":
             return True
         ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
+        workflow_id = ticket_obj.workflow_id
+        workflow_version_id = ticket_obj.workflow_version_id
+        return workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'admin') or workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'dispatcher')
+
+    @classmethod
+    def ticket_withdraw_permission_check(cls, tenant_id: str, ticket_id: str, user_id: str) -> bool:
+        """
+        check whether user has ticket's withdraw permission
+        :param tenant_id:
+        :param ticket_id:
+        :param user_id:
+        :return:
+        """
+        ticket_obj = TicketRecord.objects.get(id=ticket_id, tenant_id=tenant_id)
+        ticket_node = ticket_node_service_ins.get_ticket_current_nodes(tenant_id, ticket_id)[0]
         workflow_id = ticket_obj.workflow_id
         workflow_version_id = ticket_obj.workflow_version_id
         return workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'admin') or workflow_permission_service_ins.user_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, user_id, 'dispatcher')
@@ -1162,7 +1240,7 @@ class TicketBaseService(BaseService):
         
         node_record = workflow_node_service_ins.get_node_by_id(tenant_id, target_node_id)
 
-        next_node_assignee_info = cls.get_ticket_node_assignee_info(tenant_id, operator_id, node_record, ticket_id, {})
+        next_node_assignee_info = ticket_base_service_ins.get_ticket_node_assignee_info_by_node_id(tenant_id, operator_id, node_record.id, ticket_id, {})
         
         node_info_list = [dict(
             ticket_id=ticket_id,
