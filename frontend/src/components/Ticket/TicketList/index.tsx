@@ -12,6 +12,7 @@ import { getSimpleWorkflowList } from '../../../services/workflow';
 import { getSimpleUsers } from '../../../services/user';
 
 import useSnackbar from '../../../hooks/useSnackbar';
+import { formatDate } from '../../../utils/dateFormat';
 
 
 
@@ -36,8 +37,10 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
   const [total, setTotal] = useState(0)
   const [users, setUsers] = useState<IOption[]>([]);
   const [searchValue, setSearchValue] = useState('');
-  const [createDateStart, setCreateDateStart] = useState('');
-  const [createDateEnd, setCreateDateEnd] = useState('');
+  const [createDateStart, setCreateDateStart] = useState<string>('');
+  const [createDateEnd, setCreateDateEnd] = useState<string>('');
+  const [showDateStart, setShowDateStart] = useState<boolean>(false);
+  const [showDateEnd, setShowDateEnd] = useState<boolean>(false);
 
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IOption | null>(null);
@@ -177,10 +180,39 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 fullWidth
                 label={t('ticketList.createDateStart')}
                 type="date"
-                slotProps={{ inputLabel: { shrink: true }, input: { lang: i18n.language } }}
+                slotProps={{
+                  inputLabel: { shrink: true },
+                  input: {
+                    lang: i18n.language,
+                    style: { colorScheme: 'light' }
+                  }
+                }}
                 size="small"
-                value={createDateStart}
-                onChange={(e) => setCreateDateStart(e.target.value)}
+                value={createDateStart || (showDateStart ? new Date().toISOString().split('T')[0] : '')}
+                onChange={(e) => {
+                  setCreateDateStart(e.target.value);
+                  setShowDateStart(true);
+                }}
+                onFocus={() => setShowDateStart(true)}
+                onBlur={() => {
+                  if (!createDateStart) {
+                    setShowDateStart(false);
+                  }
+                }}
+                InputLabelProps={{ shrink: true }}
+                sx={{
+                  '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                    opacity: 1
+                  },
+                  '& input[type="date"]': {
+                    colorScheme: 'light',
+                    color: createDateStart ? 'inherit' : (showDateStart ? 'inherit' : 'transparent')
+                  }
+                }}
+                inputProps={{
+                  'data-placeholder': '',
+                  'data-empty': 'true'
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
@@ -188,10 +220,39 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 fullWidth
                 label={t('ticketList.createDateEnd')}
                 type="date"
-                slotProps={{ inputLabel: { shrink: true }, input: { lang: i18n.language } }}
+                slotProps={{
+                  inputLabel: { shrink: true },
+                  input: {
+                    lang: i18n.language,
+                    style: { colorScheme: 'light' }
+                  }
+                }}
                 size="small"
-                value={createDateEnd}
-                onChange={(e) => setCreateDateEnd(e.target.value)}
+                value={createDateEnd || (showDateEnd ? new Date().toISOString().split('T')[0] : '')}
+                onChange={(e) => {
+                  setCreateDateEnd(e.target.value);
+                  setShowDateEnd(true);
+                }}
+                onFocus={() => setShowDateEnd(true)}
+                onBlur={() => {
+                  if (!createDateEnd) {
+                    setShowDateEnd(false);
+                  }
+                }}
+                InputLabelProps={{ shrink: true }}
+                sx={{
+                  '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                    opacity: 1
+                  },
+                  '& input[type="date"]': {
+                    colorScheme: 'light',
+                    color: createDateEnd ? 'inherit' : (showDateEnd ? 'inherit' : 'transparent')
+                  }
+                }}
+                inputProps={{
+                  'data-placeholder': '',
+                  'data-empty': 'true'
+                }}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
@@ -232,7 +293,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                     <TableCell>{ticket.workflowInfo.name}</TableCell>
                     <TableCell>{ticket.actState}</TableCell>
                     <TableCell>{ticket.creatorInfo.alias}</TableCell>
-                    <TableCell>{new Date(ticket.createdAt).toLocaleString()}</TableCell>
+                    <TableCell>{formatDate(ticket.createdAt)}</TableCell>
                     <TableCell align="left">
                       <MuiLink component={Link} to={`/ticket/${ticket.id}`} underline="none" color="primary">
                         {t('common.detail')}

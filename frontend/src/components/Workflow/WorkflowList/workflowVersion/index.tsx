@@ -6,6 +6,7 @@ import { SelectChangeEvent, Card, CardHeader, Button, Dialog, DialogTitle, Dialo
 import Grid from '@mui/material/Grid2';
 import useSnackbar from '../../../../hooks/useSnackbar';
 import { Link, useNavigate } from 'react-router-dom';
+import { formatDate } from '../../../../utils/dateFormat';
 
 
 function WorkflowVersion({ workflowId }: { workflowId: string }) {
@@ -101,7 +102,9 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                                     <TableCell>{workflowVersion.name}</TableCell>
                                     <TableCell>{workflowVersion.description}</TableCell>
                                     <TableCell>{workflowVersion.type}</TableCell>
-                                    <TableCell>{new Date(workflowVersion.createdAt).toLocaleString()}</TableCell>
+
+
+                                    <TableCell>{formatDate(workflowVersion.createdAt)}</TableCell>
                                     <TableCell>
                                         <div><Button onClick={() => handleEditVersion(workflowVersion)}>{t('workflow.editVersion')}</Button>
                                             <Button disabled={workflowVersion.type === 'archived'} onClick={() => workflowVersion.type !== 'archived' && navigate(`/workflow/${workflowId}?version_name=${workflowVersion.name}`)}>{t('workflow.editWorkflow')}</Button>

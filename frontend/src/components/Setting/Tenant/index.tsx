@@ -29,6 +29,7 @@ import useSnackbar from '../../../hooks/useSnackbar';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useTranslation } from 'react-i18next';
+import { formatDate } from '../../../utils/dateFormat';
 
 function Tenant() {
   const [tenantDetail, setTenantDetail] = useState<ITenantDetailResEntity | null>(null);
@@ -229,7 +230,7 @@ function Tenant() {
                 {t("common.createdAt")}
               </Typography>
               <Typography variant="body1">
-                {tenantDetail?.createdAt ? new Date(tenantDetail.createdAt).toLocaleString('zh-CN') : '未知'}
+                {tenantDetail?.createdAt ? formatDate(tenantDetail.createdAt) : '未知'}
               </Typography>
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -237,7 +238,7 @@ function Tenant() {
                 {t("common.updatedAt")}
               </Typography>
               <Typography variant="body1">
-                {tenantDetail?.updatedAt ? new Date(tenantDetail.updatedAt).toLocaleString('zh-CN') : '未知'}
+                {tenantDetail?.updatedAt ? formatDate(tenantDetail.updatedAt) : '未知'}
               </Typography>
             </Grid>
           </Grid>

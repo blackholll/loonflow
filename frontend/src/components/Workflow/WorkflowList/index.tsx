@@ -7,6 +7,7 @@ import { IWorkflowEntity } from '../../../types/workflow';
 import useSnackbar from '../../../hooks/useSnackbar';
 import { getWorkflowList, } from '../../../services/workflow';
 import WorkflowVersion from './workflowVersion';
+import { formatDate } from '../../../utils/dateFormat';
 
 
 export function WorkflowList() {
@@ -83,7 +84,7 @@ export function WorkflowList() {
                                     <TableCell>{workflowData.name}</TableCell>
                                     <TableCell>{workflowData.description}</TableCell>
                                     <TableCell>{workflowData.version}</TableCell>
-                                    <TableCell>{new Date(workflowData.createdAt).toLocaleString()}</TableCell>
+                                    <TableCell>{formatDate(workflowData.createdAt)}</TableCell>
                                     <TableCell>
                                         <div><Button onClick={() => setOpenedWorkflowIdVersion(workflowData.workflowId)}>{t('common.edit')}</Button></div>
                                     </TableCell>
