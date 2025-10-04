@@ -142,7 +142,12 @@ class TicketBaseService(BaseService):
             worked_query_expression = Q(ticket_user__user_id=user_id, ticket_user__as_processor=True)
             query_params &= worked_query_expression
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
-        elif category in ('view', 'intervene'):
+        elif category == 'intervene':
+            category_workflow_id_list = workflow_permission_service_ins.get_workflow_id_list_by_permission('dispatcher', 'user', user_id)
+            query_params &= Q(workflow_id__in=category_workflow_id_list)
+            # ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
+            ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
+        elif category in ('view'):
             category_workflow_id_list = workflow_permission_service_ins.get_workflow_id_list_by_permission(category, 'user', user_id)
             if category == 'view':
                 parent_department_id_list = account_user_service_ins.get_user_parent_dept_id_list(tenant_id, user_id)

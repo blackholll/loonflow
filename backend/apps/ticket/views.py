@@ -74,7 +74,7 @@ class TicketListView(BaseView):
         parent_ticket_id = request_data.get('parent_ticket_id', '')
         parent_ticket_state_id = request_data.get('parent_ticket_state_id', '')
 
-        # 待办,关联的,创建
+        # duty, owner, relation, view, intervene
         category = request_data.get('category')
         # app_name
         app_name = request.META.get('HTTP_APPNAME')

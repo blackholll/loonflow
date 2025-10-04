@@ -204,7 +204,7 @@ class AccountUserService(BaseService):
         def iter_dept(dept_id):
             dept_obj = Dept.objects.filter(id=dept_id, tenant_id=tenant_id).first()
             if dept_obj:
-                dept_id_list.append(dept_obj.id)
+                dept_id_list.append(str(dept_obj.id))
                 if dept_obj.parent_dept_id:
                     iter_dept(dept_obj.parent_dept_id)
 
