@@ -159,6 +159,10 @@ class TicketBaseService(BaseService):
             # ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
         else:
+            # category is all, only admin can get all tickets
+            user_obj = account_user_service_ins.get_user_by_user_id(tenant_id, user_id)
+            if user_obj.type != 'admin':
+                raise CustomCommonException("only admin can get all tickets")
             # ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str).distinct()
             ticket_objects = TicketRecord.objects.filter(query_params).order_by(order_by_str)
 
