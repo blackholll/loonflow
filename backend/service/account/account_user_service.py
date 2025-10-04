@@ -407,8 +407,7 @@ class AccountUserService(BaseService):
         return True, {}
 
     @classmethod
-    @auto_log
-    def delete_user(cls, user_id: int, operator_id: int) -> tuple:
+    def delete_user(cls, user_id: str, operator_id: str) -> tuple:
         """
         delete user
         :param user_id:
@@ -416,11 +415,16 @@ class AccountUserService(BaseService):
         :return:
         """
         user_obj = User.objects.get(id=user_id)
-        return archive_service_ins.archive_record('User', user_obj, operator_id)
+        archive_service_ins.archive_record('User', user_obj, operator_id)
+        user_dept_queryset = UserDept.objects.filter(user_id=user_id).all()
+        archive_service_ins.archive_record_list("UserDept", user_dept_queryset, operator_id)
+        user_role_queryset = UserRole.objects.filter(user_id=user_id).all()
+        archive_service_ins.archive_record_list("UserRole", user_role_queryset, operator_id)
+        return True
+
 
     @classmethod
-    @auto_log
-    def delete_user_list(cls, user_id_list: list, operator_id: int) -> tuple:
+    def delete_user_list(cls, user_id_list: list, operator_id: str) -> bool:
         """
         delete user list
         :param user_id_list:
@@ -429,9 +433,13 @@ class AccountUserService(BaseService):
         """
         if user_id_list:
             user_queryset = User.objects.filter(id__in=user_id_list).all()
-            return archive_service_ins.archive_record_list("User", user_queryset, operator_id)
-        else:
-            return False, "user_id_list can not be a blank list"
+            archive_service_ins.archive_record_list("User", user_queryset, operator_id)
+            # todo remove user dept and user role
+            user_dept_queryset = UserDept.objects.filter(user_id__in=user_id_list).all()
+            archive_service_ins.archive_record_list("UserDept", user_dept_queryset, operator_id)
+            user_role_queryset = UserRole.objects.filter(user_id__in=user_id_list).all()
+            archive_service_ins.archive_record_list("UserRole", user_role_queryset, operator_id)
+            return True
 
     @classmethod
     def reset_password(cls, user_id: int = 0) -> bool:
@@ -493,5 +501,16 @@ class AccountUserService(BaseService):
         """
         return User.objects.filter(id__in=user_id_list, tenant_id=tenant_id)
 
+    @classmethod
+    def get_user_id_list_by_email_list(cls, tenant_id, email_list):
+        """
+        get user id list by email list
+        :param tenant_id:
+        :param email_list:
+        :return:
+        """
+        id_list = User.objects.filter(email__in=email_list, tenant_id=tenant_id).values_list('id', flat=True)
+        return [str(id) for id in id_list]
+        
 
 account_user_service_ins = AccountUserService()

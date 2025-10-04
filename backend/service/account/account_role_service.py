@@ -42,6 +42,15 @@ class AccountRoleService(BaseService):
             user_result_format_list.append(user_info.get_dict())
         return dict(user_info_list=user_result_format_list, per_page=per_page, page=page, total=paginator.count)
 
+    def get_role_user_id_list(cls, tenant_id: str, role_id: str) -> list:
+        """
+        get role's user id list by role_id
+        :param role_id:
+        :return:
+        """
+        role_user_queryset = UserRole.objects.filter(role_id=role_id, tenant_id=tenant_id).all()
+        return list(set([str(user_role.user_id) for user_role in role_user_queryset]))
+
     @classmethod
     @auto_log
     def get_role_by_id(cls, role_id: int) -> tuple:
@@ -171,7 +180,7 @@ class AccountRoleService(BaseService):
         return True
 
     @classmethod
-    def delete_role(cls, role_id: int, operator_id: int) -> bool:
+    def delete_role(cls, role_id: int, operator_id: str) -> bool:
         """
         delete role record
         :param role_id:
@@ -179,13 +188,13 @@ class AccountRoleService(BaseService):
         :return:
         """
         role_queryset = Role.objects.filter(id=role_id)
-        if not role_queryset:
-            raise CustomCommonException("role is not exist or has been deleted")
-        archive_service_ins.archive_record("Role", role_queryset[0], operator_id)
+        role_user_queryset = UserRole.objects.filter(role_id=role_id)
+        archive_service_ins.archive_record_list("Role", role_queryset, operator_id)
+        archive_service_ins.archive_record_list("UserRole", role_user_queryset, operator_id)
         return True
 
     @classmethod
-    def batch_delete_role(cls, role_id_list: list, operator_id:int) -> bool:
+    def batch_delete_role(cls, role_id_list: list, operator_id:str) -> bool:
         """
         batch delete role
         :param role_id_list:
@@ -193,7 +202,9 @@ class AccountRoleService(BaseService):
         :return:
         """
         record_queryset = Role.objects.filter(id__in=role_id_list)
+        role_user_queryset = UserRole.objects.filter(role_id__in=role_id_list)
         archive_service_ins.archive_record_list("Role", record_queryset, operator_id)
+        archive_service_ins.archive_record_list("UserRole", role_user_queryset, operator_id)
         return True
 
     @classmethod

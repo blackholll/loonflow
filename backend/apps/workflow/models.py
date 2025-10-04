@@ -75,7 +75,7 @@ class Node(BaseWorkflowModel):
         ('parent_ticket_field', 'parent_ticket_field'),
         ('hook', 'hook'),
         ('timer', 'timer'),
-        ('from-external', 'from-external')
+        ('external', 'external')
     ]
     DISTRIBUTE_TYPE_CHOICE = [
         ('voluntary', 'voluntary'),

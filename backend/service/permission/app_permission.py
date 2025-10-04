@@ -25,6 +25,8 @@ class AppPermissionCheck(MiddlewareMixin):
             return
         if request.path.startswith('/api/v1.0/accounts/tenants/by_domain'):
             return
+        if request.path.startswith('/api/v1.0/tickets/mock_external_assignee'):
+            return
         if request.path.startswith('/api/'):
             auth_header = request.META.get('HTTP_AUTHORIZATION')
             if auth_header:

@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.ticket.views import TicketListView,TicketDetailFormView, TicketDetailActionsView, TicketHandleView, TicketFlowHistoryView, TicketCurrentNodeInfosView, TicketDetailAdminActionsView
+from apps.ticket.views import TicketListView,TicketDetailFormView, TicketDetailActionsView, TicketHandleView, TicketFlowHistoryView, TicketCurrentNodeInfosView, TicketDetailAdminActionsView, TicketMockExternalAssigneeView
 
 urlpatterns = [
     path('', TicketListView.as_view()),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('/<str:ticket_id>/handle', TicketHandleView.as_view()),
     path('/<str:ticket_id>/ticket_flow_history', TicketFlowHistoryView.as_view()),
     path('/<str:ticket_id>/current_node_infos', TicketCurrentNodeInfosView.as_view()),
+    path('/mock_external_assignee', TicketMockExternalAssigneeView.as_view()),
 ]

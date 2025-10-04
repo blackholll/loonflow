@@ -1,6 +1,7 @@
 import json
 import logging
 import traceback
+from cffi import api
 from django.utils.decorators import method_decorator
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -120,10 +121,14 @@ class UserView(BaseView):
         request_data_dict = json.loads(json_str)
         user_id_list = request_data_dict.get('user_id_list', [])
         operator_id = request.META.get('HTTP_USERID')
-        flag, result = account_user_service_ins.delete_user_list(user_id_list, operator_id)
-        if flag is False:
-            return api_response(-1, result, {})
-        return api_response(0, "", dict(user_info=result))
+        try:
+            account_user_service_ins.delete_user_list(user_id_list, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception as e:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "", {})
 
 
 class UserProfileView(BaseView):
@@ -260,12 +265,14 @@ class UserDetailView(BaseView):
         """
         user_id = kwargs.get('user_id')
         operator_id = request.META.get('HTTP_USERID')
-        flag, result = account_user_service_ins.delete_user(user_id, operator_id)
-        if flag:
-            code, msg, data = 0, '', {}
-            return api_response(code, msg, data)
-        code, msg, data = -1, result, {}
-        return api_response(code, msg, data)
+        try:
+            account_user_service_ins.delete_user(user_id, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "", {})
 
 
 class RoleView(BaseView):

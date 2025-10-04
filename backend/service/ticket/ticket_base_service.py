@@ -596,26 +596,39 @@ class TicketBaseService(BaseService):
             for target_assignee_source in target_assignee_source_list:
                 target_assignee_list.append(ticket_value_info.get(target_assignee_source))
             target_assignee = ",".join(target_assignee_list)
-        elif target_assignee_type == "variable":
+        elif target_assignee_type == "variables":
+            target_assignee_source_list = target_assignee.split(",")
             for target_assignee_source in target_assignee_source_list:
                 if target_assignee_source == "creator":
                     target_assignee_list.append(creator_id)
                 elif target_assignee_source == "creator_dept_approver":
                     target_assignee_list += account_user_service_ins.get_user_dept_approver_id_list(tenant_id, creator_id)
-        elif target_assignee_type == "dept":
-            target_assignee_list = account_dept_service_ins.get_dept_user_id_list(tenant_id, target_assignee)
             target_assignee = ",".join(target_assignee_list)
+        elif target_assignee_type == "depts":
+            target_assignee_source_list = target_assignee.split(",")
+            for target_assignee_source in target_assignee_source_list:
+                target_assignee_list += account_dept_service_ins.get_dept_user_id_list(tenant_id, target_assignee_source)
+            target_assignee = ",".join(target_assignee_list)
+        elif target_assignee_type == "roles":
+            target_assignee_source_list = target_assignee.split(",")
+            for target_assignee_source in target_assignee_source_list:
+                target_assignee_list += account_role_service_ins.get_role_user_id_list(tenant_id, target_assignee_source)
+            target_assignee = ",".join(target_assignee_list)
+            
         elif target_assignee_type == "hook":
             target_assignee_list = ["*"]  # hook participant may contain sensitive information
-        elif target_assignee_type == "from-external":
-            external_config = json.load(target_assignee)
-            external_url = external_config.get('external_url')
-            external_token = external_config.get('external_token')
-            extra_info = external_config.get('extra_info')  # should be a dict
-            ticket_req_dict.update(extra_info=extra_info)
+        elif target_assignee_type == "external":
+            external_url = target_assignee
+            external_token = node_record.props.get('external_token')
+            
+            # extra_info = external_config.get('extra_info', {})  # should be a dict
+            # ticket_req_dict.update(extra_info=extra_info)
             result = hook_base_service_ins.call_hook(external_url, external_token, ticket_req_dict)
             if result.get("code") == 0:
-                target_assignee_list = result.get("participant_list")
+                target_assignee_email_list = result.get("data", {}).get("assignee_email_list", [])
+                target_assignee_list = account_user_service_ins.get_user_id_list_by_email_list(tenant_id, target_assignee_email_list)
+                target_assignee = ",".join(target_assignee_list)
+                target_assignee_type = "users"
 
         if len(target_assignee_list) > 1:
             if node_record.props.get('assignment_strategy') == "random":

@@ -364,6 +364,16 @@ class TicketFlowHistoryView(BaseView):
         return api_response(0, '', dict(ticket_flow_history_list = result['ticket_flow_history_object_format_list'], 
         total=result['paginator_info']['total'], page=result['paginator_info']['page'], per_page=result['paginator_info']['per_page']))
 
+class TicketMockExternalAssigneeView(BaseView):
+    def post(self, request, *args, **kwargs):
+        """
+        mock external assignee
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        return api_response(0, '', {'assignee_email_list': ["blackholll@loonapp.com"]})
 class TicketCurrentNodeInfosView(BaseView):
     def get(self, request, *args, **kwargs):
         """

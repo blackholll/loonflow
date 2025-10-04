@@ -19,7 +19,8 @@ import {
     Switch,
     Button,
     Snackbar,
-    Alert
+    Alert,
+    Link
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Node, Edge } from '@xyflow/react';
@@ -32,6 +33,8 @@ import { ISimpleDeptPath } from '../../../types/dept';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import ConditionExpressionEditor from './ConditionExpressionEditor';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface PropertyPanelProps {
     element: Node | Edge | null;
@@ -123,6 +126,7 @@ function PropertyPanel(props: PropertyPanelProps) {
     const [departments, setDepartments] = useState<IOption[]>([]);
     const [roles, setRoles] = useState<IOption[]>([]);
     const [copySuccess, setCopySuccess] = useState(false);
+    const [showSignatureSample, setShowSignatureSample] = useState(false);
     const { t } = useTranslation();
 
 
@@ -573,6 +577,45 @@ function PropertyPanel(props: PropertyPanelProps) {
                             placeholder={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.tokenPlaceholder')}
                             helperText={t('workflow.propertyPanelLabel.assigneeTypeExternalLabel.tokenHelperText')}
                         />
+                        <Link
+                            component="button"
+                            variant="body2"
+                            onClick={() => setShowSignatureSample(!showSignatureSample)}
+                        >
+                            {showSignatureSample ? 'Hide Signature Sample' : 'Show Signature Sample'}
+                        </Link>
+                        {showSignatureSample && (
+                            <SyntaxHighlighter language="python" style={materialDark} showLineNumbers
+                                customStyle={{ margin: 0, borderRadius: '4px' }}>
+                                {`# This is Django View example code, you can refer to this code to write your own code
+import hashlib
+from django.http import JsonResponse
+from django.views import View
+
+class externalAssigneeView(View):
+    def post(self, request, *args, **kwargs):
+        """
+        external assignee
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        token = "the token you configured in loonflow"
+        signature = request.META.get('HTTP_SIGNATURE')
+        timestamp = request.META.get('HTTP_TIMESTAMP')
+        ori_str = timestamp + token
+        new_str = hashlib.md5(ori_str.encode(encoding='utf-8')).hexdigest()
+        if new_str == signature:
+            # add you logic to get the real assignee email list
+            return JsonResponse(dict(code=0, data={"assignee_email_list": ["blackholll@loonapp.com"]}, msg=""))
+        else:
+            return JsonResponse(dict(code=-1, data={}, msg="signature is invalid"))
+`}
+                            </SyntaxHighlighter>
+                        )}
+
+
                     </>
                 );
         }

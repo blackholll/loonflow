@@ -401,7 +401,7 @@
         "placeholder": "输入外部接口URL",
         "helperText": "系统将通过该接口获取处理人信息",
         "tokenPlaceholder": "输入token",
-        "tokenHelperText": "token将用于认证外部接口,你可以任意定义token,主要与外部服务约定好即可"
+        "tokenHelperText": "token将用于认证外部接口,你可以任意定义token,主要与外部服务约定好即可,签名算法如下:"
       },
       "assigneeTypeNoneLabel": {
         "label": "请先选择处理人类型",

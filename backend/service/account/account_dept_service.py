@@ -31,7 +31,7 @@ class AccountDeptService(BaseService):
         """
         dept_id_list = []
         dept_obj = Dept.objects.get(id=dept_id, tenant_id=tenant_id)
-        dept_id_list.append(dept_obj.id)
+        dept_id_list.append(str(dept_obj.id))
 
         def iter_dept_id_list(new_dept_id):
             new_dept_obj = Dept.objects.filter(id=new_dept_id, tenant_id=tenant_id).first()
@@ -39,11 +39,11 @@ class AccountDeptService(BaseService):
                 sub_dept_queryset = Dept.objects.filter(parent_dept_id=new_dept_obj.id).all()
                 for sub_dept in sub_dept_queryset:
                     if sub_dept:
-                        dept_id_list.append(sub_dept.id)
-                        iter_dept_id_list(sub_dept.id)
+                        dept_id_list.append(str(sub_dept.id))
+                        iter_dept_id_list(str(sub_dept.id))
 
         iter_dept_id_list(dept_id)
-        return dept_id_list
+        return list(set(dept_id_list))
 
     @classmethod
     def get_dept_user_id_list(cls, tenant_id:str, dept_id: str) -> list:
@@ -52,10 +52,10 @@ class AccountDeptService(BaseService):
         :param dept_id:
         :return:
         """
-        all_dept_id_list = [dept_id] + cls.get_dept_sub_dept_id_list(tenant_id, dept_id)
+        all_dept_id_list = cls.get_dept_sub_dept_id_list(tenant_id, dept_id)
         from apps.account.models import UserDept
-        user_dept_queryset = UserDept.objects.filter(dept_id__in=all_dept_id_list)
-        user_id_list = list(set([user_dept.user_id for user_dept in user_dept_queryset]))
+        user_dept_queryset = UserDept.objects.filter(dept_id__in=all_dept_id_list, tenant_id=tenant_id)
+        user_id_list = list(set([str(user_dept.user_id) for user_dept in user_dept_queryset]))
         return user_id_list
 
 
