@@ -5,6 +5,7 @@ import Home2 from './home2/HomePage';
 import DutyTicket from './Ticket/DutyTicket';
 import SignIn from '../SignIn';
 import { Home as HomeIcon, AccountTree as AccountTreeIcon, Assignment as AssignmentIcon, Schema as SchemaIcon, Settings as SettingsIcon } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
 
 
 export interface IMenuItem {
@@ -18,8 +19,10 @@ export interface IMenuItem {
   children?: IMenuItem[];
 }
 
-const useMenuItems=():IMenuItem[] => {
+const useMenuItems = (): IMenuItem[] => {
   const { t } = useTranslation();
+  const user = useSelector((state: any) => state.auth.user);
+
   return [
     // { text: t('menu.workbench'), path: '', component: Home, isVisibleInMenu: true, icon: HomeIcon },
     { text: t('menu.workbench'), path: '/', component: Home, isVisibleInMenu: true, icon: HomeIcon },
@@ -41,14 +44,14 @@ const useMenuItems=():IMenuItem[] => {
       text: t('menu.workflowManagement'),
       path: '/workflow',
       icon: SchemaIcon,
-      isVisibleInMenu: true,
+      isVisibleInMenu: user?.type === 'admin' || user?.type === 'workflow_admin',
       component: Home
     },
     {
       text: t('menu.organization'),
       path: '/organization',
       icon: AccountTreeIcon,
-      isVisibleInMenu: true,
+      isVisibleInMenu: user?.type === 'admin', // 只有管理员可见
       children: [
         { text: t('menu.userAndDept'), path: '/organization/userdept', component: Home },
         { text: t('menu.role'), path: '/organization/role', component: Home },
@@ -58,7 +61,7 @@ const useMenuItems=():IMenuItem[] => {
       text: t('menu.setting'),
       path: '/setting',
       icon: SettingsIcon,
-      isVisibleInMenu: true,
+      isVisibleInMenu: user?.type === 'admin', // 只有管理员可见
       children: [
         { text: t('menu.tenant'), path: '/setting/tenant', component: Home },
         { text: t('menu.application'), path: '/setting/application', component: Home },
