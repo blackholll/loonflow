@@ -28,7 +28,7 @@ class TicketFieldService(BaseService):
             return "datetime_value"
         elif field_type == "time":
             return "time_value"
-        elif field_type == "rich_text":
+        elif field_type in ["rich_text", "textarea"]:
             return "rich_text_value"
     
     @classmethod
@@ -48,7 +48,7 @@ class TicketFieldService(BaseService):
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.number_value
             elif ticket_custom_field.field_type == "date":
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.date_value
-            elif ticket_custom_field.field_type == "rich_text":
+            elif ticket_custom_field.field_type in ["rich_text", "textarea"]:
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.rich_text_value
             else:
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.common_value
@@ -144,9 +144,15 @@ class TicketFieldService(BaseService):
         exist_field_key_list = [ticket_custom_field.field_key for ticket_custom_field in ticket_custom_field_queryset]
         for field_key in field_info_dict.keys():
             if field_key in exist_field_key_list:
-                need_update_field_value_list.append({field_key: field_info_dict.get(field_key)})
+                if type(field_info_dict.get(field_key)) == list:
+                    need_update_field_value_list.append({field_key: ','.join(field_info_dict.get(field_key))})
+                else:
+                    need_update_field_value_list.append({field_key: field_info_dict.get(field_key)})
             else:
-                need_add_field_value_list.append({field_key: field_info_dict.get(field_key)})
+                if type(field_info_dict.get(field_key)) == list:
+                    need_add_field_value_list.append({field_key: ','.join(field_info_dict.get(field_key))})
+                else:
+                    need_add_field_value_list.append({field_key: field_info_dict.get(field_key)})
 
 
         for need_update_field_value in need_update_field_value_list:

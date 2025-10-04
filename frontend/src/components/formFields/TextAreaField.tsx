@@ -1,9 +1,8 @@
 import React from 'react';
-import { TextField as MuiTextField, FormControl, FormHelperText, InputLabel } from '@mui/material';
+import { TextField as MuiTextField, FormControl } from '@mui/material';
 import ViewField from './ViewField';
-import { bool } from 'yup';
 
-interface TextFieldProps {
+interface TextAreaFieldProps {
     value: string;
     fieldRequired: boolean;
     onChange: (value: string) => void;
@@ -11,13 +10,13 @@ interface TextFieldProps {
     props: any;
 }
 
-function TextField({
+function TextAreaField({
     value = '',
     fieldRequired,
     onChange,
     mode,
     props,
-}: TextFieldProps) {
+}: TextAreaFieldProps) {
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (onChange) {
@@ -37,6 +36,8 @@ function TextField({
         <FormControl fullWidth={true}>
             <MuiTextField
                 value={value}
+                multiline={true}
+                rows={3}
                 onChange={handleChange}
                 required={fieldRequired}
                 variant="outlined"
@@ -50,4 +51,4 @@ function TextField({
 
 };
 
-export default TextField; 
+export default TextAreaField; 

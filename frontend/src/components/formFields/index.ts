@@ -1,6 +1,7 @@
 import TextField from './TextField';
 import NumberField from './NumberField';
-// import SelectField from './SelectField';
+import TextAreaField from './TextAreaField';
+import SelectField from './SelectField';
 // import DateTimeField from './DateTimeField';
 // import UserField from './UserField';
 // import DepartmentField from './DepartmentField';
@@ -8,7 +9,8 @@ import NumberField from './NumberField';
 // 导出所有字段组件
 export { default as TextField } from './TextField';
 export { default as NumberField } from './NumberField';
-// export { default as SelectField } from './SelectField';
+export { default as TextAreaField } from './TextAreaField';
+export { default as SelectField } from './SelectField';
 // export { default as DateTimeField } from './DateTimeField';
 // export { default as UserField } from './UserField';
 // export { default as DepartmentField } from './DepartmentField';
@@ -19,11 +21,11 @@ export type { BaseFieldProps, FieldComponentConfig } from './types';
 // 字段类型到组件的映射
 export const fieldComponentMap = {
     text: TextField,
-    textarea: TextField,
+    textarea: TextAreaField,
     number: NumberField,
-    // select: SelectField,
-    // radio: SelectField,
-    // checkbox: SelectField,
+    select: SelectField,
+    radio: SelectField,
+    checkbox: SelectField,
     // date: DateTimeField,
     // time: DateTimeField,
     // datetime: DateTimeField,

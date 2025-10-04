@@ -1,4 +1,4 @@
-import { FormControl, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
 
 interface ViewFieldProps {
@@ -17,6 +17,8 @@ function ViewField({
     if (type === 'text') {
         displayValue = value;
     } else if (type === 'number') {
+        displayValue = value;
+    } else if (type === 'select') {
         displayValue = value;
     } else if (type === 'datetime') {
         const date = new Date(value);
@@ -42,7 +44,7 @@ function ViewField({
     //     </div>
     // </FormControl>)
 
-    return (<Typography variant="body2">{displayValue || '-'}</Typography>)
+    return (<Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{displayValue || '-'}</Typography>)
 }
 
 export default ViewField;

@@ -33,18 +33,39 @@ class WorkflowComponentService(BaseService):
         for component_info in component_info_list:
             # if id is startswith 'temp_', means it is a new component, need to insert
             if component_info.get("id").startswith('temp_'):
-                new_component_info = copy.deepcopy(component_info)  
-                new_component_info.pop('id')
-                new_component_info = {**new_component_info, 'tenant_id': tenant_id, 'workflow_id': workflow_id, 'version_id': version_id}
+                new_component_info = {
+                    'tenant_id': tenant_id,
+                    'workflow_id': workflow_id,
+                    'version_id': version_id,
+                    'type': component_info.get("type"),
+                    'component_key': component_info.get("component_key"),
+                    'component_name': component_info.get("component_name"),
+                    'parent_component_id': component_info.get("parent_component_id"),
+                    'description': component_info.get("description", ""),
+                    'layout': component_info.get("layout", {}),
+                    'props': component_info.get("props", {}),
+                    'creator_id': operator_id
+                }
                 new_componet_record = Component(**new_component_info)
+
                 new_componet_record.save()
-                id_to_new_id_dict[component_info.get("id")] = new_component_info.id
+                id_to_new_id_dict[component_info.get("id")] = new_componet_record.id
                 # for children
                 for child_info in component_info.get("children"):
                     if child_info.get("id").startswith('temp_'):
-                        new_child_component_info = copy.deepcopy(child_info)
-                        new_child_component_info.pop('id')
-                        new_child_component_info = {**new_child_component_info, 'tenant_id': tenant_id, 'workflow_id': workflow_id, 'version_id': version_id, 'parent_component_id': id_to_new_id_dict.get(component_info.get("id"))}
+                        new_child_component_info = {
+                            'tenant_id': tenant_id,
+                            'workflow_id': workflow_id,
+                            'version_id': version_id,
+                            'type': child_info.get("type"),
+                            'component_key': child_info.get("component_key"),
+                            'component_name': child_info.get("component_name"),
+                            'parent_component_id': id_to_new_id_dict.get(component_info.get("id")),
+                            'description': child_info.get("description", ""),
+                            'layout': child_info.get("layout", {}),
+                            'props': child_info.get("props"),
+                            'creator_id': operator_id
+                        }
                         new_child_component_record = Component(**new_child_component_info)
                         new_child_component_record.save()
                         id_to_new_id_dict[child_info.get("id")] = new_child_component_record.id

@@ -3,7 +3,8 @@ import { IWorkflowComponent } from "../../../../types/workflow";
 import {
     TextField,
     NumberField,
-    // SelectField,
+    TextAreaField,
+    SelectField,
     // DateTimeField,
     // UserField,
     // DepartmentField,
@@ -55,9 +56,29 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
                     props={component.props}
                 />
             );
+        case 'textarea':
+            return (
+                <TextAreaField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
         case 'number':
             return (
                 <NumberField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'select':
+            return (
+                <SelectField
                     value={value}
                     fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
