@@ -74,7 +74,25 @@
     "minute": "分",
     "hour": "小时",
     "day": "天",
-    "ago": "前"
+    "ago": "前",
+    "fileUpload": {
+      "clickToSelect": "点击选择文件或拖拽文件到此处",
+      "dragAndDrop": "拖拽文件到此处上传",
+      "fileSizeLimit": "单个文件不超过",
+      "maxFilesLimit": "最多",
+      "filesAllowed": "个文件",
+      "uploading": "正在处理文件...",
+      "uploadSuccess": "文件上传成功",
+      "uploadFailed": "文件上传失败",
+      "fileTooLarge": "文件超过大小限制",
+      "tooManyFiles": "最多只能上传",
+      "deleteFile": "删除文件",
+      "downloadFile": "下载文件",
+      "selectedFiles": "已选择的文件",
+      "noFilesSelected": "未选择文件",
+      "fileProcessingFailed": "文件处理失败",
+      "unknownFileType": "未知类型"
+    }
   },
   "user": {
     "leader": "负责人",

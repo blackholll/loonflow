@@ -18,7 +18,7 @@ class TicketFieldService(BaseService):
         :param field_type:
         :return:
         """
-        if field_type in ["text", "select", "cascade", "user", "field", "radio", "checkbox"]:
+        if field_type in ["text", "select", "cascade", "user", "department", "field", "radio", "checkbox"]:
             return "common_value"
         elif field_type == "number":
             return "number_value"
@@ -42,7 +42,7 @@ class TicketFieldService(BaseService):
         ticket_obj_queryset = TicketCustomField.objects.filter(ticket_id=ticket_id, tenant_id=tenant_id).all()
         result_dict = {}
         for ticket_custom_field in ticket_obj_queryset:
-            if ticket_custom_field.field_type in ("text", "select", "cascade", "user", "file"):
+            if ticket_custom_field.field_type in ("text", "select", "cascade", "user", "department", "file"):
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.common_value
             elif ticket_custom_field.field_type == "number":
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.number_value

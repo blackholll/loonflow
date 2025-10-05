@@ -145,17 +145,17 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
             }
         }
     },
-    {
-        type: 'file',
-        componentName: t('workflow.componentCategories.fileComponent'),
-        icon: <FileIcon />,
-        defaultProps: {
-            // label: '附件',
-            description: '',
-            fieldKey: '',
-            layout: { span: 6 }
-        }
-    },
+    // {
+    //     type: 'file',
+    //     componentName: t('workflow.componentCategories.fileComponent'),
+    //     icon: <FileIcon />,
+    //     defaultProps: {
+    //         // label: '附件',
+    //         description: '',
+    //         fieldKey: '',
+    //         layout: { span: 6 }
+    //     }
+    // },
     {
         type: 'user',
         componentName: t('workflow.componentCategories.userComponent'),
@@ -199,18 +199,18 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
             fieldKey: '',
             layout: { span: 6 }
         }
-    },
-    {
-        type: 'externalData',
-        componentName: t('workflow.componentCategories.externalDataComponent'),
-        icon: <DateIcon />,
-        defaultProps: {
-            // label: '外部数据源',
-            description: '',
-            fieldKey: '',
-            layout: { span: 6 }
-        }
     }
+    // {
+    //     type: 'externalData',
+    //     componentName: t('workflow.componentCategories.externalDataComponent'),
+    //     icon: <DateIcon />,
+    //     defaultProps: {
+    //         // label: '外部数据源',
+    //         description: '',
+    //         fieldKey: '',
+    //         layout: { span: 6 }
+    //     }
+    // }
 ];
 
 const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [

@@ -7,8 +7,9 @@ import CheckboxField from './CheckboxField';
 import TimeField from './TimeField';
 import DateField from './DateField';
 import DateTimeField from './DateTimeField';
-// import UserField from './UserField';
-// import DepartmentField from './DepartmentField';
+import FileField from './FileField';
+import UserField from './UserField';
+import DepartmentField from './DepartmentField';
 
 // 导出所有字段组件
 export { default as TextField } from './TextField';
@@ -20,8 +21,9 @@ export { default as CheckboxField } from './CheckboxField';
 export { default as TimeField } from './TimeField';
 export { default as DateField } from './DateField';
 export { default as DateTimeField } from './DateTimeField';
-// export { default as UserField } from './UserField';
-// export { default as DepartmentField } from './DepartmentField';
+export { default as FileField } from './FileField';
+export { default as UserField } from './UserField';
+export { default as DepartmentField } from './DepartmentField';
 
 // 导出类型定义
 export type { BaseFieldProps, FieldComponentConfig } from './types';
@@ -37,8 +39,9 @@ export const fieldComponentMap = {
     time: TimeField,
     date: DateField,
     datetime: DateTimeField,
-    // user: UserField,
-    // department: DepartmentField,
+    file: FileField,
+    user: UserField,
+    department: DepartmentField,
     // 可以继续添加更多字段类型
 };
 

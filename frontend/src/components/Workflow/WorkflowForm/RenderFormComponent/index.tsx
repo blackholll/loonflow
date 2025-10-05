@@ -9,10 +9,13 @@ import {
     TimeField,
     DateField,
     DateTimeField,
+    FileField,
+    UserField,
+    DepartmentField,
     // UserField,
     // DepartmentField,
 } from '../../../formFields';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface RenderFormComponentProps {
     component: IWorkflowComponent;
@@ -20,10 +23,24 @@ interface RenderFormComponentProps {
 }
 
 function RenderFormComponent({ component, handleComponentUpdate }: RenderFormComponentProps): React.ReactElement {
-    const [value, setValue] = useState(component?.props?.value || component?.props?.defaultValue || '');
+    // 根据组件类型和multiple属性确定初始值
+    const getInitialValue = () => {
+        const defaultValue = component?.props?.value || component?.props?.defaultValue;
+        if (defaultValue !== undefined) {
+            return defaultValue;
+        }
+
+        // 对于用户和部门字段，如果multiple为true，初始值应该是数组
+        if ((component?.type === 'user' || component?.type === 'department') && component?.props?.multiple) {
+            return [];
+        }
+
+        return '';
+    };
+
+    const [value, setValue] = useState(getInitialValue());
 
     const handleFieldChange = (newValue: any) => {
-        console.log('handleFieldChange1111', newValue)
         if (handleComponentUpdate && component) {
             const updatedComponent = {
                 ...component,
@@ -37,9 +54,13 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
         }
     };
 
-    // useEffect(() => {
-    //     setValue(component?.props?.value || component?.props?.defaultValue || '');
-    // }, [component?.props?.value, component?.props?.defaultValue]);
+    // 同步value状态
+    useEffect(() => {
+        const currentValue = component?.props?.value || component?.props?.defaultValue;
+        if (currentValue !== undefined && currentValue !== value) {
+            setValue(currentValue);
+        }
+    }, [component?.props?.value, component?.props?.defaultValue, value]);
 
     // 添加防护措施，确保组件参数有效
     if (!component || !component.type) {
@@ -139,7 +160,36 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
                     props={component.props}
                 />
             );
-
+        case 'file':
+            return (
+                <FileField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'user':
+            return (
+                <UserField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'department':
+            return (
+                <DepartmentField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
         // case 'textarea':
         //     return (
         //         <TextField

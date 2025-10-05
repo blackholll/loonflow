@@ -72,7 +72,25 @@
     "minute": "Minute",
     "hour": "Hour",
     "day": "Day",
-    "ago": "Ago"
+    "ago": "Ago",
+    "fileUpload": {
+      "clickToSelect": "Click to select files or drag files here",
+      "dragAndDrop": "Drag files here to upload",
+      "fileSizeLimit": "Single file size limit",
+      "maxFilesLimit": "Maximum",
+      "filesAllowed": "files allowed",
+      "uploading": "Processing files...",
+      "uploadSuccess": "File upload successful",
+      "uploadFailed": "File upload failed",
+      "fileTooLarge": "File exceeds size limit",
+      "tooManyFiles": "Maximum files allowed",
+      "deleteFile": "Delete file",
+      "downloadFile": "Download file",
+      "selectedFiles": "Selected files",
+      "noFilesSelected": "No files selected",
+      "fileProcessingFailed": "File processing failed",
+      "unknownFileType": "Unknown type"
+    }
   },
   "user": {
     "leader": "Leader",
