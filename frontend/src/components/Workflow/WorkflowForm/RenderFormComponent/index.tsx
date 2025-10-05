@@ -1,11 +1,14 @@
-import { Typography, FormControl } from "@mui/material";
 import { IWorkflowComponent } from "../../../../types/workflow";
 import {
     TextField,
     NumberField,
     TextAreaField,
     SelectField,
-    // DateTimeField,
+    RadioField,
+    CheckboxField,
+    TimeField,
+    DateField,
+    DateTimeField,
     // UserField,
     // DepartmentField,
 } from '../../../formFields';
@@ -79,6 +82,56 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
         case 'select':
             return (
                 <SelectField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'radio':
+            return (
+                <RadioField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'checkbox':
+            return (
+                <CheckboxField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'time':
+            return (
+                <TimeField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'date':
+            return (
+                <DateField
+                    value={value}
+                    fieldRequired={component.componentPermission === 'required'}
+                    onChange={handleFieldChange}
+                    mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
+                    props={component.props}
+                />
+            );
+        case 'datetime':
+            return (
+                <DateTimeField
                     value={value}
                     fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}

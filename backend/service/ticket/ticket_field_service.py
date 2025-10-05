@@ -18,7 +18,7 @@ class TicketFieldService(BaseService):
         :param field_type:
         :return:
         """
-        if field_type in ["text", "select", "cascade", "user", "field"]:
+        if field_type in ["text", "select", "cascade", "user", "field", "radio", "checkbox"]:
             return "common_value"
         elif field_type == "number":
             return "number_value"
@@ -48,6 +48,10 @@ class TicketFieldService(BaseService):
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.number_value
             elif ticket_custom_field.field_type == "date":
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.date_value
+            elif ticket_custom_field.field_type == "datetime":
+                result_dict[ticket_custom_field.field_key] = ticket_custom_field.datetime_value
+            elif ticket_custom_field.field_type == "time":
+                result_dict[ticket_custom_field.field_key] = ticket_custom_field.time_value
             elif ticket_custom_field.field_type in ["rich_text", "textarea"]:
                 result_dict[ticket_custom_field.field_key] = ticket_custom_field.rich_text_value
             else:

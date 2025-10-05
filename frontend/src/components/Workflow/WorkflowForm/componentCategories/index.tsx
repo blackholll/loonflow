@@ -127,7 +127,16 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.dateComponent'),
         icon: <CalendarMonth />,
         defaultProps: {
-            // label: '日期选择',
+            description: '',
+            fieldKey: '',
+            layout: { span: 6 },
+        }
+    },
+    {
+        type: 'datetime',
+        componentName: t('workflow.componentCategories.dateTimeComponent'),
+        icon: <CalendarMonth />,
+        defaultProps: {
             description: '',
             fieldKey: '',
             layout: { span: 6 },

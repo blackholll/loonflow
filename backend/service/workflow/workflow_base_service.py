@@ -48,7 +48,7 @@ class WorkflowBaseService(BaseService):
         
         workflow_notification_service_ins.add_workflow_notification(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("advanced_schema", {}).get("notification_info", {}))
         workflow_component_service_ins.add_workflow_components(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("form_schema", {}).get("component_info_list"))
-        node_id_dict = workflow_node_service_ins.add_workflow_node(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("process_schema", {}).get("node_info_list"))
+        node_id_dict = workflow_node_service_ins.add_workflow_node(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("process_schema", {}).get("node_info_list"), request_data.get("form_schema", {}).get("component_info_list"))
 
         edge_info_list = request_data.get("process_schema", {}).get("edge_info_list", [])
         for edge_info in edge_info_list:
@@ -134,7 +134,7 @@ class WorkflowBaseService(BaseService):
 
             workflow_notification_service_ins.add_workflow_notification(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("advanced_schema", {}).get("notification_info", {}))
             workflow_component_service_ins.add_workflow_components(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("form_schema", {}).get("component_info_list"))
-            node_id_dict = workflow_node_service_ins.add_workflow_node(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("process_schema", {}).get("node_info_list"))
+            node_id_dict = workflow_node_service_ins.add_workflow_node(operator_id, tenant_id, workflow_id, new_version_id, request_data.get("process_schema", {}).get("node_info_list"), request_data.get("form_schema", {}).get("component_info_list"))
 
             edge_info_list = request_data.get("process_schema", {}).get("edge_info_list", [])
             for edge_info in edge_info_list:
@@ -155,7 +155,7 @@ class WorkflowBaseService(BaseService):
 
             workflow_component_service_ins.update_workflow_components(tenant_id, workflow_id, version_id, operator_id, request_data.get("form_schema", {}).get("component_info_list"))
 
-            node_id_dict = workflow_node_service_ins.update_workflow_node(tenant_id, workflow_id, version_id, operator_id, request_data.get("process_schema", {}).get("node_info_list"))
+            node_id_dict = workflow_node_service_ins.update_workflow_node(tenant_id, workflow_id, version_id, operator_id, request_data.get("process_schema", {}).get("node_info_list"),request_data.get("form_schema", {}).get("component_info_list"))
             edge_info_list = request_data.get("process_schema", {}).get("edge_info_list", [])
             for edge_info in edge_info_list:
                 edge_info["source_node_id"] = node_id_dict.get(edge_info.get("source_node_id"))

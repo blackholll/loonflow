@@ -12,18 +12,33 @@ logger = logging.getLogger("django")
 
 class WorkflowNodeService(BaseService):
     @classmethod
-    def add_workflow_node(cls, operator_id: str, tenant_id: str, workflow_id: str, version_id: str, node_info_list: list) -> dict:
+    def add_workflow_node(cls, operator_id: str, tenant_id: str, workflow_id: str, version_id: str, node_info_list: list, component_info_list: list) -> dict:
         """
         add workflow node
         :param operator_id:
         :param tenant_id:
         :param workflow_id:
         :param node_info_list:
+        :param component_info_list: for removing deleted component's field permissions
         :return:
         """
         # since we need get each record's id,  have to insert record one by one
+        exist_field_key_list = []
+        for component_info in component_info_list:
+            if component_info.get("type") == 'row':
+                for child_component_info in component_info.get("children"):
+                    exist_field_key_list.append(child_component_info.get("component_key"))
+
         node_id_dict = {}
         for node_info in node_info_list:
+            source_props = node_info.get("props", {})
+            source_props_field_permissions = source_props.get("field_permissions", {})
+            new_props_field_permissions = {}
+            for key, value in source_props_field_permissions.items():
+                if key in exist_field_key_list:
+                    new_props_field_permissions[key] = value
+            node_info["props"]["field_permissions"] = new_props_field_permissions
+
             new_node_info = {
                 'name': node_info.get("name"),
                 'workflow_id': workflow_id,
@@ -155,7 +170,7 @@ class WorkflowNodeService(BaseService):
         node_queryset = Node.objects.filter(id__in=node_id_list, tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id)
         return node_queryset
     @classmethod
-    def update_workflow_node(cls, tenant_id: str, workflow_id: str, version_id: str, operator_id: str, node_info_list: list) -> dict:
+    def update_workflow_node(cls, tenant_id: str, workflow_id: str, version_id: str, operator_id: str, node_info_list: list, component_info_list: list) -> dict:
         """
         update workflow node, need delete removed node
         :param tenant_id:
@@ -163,8 +178,15 @@ class WorkflowNodeService(BaseService):
         :param version_id:
         :param operator_id:
         :param node_info_list:
+        :param component_info_list: for removing deleted component's field permissions
         :return:
         """
+        exist_field_key_list = []
+        for component_info in component_info_list:
+            if component_info.get("type") == 'row':
+                for child_component_info in component_info.get("children"):
+                    exist_field_key_list.append(child_component_info.get("component_key"))
+
         node_id_dict = {}
         exist_node_id_list = [node_info.get("id") for node_info in node_info_list]
         exist_node_queryset = Node.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id)
@@ -173,6 +195,14 @@ class WorkflowNodeService(BaseService):
                 archive_service_ins.archive_record('workflow_node', node_obj, operator_id)
         
         for node_info in node_info_list:
+            source_props = node_info.get("props", {})
+            source_props_field_permissions = source_props.get("field_permissions", {})
+            new_props_field_permissions = {}
+            for key, value in source_props_field_permissions.items():
+                if key in exist_field_key_list:
+                    new_props_field_permissions[key] = value
+            node_info["props"]["field_permissions"] = new_props_field_permissions
+
             if node_info.get("id").startswith('temp_'):
                 new_node_info = {
                 'name': node_info.get("name"),

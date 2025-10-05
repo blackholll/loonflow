@@ -239,18 +239,68 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                     <MenuItem value={12}>{t('workflow.componentProperties.fullWidth')}</MenuItem>
                 </Select>
             </FormControl>
-            {component.type === 'time' ? (<FormControl fullWidth size="small">
-                <InputLabel>{t('workflow.componentProperties.timeFormat')}</InputLabel>
-                <Select
-                    value={(component as IWorkflowComponent).layout.span || 12}
-                    label={t('workflow.componentProperties.timeFormat')}
-                    onChange={(e) => handleLayoutChange('format', e.target.value)}
-                >
-                    <MenuItem value={"hh:mm:ss a"}>{t('workflow.componentProperties.timeFormatHourMinSec')}</MenuItem>
-                    <MenuItem value={"hh aa"}>{t('workflow.componentProperties.timeFormatHour')}</MenuItem>
-                    <MenuItem value={"mm:ss"}>{t('workflow.componentProperties.timeFormatMinSec')}</MenuItem>
-                </Select>
-            </FormControl>) : null}
+            {/* time 类型属性配置 */}
+            {component.type === 'time' && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                        label={t('workflow.componentProperties.placeholder')}
+                        value={(component as IWorkflowComponent).props?.placeholder || ''}
+                        onChange={(e) => handleChange('placeholder', e.target.value)}
+                        fullWidth
+                        size="small"
+                    />
+
+                    <FormControl fullWidth size="small">
+                        <InputLabel>{t('workflow.componentProperties.timeFormat')}</InputLabel>
+                        <Select
+                            value={(component as IWorkflowComponent).props?.format || 'HH:mm'}
+                            label={t('workflow.componentProperties.timeFormat')}
+                            onChange={(e) => handleChange('format', e.target.value)}
+                        >
+                            <MenuItem value="HH:mm">时-分 (HH:mm)</MenuItem>
+                            <MenuItem value="HH:mm:ss">时-分-秒 (HH:mm:ss)</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
+            )}
+
+            {/* date 类型属性配置 */}
+            {component.type === 'date' && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                        label={t('workflow.componentProperties.placeholder')}
+                        value={(component as IWorkflowComponent).props?.placeholder || ''}
+                        onChange={(e) => handleChange('placeholder', e.target.value)}
+                        fullWidth
+                        size="small"
+                    />
+                </Box>
+            )}
+
+            {/* datetime 类型属性配置 */}
+            {component.type === 'datetime' && (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <TextField
+                        label={t('workflow.componentProperties.placeholder')}
+                        value={(component as IWorkflowComponent).props?.placeholder || ''}
+                        onChange={(e) => handleChange('placeholder', e.target.value)}
+                        fullWidth
+                        size="small"
+                    />
+
+                    <FormControl fullWidth size="small">
+                        <InputLabel>{t('workflow.componentProperties.dateTimeFormat')}</InputLabel>
+                        <Select
+                            value={(component as IWorkflowComponent).props?.format || 'YYYY-MM-DD HH:mm:ss'}
+                            label={t('workflow.componentProperties.dateTimeFormat')}
+                            onChange={(e) => handleChange('format', e.target.value)}
+                        >
+                            <MenuItem value="YYYY-MM-DD HH:mm">年-月-日 时-分 (YYYY-MM-DD HH:mm)</MenuItem>
+                            <MenuItem value="YYYY-MM-DD HH:mm:ss">年-月-日 时-分-秒 (YYYY-MM-DD HH:mm:ss)</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
+            )}
 
             {/* number 类型属性配置 */}
             {component.type === 'number' && (
