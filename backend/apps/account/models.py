@@ -14,7 +14,7 @@ class Tenant(BaseModel):
         ("zh-cn", "simple chinese"),
         ("en", "English")
     ]
-    parent_tenant = models.ForeignKey("self", db_constraint=False, null=False, default='00000000-0000-0000-0000-000000000000', on_delete=models.DO_NOTHING)
+    parent_tenant = models.ForeignKey("self", db_constraint=False, null=True, default='00000000-0000-0000-0000-000000000000', on_delete=models.DO_NOTHING)
     name = models.CharField("name", max_length=100, null=False, default="", help_text="tenant's name")
     domain = models.CharField("domain", max_length=100, null=False, default="", help_text="the domain of the tenant, such as xxx.com")
     logo_path = models.CharField("logo_path", max_length=100, null=False, default="", help_text="the logo image of the tenant to be displayed on website, such as logo.jpg")

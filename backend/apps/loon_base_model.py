@@ -41,7 +41,7 @@ class BaseModel(models.Model):
     """
     id = models.UUIDField( primary_key=True, default=uuid.uuid4, editable=False)
     label = models.JSONField('label', blank=True, default=dict)
-    creator_id = models.UUIDField( 'creator_id', default=uuid.uuid4, editable=False)
+    creator_id = models.UUIDField( 'creator_id', default=uuid.uuid4, editable=False, null=True)
     created_at = models.DateTimeField("created_at", auto_now_add=True)
     updated_at = models.DateTimeField("updated_at", auto_now=True)
 

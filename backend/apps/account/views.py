@@ -58,8 +58,9 @@ class UserView(BaseView):
         per_page = int(request_data.get('per_page')) if request_data.get('per_page') else 10
         page = int(request_data.get('page')) if request_data.get('page') else 1
         dept_id = request_data.get('dept_id') if request_data.get('dept_id') else '00000000-0000-0000-0000-000000000000'
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            result = account_user_service_ins.get_user_list(search_value, '', dept_id, page, per_page)
+            result = account_user_service_ins.get_user_list(tenant_id, search_value, '', dept_id, page, per_page)
             data = dict(user_info_list=result.get('user_result_object_format_list'),
                         per_page=result.get('paginator_info').get('per_page'),
                         page=result.get('paginator_info').get('page'),
@@ -981,8 +982,9 @@ class SimpleUsersView(BaseView):
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         dept_id = request_data.get('dept_id', '')
         user_ids = request_data.get('user_ids', '')
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            result = account_user_service_ins.get_user_list(search_value, user_ids, dept_id, page, per_page, simple=True)
+            result = account_user_service_ins.get_user_list(tenant_id, search_value, user_ids, dept_id, page, per_page, simple=True)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except:
