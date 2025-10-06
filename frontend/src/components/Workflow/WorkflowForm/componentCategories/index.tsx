@@ -10,9 +10,13 @@ import {
     Schedule as DateIcon,
     AttachFile as FileIcon,
     Pin as NumberIcon,
-    Person as UserIcon,
+    Group as UserIcon,
+    Person as CreatorIcon,
     Groups as GroupsIcon,
     Title as TitleIcon,
+    MoreHoriz as TicketActStatusIcon,
+    FiberManualRecord as TicketNodesIcon,
+    AcUnit as DefaultIcon,
     Link, EditNote, Schedule, CalendarMonth
 } from '@mui/icons-material';
 
@@ -177,28 +181,6 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
             fieldKey: '',
             layout: { span: 6 }
         }
-    },
-    {
-        type: 'link',
-        componentName: t('workflow.componentCategories.linkComponent'),
-        icon: <Link />,
-        defaultProps: {
-            // label: '链接',
-            description: '',
-            fieldKey: '',
-            layout: { span: 6 }
-        }
-    },
-    {
-        type: 'richText',
-        componentName: t('workflow.componentCategories.richTextComponent'),
-        icon: <EditNote />,
-        defaultProps: {
-            // label: '富文本',
-            description: '',
-            fieldKey: '',
-            layout: { span: 6 }
-        }
     }
     // {
     //     type: 'externalData',
@@ -225,9 +207,9 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
             layout: { span: 6 }
         }
     }, {
-        type: 'creator',
+        type: 'creator_info',
         componentName: t('workflow.componentCategories.customCreatorComponent'),
-        icon: <SelectIcon />,
+        icon: <CreatorIcon />,
         defaultProps: {
             // label: '创建人',
             description: '',
@@ -235,9 +217,9 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
             layout: { span: 6 }
         }
     }, {
-        type: 'createdAt',
+        type: 'created_at',
         componentName: t('workflow.componentCategories.customCreatedAtComponent'),
-        icon: <SelectIcon />,
+        icon: <CalendarMonth />,
         defaultProps: {
             // label: '创建时间',
             description: '',
@@ -245,9 +227,9 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
             layout: { span: 6 }
         }
     }, {
-        type: 'ticketNodes',
+        type: 'ticket_node_infos',
         componentName: t('workflow.componentCategories.ticketNodesComponent'),
-        icon: <SelectIcon />,
+        icon: <TicketNodesIcon />,
         defaultProps: {
             // label: '工单状态',
             description: '',
@@ -255,9 +237,9 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
             layout: { span: 6 }
         }
     }, {
-        type: 'approvalStatus',
+        type: 'act_state',
         componentName: t('workflow.componentCategories.approvalStatusComponent'),
-        icon: <SelectIcon />,
+        icon: <TicketActStatusIcon />,
         defaultProps: {
             // label: '审批状态',
             description: '',
@@ -265,9 +247,9 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
             layout: { span: 6 }
         }
     }, {
-        type: 'ticketType',
+        type: 'workflow_info',
         componentName: t('workflow.componentCategories.ticketTypeComponent'),
-        icon: <SelectIcon />,
+        icon: <DefaultIcon />,
         defaultProps: {
             // label: '工单类型',
             description: '',
@@ -275,9 +257,9 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
             layout: { span: 6 }
         }
     }, {
-        type: 'currentHandler',
+        type: 'current_assignee_infos',
         componentName: t('workflow.componentCategories.currentHandlerComponent'),
-        icon: <SelectIcon />,
+        icon: <CreatorIcon />,
         defaultProps: {
             // label: '当前处理人',
             description: '',

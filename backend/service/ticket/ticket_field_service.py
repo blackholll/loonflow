@@ -1,4 +1,5 @@
 from apps.ticket.models import CustomField as TicketCustomField
+from backend.service.ticket.ticket_user_service import ticket_user_service_ins
 from service.account.account_base_service import account_base_service_ins
 from service.account.account_user_service import account_user_service_ins
 from service.workflow.workflow_base_service import workflow_base_service_ins
@@ -77,8 +78,42 @@ class TicketFieldService(BaseService):
         result_dict['parent_ticket_node_id'] = ticket_obj.parent_ticket_node_id
         result_dict['workflow_id'] = str(ticket_obj.workflow_id)
         result_dict['workflow_version_id'] = str(ticket_obj.workflow_version_id)
-        result_dict['creator_id'] = str(ticket_obj.creator_id)
         result_dict['created_at'] = ticket_obj.created_at
+        # todo: 
+        from service.ticket.ticket_node_service import ticket_node_service_ins
+        ticket_nodes = ticket_node_service_ins.get_ticket_current_nodes(tenant_id, ticket_id)
+        ticket_node_infos = []
+        for ticket_node in ticket_nodes:
+            ticket_node_infos.append(dict(
+                id = str(ticket_node.node_id),
+                name = ticket_node.node.name,
+            ))
+        result_dict['ticket_node_infos'] = ticket_node_infos
+        
+        # todo： get ticket current assignee , 1. get ticket node,  2.get node assigneef
+        from service.ticket.ticket_node_service import ticket_node_service_ins
+        ticket_nodes = ticket_node_service_ins.get_ticket_current_nodes(tenant_id, ticket_id)
+        current_assignee_info_list = []
+        
+        for ticket_node in ticket_nodes:
+            if ticket_node.assignee_type == "users":
+                user_record_list = account_user_service_ins.get_user_list_by_id_list(tenant_id, ticket_node.assignee.split(','))
+                assignee_list = []
+                for user_record in user_record_list:
+                    assignee_list.append(f'{user_record.name}({user_record.alias})')
+                current_assignee_info_list.append(dict(
+                    node_name = ticket_node.node.name,
+                    assignee_type = "users",
+                    assignee = ','.join(assignee_list)
+                ))
+            elif ticket_node.assignee_type == "hooks":
+                current_assignee_info_list.append(dict(
+                    node_name = ticket_node.node.name,
+                    assignee_type = "hooks",
+                    assignee = "*"
+                ))
+        result_dict['current_assignee_infos'] = current_assignee_info_list
+        
         # add creator_info
         creator_info = account_user_service_ins.get_user_by_user_id(tenant_id, ticket_obj.creator_id)
         result_dict['creator_info'] = dict(

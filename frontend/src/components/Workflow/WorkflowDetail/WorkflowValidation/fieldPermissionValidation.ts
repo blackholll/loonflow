@@ -20,9 +20,19 @@ export const validateFieldPermissions = (workflowData: IWorkflowFullDefinition):
     const titleKey = titleComponent?.componentKey;
 
     for (const node of workflowData.processSchema.nodeInfoList) {
+        const read_fields = ['creator', 'createdAt', 'ticketNodes', 'approvalStatus', 'ticketType', 'currentHandler'];
+        const fieldPermissions = node.props.fieldPermissions || {};
+        // 遍历fieldPermissions的key
+        for (const key of Object.keys(fieldPermissions)) {
+            if (read_fields.includes(key)) {
+                if (fieldPermissions[key] === 'optional' || fieldPermissions[key] === 'required') {
+                    problems.push(`信息组件"${key}"的只能设置为隐藏或者只读`);
+                }
+            }
+        }
+
         // Check start and normal nodes
         if (node.type === 'start') {
-            const fieldPermissions = node.props.fieldPermissions || {};
             if (!Object.values(fieldPermissions).some(permission => permission === 'optional' || permission === 'required')) {
                 problems.push(`开始节点"${node.name}"的字段权限中至少有一个可输入字段`);
             }
@@ -41,7 +51,6 @@ export const validateFieldPermissions = (workflowData: IWorkflowFullDefinition):
         }
 
         if (node.type === 'normal') {
-            const fieldPermissions = node.props.fieldPermissions || {};
 
             // Check if there's at least one non-hidden field
             const hasNonHiddenField = Object.values(fieldPermissions).some(

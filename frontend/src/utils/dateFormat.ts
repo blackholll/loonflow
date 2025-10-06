@@ -56,6 +56,7 @@ export function formatDate(
     if (!date) return 'Invalid Date';
 
     try {
+        console.log('date', date);
         return date.toLocaleString('zh-CN', options);
     } catch (error) {
         console.warn('日期格式化失败:', dateString, error);

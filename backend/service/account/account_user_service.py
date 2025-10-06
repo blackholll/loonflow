@@ -314,7 +314,7 @@ class AccountUserService(BaseService):
                         dict(name=user_dept.dept.name, id=str(user_dept.dept.id), is_primary=user_dept.is_primary))
             user_result_format_dict['dept_info_list'] = user_dept_info_list
             if simple:
-                need_del_field_list = ["last_login", "label", "creator_info", "created_at", "updated_at", "type", "lang", "phone", "email"]
+                need_del_field_list = ["last_login", "label", "creator_info", "created_at", "updated_at", "type", "lang", "phone"]
                 for need_del_field in need_del_field_list:
                     user_result_format_dict.pop(need_del_field)
 

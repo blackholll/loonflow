@@ -67,8 +67,8 @@ function WorkflowForm({ onFormSchemaChange, formSchema }: WorkflowFormProps) {
 
     // 生成唯一的字段标识
     const generateUniqueFieldKey = (existingComponents: (IWorkflowComponent | IWorkflowComponentRow)[], type: string) => {
-        if (type === 'title') {
-            return 'title';
+        if (['title', 'creator_info', 'created_at', 'ticket_node_infos', 'act_state', 'workflow_info', 'current_assignee_infos'].includes(type)) {
+            return type;
         }
         const getAllFieldKeys = (components: (IWorkflowComponent | IWorkflowComponentRow)[]): string[] => {
             const keys: string[] = [];

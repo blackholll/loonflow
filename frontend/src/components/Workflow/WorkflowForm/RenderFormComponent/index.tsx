@@ -12,6 +12,12 @@ import {
     FileField,
     UserField,
     DepartmentField,
+    TicketCreatorField,
+    TicketCreatedAtField,
+    TicketNodesField,
+    TicketActStateField,
+    WorkflowInfoField,
+    TicketCurrentAssigneeInfosField
     // UserField,
     // DepartmentField,
 } from '../../../formFields';
@@ -188,6 +194,42 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
+                />
+            );
+        case 'creator_info':
+            return (
+                <TicketCreatorField
+                    value={value}
+                />
+            );
+        case 'created_at':
+            return (
+                <TicketCreatedAtField
+                    value={value}
+                />
+            );
+        case 'ticket_node_infos':
+            return (
+                <TicketNodesField
+                    value={value}
+                />
+            );
+        case 'act_state':
+            return (
+                <TicketActStateField
+                    value={value}
+                />
+            );
+        case 'workflow_info':
+            return (
+                <WorkflowInfoField
+                    value={value}
+                />
+            );
+        case 'current_assignee_infos':
+            return (
+                <TicketCurrentAssigneeInfosField
+                    value={value}
                 />
             );
         // case 'textarea':

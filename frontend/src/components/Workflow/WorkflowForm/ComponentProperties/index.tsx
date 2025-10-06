@@ -156,7 +156,7 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                 fullWidth
                 size="small"
                 required
-                disabled={component.type === 'title'}
+                disabled={['title', 'creator_info', 'created_at', 'ticket_nodes', 'act_state', 'workflow_info', 'current_assignee_infos'].includes(component.type)}
                 error={!((component as IWorkflowComponent).componentName || '').trim()}
                 helperText={!((component as IWorkflowComponent).componentName || '').trim() ? t('workflow.componentProperties.fieldNameHelperText') : ''}
             />
@@ -166,7 +166,7 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                 value={(component as IWorkflowComponent).description || ''}
                 onChange={(e) => handleChange('description', e.target.value)}
                 fullWidth
-                disabled={component.type === 'title'}
+                disabled={['title', 'creator_info', 'created_at', 'ticket_nodes', 'act_state', 'workflow_info', 'current_assignee_infos'].includes(component.type)}
                 size="small"
                 multiline
                 rows={2}
