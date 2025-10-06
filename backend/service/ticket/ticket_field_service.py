@@ -1,5 +1,5 @@
 from apps.ticket.models import CustomField as TicketCustomField
-from backend.service.ticket.ticket_user_service import ticket_user_service_ins
+from service.ticket.ticket_user_service import ticket_user_service_ins
 from service.account.account_base_service import account_base_service_ins
 from service.account.account_user_service import account_user_service_ins
 from service.workflow.workflow_base_service import workflow_base_service_ins

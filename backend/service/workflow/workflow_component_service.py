@@ -30,6 +30,7 @@ class WorkflowComponentService(BaseService):
         exist_componet_dict = {str(component.id): component for component in exist_componet_queryset}
         
         id_to_new_id_dict = {}
+        row_order_id = 0
         for component_info in component_info_list:
             # if id is startswith 'temp_', means it is a new component, need to insert
             if component_info.get("id").startswith('temp_'):
@@ -44,13 +45,15 @@ class WorkflowComponentService(BaseService):
                     'description': component_info.get("description", ""),
                     'layout': component_info.get("layout", {}),
                     'props': component_info.get("props", {}),
-                    'creator_id': operator_id
+                    'creator_id': operator_id,
+                    'order_id': row_order_id
                 }
                 new_componet_record = Component(**new_component_info)
 
                 new_componet_record.save()
                 id_to_new_id_dict[component_info.get("id")] = new_componet_record.id
                 # for children
+                children_order_id = 0
                 for child_info in component_info.get("children"):
                     if child_info.get("id").startswith('temp_'):
                         new_child_component_info = {
@@ -64,11 +67,13 @@ class WorkflowComponentService(BaseService):
                             'description': child_info.get("description", ""),
                             'layout': child_info.get("layout", {}),
                             'props': child_info.get("props"),
-                            'creator_id': operator_id
+                            'creator_id': operator_id,
+                            'order_id': children_order_id
                         }
                         new_child_component_record = Component(**new_child_component_info)
                         new_child_component_record.save()
                         id_to_new_id_dict[child_info.get("id")] = new_child_component_record.id
+
 
             else:
                 # if id is not startswith 'temp_', means existed in database need update
@@ -76,16 +81,18 @@ class WorkflowComponentService(BaseService):
                     update_component_info = copy.deepcopy(component_info)
                     update_component_info.pop('id')
                     update_component_info.pop('children')
+                    update_component_info['order_id'] = row_order_id
                     id_to_new_id_dict[component_info.get("id")] = component_info.get("id")
                     Component.objects.filter(id=component_info.get('id'), version_id=version_id).update(**update_component_info )
                     
                     # for children
+                    children_order_id = 0
                     for child_info in component_info.get("children"):
                         if child_info.get("id").startswith('temp_'):
                             # new child component
                             new_child_component_info = copy.deepcopy(child_info)
                             new_child_component_info.pop('id')
-                            new_child_component_info = {**new_child_component_info, 'tenant_id': tenant_id, 'workflow_id': workflow_id, 'version_id': version_id, 'parent_component_id': id_to_new_id_dict.get(component_info.get("id"))}
+                            new_child_component_info = {**new_child_component_info, 'tenant_id': tenant_id, 'workflow_id': workflow_id, 'version_id': version_id, 'parent_component_id': id_to_new_id_dict.get(component_info.get("id")), 'order_id': children_order_id}
                             new_child_component_record = Component(**new_child_component_info)
                             new_child_component_record.save()
                             id_to_new_id_dict[child_info.get("id")] = str(new_child_component_record.id)
@@ -94,12 +101,13 @@ class WorkflowComponentService(BaseService):
                             update_child_component_info = copy.deepcopy(child_info)
                             update_child_component_info.pop('id')
                             update_child_component_info.pop('component_permission')
-                            update_child_component_info = {**update_child_component_info, 'tenant_id': tenant_id, 'workflow_id': workflow_id, 'version_id': version_id, 'parent_component_id': id_to_new_id_dict.get(component_info.get("id"))}
+                            update_child_component_info = {**update_child_component_info, 'tenant_id': tenant_id, 'workflow_id': workflow_id, 'version_id': version_id, 'parent_component_id': id_to_new_id_dict.get(component_info.get("id")), 'order_id': children_order_id}
                             Component.objects.filter(id=child_info.get('id')).update(**update_child_component_info)
                             id_to_new_id_dict[child_info.get("id")] = child_info.get("id")
+                        children_order_id += 1
                 else:
                     raise('new component id shoud start with temp_')
-
+            row_order_id += 1
         # todo: delete componet that not contain is new component list
         for component_id in exist_componet_dict.keys():
             if component_id not in id_to_new_id_dict.values():
@@ -117,6 +125,7 @@ class WorkflowComponentService(BaseService):
         """
         # since new workflow may be created from old version, so we need to update all the id to new id
         id_to_new_id_dict = {}
+        row_order_id = 0
         for component_info in component_info_list:
             new_component_info = {
                 'tenant_id': tenant_id,
@@ -129,12 +138,13 @@ class WorkflowComponentService(BaseService):
                 'description': component_info.get("description", ""),
                 'layout': component_info.get("layout", {}),
                 'props': component_info.get("props", {}),
-                'creator_id': operator_id
+                'creator_id': operator_id,
+                'order_id': row_order_id
             }
             new_componet_record = Component(**new_component_info)
             new_componet_record.save()
             id_to_new_id_dict[component_info.get("id")] = new_componet_record.id
-
+            children_order_id = 0
             for child_info in component_info.get("children"):
                 new_child_component_info = {
                     'tenant_id': tenant_id,
@@ -147,7 +157,8 @@ class WorkflowComponentService(BaseService):
                     'description': child_info.get("description", ""),
                     'layout': child_info.get("layout", {}),
                     'props': child_info.get("props"),
-                    'creator_id': operator_id
+                    'creator_id': operator_id,
+                    'order_id': children_order_id
                 }
                 new_child_component_record = Component(**new_child_component_info)
                 new_child_component_record.save()
@@ -164,7 +175,7 @@ class WorkflowComponentService(BaseService):
         :param component_info_list:
         :return:
         """
-        component_queryset = Component.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id).all()
+        component_queryset = Component.objects.filter(tenant_id=tenant_id, workflow_id=workflow_id, version_id=version_id).order_by('order_id').all()
         component_result_list = []
         for component_obj in component_queryset:
             if component_obj.type == 'row':

@@ -136,6 +136,7 @@ class Component(BaseWorkflowModel):
     description = models.CharField("description", max_length=200, blank=True, default='')
     layout = models.JSONField("layout")
     props = models.JSONField("props")  # unit, option, different field type has different props
+    order_id = models.IntegerField("order_id", default=0) # for component order, low order first
 
 
 class Permission(BaseWorkflowModel):
