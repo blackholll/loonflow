@@ -6,7 +6,6 @@
 # Python
 *.pyc
 __pycache__/
-**/migrations/0*.py
 venv/
 .coverage
 coverage_html_report/
