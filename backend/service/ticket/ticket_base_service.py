@@ -2,9 +2,7 @@ import copy
 import json
 import datetime
 import logging
-from platform import node
 import random
-from turtle import up
 
 import redis
 from django.db import transaction

@@ -6,61 +6,69 @@ services:
     restart: always
     ports:
       - 6379:6379
-    command:
-      redis-server --requirepass loonflow123
-  loonflow-mysql:
-    hostname: loonflow-mysql
-    image: mysql:5.7
-    volumes:
-      - ./loonflow-mysql/data:/var/lib/mysql
-      - ./loonflow-mysql/conf/my.cnf:/etc/my.cnf
-      - ./loonflow-mysql/init:/docker-entrypoint-initdb.d
-    restart: always
-    ports:
-      - 3306:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: 327%aXtaz*z&
-      secure_file_priv:
+    command: redis-server --requirepass ${REDIS_PASSWORD}
 
-  loonflow-web:
-    hostname: loonflow-web
-    image: blackholll/loonflow-web:latest
+  loonflow-pg:
+    hostname: loonflow-pg
+    image: postgres:latest # change to 15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 5432:5432
     volumes:
-      - ./loonflow-media:/var/loonflow-media
+      - postgres_data:/var/lib/postgresql/data
+
+  loonflow-ui:
+    hostname: loonflow-ui
+    image: blackholll/loonflow-ui:latest
     depends_on:
       - loonflow-redis
-      - loonflow-mysql
+      - loonflow-pg
     ports:
       - 80:80
+
+  loonflow-backend:
+    hostname: loonflow-backend
+    image: blackholll/loonflow-backend:latest
     environment:
-      DB_HOST: loonflow-mysql
-      DB_USER: loonflow
-      DB_PASS: 2Nir9D6&muYq
+      DB_NAME: ${POSTGRES_DB}
+      DB_HOST: loonflow-pg
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
       REDIS_HOST: loonflow-redis
-      REDIS_PASS: loonflow123
+      REDIS_PASS: ${REDIS_PASSWORD}
+    working_dir: /app/loonflow
+    ports:
+      - 8080:8080
     command:
-      - /bin/sh
+      - sh
       - -c
       - |
-        /opt/venv/loonflow/bin/uwsgi /opt/loonflow/uwsgi.ini 
-        /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf -g "daemon off;"
+        python manage.py migrate
+        gunicorn --bind 0.0.0.0:8000 --workers 4 --chdir /app/loonflow --pythonpath /app/loonflow loonflow.wsgi:application
 
   loonflow-task:
     hostname: loonflow-task
-    image: blackholll/loonflow-task:latest
+    image: blackholll/loonflow-backend:latest
     depends_on:
       - loonflow-redis
-      - loonflow-mysql
+      - loonflow-pg
+      - loonflow-backend
     environment:
-      DB_NAME: loonflow
-      DB_HOST: loonflow-mysql
-      DB_USER: loonflow
-      DB_PASS: 2Nir9D6&muYq
+      DB_NAME: ${POSTGRES_DB}
+      DB_HOST: loonflow-pg
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
       REDIS_HOST: loonflow-redis
-      REDIS_PASS: loonflow123
+      REDIS_PASS: ${REDIS_PASSWORD}
     command:
-      - /bin/sh
+      - sh
       - -c
       - |
-        cd /opt/loonflow
-        /opt/venv/loonflow/bin/celery -A tasks worker -l info -c 8 -Q loonflow
+        cd /app/loonflow
+        celery -A tasks worker -l info -c 8 -Q loonflow
+
+volumes:
+  postgres_data:
