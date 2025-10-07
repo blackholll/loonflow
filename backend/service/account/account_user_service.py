@@ -1,6 +1,7 @@
 import json
 import time
 import jwt
+import re
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
@@ -16,6 +17,28 @@ from service.util.archive_service import ArchiveService, archive_service_ins
 
 
 class AccountUserService(BaseService):
+
+    @classmethod
+    def validate_email(cls, email: str) -> bool:
+        """
+        Validate email format
+        :param email: Email address
+        :return: True if valid, raises CustomCommonException if invalid
+        """
+        if not email:
+            raise CustomCommonException("Email address cannot be empty")
+        
+        # Email format regex pattern
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        
+        if not re.match(email_pattern, email):
+            raise CustomCommonException("Invalid email format, please enter a valid email address")
+        
+        # Check email length
+        if len(email) > 254:
+            raise CustomCommonException("Email address is too long, cannot exceed 254 characters")
+        
+        return True
 
     @classmethod
     def user_type_check(cls, email: str = "", user_id: str = 0, tenant_id: str = "", types: str = "") -> bool:
@@ -342,6 +365,9 @@ class AccountUserService(BaseService):
         :param password:
         :return:
         """
+        # Validate email format
+        cls.validate_email(email)
+        
         password_str = make_password(password, None, 'pbkdf2_sha256')
         user_obj = User(name=name, alias=alias, email=email, phone=phone,
                         is_active=is_active, type=type, avatar=avatar, lang=lang,
@@ -379,6 +405,9 @@ class AccountUserService(BaseService):
         :param tenant_id:
         :return:
         """
+        # Validate email format
+        cls.validate_email(email)
+        
         user_obj = User.objects.filter(id=user_id)
         user_obj.update(name=name, alias=alias, email=email, phone=phone,
                         is_active=is_active, type=type, avatar=avatar, lang=lang,

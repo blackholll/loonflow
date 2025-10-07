@@ -99,10 +99,10 @@ class UserView(BaseView):
         try:
             user_id = account_user_service_ins.add_user(name, alias, email, phone, dept_id_list, [], type, is_active, avatar, lang, creator_id, password, tenant_id)
         except CustomCommonException as e:
-            return api_response(-1, {}, str(e))
+            return api_response(-1,  str(e), {})
         except Exception as e:
             logger.error(traceback.format_exc())
-            return api_response(-1, {}, "Internal Server Error")
+            return api_response(-1, "Internal Server Error", {})
         return api_response(0, "", dict(user_id=user_id))
 
     @user_permission_check("admin")

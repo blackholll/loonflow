@@ -50,18 +50,22 @@ class DeptApprover(BaseCommonModel):
 
 
 class UserManager(BaseUserManager):
-    def create_superuser(self, email, password):
+    def create_superuser(self, email, password, name=None, alias=None):
         if not email:
             raise ValueError('User must have an email address')
+        if not name:
+            raise ValueError('User must have a name')
+        if not alias:
+            alias = ''
 
         # create a new tenant if there is no tenant with id=1
-        tenant_queryset = Tenant.objects.filter(id=1).first()
+        tenant_queryset = Tenant.objects.filter(id='00000000-0000-0000-0000-000000000001').first()
         if not tenant_queryset:
             # default_tenant = Tenant(id=1, name="loonflow", domain="loonapp.com")
             default_tenant = Tenant(name="loonflow", domain="loonapp.com")
             default_tenant.save(using=self._db)
             Tenant.objects.filter(domain="loonapp.com").update(id=1)
-        user = self.model(email=self.normalize_email(email))
+        user = self.model(email=self.normalize_email(email), name=name, alias=alias)
         user.set_password(password)
         user.tenant_id = '00000000-0000-0000-0000-000000000001'
         user.type = "admin"
@@ -96,7 +100,7 @@ class User(AbstractBaseUser, BaseCommonModel):
     lang = models.CharField("lang", choices=LANG_CHOICE, null=False, default="zh-cn", max_length=100)
 
     objects = UserManager()
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['name']
 
     @property
     def is_staff(self):

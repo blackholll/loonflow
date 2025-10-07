@@ -74,7 +74,8 @@ export default function SignIn() {
       }
 
       navigate('/');
-    } catch (error) {
+    } catch (error: any) {
+      showMessage(error.message, 'error');
       console.error('login fail:', error);
     }
   };
