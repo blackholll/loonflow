@@ -1,25 +1,21 @@
 import json
 import logging
 import traceback
-from cffi import api
+from django.contrib.auth import authenticate
 from django.utils.decorators import method_decorator
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-
-from loonflow.wsgi import application
-from service.account.account_application_service import account_application_service_ins
+from schema import Schema, And, Optional
+from apps.loon_base_view import BaseView
+from service.format_response import api_response
+from service.permission.user_permission import user_permission_check
 from service.account.account_base_service import account_base_service_ins
 from service.account.account_dept_service import account_dept_service_ins
 from service.account.account_role_service import account_role_service_ins
-from service.account.account_tenant_service import account_tenant_service_ins
 from service.account.account_user_service import account_user_service_ins
 from service.exception.custom_common_exception import CustomCommonException
-from service.format_response import api_response
-from apps.loon_base_view import BaseView
-from schema import Schema, Regex, And, Or, Use, Optional
+from service.account.account_tenant_service import account_tenant_service_ins
+from service.account.account_application_service import account_application_service_ins
 
-from service.permission.user_permission import user_permission_check
-from service.common.schema_valid_service import SchemaValidService
 
 logger = logging.getLogger("django")
 
@@ -131,7 +127,6 @@ class UserView(BaseView):
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, "", {})
 
-
 class UserProfileView(BaseView):
     patch_schema = Schema({
         'lang': str,
@@ -186,7 +181,6 @@ class UserProfileView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, "", {})
-
 
 class UserDetailView(BaseView):
     patch_schema = Schema({
@@ -275,7 +269,6 @@ class UserDetailView(BaseView):
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, "", {})
 
-
 class RoleView(BaseView):
     post_schema = Schema({
         'name': And(str, lambda n: n != ''),
@@ -362,7 +355,6 @@ class RoleView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, "deleted", {})
-
 
 class RoleDetailView(BaseView):
     patch_schema = Schema({
@@ -461,7 +453,6 @@ class SimpleRolesView(BaseView):
 
         return api_response(0, "", data)
 
-
 class DeptTreeView(BaseView):
     @user_permission_check("admin")
     def get(self, request, *args, **kwargs):
@@ -519,8 +510,6 @@ class DeptPathsView(BaseView):
             logger.error(traceback.format_exc()) 
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, '', dict(dept_path_list=result))
-
-
 
 class DeptView(BaseView):
     post_schema = Schema({
@@ -580,7 +569,6 @@ class DeptView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, "", {})
-
 
 class DeptDetailView(BaseView):
     patch_schema = Schema({
@@ -661,7 +649,6 @@ class DeptDetailView(BaseView):
 
         return api_response(0, '', {})
 
-
 class DeptParentDeptView(BaseView):
     patch_schema = Schema({
         'parent_dept_id': str,
@@ -682,116 +669,6 @@ class DeptParentDeptView(BaseView):
             return api_response(-1, "Internal Server Error", {})
 
         return api_response(0, '', {})
-
-
-class SimpleDeptView(BaseView):
-    def get(self, request, *args, **kwargs):
-        """
-        部门列表，简单信息
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        request_data = request.GET
-        search_value = request_data.get('search_value', '')
-        per_page = int(request_data.get('per_page', 10))
-        page = int(request_data.get('page', 1))
-        flag, result = account_base_service_ins.get_dept_list(search_value, page, per_page, simple=True)
-        if flag is not False:
-            paginator_info = result.get('paginator_info')
-            data = dict(value=result.get('dept_result_object_format_list'), per_page=paginator_info.get('per_page'),
-                        page=paginator_info.get('page'), total=paginator_info.get('total'))
-            code, msg, = 0, ''
-        else:
-            code, data = -1, ''
-        return api_response(code, msg, data)
-
-
-@method_decorator(login_required, name='dispatch')
-class AppTokenView(BaseView):
-    post_schema = Schema({
-        'app_name': And(str, lambda n: n != '', error='app_name is needed'),
-        Optional('ticket_sn_prefix'): str,
-        Optional('workflow_ids'): str,
-    })
-
-    @user_permission_check('admin')
-    def get(self, request, *args, **kwargs):
-        """
-        call api permission
-        调用权限列表
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        request_data = request.GET
-        search_value = request_data.get('search_value', '')
-        per_page = int(request_data.get('per_page', 10))
-        page = int(request_data.get('page', 1))
-        flag, result = account_base_service_ins.get_token_list(search_value, page, per_page)
-        if flag is not False:
-            paginator_info = result.get('paginator_info')
-            data = dict(value=result.get('token_result_object_format_list'), per_page=paginator_info.get('per_page'),
-                        page=paginator_info.get('page'), total=paginator_info.get('total'))
-            code, msg, = 0, ''
-        else:
-            code, data, msg = -1, '', result
-        return api_response(code, msg, data)
-
-    @user_permission_check('admin')
-    def post(self, request, *args, **kwargs):
-        """
-        add call api permission
-        新增调用权限记录
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        json_str = request.body.decode('utf-8')
-        request_data_dict = json.loads(json_str)
-        app_name = request_data_dict.get('app_name', '')
-        ticket_sn_prefix = request_data_dict.get('ticket_sn_prefix', '')
-        workflow_ids = request_data_dict.get('workflow_ids', '')
-        username = request.user.username
-        flag, result = account_base_service_ins.add_token_record(app_name, ticket_sn_prefix, workflow_ids, username)
-
-        if flag is False:
-            code, data = -1, {}
-        else:
-            code, data = 0, {'id': result.get('app_token_id')}
-
-        return api_response(code, result, data)
-
-
-@method_decorator(login_required, name='dispatch')
-class SimpleAppTokenView(BaseView):
-    @user_permission_check('workflow_admin')
-    def get(self, request, *args, **kwargs):
-        """
-        call api permission
-        调用权限列表（返回简单数据）
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        request_data = request.GET
-        search_value = request_data.get('search_value', '')
-        per_page = int(request_data.get('per_page', 10))
-        page = int(request_data.get('page', 1))
-        flag, result = account_base_service_ins.get_token_list(search_value, page, per_page, simple=True)
-        if flag is not False:
-            paginator_info = result.get('paginator_info')
-            data = dict(value=result.get('token_result_object_format_list'), per_page=paginator_info.get('per_page'),
-                        page=paginator_info.get('page'), total=paginator_info.get('total'))
-            code, msg, = 0, ''
-        else:
-            code, data, msg = -1, '', result
-        return api_response(code, msg, data)
-
 
 class JwtLoginView(BaseView):
     def post(self, request, *args, **kwargs):
@@ -816,7 +693,6 @@ class JwtLoginView(BaseView):
         else:
             return api_response(-1, 'username or password is incorrect', {})
 
-
 class UserRoleView(BaseView):
     @user_permission_check('admin')
     def get(self, request, *args, **kwargs):
@@ -833,7 +709,6 @@ class UserRoleView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", result)
-
 
 class RoleUserView(BaseView):
     post_schema = Schema({
@@ -917,7 +792,6 @@ class RoleUserView(BaseView):
             return api_response(-1, "Internal Server Error", {})
         return api_response(0, "success", {})
 
-
 class UserResetPasswordView(BaseView):
     @user_permission_check('admin')
     def post(self, request, *args, **kwargs):
@@ -937,7 +811,6 @@ class UserResetPasswordView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
         return api_response(0, "password has been updated to 123456", {})
-
 
 class UserChangePasswordView(BaseView):
     def post(self, request, *args, **kwargs):
@@ -996,7 +869,6 @@ class SimpleUsersView(BaseView):
                     page=result.get('paginator_info').get('page'),
                     total=result.get('paginator_info').get('total'))
         return api_response(0, "", data)
-
 
 class ApplicationView(BaseView):
     post_schema = Schema({
@@ -1080,7 +952,6 @@ class ApplicationView(BaseView):
             logger.error(traceback.format_exc())
         return api_response(0, "deleted", {})
 
-
 class SimpleApplicationView(BaseView):
     def get(self, request, *args, **kwargs):
         """
@@ -1105,7 +976,6 @@ class SimpleApplicationView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", result)
-
 
 class ApplicationDetailView(BaseView):
     patch_schema = Schema({
@@ -1176,7 +1046,6 @@ class ApplicationDetailView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "internal Server Error")
         return api_response(0, "", {})
-
 
 class ApplicationWorkflowView(BaseView):
     @user_permission_check("admin")
@@ -1265,7 +1134,6 @@ class ApplicationWorkflowView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
 
-
 class TenantDetailView(BaseView):
     @user_permission_check("admin")
     def get(self, request, *args, **kwargs):
@@ -1285,7 +1153,6 @@ class TenantDetailView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", dict(tenant_info=result))
-
 
 class TenantDomainView(BaseView):
     def get(self, request, *args, **kwargs):
@@ -1307,7 +1174,6 @@ class TenantDomainView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error")
         return api_response(0, "", dict(tenant_info=result))
-
 
 class ApplicationWorkflowPermissionListView(BaseView):
     @user_permission_check("admin")

@@ -1,17 +1,12 @@
 import json
 import logging
 import traceback
-
-from django.http import HttpResponse
-from django.views import View
-from schema import Schema, Regex, And, Or, Use, Optional
-
+from schema import Schema, And, Or, Use, Optional
 from apps.loon_base_view import BaseView
+from service.format_response import api_response
 from service.ticket.ticket_flow_history_service import ticket_flow_history_service_ins
 from service.account.account_base_service import account_base_service_ins
 from service.exception.custom_common_exception import CustomCommonException
-from service.format_response import api_response
-from service.permission.user_permission import user_permission_check
 from service.ticket.ticket_base_service import ticket_base_service_ins
 from service.ticket.ticket_node_service import ticket_node_service_ins
 
@@ -126,7 +121,6 @@ class TicketListView(BaseView):
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error",{})
         return api_response(0, "", dict(ticket_id=result))
-
 
 class TicketDetailFormView(BaseView):
 
@@ -258,88 +252,6 @@ class TicketHandleView(BaseView):
         except Exception:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", '')
-
-
-# todo: update
-class TicketView(BaseView):
-    def get(self, request, *args, **kwargs):
-        """
-        获取工单详情，根据用户返回不同的内容(是否有工单表单的编辑权限)
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        request_data = request.GET
-        ticket_id = kwargs.get('ticket_id')
-        app_name = request.META.get('HTTP_APPNAME')
-        app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
-        if not app_permission_check:
-            return api_response(-1, msg, '')
-
-        # username = request_data.get('username', '')
-        username = request.META.get('HTTP_USERNAME')
-        if not username:
-            return api_response(-1, '参数不全，请提供username', '')
-        flag, result = ticket_base_service_ins.get_ticket_detail(ticket_id, username)
-        if flag:
-            code, data = 0, dict(value=result)
-        else:
-            code, data, msg = -1, {}, result
-        return api_response(code, msg, data)
-
-    def patch(self, request, *args, **kwargs):
-        """
-        处理工单
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        json_str = request.body.decode('utf-8')
-        if not json_str:
-            return api_response(-1, 'patch参数为空', {})
-        request_data_dict = json.loads(json_str)
-        ticket_id = kwargs.get('ticket_id')
-
-        app_name = request.META.get('HTTP_APPNAME')
-        request_data_dict.update(dict(username=request.META.get('HTTP_USERNAME')))
-        app_permission_check, msg = account_base_service_ins.app_ticket_permission_check(app_name, ticket_id)
-        if not app_permission_check:
-            return api_response(-1, msg, {})
-
-        result, msg = ticket_base_service_ins.handle_ticket(ticket_id, request_data_dict)
-        if result or result is not False:
-            code, data = 0, dict(value=result)
-        else:
-            code, data = -1, {}
-        return api_response(code, msg, data)
-
-    def delete(self, request, *args, **kwargs):
-        """
-        删除工单，仅用于管理员干预处理工单，loonflow管理后台的功能
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        # 校验工单权限
-        ticket_id = kwargs.get('ticket_id')
-        username = request.META.get('HTTP_USERNAME')
-        json_str = request.body.decode('utf-8')
-        suggestion = ''
-        if json_str:
-            request_data_dict = json.loads(json_str)
-            suggestion = request_data_dict.get('suggestion')
-
-        flag, result = ticket_base_service_ins.ticket_admin_permission_check(ticket_id, username)
-        if flag is False:
-            return api_response(-1, result, {})
-        flag, result = ticket_base_service_ins.delete_ticket(ticket_id, username, suggestion)
-        if flag is False:
-            return api_response(-1, result, {})
-        else:
-            return api_response(0, '', {})
 
 class TicketFlowHistoryView(BaseView):
     def get(self, request, *args, **kwargs):

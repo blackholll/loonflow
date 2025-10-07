@@ -1,83 +1,100 @@
-> Pay Attention: This version is still under development, please do not use it
+# Loonflow 3.0 - Intelligent and Visual Process Automation System
+Dedicated to providing enterprise-grade unified workflow solutions
+
+[![Python](https://img.shields.io/badge/Python-3.8-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-4.2-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
+[![MUI](https://img.shields.io/badge/MUI-5.x-007FFF?logo=mui&logoColor=white)](https://mui.com/)
+[![License](https://img.shields.io/badge/license-AGPL%20v3-blue)](https://www.gnu.org/licenses/agpl-3.0)
+
+[English](./README.md) | [简体中文](./README_zh.md)
+
+# 🚀 Loonflow 3.0 - A Fresh Start
+
+Loonflow is an open-source process automation platform developed based on Django. After multiple versions of iteration and refactoring, we proudly present Loonflow 3.0 - a version that achieves a qualitative leap in visualization, flexibility, and scalability.
+
+The core of version 3.0 is "making complex business processes simple and visual, making personalized customization needs within reach." Not only have we rebuilt the process and form designers, but we have also constructed a powerful extension framework, aiming to become the most core process engine in enterprise digital transformation.
+
+# Feature Demo
+TODO: Add short demo video
+
+# ✨ Core Features
+
+## 🎯 Revolutionary Visual Design
+- **Drag-and-Drop Process Designer**: No complex configuration needed. Complete complex business process modeling through intuitive drag-and-drop connections. Supports advanced nodes like conditional branches, parallel tasks, and hooks.
+- **Smart Form Designer**: Powerful visual form building tool with rich field types (text, numbers, dropdowns, personnel selection, attachments, etc.) and flexible layouts.
+- **Real-time Preview & Validation**: Real-time preview during process design with built-in process logic validation to prevent design errors early.
+
+## 🔧 Ultimate Flexibility & Extensibility
+- **Plugin Architecture**: We provide plugin extension capabilities for almost all key nodes (such as custom actions, permission validation, notification methods, etc.). Your unique business logic can be easily integrated like building blocks.
+- **Powerful API System**: Provides comprehensive and clear RESTful APIs for seamless integration with your customer service systems, CMDB, monitoring systems, CI/CD, OA, and other third-party systems.
+- **Highly Customizable Permission Model**: Supports fine-grained permission control based on roles, departments, or even specific business conditions to meet complex enterprise permission management needs.
+
+## 💼 Enterprise-Ready Features Out of the Box
+- **Multi-Type Ticket Support**: Easily manage various processes including IT operations, HR approvals, financial reimbursements, customer service, etc.
+- **Automation & Smart Routing**: Supports conditional routing based on form data, automatic assignee assignment, and intelligent ticket flow.
+- **Comprehensive Audit Logs**: Complete records of every operation from ticket creation to closure, meeting compliance and audit requirements.
+- **Multi-Tenant Support (Optional)**: Provides data isolation capabilities for SaaS providers or large enterprise groups (requires additional authorization).
+
+# 📖 Deep Dive
+
+- 📚 **Complete Documentation** - Learn all the details about installation, configuration, usage, and development.
+- 🎬 **Usage Tutorials** - Step-by-step guide on how to configure a complete IT operations ticket process.
+- 🔌 **Hook Development Guide** - Learn how to develop custom plugins for Loonflow.
+- 🌐 **API Reference** - View complete API interface documentation.
+
+# 🤝 Contributing
+
+Community contributions are warmly welcome! Whether you're fixing typos, improving documentation, reporting bugs, or developing new features.
+
+Please fork this repository first, then submit a Pull Request.
+
+# ❓ Getting Help
+
+- 📝 **GitHub Issues** - Submit bug reports and feature requests.
+- 💬 **Discussion Forum** (Coming Soon) - Communicate with the community and other users.
+- 📧 **Commercial Support & Customization**: For enterprise-level deep customization, technical training, or deployment support needs, please contact me at [blackholll@163.com;blackholll.cn@gmail.com].
+- 💰 **Member Benefits**
+
+# Member Benefits
+click the "sponsor" button on the GitHub project homepage to sponsor. If your are from China. go to [简体中文](./README_zh.md), check alipay method to donate.
+
+## Community Partner - 5$/month
+Suitable for everyone who appreciates my work and hopes it thrives.
+- 🛡️ Get exclusive identity group in my official Discord community
+
+## Core Contributor - 10$/month
+Suitable for heavy users who rely on this project and want to participate more deeply.
+
+- ✅ Enjoy all benefits from the previous tier.
+- 🎧 Entry & Annual Call: First-time sponsors get 30 minutes of voice/video Q&A, and then one 60-minute Q&A session annually.
+
+## Project Collaborator - 50$/month
+Suitable for professionals and small teams whose workflows are closely related to the healthy development of this project.
+- ✅ Enjoy all benefits from the previous tier.
+- 🔥 Priority Processing: Your bug reports or feature requests will be moved to the priority development queue.
+- 🎧 Enhanced Annual Support: Enjoy a total of 3 sessions of 60-minute voice/video Q&A annually for in-depth problem discussion or strategy planning.
+
+## Strategic Sponsor - 100$/month
+Tailored for enterprises that want to ensure project success and gain significant brand exposure.
+
+- ✅ Enjoy all benefits from the previous tier.
+- 🌐 Prominent Display: Your company's logo will be displayed as a key supporter in a prominent position on the project's GitHub homepage.
+- 🎧 Exclusive Annual Support: Enjoy a total of 10 sessions of 60-minute voice/video Q&A annually for continuous exclusive technical support.
+
+# 🙏 Acknowledgments
+
+Thanks to all contributors who have contributed code, submitted issues, and helped improve documentation for Loonflow.
+
+If Loonflow has been helpful to you, please give us a ⭐️ Star for support!
+
+# Welcome Donations
+Your support is my greatest motivation.
 
 
-# loonflow
-a workflow engine base on django
+# License & Legal Notice
+This project is open source under the AGPLv3 license. You are free to view, modify, and distribute the code, but please note:
 
-English | [简体中文](./README.md)
-Thanks for [Arefyekkalam](https://github.com/Arefyekkalam) 's translation
+If you provide this project as a SaaS service to the public, according to AGPLv3, you must open source all your modifications.
 
-Django-based workflow engine system(Called through the http interface，Can be used as a unified workflow engine within the enterprise，provide permission applications such as、resource request、Post application、Ask for leave、to reimburse、Services for all workflow scenarios such as it service),If you have a certain development ability, it is recommended to only use the back-end engine function，The front end can be customized and developed according to the scene and can be dispersed in various internal background management systems(such as personnel、Operation and maintenance、monitor、cmdb and so on). Since version 1.1.x, loonflow comes with a front-end interface for creating and processing work orders, which can be used directly.
-
-see official version[release](https://github.com/blackholll/loonflow/releases)middle,It is recommended to use the latest version In order to facilitate everyone to download, the compressed package will be uploaded to the qq group file after each release of a new version(QQ group:558788490), You can also use the git command to download the corresponding code directly
-
-```
-git clone git@github.com:blackholll/loonflow.git
-git checkout rx.x.x  #(specific version number，such as r1.1.0）拉取代码
-
-```
-
-
-## foreword
-I started working with workflow in 2011，In 2013 began to develop the first version of the workflow，There have been several versions so far.The current open source version is dedicated to providing a unified workflow engine solution for enterprises
-
-Welcome to join the QQ group to exchange workflow related technologies: 558788490
-The purpose of the QQ group:
-- For everyone to communicate
-- Some loonflow development dynamics and synchronization of development plans
-
-Before use, please[Documentation](http://loonflow.readthedocs.io/)Read it twice.Problems encountered during use or any suggestions，Please check first[github issue](https://github.com/blackholll/loonflow/issues)See if there is an answer. If you can't find it, you can submit a new issue. You can also ask questions and communicate in the QQ group (there will be enthusiastic classmates in the group to answer, do not @group owner, the group owner generally only responds to issues due to energy)
-
-
-A paid service has been launched, and if you donate over 300 yuan (see the Alipay payment code at the end of this document), you can enjoy the VIP service. The benefits include
-- Add WeChat friends, if you have any questions, you can directly consult WeChat
-- Support WeChat voice Q&A
-- Reasonable and general new requirements put forward will be supported in the new version first.
-
-
-## Basic Architecture
-LOONFLOW divided into two parts:
-- front-end interface(react + ant design pro): Including work order creation, processing, management, workflow management configuration, statistics, etc.
-- Provide http api for back-end calls of various systems (if oa, cmdb, operation and maintenance system, customer service system) to complete the customized work order requirements of their respective systems
-
-## Related items
-In the period of loonflow 0.x.x and 1.0.x versions, the user-side interface for creating and processing work orders is not provided. Thanks to the providers of the following call-side demo projects. If you use vue or bootstrap to write your front-end to integrate various internal systems that need to use work orders, the following items are for reference
- 
-Technology Stack | Project Address | Author Contact | Description
-
----|---|---|---
-vue.js + django | https://github.com/youshutong2080/shutongFlow | In the QQ group, QQ number: 343306138 | Supports the use in PC browsers, the function is relatively simple, the actual use needs to be modified according to your own needs, welcome to submit pr
-bootstrap + django | https://github.com/jimmy201602/workflowdemo |In the QQ group, QQ number: 313484953|Supports the use in PC browsers, the function is relatively simple, the actual use needs to be modified according to your own needs, welcome to submit pr
-vue.js + django |https://gitee.com/shihow/howflow-open | In the QQ group, QQ number: 39188043 | Support for use in DingTalk, during iteration, welcome to submit pr
-
-
-## Renderings
-Yes, you can no longer use workflowdemo, shutongflow and howflow-open. Of course, you can also refer to these three projects to write your own caller system
-
-![user_manage](/static/images/2.0.x/login.png)
-![user_manage](/static/images/2.0.x/workbench.png)
-![user_manage](/static/images/2.0.x/new_ticket.png)
-![user_manage](/static/images/2.0.x/handle_ticket.png)
-![user_manage](/static/images/2.0.x/user.png)
-![user_manage](/static/images/2.0.x/workflow_basic_conf.png)
-![user_manage](/static/images/2.0.x/custom_field.png)
-![user_manage](/static/images/2.0.x/status.png)
-![user_manage](/static/images/2.0.x/transition.png)
-![user_manage](/static/images/2.0.x/system_config.png)
-![user_manage](/static/images/2.0.x/flow_chart.png)
-![user_manage](/static/images/2.0.x/statistics.png)
-
-
-## Working with documentation
-[Working with documentation](https://loonflow.readthedocs.io)
-
-## thanks
-
-Special thanks to [JetBrains](https://www.jetbrains.com/?from=mirai) Free for this open source project [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=loonflow)    Authorize
-
-[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com/?from=loonflow)
-
-# Donations welcome
-Your support is my biggest motivation, welcome to donate by Alipay scan code
-
-![donation_code](/static/images/donation_code.png)
+If you want to use this project for SaaS services without open-sourcing modifications, or if you need to use its multi-tenant functionality within your enterprise, you need to obtain a commercial license from us. Please contact [blackholll@163.com;blackholll.cn@gmail.com].

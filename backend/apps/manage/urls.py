@@ -1,5 +1,5 @@
 from django.urls import path
-from apps.manage.views import *
+from apps.manage.views import index, CommonConfigView, NotificationView, SimpleNotificationView, NotificationDetailView
 
 urlpatterns = [
     path("", index),

@@ -3,7 +3,7 @@ from apps.account.views import UserView, UserDetailView, RoleView, DeptView, Use
     UserResetPasswordView, RoleDetailView, \
     DeptDetailView, SimpleUsersView, UserChangePasswordView, DeptPathsView,DeptPathView,\
     DeptTreeView, UserProfileView, SimpleRolesView, ApplicationView, SimpleApplicationView, \
-    ApplicationDetailView, ApplicationWorkflowView, TenantDetailView, TenantDomainView, DeptParentDeptView, ApplicationWorkflowPermissionListView
+    ApplicationDetailView, TenantDetailView, TenantDomainView, DeptParentDeptView, ApplicationWorkflowPermissionListView
  
 urlpatterns = [
     path('/users', UserView.as_view()),
@@ -21,7 +21,6 @@ urlpatterns = [
     path('/dept_paths', DeptPathsView.as_view()),
     path('/dept_paths/<str:dept_id>', DeptPathView.as_view()),
     path('/depts', DeptView.as_view()),
-    # path('/simple_depts_tree', SimpleDeptTreeView.as_view()),
     path('/depts/<str:dept_id>', DeptDetailView.as_view()),
     path('/depts/<str:dept_id>/parent_dept', DeptParentDeptView.as_view()),
     path('/applications', ApplicationView.as_view()),
