@@ -1,8 +1,8 @@
 # Loonflow 3.0 - Intelligent and Visual Process Automation System
 Dedicated to providing enterprise-grade unified workflow solutions
 
-[![Python](https://img.shields.io/badge/Python-3.8-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/Django-4.2-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-5.2-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
 [![MUI](https://img.shields.io/badge/MUI-5.x-007FFF?logo=mui&logoColor=white)](https://mui.com/)
 [![License](https://img.shields.io/badge/license-AGPL%20v3-blue)](https://www.gnu.org/licenses/agpl-3.0)
@@ -18,7 +18,7 @@ Loonflow is an open-source process automation platform developed based on Django
 The core of version 3.0 is "making complex business processes simple and visual, making personalized customization needs within reach." Not only have we rebuilt the process and form designers, but we have also constructed a powerful extension framework, aiming to become the most core process engine in enterprise digital transformation.
 
 # Feature Demo
-[![Feature Demo](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
+[![Feature Demo](https://img.youtube.com/vi/IpLePpajyfU/0.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
 
 
 # ✨ Core Features
