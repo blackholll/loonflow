@@ -7,6 +7,8 @@
   },
   "actions": "操作",
   "common": {
+    "releaseWorkflowSuccess": "发布工作流成功",
+    "releaseWorkflowFail": "发布工作流失败",
     "insert": "插入",
     "unnamed": "未命名",
     "creator": "创建人",

@@ -433,7 +433,10 @@ class TicketBaseService(BaseService):
         elif target_node_obj.type == "exclusive": # 排他网关
             # request_data and current field data
             next_edge_list = workflow_edge_service_ins.get_workflow_edges_by_source_node_id(tenant_id, workflow_id, version_id, target_node_obj.id)
-            ticket_all_value_dict = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+            if ticket_id:
+                ticket_all_value_dict = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
+            else:
+                ticket_all_value_dict = request_data_dict.get('fields', {})
             # todo: need merge request data and ticket_all_value_dict
             
             # 合并请求中的字段值，优先使用本次请求的字段
