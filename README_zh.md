@@ -43,8 +43,8 @@ Loonflow 是一个基于 Django 开发的开源流程自动化平台。历经多
 # 🛠️ 安装与部署
 1. 下载docker-compose相关文件
 ```
-wget https://github.com/blackholll/loonflow/blob/v3.0.1_mui/docker_compose_deploy/docker-compose.yml
-wget https://github.com/blackholll/loonflow/blob/v3.0.1_mui/docker_compose_deploy/.env
+wget https://github.com/blackholll/loonflow/blob/master/docker_compose_deploy/docker-compose.yml
+wget https://github.com/blackholll/loonflow/blob/master/docker_compose_deploy/.env
 ```
 2. 修改.env文件
 请至少修改password部分
