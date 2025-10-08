@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Validate exclusive gateway nodes
@@ -20,10 +21,14 @@ export const validateExclusiveNodes = (workflowData: IWorkflowFullDefinition): s
 
             // 检查排他网关必须有入边和出边
             if (inputEdges.length === 0) {
-                problems.push(`排他网关"${node.name}"不能没有输入连线`);
+                problems.push(getValidationMessage('exclusive', 'noInputEdge', {
+                    nodeName: node.name
+                }));
             }
             if (outputEdges.length === 0) {
-                problems.push(`排他网关"${node.name}"不能没有输出连线`);
+                problems.push(getValidationMessage('exclusive', 'noOutputEdge', {
+                    nodeName: node.name
+                }));
             }
 
             // 检查排他网关的起始节点不可以是结束类型的节点
@@ -32,7 +37,10 @@ export const validateExclusiveNodes = (workflowData: IWorkflowFullDefinition): s
                     (n) => n.id === inputEdge.sourceNodeId
                 );
                 if (sourceNode && sourceNode.type === 'end') {
-                    problems.push(`排他网关"${node.name}"的起始节点"${sourceNode.name}"不能是结束节点类型`);
+                    problems.push(getValidationMessage('exclusive', 'sourceNodeCannotBeEnd', {
+                        nodeName: node.name,
+                        sourceNodeName: sourceNode.name
+                    }));
                 }
             }
         }

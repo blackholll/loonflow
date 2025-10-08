@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Validate basic workflow information
@@ -10,7 +11,7 @@ export const validateBasicInfo = (workflowData: IWorkflowFullDefinition): string
 
     // Check if workflow name is empty
     if (!workflowData.basicInfo.name || workflowData.basicInfo.name.trim() === '') {
-        problems.push('工作流名称不能为空');
+        problems.push(getValidationMessage('basic', 'workflowNameEmpty'));
     }
 
     return problems;
@@ -27,7 +28,10 @@ export const validateNodeNames = (workflowData: IWorkflowFullDefinition): string
     // Check if all nodes have names
     for (const node of workflowData.processSchema.nodeInfoList) {
         if (!node.name || node.name.trim() === '') {
-            problems.push(`${node.type}节点"${node.id}"必须要有名称`);
+            problems.push(getValidationMessage('basic', 'nodeNameRequired', {
+                nodeType: node.type,
+                nodeId: node.id
+            }));
         }
     }
 
@@ -46,9 +50,11 @@ export const validateStartNodeCount = (workflowData: IWorkflowFullDefinition): s
     const startNodes = workflowData.processSchema.nodeInfoList.filter(node => node.type === 'start');
 
     if (startNodes.length === 0) {
-        problems.push('工作流必须有一个开始节点');
+        problems.push(getValidationMessage('basic', 'startNodeRequired'));
     } else if (startNodes.length > 1) {
-        problems.push(`工作流只能有一个开始节点，当前有${startNodes.length}个开始节点`);
+        problems.push(getValidationMessage('basic', 'startNodeCountError', {
+            count: startNodes.length
+        }));
     }
 
     return problems;
@@ -66,9 +72,11 @@ export const validateEndNodeCount = (workflowData: IWorkflowFullDefinition): str
     const endNodes = workflowData.processSchema.nodeInfoList.filter(node => node.type === 'end');
 
     if (endNodes.length === 0) {
-        problems.push('工作流必须有一个结束节点');
+        problems.push(getValidationMessage('basic', 'endNodeRequired'));
     } else if (endNodes.length > 1) {
-        problems.push(`工作流只能有一个结束节点，当前有${endNodes.length}个结束节点`);
+        problems.push(getValidationMessage('basic', 'endNodeCountError', {
+            count: endNodes.length
+        }));
     }
 
     return problems;

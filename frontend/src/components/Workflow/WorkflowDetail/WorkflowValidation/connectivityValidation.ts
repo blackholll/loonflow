@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Validate node connectivity
@@ -10,7 +11,7 @@ export const validateNodeConnectivity = (workflowData: IWorkflowFullDefinition):
 
     // Check if process design is empty
     if (workflowData.processSchema.nodeInfoList.length === 0) {
-        problems.push('流程设计不能为空');
+        problems.push(getValidationMessage('connectivity', 'processDesignEmpty'));
     }
 
     // Check if dissociative node exist, means start node has no output edge, end node has no input edge, common node missing input edge or output edge
@@ -20,20 +21,22 @@ export const validateNodeConnectivity = (workflowData: IWorkflowFullDefinition):
 
         if (node.type === 'start') {
             if (outputEdgeList.length === 0) {
-                problems.push('开始节点不能没有输出连线');
+                problems.push(getValidationMessage('connectivity', 'startNodeNoOutput'));
             }
         }
 
         if (node.type === 'end') {
             if (inputEdgeList.length === 0) {
-                problems.push('结束节点不能没有输入连线');
+                problems.push(getValidationMessage('connectivity', 'endNodeNoInput'));
             }
         }
 
         if (['normal', 'parallel', 'exclusive', 'timer', 'hook'].includes(node.type)) {
             console.log(outputEdgeList, inputEdgeList);
             if (outputEdgeList.length === 0 || inputEdgeList.length === 0) {
-                problems.push(`${node.type}节点不能没有输入连线或输出连线`);
+                problems.push(getValidationMessage('connectivity', 'nodeNoConnection', {
+                    nodeType: node.type
+                }));
             }
         }
     }

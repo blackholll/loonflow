@@ -265,13 +265,13 @@ function WorkflowProcess({
         let edgeName = t('workflow.propertyPanelLabel.edgeNameAccept');
         if (sourceType === 'start') {
             edgeType = 'agree';
-            edgeName = '提交'
+            edgeName = t('workflow.propertyPanelLabel.edgeStartName');
         } else if (sourceType === 'parallel') {
             edgeType = 'other';
-            edgeName = '并行分支';
+            edgeName = t('workflow.propertyPanelLabel.edgeParallelName');
         } else if (sourceType === 'exclusive') {
             edgeType = 'condition';
-            edgeName = '条件分支';
+            edgeName = t('workflow.propertyPanelLabel.edgeConditionName');
         }
 
         return { edgeType, edgeName };

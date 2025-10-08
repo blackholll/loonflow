@@ -340,7 +340,7 @@ function WorkflowDetail() {
                     <Tooltip
                         title={
                             <Box>
-                                <Box sx={{ fontWeight: 'bold', mb: 1 }}>发现以下问题：</Box>
+                                <Box sx={{ fontWeight: 'bold', mb: 1 }}>{t('workflow.problemsFound')}</Box>
                                 {problems.map((problem, index) => (
                                     <Box key={index} sx={{ mb: 0.5 }}>
                                         • {problem}
@@ -362,7 +362,7 @@ function WorkflowDetail() {
                                 }
                             }}
                         >
-                            存在{problems.length}个问题,请修改后再发布
+                            {t('workflow.problemsExist', { count: problems.length })}
                         </Box>
                     </Tooltip>
                 )}

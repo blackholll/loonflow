@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Validate form schema
@@ -10,14 +11,14 @@ export const validateFormSchema = (workflowData: IWorkflowFullDefinition): strin
 
     // Check if form design is empty
     if (workflowData.formSchema.componentInfoList.length === 0) {
-        problems.push('表单设计不能为空');
+        problems.push(getValidationMessage('form', 'formDesignEmpty'));
     }
 
     // Check if every row component has children
     for (const component of workflowData.formSchema.componentInfoList) {
         if (component.type === 'row') {
             if (component.children.length === 0) {
-                problems.push('行组件不能没有子组件');
+                problems.push(getValidationMessage('form', 'rowComponentNoChildren'));
             }
         }
     }
@@ -33,7 +34,9 @@ export const validateFormSchema = (workflowData: IWorkflowFullDefinition): strin
 
     const titleComponents = allComponents.filter((c: any) => c.type === 'title');
     if (titleComponents.length !== 1) {
-        problems.push(`表单中标题组件（type="title"）有且只能有一个，当前为${titleComponents.length}个`);
+        problems.push(getValidationMessage('form', 'titleComponentCountError', {
+            count: titleComponents.length
+        }));
     }
 
     return problems;

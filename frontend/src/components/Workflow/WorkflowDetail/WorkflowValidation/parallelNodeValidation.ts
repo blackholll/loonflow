@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition, IWorkflowNode, IWorkflowEdge } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Find the convergence node where all parallel paths first meet
@@ -86,10 +87,15 @@ export const validateParallelNodes = (workflowData: IWorkflowFullDefinition): st
                     (n) => n.id === convergenceNodeId
                 );
                 if (convergenceNode && convergenceNode.type !== 'normal') {
-                    problems.push(`并行节点"${node.name}"的出边最终汇聚到的节点"${convergenceNode.name}"不是普通节点类型`);
+                    problems.push(getValidationMessage('parallel', 'convergenceNodeNotNormal', {
+                        nodeName: node.name,
+                        convergenceNodeName: convergenceNode.name
+                    }));
                 }
             } else {
-                problems.push(`并行节点"${node.name}"的出边没有找到汇聚节点`);
+                problems.push(getValidationMessage('parallel', 'noConvergenceNode', {
+                    nodeName: node.name
+                }));
             }
         }
     }

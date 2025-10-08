@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Validate normal nodes
@@ -13,17 +14,23 @@ export const validateNormalNodes = (workflowData: IWorkflowFullDefinition): stri
         if (node.type === 'normal') {
             // 检查处理人类型
             if (!node.props.assigneeType) {
-                problems.push(`普通节点"${node.name}"必须设置处理人类型`);
+                problems.push(getValidationMessage('normal', 'assigneeTypeRequired', {
+                    nodeName: node.name
+                }));
             }
 
             // 检查用户/部门设置
             if (!node.props.assignee || node.props.assignee === '') {
-                problems.push(`普通节点"${node.name}"必须设置处理人`);
+                problems.push(getValidationMessage('normal', 'assigneeRequired', {
+                    nodeName: node.name
+                }));
             }
 
             // 检查分配策略
             if (!node.props.assignmentStrategy) {
-                problems.push(`普通节点"${node.name}"必须设置分配策略`);
+                problems.push(getValidationMessage('normal', 'assignmentStrategyRequired', {
+                    nodeName: node.name
+                }));
             }
         }
     }

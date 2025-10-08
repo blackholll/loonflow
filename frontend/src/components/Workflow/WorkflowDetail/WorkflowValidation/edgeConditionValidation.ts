@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Validate condition edges must have conditionGroups
@@ -14,7 +15,9 @@ export const validateEdgeConditions = (workflowData: IWorkflowFullDefinition): s
             if (!edge.props.conditionGroups ||
                 !Array.isArray(edge.props.conditionGroups) ||
                 edge.props.conditionGroups.length === 0) {
-                problems.push(`条件连线"${edge.name}"必须设置条件组`);
+                problems.push(getValidationMessage('edge', 'conditionGroupRequired', {
+                    edgeName: edge.name
+                }));
             }
         }
     }

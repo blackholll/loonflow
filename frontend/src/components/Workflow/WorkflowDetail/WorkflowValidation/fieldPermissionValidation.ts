@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Validate field permissions for start and normal nodes
@@ -26,7 +27,9 @@ export const validateFieldPermissions = (workflowData: IWorkflowFullDefinition):
         for (const key of Object.keys(fieldPermissions)) {
             if (read_fields.includes(key)) {
                 if (fieldPermissions[key] === 'optional' || fieldPermissions[key] === 'required') {
-                    problems.push(`信息组件"${key}"的只能设置为隐藏或者只读`);
+                    problems.push(getValidationMessage('fieldPermission', 'infoComponentReadOnly', {
+                        key: key
+                    }));
                 }
             }
         }
@@ -34,7 +37,9 @@ export const validateFieldPermissions = (workflowData: IWorkflowFullDefinition):
         // Check start and normal nodes
         if (node.type === 'start') {
             if (!Object.values(fieldPermissions).some(permission => permission === 'optional' || permission === 'required')) {
-                problems.push(`开始节点"${node.name}"的字段权限中至少有一个可输入字段`);
+                problems.push(getValidationMessage('fieldPermission', 'startNodeNeedInputField', {
+                    nodeName: node.name
+                }));
             }
 
             // Rule: if title is auto-generated, start node must set it to hidden
@@ -45,7 +50,9 @@ export const validateFieldPermissions = (workflowData: IWorkflowFullDefinition):
                     .replace(/^[A-Z]/, (first: string) => first.toLowerCase());
                 const titlePermission = fieldPermissions?.[camelKey];
                 if (titlePermission !== 'hidden') {
-                    problems.push(`存在自动生成标题时，开始节点"${node.name}"必须将标题字段设置为隐藏`);
+                    problems.push(getValidationMessage('fieldPermission', 'autoTitleMustHidden', {
+                        nodeName: node.name
+                    }));
                 }
             }
         }
@@ -58,7 +65,9 @@ export const validateFieldPermissions = (workflowData: IWorkflowFullDefinition):
             );
 
             if (!hasNonHiddenField) {
-                problems.push(`节点"${node.name}"的字段权限中至少有一个非隐藏字段`);
+                problems.push(getValidationMessage('fieldPermission', 'nodeNeedNonHiddenField', {
+                    nodeName: node.name
+                }));
             }
         }
     }

@@ -1,4 +1,5 @@
 import { IWorkflowFullDefinition } from '../../../../types/workflow';
+import { getValidationMessage } from './i18n';
 
 /**
  * Validate timer nodes
@@ -20,18 +21,26 @@ export const validateTimerNodes = (workflowData: IWorkflowFullDefinition): strin
 
             // 检查定时器节点必须有超过一个入边
             if (inputEdges.length < 1) {
-                problems.push(`定时器节点"${node.name}"必须至少一个入边，当前有${inputEdges.length}个入边`);
+                problems.push(getValidationMessage('timer', 'needInputEdge', {
+                    nodeName: node.name,
+                    count: inputEdges.length
+                }));
             }
 
             // 检查定时器节点只能有一个出边
             if (outputEdges.length !== 1) {
-                problems.push(`定时器节点"${node.name}"只能有一个出边，当前有${outputEdges.length}个出边`);
+                problems.push(getValidationMessage('timer', 'onlyOneOutputEdge', {
+                    nodeName: node.name,
+                    count: outputEdges.length
+                }));
             }
 
             // 检查定时器节点的出边目标节点不可以是自己
             for (const outputEdge of outputEdges) {
                 if (outputEdge.targetNodeId === node.id) {
-                    problems.push(`定时器节点"${node.name}"的出边目标节点不能是自己`);
+                    problems.push(getValidationMessage('timer', 'outputEdgeCannotBeSelf', {
+                        nodeName: node.name
+                    }));
                 }
             }
         }
