@@ -44,8 +44,8 @@ The core of version 3.0 is "making complex business processes simple and visual,
 # 🛠️ Installation & Deployment
 1. Download docker-compose related files
 ```
-wget https://github.com/blackholll/loonflow/blob/v3.0.1_mui/docker_compose_deploy/docker-compose.yml
-wget https://github.com/blackholll/loonflow/blob/v3.0.1_mui/docker_compose_deploy/.env
+wget https://github.com/blackholll/loonflow/blob/master/docker_compose_deploy/docker-compose.yml
+wget https://github.com/blackholll/loonflow/blob/master/docker_compose_deploy/.env
 ```
 2. Modify the .env file
 Please modify at least the password section
