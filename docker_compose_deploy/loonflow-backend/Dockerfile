@@ -1,15 +1,6 @@
 FROM python:3.12-slim as builder
 WORKDIR /app
 
-# todo: remove 设置阿里云镜像源
-RUN sed -i 's|http://deb.debian.org|https://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources && \
-    sed -i 's|http://security.debian.org|https://mirrors.aliyun.com/debian-security|g' /etc/apt/sources.list.d/debian.sources
-
-# 设置Python环境
-ENV PYTHONUNBUFFERED=1 \
-    PIP_INDEX_URL=https://mirrors.aliyun.com/pypi/simple/ \
-    PIP_TRUSTED_HOST=mirrors.aliyun.com
-# todo:
 
 RUN apt-get update && apt-get install -y \
     build-essential \
