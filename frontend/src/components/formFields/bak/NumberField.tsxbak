@@ -1,0 +1,86 @@
+import React from 'react';
+import { TextField as MuiTextField, FormControl, FormHelperText, InputLabel } from '@mui/material';
+import { BaseFieldProps, FieldRenderMode } from './types';
+
+interface NumberFieldProps extends BaseFieldProps {
+    mode?: FieldRenderMode;
+    min?: number;
+    max?: number;
+    step?: number;
+}
+
+const NumberField: React.FC<NumberFieldProps> = ({
+    field,
+    value = '',
+    onChange,
+    disabled = false,
+    readOnly = false,
+    required = false,
+    error = false,
+    helperText = '',
+    variant = 'outlined',
+    fullWidth = true,
+    mode = 'view',
+    min,
+    max,
+    step = 1
+}) => {
+    const isDesignMode = mode === 'design';
+    const isViewMode = mode === 'view';
+    const isEditMode = mode === 'edit';
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (onChange && !isViewMode) {
+            const newValue = event.target.value;
+            // 验证是否为有效数字
+            if (newValue === '' || !isNaN(Number(newValue))) {
+                onChange(newValue);
+            }
+        }
+    };
+
+    // 查看模式：只显示值
+    if (isViewMode) {
+        return (
+            <FormControl fullWidth={fullWidth} error={error}>
+                <div style={{
+                    padding: '16.5px 14px',
+                    border: '1px solid #c0c0c0',
+                    borderRadius: '4px',
+                    backgroundColor: '#f5f5f5'
+                }}>
+                    {value || '-'}
+                </div>
+                {helperText && <FormHelperText>{helperText}</FormHelperText>}
+            </FormControl>
+        );
+    }
+
+    // 设计模式和编辑模式：可编辑
+    return (
+        <FormControl fullWidth={fullWidth} error={error}>
+            {field.label && (
+                <InputLabel shrink>{field.label}</InputLabel>
+            )}
+            <MuiTextField
+                value={value}
+                onChange={handleChange}
+                disabled={disabled}
+                required={required}
+                variant={variant}
+                fullWidth={fullWidth}
+                type="number"
+                placeholder={field.placeholder}
+                helperText={helperText}
+                inputProps={{
+                    min,
+                    max,
+                    step,
+                    readOnly: readOnly
+                }}
+            />
+        </FormControl>
+    );
+};
+
+export default NumberField; 

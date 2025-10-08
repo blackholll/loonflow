@@ -3,8 +3,8 @@ declare namespace API {
     id: number;
     username: string;
     phone: string;
-    is_active: boolean;
-    type_id: number;
+    isActive: boolean;
+    typeId: number;
     email: string;
   }
 

@@ -1,3 +1,0 @@
-#requrements/pro.txt
--r common.txt
-uwsgi==2.0.21

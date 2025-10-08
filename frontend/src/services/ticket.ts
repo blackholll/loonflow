@@ -1,177 +1,199 @@
-import { request } from 'umi';
-// import request from 'umi-request'
 
-export interface TicketParamsType {
-  category: string;
-  [propName: string]: any;
+import apiClient from './api';
+import { ITicketListRes, ITicketListQueryParam, ICommentTicketParam, IDelTicketParam, INewTicketReqParam, INewTicketRes, ITicketFlowHistoryRes } from '../types/ticket';
+import { IApiErrResponse } from '@/types/common';
+import { ITicketDetailFormRes, ITicketActionsRes, IHandleTicketReqParam, IHandleTicketRes, ITicketCurrentNodeInfosRes } from '../types/ticket';
+
+
+export const getTicketList = async (params: ITicketListQueryParam): Promise<ITicketListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.get('/api/v1.0/tickets', {
+      params: {
+        'page': params.page + 1,
+        'per_page': params.perPage,
+        'category': params.category,
+        'parent_ticket_id': params.parentTicketId,
+        'search_value': params.searchValue,
+        'create_start': params.createDateStart,
+        'create_end': params.createDateEnd,
+        'workflow_ids': params.workflowId,
+        'creator_id': params.creatorId,
+      }
+    }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const newTicket = async (params: INewTicketReqParam): Promise<INewTicketRes | IApiErrResponse> => {
+  const response = await apiClient.post('/api/v1.0/tickets', params);
+  return response.data;
 }
 
-export interface WorkflowParamsType {
-  name?: string;
+export const getTicketDetailForm = async (ticketId: string): Promise<ITicketDetailFormRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_detail_form`, { params: {} });
+  return response.data;
+};
+
+export const getTicketDetailActions = async (ticketId: string): Promise<ITicketActionsRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_detail_actions`, { params: {} });
+  return response.data;
+};
+
+export const getTicketDetailAdminActions = async (ticketId: string): Promise<ITicketActionsRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_detail_admin_actions`, { params: {} });
+  return response.data;
+};
+
+export const handleTicket = async (params: IHandleTicketReqParam): Promise<IHandleTicketRes | IApiErrResponse> => {
+  const response = await apiClient.post(`/api/v1.0/tickets/${params.ticketId}/handle`,
+    { action_type: params.actionType, action_id: params.actionId, fields: params.fields, action_props: params.actionProps });
+  return response.data;
+};
+
+export const getTicketFlowHistory = async (ticketId: string): Promise<ITicketFlowHistoryRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/ticket_flow_history`, { params: { desc: 0 } });
+  return response.data;
 }
 
-export interface  newTicketRequestParamsType {
-  workflow_id: number;
-  transition_id: number;
-  suggestion?: string;
-  [propName: string]: any;
+export const getTicketCurrentNodeInfos = async (ticketId: string): Promise<ITicketCurrentNodeInfosRes | IApiErrResponse> => {
+  const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/current_node_infos`, { params: {} });
+  return response.data;
 }
 
-export interface  handleTicketRequestParamsType {
-  transition_id: number;
-  suggestion?: string;
-  [propName: string]: any;
-}
+// export const getWorkflowList = async (params: IWorkflowParam) => {
+//   try {
+//     const response = await apiClient.get('/api/v1.0/workflows', { params });
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export interface getDetailDetailRequestType {
-  ticket_id: number;
-}
+// export const newTicketRequest = async (params: INewTicketRequestParam) => {
+//   try {
+//     const response = await apiClient.post('/api/v1.0/tickets', params);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export interface changeStateParamsType {
-  state_id: number;
-  suggestion?: string;
-}
+// export const handleTicketRequest = async (ticketId: number, params: IHandleTicketRequestParam) => {
+//   try {
+//     const response = await apiClient.patch(`/api/v1.0/tickets/${ticketId}`, params);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export interface deliverTicketParamsType {
-  target_username: string;
-  suggestion?: string;
-}
+// export const getDetailRequest = async (params: IGetDetailRequest) => {
+//   try {
+//     const response = await apiClient.get(`/api/v1.0/tickets/${params.ticket_id}`);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export interface addNodeTicketParamsType {
-  target_username: string;
-  suggestion?: string;
-}
+// export const getTicketTransitionRequest = async (params: IGetDetailRequest) => {
+//   try {
+//     const response = await apiClient.get(`/api/v1.0/tickets/${params.ticket_id}/transitions`);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export interface closeTicketParamsType {
-  suggestion?: string;
-}
+// export const getTicketFlowLogRequest = async (ticketId: number) => {
+//   try {
+//     const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/flowlogs`);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export interface commentTicketParamsType {
-  suggestion: string;
-}
+// export const getTicketStepRequest = async (ticketId: number) => {
+//   try {
+//     const response = await apiClient.get(`/api/v1.0/tickets/${ticketId}/flowsteps`);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export interface delTicketParamsType {
-  suggestion: string;
-}
+// export const closeTicketRequest = async (ticketId: number, params: ICloseTicketParam) => {
+//   try {
+//     const response = await apiClient.post(`/api/v1.0/tickets/${ticketId}/close`, params);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export interface retreatTicketParamsType {
-  suggestion: string;
-}
+// export const deliverTicketRequest = async (ticketId: number, params: IDeliverTicketParam) => {
+//   try {
+//     const response = await apiClient.post(`/api/v1.0/tickets/${ticketId}/deliver`, params);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
+// export const addNodeTicketRequest = async (ticketId: number, params: IAddNodeTicketParam) => {
+//   try {
+//     const response = await apiClient.post(`/api/v1.0/tickets/${ticketId}/add_node`, params);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export async function getTicketList(params: TicketParamsType) {
-  return request<API.TicketListData>('/api/v1.0/tickets', {
-    method: 'get',
-    params: params
-  });
-}
+// export const changeTicketStateRequest = async (ticketId: number, params: IChangeStateParam) => {
+//   try {
+//     const response = await apiClient.put(`/api/v1.0/tickets/${ticketId}/state`, params);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export async function getWorkflowList(params: WorkflowParamsType) {
-  return request<API.WorkflowListData>('/api/v1.0/workflows', {
-    method: 'get',
-    params: params
-  })
-}
+// export const acceptTicketRequest = async (ticketId: number) => {
+//   try {
+//     const response = await apiClient.post(`/api/v1.0/tickets/${ticketId}/accept`);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-export async function newTicketRequest(params: newTicketRequestParamsType) {
-  return request<API.CommonResponse> ('/api/v1.0/tickets', {
-    method: 'post',
-    data: params
-  })
-}
+export const addCommentRequest = async (ticketId: number, params: ICommentTicketParam) => {
+  try {
+    const response = await apiClient.post(`/api/v1.0/tickets/${ticketId}/comments`, params);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
-export async function handleTicketRequest(ticketId: number, params: handleTicketRequestParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}`, {
-    method: 'patch',
-    data: params
-  })
-}
+export const delTicketRequest = async (ticketId: number, params: IDelTicketParam) => {
+  try {
+    const response = await apiClient.delete(`/api/v1.0/tickets/${ticketId}`, { data: params });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
-
-export async function getDetailDetailRequest(params: getDetailDetailRequestType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${params.ticket_id}`,{
-    method: 'get',
-  })
-}
-
-export async function getTicketTransitionRequest(params: getDetailDetailRequestType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${params.ticket_id}/transitions`,{
-    method: 'get',
-  })
-}
-
-export async function getTicketFlowLogRequest(ticketId: number) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/flowlogs`,{
-    method: 'get',
-  })
-}
-
-
-export async function getTicketStepRequest(ticketId: number) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/flowsteps`,{
-    method: 'get',
-  })
-}
-
-export async function closeTicketRequest(ticketId: number, params:closeTicketParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/close`,{
-    method: 'post',
-    data: params
-  })
-}
-
-export async function deliverTicketRequest(ticketId: number, params:deliverTicketParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/deliver`,{
-    method: 'post',
-    data: params
-  })
-}
-
-export async function addNodeTicketRequest(ticketId: number, params:addNodeTicketParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/add_node`,{
-    method: 'post',
-    data: params
-  })
-}
-
-export async function addNodeEndTicketRequest(ticketId: number, params:addNodeTicketParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/add_node_end`,{
-    method: 'post',
-    data: params
-  })
-}
-
-export async function changeTicketStateRequest(ticketId: number, params:changeStateParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/state`, {
-    method: 'put',
-    data: params
-  })
-}
-
-export async function acceptTicketRequest(ticketId: number) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/accept`, {
-    method: 'post',
-  })
-}
-
-export async function addCommentRequest(ticketId: number, params:commentTicketParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/comments`, {
-    method: 'post',
-    data: params
-  })
-}
-
-
-export async function delTicketRequest(ticketId: number, params:delTicketParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}`, {
-    method: 'delete',
-    data: params
-  })
-}
-
-export async function retreatRequest(ticketId: number, params:retreatTicketParamsType) {
-  return request<API.CommonResponse> (`/api/v1.0/tickets/${ticketId}/retreat`, {
-    method: 'post',
-    data: params
-  })
-}
+// export const retreatRequest = async (ticketId: number, params: IRetreatTicketParam) => {
+//   try {
+//     const response = await apiClient.post(`/api/v1.0/tickets/${ticketId}/retreat`, params);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };

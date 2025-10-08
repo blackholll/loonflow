@@ -1,0 +1,160 @@
+[
+  {
+     "model": "account.tenant",
+     "pk": 1,
+     "fields": {
+       "name": "\u603b\u90e8",
+       "domain": "loonapp.com",
+       "icon": "xxxx.jpg",
+       "lang": "zh-cn",
+       "label": "",
+       "workflow_limit": 0,
+       "ticket_limit": 0,
+       "creator_id": 0,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00"
+     }
+   },
+   {
+     "model": "account.dept",
+     "pk": 1,
+     "fields": {
+       "name": "\u603b\u90e8",
+       "parent_dept_id": 0,
+       "leader_id": 1,
+       "label": "",
+       "creator_id": 1,
+       "tenant_id": 1,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00"
+     }
+   },
+   {
+     "model": "account.dept",
+     "pk": 2,
+     "fields": {
+       "name": "\u603b\u90e81",
+       "parent_dept_id": 0,
+       "leader_id": 1,
+       "label": "",
+       "creator_id": 1,
+       "tenant_id": 1,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00"
+     }
+   },
+    {
+       "model": "account.dept",
+       "pk": 3,
+       "fields": {
+         "name": "\u603b\u90e83",
+         "parent_dept_id": 0,
+         "leader_id": 1,
+         "label": "",
+         "creator_id": 1,
+         "tenant_id": 1,
+         "created_at": "2018-04-10T16:41:27.370+08:00",
+         "updated_at": "2018-04-10T16:41:27.370+08:00"
+       }
+     },
+   {
+     "model": "account.role",
+     "pk": 1,
+     "fields": {
+       "name": "VPN\u7ba1\u7406\u5458",
+       "description": "\u5904\u7406VPN\u7533\u8bf7\u5de5\u5355\u7684\u4eba\u5458",
+       "label": "",
+       "creator_id": 1,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00"
+     }
+   },
+   {
+     "model": "account.user",
+     "pk": 1,
+     "fields": {
+       "password": "pbkdf2_sha256$600000$3P9W4N4ej2kS5hDdYtS4XL$nWtYzvbW2Ns0O/ylU4sqgeoevDsF9jLesEEP+s2loEw=",
+       "last_login": "2018-04-10T16:41:27.370+08:00",
+       "name": "name1",
+       "avatar": "avatar",
+       "alias": "\u8d85\u7ea7\u7ba1\u7406\u5458",
+       "email": "blackholll@163.com",
+       "phone": "13888888888",
+       "type": "admin",
+       "lang": "zh-cn",
+       "status": "in_post",
+       "tenant_id": 1,
+       "creator_id": 0,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00"
+     }
+   },
+   {
+     "model": "account.user",
+     "pk": 2,
+     "fields": {
+       "password": "pbkdf2_sha256$100000$BoQZquZL9sE7$OVm0zb1beQeWkas/IJBgxCkx8fqXlu9S0NamjmibSw0=",
+       "last_login": "2018-04-10T16:41:27.370+08:00",
+       "name": "name2",
+       "avatar": "avatar",
+       "alias": "\u8d85\u7ea7\u7ba1\u7406\u5458",
+       "email": "blackholll2@163.com",
+       "phone": "13888888888",
+       "type": "admin",
+       "lang": "zh-cn",
+       "status": "in_post",
+       "tenant_id": 1,
+       "creator_id": 1,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00"
+     }
+   },
+   {
+     "model": "account.userrole",
+     "pk": 1,
+     "fields": {
+       "creator_id": 1,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00",
+       "tenant_id": 1,
+       "user_id": 1,
+       "role_id": 1
+     }
+   },
+  {
+     "model": "account.userrole",
+     "pk": 2,
+     "fields": {
+       "creator_id": 1,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00",
+       "tenant_id": 1,
+       "user_id": 2,
+       "role_id": 1
+     }
+   },
+   {
+     "model": "account.userdept",
+     "pk": 1,
+     "fields": {
+       "creator_id": 1,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00",
+       "tenant_id":1,
+       "user_id": 1,
+       "dept_id": 1
+     }
+   },
+  {
+     "model": "account.userdept",
+     "pk": 2,
+     "fields": {
+       "creator_id": 1,
+       "created_at": "2018-04-10T16:41:27.370+08:00",
+       "updated_at": "2018-04-10T16:41:27.370+08:00",
+       "tenant_id":1,
+       "user_id": 2,
+       "dept_id": 1
+     }
+   }
+]

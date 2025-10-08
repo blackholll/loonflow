@@ -1,83 +1,164 @@
-# loonflow
-a workflow engine base on django
+# Loonflow 3.0 - Intelligent and Visual Process Automation System
+Dedicated to providing enterprise-grade unified workflow solutions
 
-3.0版本正在开发中，将支持拖拽配置工作流、工作流多版本、多租户、一个用户可以属于多个部门等。[具体进度](https://github.com/blackholll/loonflow/tree/v3.0.1_mui)
+[![Python](https://img.shields.io/badge/Python-3.8-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-4.2-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
+[![MUI](https://img.shields.io/badge/MUI-5.x-007FFF?logo=mui&logoColor=white)](https://mui.com/)
+[![License](https://img.shields.io/badge/license-AGPL%20v3-blue)](https://www.gnu.org/licenses/agpl-3.0)
 
-README in English: 
+[English](./README.md) | [简体中文](./README_zh.md)
 
-[English](./README_en.md) | 简体中文
+# 🚀 Loonflow 3.0 - A Fresh Start
 
-基于django的工作流引擎系统(通过http接口调用，可以作为企业内部统一的工作流引擎，提供诸如权限申请、资源申请、发布申请、请假、报销、it服务等所有工作流场景的服务),如果有一定的开发能力建议只使用后端引擎功能，前端根据场景定制开发可分散于各个内部后台管理系统(如人事、运维、监控、cmdb等等)。从1.1.x版本开始loonflow自带工单新建及处理的前端界面，可以直接使用。
+> **Important Notice**: Due to significant changes in version 3.0 and tight development schedule, the current version may have some known issues. I will take a week's rest (8 days of intensive development has been quite exhausting) and then quickly fix all issues. Thank you for your understanding and support!
 
-正式版本见[release](https://github.com/blackholll/loonflow/releases)中,建议使用最新版本， , 为了方便大家下载会在每次发布新版本后将压缩包上传到qq群文件(qq群:558788490), 你也可以使用git命令直接下载对应代码
+Loonflow is an open-source process automation platform developed based on Django. After multiple versions of iteration and refactoring, we proudly present Loonflow 3.0 - a version that achieves a qualitative leap in visualization, flexibility, and scalability.
 
+The core of version 3.0 is "making complex business processes simple and visual, making personalized customization needs within reach." Not only have we rebuilt the process and form designers, but we have also constructed a powerful extension framework, aiming to become the most core process engine in enterprise digital transformation.
+
+# Feature Demo
+[![Feature Demo](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
+
+
+# ✨ Core Features
+
+## 🎯 Revolutionary Visual Design
+- **Drag-and-Drop Process Designer**: No complex configuration needed. Complete complex business process modeling through intuitive drag-and-drop connections. Supports advanced nodes like conditional branches, parallel tasks, and hooks.
+- **Smart Form Designer**: Powerful visual form building tool with rich field types (text, numbers, dropdowns, personnel selection, attachments, etc.) and flexible layouts.
+- **Real-time Preview & Validation**: Real-time preview during process design with built-in process logic validation to prevent design errors early.
+- **Multi-Version Process Configuration**: You can configure multiple versions of processes and easily test and switch between versions.
+
+
+## 🔧 Ultimate Flexibility & Extensibility
+- **Plugin Architecture**: We provide plugin extension capabilities for almost all key nodes (such as custom actions, permission validation, notification methods, etc.). Your unique business logic can be easily integrated like building blocks.
+- **Powerful API System**: Provides comprehensive and clear RESTful APIs for seamless integration with your customer service systems, CMDB, monitoring systems, CI/CD, OA, and other third-party systems.
+- **Highly Customizable Permission Model**: Supports fine-grained permission control based on roles, departments, or even specific business conditions to meet complex enterprise permission management needs.
+
+## 💼 Enterprise-Ready Features Out of the Box
+- **Multi-Type Ticket Support**: Easily manage various processes including IT operations, HR approvals, financial reimbursements, customer service, etc.
+- **Automation & Smart Routing**: Supports conditional routing based on form data, automatic assignee assignment, and intelligent ticket flow.
+- **Comprehensive Audit Logs**: Complete records of every operation from ticket creation to closure, meeting compliance and audit requirements.
+- **Multi-Tenant Support (Optional)**: Provides data isolation capabilities for SaaS providers or large enterprise groups (requires additional authorization).
+
+# 🛠️ Installation & Deployment
+1. Download docker-compose related files
 ```
-git clone git@github.com:blackholll/loonflow.git
-git checkout rx.x.x  #(具体的版本号，如r1.1.0）拉取代码
-
+wget https://github.com/blackholll/loonflow/blob/v3.0.1_mui/docker_compose_deploy/docker-compose.yml
+wget https://github.com/blackholll/loonflow/blob/v3.0.1_mui/docker_compose_deploy/.env
 ```
+2. Modify the .env file
+Please modify at least the password section
+3. Start docker-compose
+Navigate to the directory containing docker-compose.yml and execute:
+```
+docker-compose up -d
+```
+4. Create admin user
+```
+cd /app/loonflow
+python manage.py createsuperuser
+```
+5. Access loonflow
+Login to loonflow using the email and password you created in step 3
+
+# 🗺️ Project Roadmap
+
+## 🎯 Version 3.1.0 (November-December 2025)
+### Core Feature Enhancements
+- 📝 **Form Field Extensions** - New file upload, external data source, rich text editor field types
+- ⏰ **Process Timeout Control** - Support for automatic node timeout transitions, improving process automation
+- 🔍 **Full-Text Search** - Implement full-text search functionality for tickets and processes
+- 📋 **Workflow Classification** - Support workflow classification management for better organization
+
+### Enterprise Integration
+- 🔐 **OAuth Authentication** - Integrate with mainstream enterprise authentication (WeChat Work, Feishu, DingTalk, Azure, etc.)
+- 📢 **Message Notifications** - Support message push to WeChat Work, DingTalk, Feishu, Teams and other platforms
+- 🔗 **Sub-Ticket Generation** - Support rule-based automatic sub-ticket generation for complex business processes
+
+### Permissions & Security
+- 🛡️ **Fine-Grained Permissions** - Field-level permission control, supporting hide, desensitization, processing operations
+- 👥 **Creation Permission Control** - Fine-grained configuration of workflow creation permissions
+- 📊 **Hook Event Logging** - Complete Hook event query and audit functionality
+
+### Development & Documentation
+- 📚 **ReadTheDocs Documentation** - Complete online documentation system
+- 🧪 **Unit Testing** - Complete frontend and backend unit test coverage
+- 🌐 **Backend Internationalization** - Backend API internationalization support
+- 🐛 **Bug Fixes** - Continuous issue fixes and minor feature optimizations
+
+## Medium-term Planning (March-June 2026)
+- 🚀 **Performance Optimization** - Optimize system performance for large data volume scenarios
+- 🔌 **Plugin Ecosystem** - Enrich official plugin library, support more business scenarios
+- 📱 **Mobile Adaptation** - Optimize user experience on mobile devices
+- 🌐 **Multi-Language Internationalization** - Complete multi-language interface support
+
+## Long-term Vision (Second Half of 2026)
+- 🤖 **AI Integration** - Integrate AI capabilities, provide intelligent process suggestions and automation, intelligent ticket data analysis, knowledge Q&A based on tickets
+- 🔗 **Ecosystem Integration** - Deep integration with more mainstream enterprise systems
+- 📊 **Data Analytics** - Provide process data analysis and optimization suggestions
+- 🏢 **Enterprise Features** - Enhanced enterprise deployment and management capabilities
+
+# 📖 Deep Dive
+
+- 📚 **Complete Documentation** - Learn all the details about installation, configuration, usage, and development.
+- 🎬 **Usage Tutorials** - Step-by-step guide on how to configure a complete IT operations ticket process.
+- 🔌 **Hook Development Guide** - Learn how to develop custom plugins for Loonflow.
+- 🌐 **API Reference** - View complete API interface documentation.
+
+# 🤝 Contributing
+
+Community contributions are warmly welcome! Whether you're fixing typos, improving documentation, reporting bugs, or developing new features.
+
+Please fork this repository first, then submit a Pull Request.
+
+# ❓ Getting Help
+
+- 📝 **GitHub Issues** - Submit bug reports and feature requests.
+- 💬 **Discussion Forum** (Coming Soon) - Communicate with the community and other users.
+- 📧 **Commercial Support & Customization**: For enterprise-level deep customization, technical training, or deployment support needs, please contact me at [blackholll@163.com;blackholll.cn@gmail.com].
+- 💰 **Member Benefits**
+
+# Member Benefits (One-time support available to enjoy monthly benefits)
+Click the "sponsor" button on the GitHub project homepage to sponsor. If your are from China. go to [简体中文](./README_zh.md), check alipay method to donate.
 
 
-## 前言
-本人2011年开始接触工作流，2013年开始开发工作流第一版本，至今经历了多个版本。当前开源版本致力于提供企业统一工作流引擎方案
+## Community Partner - $5/month
+Suitable for everyone who appreciates my work and hopes it thrives.
+- 🛡️ Get exclusive identity group in my official Discord community
 
-欢迎加入qq群一起交流工作流相关技术: 558788490
-qq群的目的:
-- 供大家自行交流
-- 一些loonflow的开发动态、开发计划的同步
+## Core Contributor - $10/month
+Suitable for heavy users who rely on this project and want to participate more deeply.
 
-使用前请先将[文档](http://loonflow.readthedocs.io/)阅读两遍。使用过程中遇到问题或者有什么建议，请先查看[github issue](https://github.com/blackholll/loonflow/issues)看是否有答案。如果没找到可以提交新的issue。你也可以在qq群内提问交流(群内会有热心的同学解答，不要@群主，群主因为精力的原因一般只回复issue)
+- ✅ Enjoy all benefits from the previous tier.
+- 🎧 Entry & Annual Call: First-time sponsors get 30 minutes of voice/video Q&A, and then one 60-minute Q&A session annually.
 
+## Project Collaborator - $50/month
+Suitable for professionals and small teams whose workflows are closely related to the healthy development of this project.
+- ✅ Enjoy all benefits from the previous tier.
+- 🔥 Priority Processing: Your bug reports or feature requests will be moved to the priority development queue.
+- 🎧 Enhanced Annual Support: Enjoy a total of 3 sessions of 60-minute voice/video Q&A annually for in-depth problem discussion or strategy planning.
 
-现已推出付费服务，捐助满399元(见本文档末尾支付宝付款码)，即可享受VIP服务，权益包括
-- 280分钟定制开发视频教程
-- 加微信好友，微信答疑
-- 两次线上会议（半小时内）答疑
-- 提出的合理通用新需求，优先支持
+## Strategic Sponsor - $100/month
+Tailored for enterprises that want to ensure project success and gain significant brand exposure.
 
-## 基本架构
-LOONFLOW 分为两部分:
-- 前端界面(react + ant design pro): 包括工单新建、处理、管理、工作流的管理配置、统计等等
-- 提供http api供各个系统(如果oa、cmdb、运维系统、客服系统)的后端调用以完成各自系统定制化的工单需求
-
-## 相关项目
-在loonflow0.x.x及1.0.x版本时期，未提供用户侧的创建及处理工单界面。感谢以下调用端demo项目的提供者。如果你使用vue或者bootstrap写你的前端来整合内部各种需要用到工单的系统，以下项目可供参考
- 
-技术栈 | 项目地址 | 作者联系方式 | 说明
----|---|---|---
-vue.js + django | https://github.com/youshutong2080/shutongFlow | qq群中,qq号: 343306138 |支持PC端浏览器中使用, 功能比较简单,实际使用需要根据自己的需求做适当改造,欢迎提交pr
-bootstrap + django | https://github.com/jimmy201602/workflowdemo | qq群中,qq号: 313484953|支持PC端浏览器中使用, 功能比较简单,实际使用需要根据自己的需求做适当改造,欢迎提交pr
-vue.js + django |https://gitee.com/shihow/howflow-open | qq群中,qq号:39188043 | 支持在钉钉中使用，迭代中，欢迎提交pr
+- ✅ Enjoy all benefits from the previous tier.
+- 🌐 Prominent Display: Your company's logo will be displayed as a key supporter in a prominent position on the project's GitHub homepage.
+- 🎧 Exclusive Annual Support: Enjoy a total of 10 sessions of 60-minute voice/video Q&A annually for continuous exclusive technical support.
 
 
-## 效果图
+# 🙏 Acknowledgments
 
-是的，你可以不再需要使用workflowdemo、shutongflow及howflow-open。 当然你还可以参考这三个项目写自己的调用方系统
+Thanks to all contributors who have contributed code, submitted issues, and helped improve documentation for Loonflow.
 
-![user_manage](/static/images/2.0.x/login.png)
-![user_manage](/static/images/2.0.x/workbench.png)
-![user_manage](/static/images/2.0.x/new_ticket.png)
-![user_manage](/static/images/2.0.x/handle_ticket.png)
-![user_manage](/static/images/2.0.x/user.png)
-![user_manage](/static/images/2.0.x/workflow_basic_conf.png)
-![user_manage](/static/images/2.0.x/custom_field.png)
-![user_manage](/static/images/2.0.x/status.png)
-![user_manage](/static/images/2.0.x/transition.png)
-![user_manage](/static/images/2.0.x/system_config.png)
-![user_manage](/static/images/2.0.x/flow_chart.png)
-![user_manage](/static/images/2.0.x/statistics.png)
+If Loonflow has been helpful to you, please give us a ⭐️ Star for support!
 
+# Welcome Donations
+Your support is my greatest motivation. 
 
-## 使用文档
-[使用文档](https://loonflow.readthedocs.io)
+# License & Legal Notice
+This project is open source under the AGPLv3 license. You are free to view, modify, and distribute the code, but please note:
 
-## 鸣谢
+If you provide this project as a SaaS service to the public, according to AGPLv3, you must open source all your modifications.
 
-特别感谢 [JetBrains](https://www.jetbrains.com/?from=mirai) 为本开源项目提供免费的 [IntelliJ IDEA](https://www.jetbrains.com/idea/?from=loonflow)  授权  
-
-[<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.png" width="200"/>](https://www.jetbrains.com/?from=loonflow)
-
-# 欢迎捐助
-您的支持是我最大的动力,欢迎支付宝扫码捐助
-
-![donation_code](/static/images/donation_code.png)
+If you want to use this project for SaaS services without open-sourcing modifications, or if you need to use its multi-tenant functionality within your enterprise, you need to obtain a commercial license from us. Please contact [blackholll@163.com;blackholll.cn@gmail.com].
