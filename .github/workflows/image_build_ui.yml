@@ -3,6 +3,9 @@ on:
   push:
     tags:
       - 'r**'
+    # todo: remove
+    branches:
+      - v3.0.1_mui
 jobs:
   build_web:
     name: Build Web
@@ -28,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: docker_compose_deploy/loonflow-web/Dockerfile
+          file: docker_compose_deploy/loonflow-ui/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: blackholll/loonflow-web:latest,blackholll/loonflow-web:${{ github.ref_name }}
+          tags: blackholll/loonflow-ui:latest,blackholll/loonflow-ui:${{ github.ref_name }}
