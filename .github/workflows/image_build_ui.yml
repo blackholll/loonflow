@@ -3,9 +3,6 @@ on:
   push:
     tags:
       - 'r**'
-    # todo: remove
-    branches:
-      - v3.0.1_mui
 jobs:
   build_web:
     name: Build Web

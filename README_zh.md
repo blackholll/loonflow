@@ -19,7 +19,7 @@ Loonflow 是一个基于 Django 开发的开源流程自动化平台。历经多
 3.0 版本的核心是 「让复杂的业务流程变得简单可视，让个性化的定制需求触手可及」。不仅重铸了流程与表单设计器，更构建了一套强大的扩展框架，旨在成为企业数字化转型中最核心的流程引擎。
 
 # 功能演示
-[![功能演示](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
+[![功能演示](https://img.youtube.com/vi/IpLePpajyfU/0.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
 
 # ✨ 核心特性
 ## 🎯 革命性的可视化设计
