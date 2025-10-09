@@ -115,7 +115,7 @@ Please fork this repository first, then submit a Pull Request.
 # ❓ Getting Help
 
 - 📝 **GitHub Issues** - Submit bug reports and feature requests.
-- 💬 **Discussion Forum** (Coming Soon) - Communicate with the community and other users.
+- 💬 **Discussion Forum** [Discord](https://discord.gg/WuppaG638k).
 - 📧 **Commercial Support & Customization**: For enterprise-level deep customization, technical training, or deployment support needs, please contact me at [blackholll@163.com;blackholll.cn@gmail.com].
 - 💰 **Member Benefits**
 
