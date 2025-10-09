@@ -116,7 +116,7 @@ python manage.py createsuperuser
 # ❓ 获取帮助
 
 - 📝 GitHub Issues - 提交 Bug 报告和功能请求。
-- 💬 讨论区 (即将开放) - 与社区和其他用户交流。
+- 💬 讨论区  - 与社区和其他用户交流 [Discord](https://discord.gg/WuppaG638k)。
 - 📧 商业支持与定制：如有企业级深度定制、技术培训或部署支持需求，请通过 [blackholll@163.com;blackholll.cn@gmail.com] 联系我。
 - 💰 会员权益
 
