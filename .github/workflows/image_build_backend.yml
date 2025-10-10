@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - 'r**'
+    branches:
+      - v3.0.1
 jobs:
   build_task:
     name: Build Task
@@ -29,6 +31,7 @@ jobs:
         with:
           context: .
           file: docker_compose_deploy/loonflow-backend/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: blackholll/loonflow-backend:latest,blackholll/loonflow-backend:${{ github.ref_name }}
+          # tags: blackholll/loonflow-backend:latest,blackholll/loonflow-backend:${{ github.ref_name }}
+          tags: blackholll/loonflow-backend:${{ github.ref_name }}
