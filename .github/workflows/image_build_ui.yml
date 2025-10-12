@@ -1,22 +1,23 @@
-name: Build Web Image
+name: Build Multi-arch Images
 
 on:
   push:
-    tags:
-      - 'r**'
-    branches:
-      - v3.0.1
+    tags: ['r**']
+    branches: [v3.0.1]
+
 
 jobs:
-  build_web:
-    name: Build Web
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Depot for ARM building
-        uses: depot/setup-action@v1
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -24,11 +25,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
-      - name: Build and push multi-arch images
-        run: |
-          docker buildx build \
-            --file docker_compose_deploy/loonflow-ui/Dockerfile \
-            --platform linux/amd64,linux/arm64 \
-            --tag blackholll/loonflow-ui:${{ github.ref_name }} \
-            --tag blackholll/loonflow-ui:test1 \
-            --push .
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker_compose_deploy/loonflow-ui/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            blackholll/loonflow-ui:${{ github.ref_name }}
