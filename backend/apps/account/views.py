@@ -822,6 +822,7 @@ class UserChangePasswordView(BaseView):
         :return:
         """
         operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
 
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
@@ -832,7 +833,7 @@ class UserChangePasswordView(BaseView):
         if new_password != new_password_again:
             return api_response(-1, "passwords are different between two input", {})
         try:
-            account_user_service_ins.change_password(operator_id, source_password, new_password)
+            account_user_service_ins.change_password(tenant_id, operator_id, source_password, new_password)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:

@@ -486,7 +486,7 @@ class AccountUserService(BaseService):
 
 
     @classmethod
-    def change_password(cls, operator_id: int, source_password: str, new_password: str) -> bool:
+    def change_password(cls, tenant_id: str, operator_id: str, source_password: str, new_password: str) -> bool:
         """
         change password
         :param operator_id:
@@ -494,7 +494,7 @@ class AccountUserService(BaseService):
         :param new_password:
         :return:
         """
-        user_queryset = User.objects.filter(id=operator_id).all()
+        user_queryset = User.objects.filter(id=operator_id, tenant_id=tenant_id).all()
         user = authenticate(email=user_queryset[0].email, password=source_password)
         if user is None:
             raise CustomCommonException("source password is invalid")

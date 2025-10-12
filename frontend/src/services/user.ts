@@ -108,3 +108,16 @@ export const resetUserPassword = async (userId: string) => {
     throw error;
   }
 }
+
+export const changePassword = async (sourcePassword: string, newPassword: string, newPasswordAgain: string) => {
+  try {
+    const response = await apiClient.post('/api/v1.0/accounts/users/change_password', {
+      source_password: sourcePassword,
+      new_password: newPassword,
+      new_password_again: newPasswordAgain
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
