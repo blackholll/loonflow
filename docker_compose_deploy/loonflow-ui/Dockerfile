@@ -2,7 +2,7 @@ FROM node:18.20.8-slim AS builder
 
 COPY ./frontend /app/loonflow/
 WORKDIR /app/loonflow
-RUN yarn install && yarn build
+RUN yarn install --network-timeout 600000 && yarn build
 
 
 FROM nginx:1.24.0-alpine
