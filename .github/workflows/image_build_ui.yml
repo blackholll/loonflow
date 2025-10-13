@@ -1,4 +1,4 @@
-name: Build Multi-arch Images
+name: Build Frontend Images
 
 on:
   push:

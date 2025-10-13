@@ -1,4 +1,4 @@
-name: Build Task Image
+name: Build Backend Image
 on:
   push:
     tags:
