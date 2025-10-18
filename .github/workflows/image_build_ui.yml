@@ -16,9 +16,8 @@ jobs:
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'yarn'
-          cache-dependency-path: frontend/yarn.lock
+          node-version: '22.x'
+          cache: 'npm'
           
       - name: Enable Corepack and setup Yarn
         run: |
@@ -29,6 +28,16 @@ jobs:
           corepack prepare yarn@$YARN_VERSION --activate
           echo "Yarn version: $(yarn --version)"
           echo "Yarn location: $(which yarn)"
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            frontend/.yarn/cache
+            frontend/node_modules
+          key: yarn-${{ runner.os }}-${{ hashFiles('frontend/yarn.lock') }}
+          restore-keys: |
+            yarn-${{ runner.os }}-
 
       - name: Cache TS incremental info
         uses: actions/cache@v3
