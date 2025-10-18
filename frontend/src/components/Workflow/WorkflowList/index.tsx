@@ -25,7 +25,7 @@ export function WorkflowList() {
         if (page > maxPage - 1 && maxPage >= 1) {
             setPage(maxPage);
         }
-    }, [total, perPage]);
+    }, [total, perPage, page]);
 
     const { showMessage } = useSnackbar();
 

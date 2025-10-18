@@ -15,8 +15,6 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getSimpleUsers } from '../../../services/user';
-import { ISimpleUser } from '../../../types/user';
 import { IFormSchema } from '../../../types/workflow';
 
 export interface ConditionGroup {
@@ -45,8 +43,6 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
 }) => {
     const { t } = useTranslation();
     const [conditionGroups, setConditionGroups] = useState<ConditionGroup[]>([]);
-    const [userOptions, setUserOptions] = useState<{ label: string; value: string }[]>([]);
-    const [loadingUsers, setLoadingUsers] = useState(false);
 
     // 解析现有值（优先当作结构化的条件组数组）
     useEffect(() => {

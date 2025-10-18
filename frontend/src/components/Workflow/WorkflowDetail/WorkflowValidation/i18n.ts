@@ -7,7 +7,7 @@ import i18n from '../../../../i18n';
  * @returns Translated message
  */
 export const t = (key: string, params?: Record<string, any>): string => {
-  return i18n.t(key, params);
+  return i18n.t(key, params) as string;
 };
 
 /**

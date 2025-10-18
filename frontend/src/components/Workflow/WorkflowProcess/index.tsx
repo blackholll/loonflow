@@ -595,7 +595,7 @@ function WorkflowProcess({
                     data: {
                         ...selectedElement.data,
                         properties: {
-                            ...(selectedElement.data?.properties || {}),
+                            ...(selectedElement.data?.properties && typeof selectedElement.data.properties === 'object' ? selectedElement.data.properties : {}),
                             name: `${(selectedElement.data?.properties as any)?.name || '连线'} (副本)`,
                         }
                     }
@@ -618,7 +618,7 @@ function WorkflowProcess({
                     data: {
                         ...selectedElement.data,
                         properties: {
-                            ...(selectedElement.data?.properties || {}),
+                            ...(selectedElement.data?.properties && typeof selectedElement.data.properties === 'object' ? selectedElement.data.properties : {}),
                             name: `${(selectedElement.data?.properties as any)?.name || '节点'} (副本)`,
                         }
                     }

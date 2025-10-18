@@ -1,6 +1,6 @@
 import { Autocomplete, Box, CircularProgress, FormLabel, Stack, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getDeptPaths } from '../../../../services/dept';
 import { getSimpleUsers } from '../../../../services/user';
@@ -137,20 +137,24 @@ function PermissionConfig({ onPermissionConfigChange, permissionConfig }: Permis
         return []
     }
 
-    useEffect(() => {
-        if (permissionConfigInfo.adminIdList.length > 0) {
+    const loadInitialData = useCallback(async () => {
+        if (permissionConfig.adminIdList.length > 0) {
             fetchSimpleUsers('', permissionConfig.adminIdList.join(','), 1, 1000).then(data => setSelectedAdmins(data));
         }
-        if (permissionConfigInfo.dispatcherIdList.length > 0) {
+        if (permissionConfig.dispatcherIdList.length > 0) {
             fetchSimpleUsers('', permissionConfig.dispatcherIdList.join(','), 1, 1000).then(data => setSelectedDispatchers(data));
         }
-        if (permissionConfigInfo.viewerIdList.length > 0) {
+        if (permissionConfig.viewerIdList.length > 0) {
             fetchSimpleUsers('', permissionConfig.viewerIdList.join(','), 1, 1000).then(data => setSelectedViewers(data));
         }
-        if (permissionConfigInfo.viewerDeptIdList.length > 0) {
+        if (permissionConfig.viewerDeptIdList.length > 0) {
             fetchDeptPaths('', permissionConfig.viewerDeptIdList.join(','), 1, 1000).then(data => setSelectedViewerDepts(data));
         }
-    }, [permissionConfigInfo]);
+    }, [permissionConfig.adminIdList, permissionConfig.dispatcherIdList, permissionConfig.viewerIdList, permissionConfig.viewerDeptIdList]);
+
+    useEffect(() => {
+        loadInitialData();
+    }, [loadInitialData]);
 
     return (
         <Box>

@@ -218,7 +218,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
   const handleDialogActionSubmit = async (actionType: string) => {
     console.log('comment submit')
     const actionProps: any = {
-      comment: dialogComment, nodeId: actionBaseNodeId
+      comment: dialogComment, nodeId: actionRunning === 'admin' ? adminActionBaseNodeId : actionBaseNodeId
     }
     if (["forward", "consult", "force_forward"].indexOf(actionType) !== -1) {
       actionProps.targetAssigneeId = selectedAssignee?.value

@@ -13,12 +13,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Node
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: yarn
+          node-version: '22'
+          cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
+          
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Cache TS incremental info
         uses: actions/cache@v3
@@ -30,11 +33,11 @@ jobs:
 
       - name: Install deps (frontend)
         working-directory: frontend
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
-      - name: Type check (incremental)
+      - name: TypeScript type check
         working-directory: frontend
-        run: yarn tsc --noEmit --incremental
+        run: yarn tsc --noEmit
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -49,7 +52,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker_compose_deploy/loonflow-ui/Dockerfile

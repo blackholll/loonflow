@@ -119,10 +119,16 @@ function DepartmentField({
             <Autocomplete
                 multiple={isMultiple}
                 options={depts}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, val) => option.value === (val as IOption).value}
+                getOptionLabel={(option) => (option as IOption).label}
+                isOptionEqualToValue={(option, val) => {
+                    if (isMultiple) {
+                        return Array.isArray(val) && val.some((v: IOption) => v.value === (option as IOption).value);
+                    } else {
+                        return (option as IOption).value === (val as IOption)?.value;
+                    }
+                }}
                 value={isMultiple ? selectedDepts : selectedDept}
-                onChange={(_e, value) => handleChange(value)}
+                onChange={(_e, value) => handleChange(value as IOption | IOption[])}
                 onInputChange={(_e, value) => {
                     if (value.length > 0) {
                         loadDepts(value);

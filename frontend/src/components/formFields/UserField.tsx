@@ -115,9 +115,16 @@ function UserField({
             <Autocomplete
                 multiple={isMultiple}
                 options={users}
-                getOptionLabel={(option) => option.label}
+                getOptionLabel={(option) => (option as IOption).label}
+                isOptionEqualToValue={(option, val) => {
+                    if (isMultiple) {
+                        return Array.isArray(val) && val.some((v: IOption) => v.value === (option as IOption).value);
+                    } else {
+                        return (option as IOption).value === (val as IOption)?.value;
+                    }
+                }}
                 value={isMultiple ? selectedUsers : selectedUser}
-                onChange={(e, value) => handleChange(value)}
+                onChange={(e, value) => handleChange(value as IOption | IOption[])}
                 onInputChange={(e, value) => {
                     if (value.length > 0) {
                         loadUsers(value);

@@ -60,7 +60,18 @@ function User() {
         setPage(1);
     };
 
-    const fetchDepartmentTree = async () => {
+    const transformDeptData = useCallback((deptList: any[]): Department[] => {
+        return deptList.map(dept => ({
+            id: dept.id.toString(),
+            name: dept.name,
+            label: dept.name,
+            leaderInfo: dept.leaderInfo,
+            hasChildren: dept.hasChildren || false,
+            children: dept.children ? transformDeptData(dept.children) : undefined
+        }));
+    }, []);
+
+    const fetchDepartmentTree = useCallback(async () => {
         try {
             setLoading(true);
             const response = await getDeptTree(true);
@@ -76,7 +87,7 @@ function User() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [showMessage, transformDeptData]);
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -99,18 +110,6 @@ function User() {
     useEffect(() => {
         fetchUsers();
     }, [selectedItems, fetchUsers]);
-
-
-    const transformDeptData = (deptList: any[]): Department[] => {
-        return deptList.map(dept => ({
-            id: dept.id.toString(),
-            name: dept.name,
-            label: dept.name,
-            leaderInfo: dept.leaderInfo,
-            hasChildren: dept.hasChildren || false,
-            children: dept.children ? transformDeptData(dept.children) : undefined
-        }));
-    };
 
     useEffect(() => {
         fetchDepartmentTree();

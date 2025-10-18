@@ -6,14 +6,14 @@
         "./src/*"
       ],
     },
-    "target": "es2022",
+    "target": "ES2022",
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
     "allowJs": true,
-    "incremental": true,
+    // "incremental": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -35,9 +35,9 @@
     "noImplicitAny": false,
     "noImplicitReturns": false,
     "noImplicitThis": false,
-    "noStrictGenericChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "suppressExcessPropertyErrors": true
+    "allowImportingTsExtensions": false,
+    "noEmit": true,
+    "verbatimModuleSyntax": false
   },
   "include": [
     "src",

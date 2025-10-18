@@ -132,8 +132,14 @@ function SelectField({
                 multiple={isMultiple}
                 value={currentValue}
                 onChange={handleChange}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.key === value.key}
+                getOptionLabel={(option) => (option as FormOption).label}
+                isOptionEqualToValue={(option, val) => {
+                    if (isMultiple) {
+                        return Array.isArray(val) && val.some((v: FormOption) => v.id === (option as FormOption).id);
+                    } else {
+                        return (option as FormOption).id === (val as FormOption)?.id;
+                    }
+                }}
                 disablePortal
                 options={options}
                 sx={{ marginLeft: 0, marginRight: 0 }}

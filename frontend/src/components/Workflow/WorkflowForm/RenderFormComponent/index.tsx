@@ -147,7 +147,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <DateField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -351,7 +350,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <TextField
                     value={value}
-                    fieldRequired={false}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}

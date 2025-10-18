@@ -31,8 +31,6 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
     const [addedHookToken, setAddedHookToken] = useState('');
     const [hooks, setHooks] = useState<IWorkflowHook[]>(customizeConfig.hookInfoList || []);
     const [hookUrl, setHookUrl] = useState('');
-    const [appSearchValue, setAppSearchValue] = useState('');
-    const [loadingApplications, setLoadingApplications] = useState(false);
     const { t } = useTranslation();
 
     const { showMessage } = useSnackbar();
@@ -192,7 +190,6 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                             value={selectedApplications}
                             onChange={(_, value) => handleAuthorizedAppChange(value)}
                             onInputChange={(_, value) => {
-                                setAppSearchValue(value);
                                 if (value.length > 0) {
                                     loadApplications(value);
                                 }
@@ -205,14 +202,14 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                                         ...params.InputProps,
                                         endAdornment: (
                                             <>
-                                                {loadingApplications ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {loadingApps ? <CircularProgress color="inherit" size={20} /> : null}
                                                 {params.InputProps.endAdornment}
                                             </>
                                         ),
                                     }}
                                 />
                             )}
-                            loading={loadingApplications}
+                            loading={loadingApps}
                             size="small"
                             fullWidth
                         />

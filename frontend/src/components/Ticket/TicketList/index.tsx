@@ -2,7 +2,7 @@ import { ISimpleWorkflowEntity } from '@/types/workflow';
 import { Button, CardContent, CardHeader, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import Card from '@mui/material/Card';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import i18n from '../../../i18n';
@@ -97,23 +97,24 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
     fetchSimpleWorkflow();
   }, [showMessage]);
 
-  useEffect(() => {
-    const fetchTicketList = async (searchValue: string = '') => {
-      try {
-        const res = await getTicketList({ category, page, perPage, searchValue, creatorId: selectedUser?.value, createDateStart, createDateEnd, workflowId: workflowValue?.id });
-        if (res.code === 0) {
-          setTicketList(res.data.ticketList);
-          setTotal(res.data.total);
-        } else {
-          showMessage(res.msg, 'error');
-        }
-      } catch (error: any) {
-        showMessage(error.message, 'error');
-        console.log(error);
+  const fetchTicketList = useCallback(async (searchValue: string = '') => {
+    try {
+      const res = await getTicketList({ category, page, perPage, searchValue, creatorId: selectedUser?.value, createDateStart, createDateEnd, workflowId: workflowValue?.id });
+      if (res.code === 0) {
+        setTicketList(res.data.ticketList);
+        setTotal(res.data.total);
+      } else {
+        showMessage(res.msg, 'error');
       }
-    };
+    } catch (error: any) {
+      showMessage(error.message, 'error');
+      console.log(error);
+    }
+  }, [category, page, perPage, selectedUser?.value, createDateStart, createDateEnd, workflowValue?.id, showMessage]);
+
+  useEffect(() => {
     fetchTicketList();
-  }, [category, page, perPage, refreshToken, showMessage])
+  }, [fetchTicketList, refreshToken])
 
   const handleChangePage = (_event: any, newPage: number) => {
     setPage(newPage);
