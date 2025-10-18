@@ -1,9 +1,12 @@
-FROM node:18.20.8-slim AS builder
+FROM 22.18.0-slim AS builder
+
+RUN corepack enable && corepack prepare yarn@4.4.1 --activate
 
 COPY ./frontend /app/loonflow/
 WORKDIR /app/loonflow
 ENV BROWSERSLIST_IGNORE_OLD_DATA=true
-RUN yarn install --network-timeout 600000 && yarn build
+
+RUN yarn install --immutable && yarn build
 
 
 FROM nginx:1.24.0-alpine
