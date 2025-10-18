@@ -1,10 +1,9 @@
-import React from 'react';
 import { FormControl, TextField as MuiTextField } from '@mui/material';
+import React from 'react';
 import ViewField from './ViewField';
 
 interface TimeFieldProps {
     value: string;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -12,7 +11,6 @@ interface TimeFieldProps {
 
 function TimeField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -132,7 +130,6 @@ function TimeField({
                 type={includeSeconds ? 'time' : 'time'}
                 value={getCurrentDisplayValue()}
                 onChange={handleTimeChange}
-                required={fieldRequired}
                 variant={props?.variant ?? 'outlined'}
                 size={props?.size ?? 'small'}
                 placeholder={props?.placeholder || (includeSeconds ? 'HH:mm:ss' : 'HH:mm')}

@@ -1,23 +1,21 @@
-import React from 'react';
 
 import { ComponentTemplate } from '../../../../types/workflowDesign';
 
 import {
-    TextFields as TextFieldsIcon,
+    CalendarMonth,
     CheckBox as CheckBoxIcon,
-    RadioButtonChecked as RadioButtonIcon,
-    ExpandMore as SelectIcon,
-    Schedule as DateIcon,
-    AttachFile as FileIcon,
-    Pin as NumberIcon,
-    Group as UserIcon,
     Person as CreatorIcon,
+    AcUnit as DefaultIcon,
     Groups as GroupsIcon,
-    Title as TitleIcon,
+    Pin as NumberIcon,
+    RadioButtonChecked as RadioButtonIcon,
+    Schedule,
+    ExpandMore as SelectIcon,
+    TextFields as TextFieldsIcon,
     MoreHoriz as TicketActStatusIcon,
     FiberManualRecord as TicketNodesIcon,
-    AcUnit as DefaultIcon,
-    Link, EditNote, Schedule, CalendarMonth
+    Title as TitleIcon,
+    Group as UserIcon
 } from '@mui/icons-material';
 
 // 创建获取组件模板的函数

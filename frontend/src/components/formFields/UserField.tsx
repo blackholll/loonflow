@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Autocomplete, CircularProgress, FormControl, FormHelperText, TextField } from '@mui/material';
+import { Autocomplete, CircularProgress, FormControl, TextField } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getSimpleUsers } from '../../services/user';
 import { ISimpleUser } from '../../types/user';
 import ViewField from './ViewField';
-import { useTranslation } from 'react-i18next';
 
 interface UserFieldProps {
     value: string | null;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: {
@@ -24,7 +23,6 @@ interface IOption {
 
 function UserField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,

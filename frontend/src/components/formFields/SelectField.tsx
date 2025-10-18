@@ -1,11 +1,9 @@
-import React from 'react';
 import { Autocomplete, FormControl, TextField as MuiTextField } from '@mui/material';
-import ViewField from './ViewField';
 import { FormOption } from '../../types/workflowDesign';
+import ViewField from './ViewField';
 
 interface SelectFieldProps {
     value: string | string[] | FormOption | FormOption[];
-    fieldRequired: boolean;
     onChange: (value: string | string[] | FormOption | FormOption[]) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -13,7 +11,6 @@ interface SelectFieldProps {
 
 function SelectField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -144,7 +141,6 @@ function SelectField({
                     <MuiTextField
                         {...params}
                         label={props?.placeholder || '请选择'}
-                        required={fieldRequired}
                         variant="outlined"
                         size="small"
                     />

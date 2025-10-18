@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Autocomplete, CircularProgress, Box, Paper, Typography, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Tooltip, InputAdornment, Stack, Chip, Grid2 } from '@mui/material';
+import { Autocomplete, Box, CircularProgress, FormLabel, Stack, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { getSimpleUsers } from '../../../../services/user';
-import { getDeptPaths } from '../../../../services/dept';
-import { ISimpleUser } from '../../../../types/user';
-import { ISimpleDeptPath } from '../../../../types/dept';
-import { IpermissionInfo } from '../../../../types/workflow';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getDeptPaths } from '../../../../services/dept';
+import { getSimpleUsers } from '../../../../services/user';
+import { ISimpleDeptPath } from '../../../../types/dept';
+import { ISimpleUser } from '../../../../types/user';
+import { IpermissionInfo } from '../../../../types/workflow';
 
 interface PermissionConfigProps {
     onPermissionConfigChange: (permissionConfig: IpermissionInfo) => void;

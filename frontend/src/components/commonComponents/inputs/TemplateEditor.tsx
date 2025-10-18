@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
-import { Editor, Modifier, CompositeDecorator, ContentState, EditorState as EditorStateClass } from 'draft-js';
+import { Box, Button, Chip } from '@mui/material';
+import { CompositeDecorator, ContentState, Editor, EditorState as EditorStateClass, Modifier } from 'draft-js';
 import 'draft-js/dist/Draft.css';
-import { Box, Chip, Button } from '@mui/material';
+import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 
@@ -22,7 +22,7 @@ function TagSpan(props: any) {
     );
 }
 
-function tagStrategy(contentBlock: any, callback: any, contentState: any) {
+function tagStrategy(contentBlock: any, callback: any, _contentState: any) {
     const text = contentBlock.getText();
     const regex = /\{([\w.]+)\}/g;
     let matchArr, start;

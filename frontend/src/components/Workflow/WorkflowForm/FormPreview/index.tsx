@@ -1,10 +1,9 @@
-import React from 'react';
-import { Paper, Typography, Divider, Box, Tooltip } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
-import { FormStructure, IFormField, RowContainer } from '../../../../types/workflowDesign';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema } from '../../../../types/workflow';
+import { Box, Paper, Tooltip, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { IFormSchema, IWorkflowComponent, IWorkflowComponentRow } from '../../../../types/workflow';
 
 interface FormPreviewProps {
     formSchemaInfo: IFormSchema;

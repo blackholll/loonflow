@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, CircularProgress, OutlinedInput, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Box, Stack, Grid2, FormLabel, Autocomplete, TextField, Chip, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Alert, Autocomplete, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormLabel, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { getSimpletApplicationList } from '../../../../services/application'
-import { ISimpleApplicationResEntity } from '../../../../types/application';
-import { v4 as uuidv4 } from 'uuid';
-import { ICustomizationInfo, IWorkflowHook } from '../../../../types/workflow';
-import useSnackbar from '../../../../hooks/useSnackbar';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import useSnackbar from '../../../../hooks/useSnackbar';
+import { getSimpletApplicationList } from '../../../../services/application';
+import { ISimpleApplicationResEntity } from '../../../../types/application';
+import { ICustomizationInfo, IWorkflowHook } from '../../../../types/workflow';
 
 
 interface IHookEvent {
@@ -190,8 +190,8 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                             options={applicationList}
                             getOptionLabel={(option) => option.name}
                             value={selectedApplications}
-                            onChange={(e, value) => handleAuthorizedAppChange(value)}
-                            onInputChange={(e, value) => {
+                            onChange={(_, value) => handleAuthorizedAppChange(value)}
+                            onInputChange={(_, value) => {
                                 setAppSearchValue(value);
                                 if (value.length > 0) {
                                     loadApplications(value);

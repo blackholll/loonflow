@@ -1,34 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import { ITenantDetailResEntity } from '@/types/tenant';
 import {
-  Container,
-  Typography,
+  Assignment as AssignmentIcon,
+  Business as BusinessIcon,
+  Cancel as CancelIcon,
+  CheckCircle as CheckCircleIcon,
+  Info as InfoIcon,
+  Language as LanguageIcon,
+  AccountTree as WorkflowIcon
+} from '@mui/icons-material';
+import {
+  Alert,
   Avatar,
+  Box,
   Card,
   CardContent,
-  Box,
   Chip,
-  Divider,
   CircularProgress,
-  Alert,
+  Container,
+  Divider,
   Paper,
-  Stack
+  Stack,
+  Typography
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import {
-  Business as BusinessIcon,
-  Language as LanguageIcon,
-  AccountTree as WorkflowIcon,
-  Assignment as AssignmentIcon,
-  Info as InfoIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon
-} from '@mui/icons-material';
-import { getTenantDetail } from '../../../services/tenant';
-import { ITenantDetailResEntity } from '@/types/tenant';
-import useSnackbar from '../../../hooks/useSnackbar';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import useSnackbar from '../../../hooks/useSnackbar';
+import { getTenantDetail } from '../../../services/tenant';
+import { RootState } from '../../../store';
 import { formatDate } from '../../../utils/dateFormat';
 
 function Tenant() {

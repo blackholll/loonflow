@@ -1,24 +1,24 @@
-import React, { useRef, useState, useEffect } from 'react';
 import {
     Box,
-    Paper,
-    Typography,
     Button,
     IconButton,
-    Tooltip
+    Paper,
+    Tooltip,
+    Typography
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+    Add as AddIcon,
     Delete as DeleteIcon,
     DragIndicator as DragIcon,
-    Add as AddIcon,
     HelpOutline as HelpIcon
 } from '@mui/icons-material';
-import { ComponentTemplate, FormOption } from '../../../../types/workflowDesign';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema } from '../../../../types/workflow';
 import useSnackbar from '../../../../hooks/useSnackbar';
+import { IFormSchema, IWorkflowComponent, IWorkflowComponentRow } from '../../../../types/workflow';
+import { ComponentTemplate, FormOption } from '../../../../types/workflowDesign';
 
 interface FormDesignProps {
     formSchemaInfo: IFormSchema;

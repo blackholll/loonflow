@@ -1,24 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CardContent, CircularProgress } from '@mui/material';
-import Card from '@mui/material/Card';
-import { CardHeader } from '@mui/material';
-import { Link } from 'react-router-dom';
-import Autocomplete from '@mui/material/Autocomplete';
-import { useTranslation } from 'react-i18next';
-import i18n from '../../../i18n';
 import { ISimpleWorkflowEntity } from '@/types/workflow';
+import { Button, CardContent, CardHeader, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import Card from '@mui/material/Card';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import i18n from '../../../i18n';
 import { getTicketList } from '../../../services/ticket';
-import { getSimpleWorkflowList } from '../../../services/workflow';
 import { getSimpleUsers } from '../../../services/user';
+import { getSimpleWorkflowList } from '../../../services/workflow';
 
 import useSnackbar from '../../../hooks/useSnackbar';
 import { formatDate } from '../../../utils/dateFormat';
 
 
 
-import Grid from '@mui/material/Grid2';
 import { ITicketListResEntity } from '@/types/ticket';
 import { ISimpleUser } from '@/types/user';
+import Grid from '@mui/material/Grid2';
 import MuiLink from '@mui/material/Link';
 
 interface IOption {

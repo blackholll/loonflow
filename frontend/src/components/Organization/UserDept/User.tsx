@@ -1,19 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Dialog, CardHeader, TablePagination, Chip, Typography, Tabs, Tab, Button, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Box, Modal, TextField, Paper, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, FormHelperText, CircularProgress } from '@mui/material';
+import { IUser } from '@/types/user';
+import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import LockResetIcon from '@mui/icons-material/LockReset';
+import { Box, Button, Card, CardHeader, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { RichTreeView } from '@mui/x-tree-view';
 import { TreeViewBaseItem } from '@mui/x-tree-view/models';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
-import LockResetIcon from '@mui/icons-material/LockReset';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getDeptTree } from '../../../services/dept';
 import useSnackbar from '../../../hooks/useSnackbar';
-import DeptDialog from './DeptDialog';
-import { getUsers, deleteUser, resetUserPassword } from '../../../services/user'; // 确保 deleteUser 也已导入或创建
-import { IUser, ISimpleUserListRes } from '@/types/user';
-import UserDialog from './UserDialog'; // 引入UserDialog
+import { getDeptTree } from '../../../services/dept';
+import { deleteUser, getUsers, resetUserPassword } from '../../../services/user';
+import UserDialog from './UserDialog';
 
 
 interface Department {
@@ -32,28 +29,19 @@ interface basicUser {
 
 
 function User() {
-    const [activeTab, setActiveTab] = useState('users');
     const [selectedDept, setSelectedDept] = useState<string>('00000000-0000-0000-0000-000000000000');
-    // 添加分页相关状态
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(10);
-    const [total, setTotal] = useState(0);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [modalType, setModalType] = useState<'add' | 'edit' | 'delete'>('add');
-    const [departmentName, setDepartmentName] = useState('');
     const [selectedItems, setSelectedItems] = useState<string | null>(null);
     const [expandedItems, setExpandedItems] = useState<string[]>(['00000000-0000-0000-0000-000000000000']);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [userList, setUserList] = useState<IUser[]>([]);
-    const [openDept, setOpenDept] = useState<boolean>(false);
-    const [openedDeptId, setOpenedDeptId] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const tenant = useSelector((state: RootState) => state.tenant);
+    const [total, setTotal] = useState(0);
     const { showMessage } = useSnackbar();
 
     const { t } = useTranslation();
 
-    // 新增状态用于控制UserDialog
     const [openUserDialog, setOpenUserDialog] = useState<boolean>(false);
     const [editingUserId, setEditingUserId] = useState<string | null>(null);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
@@ -77,7 +65,6 @@ function User() {
             setLoading(true);
             const response = await getDeptTree(true);
             if (response.code === 0) {
-                // 将后端返回的部门树数据转换为组件需要的格式
                 const transformedData = transformDeptData(response.data.deptList);
                 setDepartments(transformedData);
             } else {
@@ -93,7 +80,7 @@ function User() {
 
     const fetchUsers = useCallback(async () => {
         try {
-            setLoading(true); // 添加列表加载状态
+            setLoading(true);
             const response = await getUsers('', selectedItems ?? '', page, perPage);
             if (response.code === 0) {
                 setUserList(response.data.userInfoList);
@@ -105,7 +92,7 @@ function User() {
             showMessage(error.message || '获取用户列表失败', 'error');
             console.error('获取用户列表失败:', error);
         } finally {
-            setLoading(false); // 结束列表加载状态
+            setLoading(false);
         }
     }, [showMessage, selectedItems, page, perPage]);
 
@@ -114,7 +101,6 @@ function User() {
     }, [selectedItems, fetchUsers]);
 
 
-    // 将后端返回的部门树数据转换为组件需要的格式
     const transformDeptData = (deptList: any[]): Department[] => {
         return deptList.map(dept => ({
             id: dept.id.toString(),
@@ -126,10 +112,9 @@ function User() {
         }));
     };
 
-    // 在组件加载时获取部门树数据
     useEffect(() => {
         fetchDepartmentTree();
-    }, []);
+    }, [fetchDepartmentTree]);
 
 
     useEffect(() => {
@@ -142,12 +127,6 @@ function User() {
 
 
 
-    const handleDeptAdd = () => {
-        setOpenDept(true);
-        setOpenedDeptId('');
-    };
-
-    // UserDialog 打开和关闭处理函数
     const handleOpenAddUserDialog = () => {
         setEditingUserId(null);
         setOpenUserDialog(true);
@@ -207,49 +186,24 @@ function User() {
         }
     };
 
-
-    const handleDepartmentAction = (type: 'add' | 'edit' | 'delete') => {
-        setModalType(type);
-        setIsModalVisible(true);
-    };
-
-    const handleModalOk = () => {
-        // 处理表单提交
-        setIsModalVisible(false);
-        setDepartmentName('');
-    };
-
-    const handleModalClose = () => {
-        setIsModalVisible(false);
-        setDepartmentName('');
-    };
-
-    const handleItemSelectionChange = (event: React.SyntheticEvent, itemId: string | null) => {
+    const handleItemSelectionChange = (_: React.SyntheticEvent, itemId: string | null) => {
         setSelectedItems(itemId);
         if (itemId) {
-            // 更新选中的部门
             setSelectedDept(itemId);
-            // 这里可以根据选中的部门ID加载相应的用户列表
-            console.log('Selected department ID:', itemId);
         }
     };
 
-    const handleNodeToggle = async (event: React.SyntheticEvent, nodeIds: string[]) => {
-        // 找出新展开的节点ID
+    const handleNodeToggle = async (_: React.SyntheticEvent, nodeIds: string[]) => {
         const newExpandedIds = nodeIds.filter(id => !expandedItems.includes(id));
 
-        // 对于每个新展开的节点，如果它有子节点标记但没有加载子节点，则加载其子节点
         for (const nodeId of newExpandedIds) {
             const dept = findDepartmentById(departments, nodeId);
             if (dept && dept.hasChildren && (!dept.children || dept.children.length === 0)) {
                 try {
                     setLoading(true);
-                    // 调用API获取子节点
                     const response = await getDeptTree(true);
                     if (response.code === 0) {
-                        // 将获取到的子节点数据转换并添加到当前节点
                         const childrenData = transformDeptData(response.data.deptList);
-                        // 更新departments状态，将子节点添加到对应的父节点
                         setDepartments(prevDepts => updateDepartmentChildren(prevDepts, nodeId, childrenData));
                     } else {
                         showMessage(response.msg || '获取部门子节点失败', 'error');
@@ -295,7 +249,6 @@ function User() {
         }
     };
 
-    // 更新部门树中特定节点的子节点
     const updateDepartmentChildren = (depts: Department[], parentId: string, children: Department[]): Department[] => {
         return depts.map(dept => {
             if (dept.id === parentId) {
@@ -308,7 +261,6 @@ function User() {
         });
     };
 
-    // 递归渲染树形结构项，支持任意层级
     const renderTreeItem = (dept: Department): TreeViewBaseItem => {
         return {
             id: dept.id,
@@ -405,7 +357,6 @@ function User() {
                             </Table>
                         )}
                     </TableContainer>
-                    {/* </Grid> */} {/* 这个 Grid 可能不需要了，TablePagination 直接放在 Card 内 */}
                     <TablePagination
                         rowsPerPageOptions={[10, 25, 100]}
                         component="div"
@@ -418,12 +369,11 @@ function User() {
                 </Card>
 
             </div>
-            {/* 渲染UserDialog组件 */}
             <UserDialog
                 open={openUserDialog}
                 onClose={handleCloseUserDialog}
                 userId={editingUserId}
-                selectedDeptId={selectedItems} // 将左侧树选中的部门ID传递过去
+                selectedDeptId={selectedItems}
             />
             <Dialog open={openDeleteConfirm} onClose={() => setOpenDeleteConfirm(false)}>
                 <DialogTitle>{t('common.confirmDeletion')}</DialogTitle>

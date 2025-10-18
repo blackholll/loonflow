@@ -1,9 +1,9 @@
-import { Typography, Box, Chip } from "@mui/material";
-import { useState, useEffect } from 'react';
-import { getSimpleUsers } from '../../services/user';
+import { Box, Chip, Typography } from "@mui/material";
+import { useEffect, useState } from 'react';
 import { getDeptPaths } from '../../services/dept';
-import { ISimpleUser } from '../../types/user';
+import { getSimpleUsers } from '../../services/user';
 import { ISimpleDeptPath } from '../../types/dept';
+import { ISimpleUser } from '../../types/user';
 
 interface ViewFieldProps {
     type: string;

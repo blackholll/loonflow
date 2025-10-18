@@ -1,23 +1,9 @@
-import React, { useState } from 'react';
-import { Tabs, Tab } from '@mui/material';
+import { Tab, Tabs } from '@mui/material';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import User from './User';
 import Dept from './Dept';
+import User from './User';
 
-
-interface Department {
-    id: string;
-    name: string;
-    label: string;
-    leaderInfo: basicUser;
-    children?: Department[];
-    hasChildren?: boolean;
-}
-
-interface basicUser {
-    id: string;
-    alias: string;
-}
 
 
 function UserDept() {

@@ -13,6 +13,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Cache TS incremental info
+        uses: actions/cache@v3
+        with:
+          path: frontend/.tsbuildinfo
+          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('frontend/tsconfig.json') }}
+          restore-keys: |
+            tsbuildinfo-${{ runner.os }}-
+
+      - name: Install deps (frontend)
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Type check (incremental)
+        working-directory: frontend
+        run: yarn tsc --noEmit --incremental
+      
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       

@@ -16,12 +16,6 @@ interface User {
   tenantId: string,
 }
 
-interface IjwtDecode {
-  exp: number,
-  iat: number
-  data: User
-}
-
 const initialState: AuthState = {
   isAuthenticated: false,
   user: null

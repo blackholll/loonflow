@@ -4,7 +4,6 @@ import ViewField from './ViewField';
 
 interface DateFieldProps {
     value: string;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -12,7 +11,6 @@ interface DateFieldProps {
 
 function DateField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -104,7 +102,6 @@ function DateField({
                 type="date"
                 value={getCurrentDisplayValue()}
                 onChange={handleDateChange}
-                required={fieldRequired}
                 variant={props?.variant ?? 'outlined'}
                 size={props?.size ?? 'small'}
                 placeholder={props?.placeholder || 'YYYY-MM-DD'}

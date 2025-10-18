@@ -1,5 +1,5 @@
-import apiClient from './api';
 import { ISimpleUserListRes } from '../types/user';
+import apiClient from './api';
 
 export const updateMyProfile = async (lang: string) => {
   try {

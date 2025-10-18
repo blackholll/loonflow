@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Box,
-    Typography,
-    TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    IconButton,
-    Button,
-    Paper,
-    Autocomplete,
-    CircularProgress,
-    Alert
-} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {
+    Alert,
+    Box,
+    Button,
+    FormControl,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    TextField,
+    Typography
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IFormSchema } from '../../../types/workflow';
 import { getSimpleUsers } from '../../../services/user';
 import { ISimpleUser } from '../../../types/user';
+import { IFormSchema } from '../../../types/workflow';
 
 export interface ConditionGroup {
     id: string;
@@ -68,24 +66,6 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
         }
     }, [value]);
 
-    // 加载用户列表
-    const loadUsers = async (searchValue: string = '') => {
-        if (loadingUsers) return;
-        setLoadingUsers(true);
-        try {
-            const response = await getSimpleUsers(searchValue);
-            if (response.code === 0) {
-                setUserOptions(response.data.userInfoList.map((user: ISimpleUser) => ({
-                    label: `${user.name}(${user.alias})`,
-                    value: user.id
-                })) || []);
-            }
-        } catch (error) {
-            console.error('加载用户列表失败:', error);
-        } finally {
-            setLoadingUsers(false);
-        }
-    };
 
 
     // 返回结构化条件组（不做Python语法转换）
@@ -216,11 +196,6 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
             case 'checkbox':
             case 'user':
             case 'department':
-            case 'ticketStatus':
-            case 'approvalStatus':
-            case 'ticketType':
-            case 'currentHandler':
-                return 'select';
             default:
                 return 'text';
         }

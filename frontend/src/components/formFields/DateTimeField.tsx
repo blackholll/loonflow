@@ -4,7 +4,6 @@ import ViewField from './ViewField';
 
 interface DateTimeFieldProps {
     value: string;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -12,7 +11,6 @@ interface DateTimeFieldProps {
 
 function DateTimeField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -125,7 +123,6 @@ function DateTimeField({
                 type="datetime-local"
                 value={getCurrentDisplayValue()}
                 onChange={handleDateTimeChange}
-                required={fieldRequired}
                 variant={props?.variant ?? 'outlined'}
                 size={props?.size ?? 'small'}
                 placeholder={props?.placeholder || getPlaceholder()}

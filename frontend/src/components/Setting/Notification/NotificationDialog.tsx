@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Box, Tooltip, InputAdornment, FormHelperText } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup, TextField } from '@mui/material';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import useSnackbar from '../../../hooks/useSnackbar';
-import { getNotificationDetail, updateNotification, addNotification } from '../../../services/notification';
 import * as Yup from 'yup';
-import { Description } from '@mui/icons-material';
+import useSnackbar from '../../../hooks/useSnackbar';
+import { addNotification, getNotificationDetail, updateNotification } from '../../../services/notification';
 
 
 const validationSchema = Yup.object({
@@ -54,10 +53,6 @@ const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetai
   };
   const [formData, setFormData] = useState(initialFormData);
   const [loading, setLoading] = useState(false);
-  const [hookTokenEdit, setHookTokenEdit] = useState(false);
-  const [feishuAppSecretEdit, setFeishuAppSecretEdit] = useState(false);
-  const [wecomCorpSecretEdit, setWecomCorpSecretEdit] = useState(false);
-  const [dingtalkAppSecretEdit, setDingtalkAppSecretEdit] = useState(false);
 
   const { showMessage } = useSnackbar();
 
@@ -100,7 +95,7 @@ const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetai
         showMessage(`fail to get notification detail: ${error.message}`, 'error');
       }
     }
-  }, [notificationId])
+  }, [notificationId, showMessage, formData])
 
   useEffect(() => {
     getNotificationDetailR();

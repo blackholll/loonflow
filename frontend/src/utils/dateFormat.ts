@@ -14,7 +14,7 @@ export function safeParseDate(dateString: string): Date | null {
     try {
         // 处理带时区的日期格式 (如: 2023-12-01 10:30:00 +0800)
         // Safari不支持这种格式，需要转换为ISO格式
-        if (dateString.includes('+') || dateString.includes('-') && dateString.length > 19) {
+        if (dateString.includes('+') || (dateString.includes('-') && dateString.length > 19)) {
             // 提取时区信息
             const timezoneMatch = dateString.match(/([+-]\d{4})$/);
             if (timezoneMatch) {

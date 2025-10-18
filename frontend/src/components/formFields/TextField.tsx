@@ -1,11 +1,9 @@
+import { FormControl, TextField as MuiTextField } from '@mui/material';
 import React from 'react';
-import { TextField as MuiTextField, FormControl, FormHelperText, InputLabel } from '@mui/material';
 import ViewField from './ViewField';
-import { bool } from 'yup';
 
 interface TextFieldProps {
     value: string;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -13,7 +11,6 @@ interface TextFieldProps {
 
 function TextField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -38,7 +35,6 @@ function TextField({
             <MuiTextField
                 value={value}
                 onChange={handleChange}
-                required={fieldRequired}
                 variant="outlined"
                 fullWidth={true}
                 size="small"

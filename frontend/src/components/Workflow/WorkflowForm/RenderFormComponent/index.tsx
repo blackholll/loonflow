@@ -1,27 +1,31 @@
+import React, { useEffect, useState } from 'react';
 import { IWorkflowComponent } from "../../../../types/workflow";
 import {
-    TextField,
-    NumberField,
-    TextAreaField,
-    SelectField,
-    RadioField,
     CheckboxField,
-    TimeField,
     DateField,
     DateTimeField,
-    FileField,
-    UserField,
     DepartmentField,
-    TicketCreatorField,
-    TicketCreatedAtField,
-    TicketNodesField,
+    FileField,
+    NumberField,
+    RadioField,
+    SelectField,
+    TextAreaField,
+    TextField,
     TicketActStateField,
-    WorkflowInfoField,
+    TicketCreatedAtField,
+    TicketCreatorField,
     TicketCurrentAssigneeInfosField
     // UserField,
     // DepartmentField,
+    ,
+
+
+
+    TicketNodesField,
+    TimeField,
+    UserField,
+    WorkflowInfoField
 } from '../../../formFields';
-import React, { useState, useEffect } from 'react';
 
 interface RenderFormComponentProps {
     component: IWorkflowComponent;
@@ -80,7 +84,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <TextField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -90,7 +93,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <TextAreaField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -100,7 +102,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <NumberField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -110,7 +111,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <SelectField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -120,7 +120,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <RadioField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -130,7 +129,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <CheckboxField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -140,7 +138,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <TimeField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -160,7 +157,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <DateTimeField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -180,7 +176,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <UserField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -190,7 +185,6 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
             return (
                 <DepartmentField
                     value={value}
-                    fieldRequired={component.componentPermission === 'required'}
                     onChange={handleFieldChange}
                     mode={component.componentPermission === 'readonly' ? 'view' : 'edit'}
                     props={component.props}
@@ -338,8 +332,7 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
         //             fullWidth
         //             multiple={component.props?.multiple || false}
         //             users={component.props?.users || []}
-        //         />
-        //     );
+        //         />    //     );
         // case 'department':
         //     return (
         //         <DepartmentField

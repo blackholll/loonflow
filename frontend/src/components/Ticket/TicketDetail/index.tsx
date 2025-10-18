@@ -1,30 +1,30 @@
-import React, { useState, useEffect, useCallback } from "react";
 import {
-  Box,
-  Paper,
-  Typography,
-  Tooltip,
-  Button,
-  Dialog,
-  DialogContent,
-  TextField,
-  DialogActions,
   Autocomplete,
-  CircularProgress
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography
 } from "@mui/material";
 import Grid from '@mui/material/Grid2';
+import { useCallback, useEffect, useState } from "react";
 
-import RenderFormComponent from "../../Workflow/WorkflowForm/RenderFormComponent";
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, IWorkflowAction } from "../../../types/workflow";
-import { getTicketCreationForm, getTicketCreationActions } from "../../../services/workflow";
-import { newTicket, getTicketDetailForm, getTicketDetailActions, handleTicket, getTicketDetailAdminActions } from "../../../services/ticket";
 import useSnackbar from "../../../hooks/useSnackbar";
-import WorkflowDiagram from "./WorkflowDiagram";
-import TicketHistory from './TicketFlowHistory';
+import { getTicketDetailActions, getTicketDetailAdminActions, getTicketDetailForm, handleTicket, newTicket } from "../../../services/ticket";
 import { getSimpleUsers } from '../../../services/user';
+import { getTicketCreationActions, getTicketCreationForm } from "../../../services/workflow";
 import { ISimpleUser } from '../../../types/user';
+import { IFormSchema, IWorkflowAction, IWorkflowComponent, IWorkflowComponentRow } from "../../../types/workflow";
+import RenderFormComponent from "../../Workflow/WorkflowForm/RenderFormComponent";
 import getButtonProps from './getButtonProps';
+import TicketHistory from './TicketFlowHistory';
+import WorkflowDiagram from "./WorkflowDiagram";
 
 interface TicketDetailProps {
   workflowId?: string;

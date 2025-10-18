@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Box, Tooltip, InputAdornment, Autocomplete } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { addApplication } from '../../../services/application';
-import useSnackbar from '../../../hooks/useSnackbar';
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField } from '@mui/material';
 import { debounce } from 'lodash';
-import { getSimpleUsers } from '../../../services/user';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import useSnackbar from '../../../hooks/useSnackbar';
 import { addDept, getDeptDetail, updateDept } from '../../../services/dept';
+import { getSimpleUsers } from '../../../services/user';
 
 // 定义用户接口
 interface User {

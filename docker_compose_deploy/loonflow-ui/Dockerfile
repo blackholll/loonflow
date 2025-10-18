@@ -2,6 +2,7 @@ FROM node:18.20.8-slim AS builder
 
 COPY ./frontend /app/loonflow/
 WORKDIR /app/loonflow
+ENV BROWSERSLIST_IGNORE_OLD_DATA=true
 RUN yarn install --network-timeout 600000 && yarn build
 
 

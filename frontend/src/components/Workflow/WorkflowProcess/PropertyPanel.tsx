@@ -1,40 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import {
-    Box,
-    Typography,
-    TextField,
-    Divider,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    IconButton,
+    Alert,
     Autocomplete,
+    Box,
+    Button,
     Chip,
     CircularProgress,
-    FormLabel,
-    RadioGroup,
+    Divider,
+    FormControl,
     FormControlLabel,
+    FormLabel,
+    IconButton,
+    InputLabel,
+    Link,
+    MenuItem,
     Radio,
-    Switch,
-    Button,
+    RadioGroup,
+    Select,
     Snackbar,
-    Alert,
-    Link
+    Switch,
+    TextField,
+    Typography
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { Node, Edge } from '@xyflow/react';
-import { IFormSchema } from '../../../types/workflow';
-import { getSimpleUsers } from '../../../services/user';
-import { getDeptPaths } from '../../../services/dept';
-import { getSimpleRoles } from '../../../services/role';
-import { ISimpleUser } from '../../../types/user';
-import { ISimpleDeptPath } from '../../../types/dept';
+import { Edge, Node } from '@xyflow/react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { v4 as uuidv4 } from 'uuid';
-import ConditionExpressionEditor from './ConditionExpressionEditor';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { v4 as uuidv4 } from 'uuid';
+import { getDeptPaths } from '../../../services/dept';
+import { getSimpleRoles } from '../../../services/role';
+import { getSimpleUsers } from '../../../services/user';
+import { ISimpleDeptPath } from '../../../types/dept';
+import { ISimpleUser } from '../../../types/user';
+import { IFormSchema } from '../../../types/workflow';
+import ConditionExpressionEditor from './ConditionExpressionEditor';
 
 interface PropertyPanelProps {
     element: Node | Edge | null;
@@ -66,44 +66,6 @@ function isNode(element: Node | Edge): element is Node {
 
 function isEdge(element: Node | Edge): element is Edge {
     return 'source' in element && 'target' in element;
-}
-
-// 其他可能的类型检查方法（供参考）
-function isNodeAlternative1(element: Node | Edge): element is Node {
-    // 方法1：检查是否有 position 属性（Node 特有）
-    return 'position' in element;
-}
-
-function isNodeAlternative2(element: Node | Edge): element is Node {
-    // 方法2：检查是否有 type 属性且不是 'custom'（Edge 的默认类型）
-    return 'type' in element && element.type !== 'custom';
-}
-
-function isEdgeAlternative1(element: Node | Edge): element is Edge {
-    // 方法1：检查是否有 source 和 target 属性
-    return 'source' in element && 'target' in element;
-}
-
-function isEdgeAlternative2(element: Node | Edge): element is Edge {
-    // 方法2：检查是否有 sourceHandle 和 targetHandle 属性（Edge 特有）
-    return 'sourceHandle' in element && 'targetHandle' in element;
-}
-
-// 最可靠的方法：结合多个属性检查
-function isNodeReliable(element: Node | Edge): element is Node {
-    return (
-        'position' in element &&
-        !('source' in element) &&
-        !('target' in element)
-    );
-}
-
-function isEdgeReliable(element: Node | Edge): element is Edge {
-    return (
-        'source' in element &&
-        'target' in element &&
-        !('position' in element)
-    );
 }
 
 function PropertyPanel(props: PropertyPanelProps) {

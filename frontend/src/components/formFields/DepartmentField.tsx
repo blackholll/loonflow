@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
 import { Autocomplete, CircularProgress, FormControl, TextField } from '@mui/material';
-import { getDeptPaths } from '../../services/dept';
-import ViewField from './ViewField';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getDeptPaths } from '../../services/dept';
 import { ISimpleDeptPath } from '../../types/dept';
+import ViewField from './ViewField';
 
 interface DeptFieldProps {
     value: string | null;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: {
@@ -24,7 +23,6 @@ interface IOption {
 
 function DepartmentField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -124,8 +122,8 @@ function DepartmentField({
                 getOptionLabel={(option) => option.label}
                 isOptionEqualToValue={(option, val) => option.value === (val as IOption).value}
                 value={isMultiple ? selectedDepts : selectedDept}
-                onChange={(e, value) => handleChange(value)}
-                onInputChange={(e, value) => {
+                onChange={(_e, value) => handleChange(value)}
+                onInputChange={(_e, value) => {
                     if (value.length > 0) {
                         loadDepts(value);
                     }

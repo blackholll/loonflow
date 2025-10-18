@@ -1,11 +1,9 @@
-import React from 'react';
 import { FormControl, TextField as MuiTextField } from '@mui/material';
-import ViewField from './ViewField';
 import { NumericFormat, NumericFormatProps } from 'react-number-format';
+import ViewField from './ViewField';
 
 interface NumberFieldProps {
     value: number | string;
-    fieldRequired: boolean;
     onChange: (value: number | string) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -13,7 +11,6 @@ interface NumberFieldProps {
 
 function NumberField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -93,9 +90,7 @@ function NumberField({
                 placeholder={props?.placeholder}
                 inputMode={allowDecimal ? 'decimal' : 'numeric'}
                 customInput={MuiTextField}
-                // 传递给 TextField，确保样式与 TextField 一致
                 fullWidth={true}
-                required={fieldRequired}
                 variant={props?.variant ?? 'outlined'}
                 size={props?.size ?? 'small'}
             />

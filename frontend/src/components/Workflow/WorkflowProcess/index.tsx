@@ -1,32 +1,32 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { Alert, Box, Drawer, Snackbar } from '@mui/material';
 import {
-    ReactFlow,
-    Node,
-    Edge,
     addEdge,
-    Connection,
-    useNodesState,
-    useEdgesState,
-    Controls,
     Background,
-    NodeTypes,
-    EdgeTypes,
-    ReactFlowProvider,
+    Connection,
     ConnectionMode,
+    Controls,
+    Edge,
+    EdgeChange,
+    EdgeTypes,
+    Node,
     NodeChange,
-    EdgeChange
+    NodeTypes,
+    ReactFlow,
+    ReactFlowProvider,
+    useEdgesState,
+    useNodesState
 } from '@xyflow/react';
-import { Box, Drawer, Snackbar, Alert } from '@mui/material';
 import '@xyflow/react/dist/style.css';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import NodePanel from './NodePanel';
-import Toolbar from './Toolbar';
-import PropertyPanel from './PropertyPanel';
-import { CustomNode } from './CustomNode';
-import { CustomEdge } from './CustomEdge';
-import { IProcessSchema, IWorkflowNode, IWorkflowEdge, IFormSchema } from '../../../types/workflow';
-import { v4 as uuidv4 } from 'uuid';
 import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import { IFormSchema, IProcessSchema, IWorkflowEdge, IWorkflowNode } from '../../../types/workflow';
+import { CustomEdge } from './CustomEdge';
+import { CustomNode } from './CustomNode';
+import NodePanel from './NodePanel';
+import PropertyPanel from './PropertyPanel';
+import Toolbar from './Toolbar';
 
 // edge definition, move to the outside of the component to avoid re-creation
 const edgeTypes: EdgeTypes = {

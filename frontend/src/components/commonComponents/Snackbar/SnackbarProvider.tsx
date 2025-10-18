@@ -1,5 +1,5 @@
 // src/components/Snackbar/SnackbarProvider.tsx
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, ReactNode, useState } from 'react';
 import GlobalSnackbar from './GlobalSnackbar';
 
 interface SnackbarContextType {
@@ -17,7 +17,7 @@ const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) => {
   const [message, setMessage] = useState<string | ReactNode>('');
   const [severity, setSeverity] = useState<'error' | 'warning' | 'info' | 'success'>('info');
 
-  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+  const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
     }
