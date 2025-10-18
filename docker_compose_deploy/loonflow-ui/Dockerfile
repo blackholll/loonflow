@@ -1,4 +1,4 @@
-FROM 22.18.0-slim AS builder
+FROM node:22.18.0-slim AS builder
 
 RUN corepack enable && corepack prepare yarn@4.4.1 --activate
 
