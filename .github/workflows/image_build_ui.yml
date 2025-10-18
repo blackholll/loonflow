@@ -20,8 +20,15 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
           
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Enable Corepack and setup Yarn
+        run: |
+          corepack enable
+          # 从 package.json 中读取 packageManager 字段
+          YARN_VERSION=$(node -p "require('./frontend/package.json').packageManager?.split('@')[1] || '4.4.1'")
+          echo "Installing Yarn version: $YARN_VERSION"
+          corepack prepare yarn@$YARN_VERSION --activate
+          echo "Yarn version: $(yarn --version)"
+          echo "Yarn location: $(which yarn)"
 
       - name: Cache TS incremental info
         uses: actions/cache@v3
@@ -31,13 +38,18 @@ jobs:
           restore-keys: |
             tsbuildinfo-${{ runner.os }}-
 
+      - name: Verify Yarn version
+        run: yarn --version
+        
       - name: Install deps (frontend)
         working-directory: frontend
         run: yarn install --immutable
 
       - name: TypeScript type check
         working-directory: frontend
-        run: yarn tsc --noEmit
+        run: |
+          echo "Running TypeScript check with Yarn $(yarn --version)"
+          yarn tsc --noEmit
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
