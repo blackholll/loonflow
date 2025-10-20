@@ -1,5 +1,5 @@
 import { Autocomplete, CircularProgress, FormControl, TextField } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getSimpleUsers } from '../../services/user';
 import { ISimpleUser } from '../../types/user';
