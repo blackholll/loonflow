@@ -70,7 +70,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
         setUsers(response.data.userInfoList.map((user: ISimpleUser) => ({ label: `${user.name}(${user.alias})`, value: user.id })) || []);
       }
     } catch (error) {
-      console.error('加载用户列表失败:', error);
+      console.error(t('common.loadUserListFailed'), error);
     } finally {
       setLoadingUsers(false);
     }

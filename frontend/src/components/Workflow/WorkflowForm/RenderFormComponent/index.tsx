@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { IWorkflowComponent } from "../../../../types/workflow";
 import {
     CheckboxField,
@@ -21,6 +22,12 @@ import {
 
 
 
+
+
+
+
+
+
     TicketNodesField,
     TimeField,
     UserField,
@@ -33,6 +40,8 @@ interface RenderFormComponentProps {
 }
 
 function RenderFormComponent({ component, handleComponentUpdate }: RenderFormComponentProps): React.ReactElement {
+    const { t } = useTranslation();
+
     // 根据组件类型和multiple属性确定初始值
     const getInitialValue = () => {
         const defaultValue = component?.props?.value || component?.props?.defaultValue;
@@ -75,7 +84,7 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
     // 添加防护措施，确保组件参数有效
     if (!component || !component.type) {
         console.warn('RenderFormComponent: Invalid component received', component);
-        return <div>无效的组件</div>;
+        return <div>{t('common.invalidComponent')}</div>;
     }
 
     // 根据组件类型渲染不同的表单字段

@@ -511,7 +511,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                 return (
                     <>
                         <TextField
-                            label="外部接口"
+                            label={t('workflow.externalApi')}
                             required
                             value={assigneeValue}
                             onChange={(e) => handlePropertyChange('assignee', e.target.value)}
@@ -715,7 +715,7 @@ class externalAssigneeView(View):
                                     size="small"
                                     fullWidth
                                     required
-                                    placeholder="Hook访问令牌"
+                                    placeholder={t('workflow.hookTokenPlaceholder')}
                                 />
                                 <Button
                                     variant="outlined"
@@ -772,12 +772,12 @@ class externalAssigneeView(View):
 
                             {properties.gatewayType === 'exclusive' && (
                                 <TextField
-                                    label="默认分支"
+                                    label={t('workflow.defaultBranch')}
                                     value={properties.defaultBranch || ''}
                                     onChange={(e) => handlePropertyChange('defaultBranch', e.target.value)}
                                     size="small"
                                     fullWidth
-                                    placeholder="默认分支的连线ID"
+                                    placeholder={t('workflow.defaultBranchEdgeId')}
                                 />
                             )}
                         </>

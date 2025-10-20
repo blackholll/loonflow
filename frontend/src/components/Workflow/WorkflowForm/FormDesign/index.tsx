@@ -123,7 +123,7 @@ function FormDesign(props: FormDesignProps) {
             const newComponent: IWorkflowComponent = {
                 id: generateId(),
                 type: template.type as 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'title' | 'creator_info' | 'created_at' | 'ticket_node_infos' | 'act_state' | 'workflow_info' | 'current_assignee_infos' | 'ticket_node_infos',
-                componentName: template.componentName || '新字段',
+                componentName: template.componentName || t('workflow.newField'),
                 label: {},
                 description: template.defaultProps.description || '',
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, template.type),
@@ -166,7 +166,7 @@ function FormDesign(props: FormDesignProps) {
                 type: 'row',
                 layout: { span: 6 },
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, 'row'),
-                componentName: '新行',
+                componentName: t('workflow.newRow'),
                 description: '',
                 label: {},
                 props: {},
@@ -309,7 +309,7 @@ function FormDesign(props: FormDesignProps) {
                     const newSpanSum = currentSpanSum + ((sourceComponent as IWorkflowComponent).layout.span || 12);
                     if (newSpanSum > 12) {
                         console.log('行内组件span总和不能超过12');
-                        showMessage('行内组件宽度不得超过1', 'error');
+                        showMessage(t('workflow.inlineWidthExceedOne'), 'error');
                         onIsMovingChange(false);
                         onMovingComponentChange(null);
                         return;
@@ -442,7 +442,7 @@ function FormDesign(props: FormDesignProps) {
             const newComponent: IWorkflowComponent = {
                 id: generateId(),
                 type: template.type,
-                componentName: template.componentName || '新字段',
+                componentName: template.componentName || t('workflow.newField'),
                 description: template.defaultProps.description || '',
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, template.type),
                 label: {},
@@ -466,7 +466,7 @@ function FormDesign(props: FormDesignProps) {
                                 children: [...(comp as IWorkflowComponentRow).children, newComponent]
                             };
                         } else {
-                            showMessage('行内组件宽度不得超过1', 'error');
+                            showMessage(t('workflow.inlineWidthExceedOne'), 'error');
                         }
                     }
                     return comp;

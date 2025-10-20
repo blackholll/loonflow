@@ -14,5 +14,7 @@
   "viewTickets": "View Tickets",
   "dutyTickets": "Duty Tickets",
   "relationTickets": "Relation Tickets",
-  "interveneTickets": "Intervene Tickets"
+  "interveneTickets": "Intervene Tickets",
+  "adminActions": "Admin Actions",
+  "selectAssignee": "Select Assignee"
 }

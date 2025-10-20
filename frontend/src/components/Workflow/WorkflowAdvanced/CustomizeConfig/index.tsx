@@ -127,14 +127,14 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
         try {
             const successful = document.execCommand('copy');
             if (successful) {
-                showMessage('复制成功', 'success');
+                showMessage(t('common.copySuccess'), 'success');
             } else {
-                showMessage('复制失败', 'error');
+                showMessage(t('common.copyFailed'), 'error');
             }
             setAddedHookToken('');
             return successful;
         } catch (err: any) {
-            showMessage('复制失败', 'error');
+            showMessage(t('common.copyFailed'), 'error');
             return false;
         } finally {
             document.body.removeChild(textarea);
@@ -146,7 +146,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
         try {
             await navigator.clipboard.writeText(addedHookToken);
             setAddedHookToken('');
-            showMessage('复制成功', 'success');
+            showMessage(t('common.copySuccess'), 'success');
         } catch (err) {
             // 降级方案
             copyToClipboardFallback(addedHookToken);
@@ -241,7 +241,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                         <Button onClick={() => setOpen(true)}>
                             {t('common.add')}
                         </Button>
-                        {addedHookToken !== "" ? (<Alert severity="info">{addedHookToken} <Button onClick={() => handleCopy()}>复制Token</Button></Alert>) : null}
+                        {addedHookToken !== "" ? (<Alert severity="info">{addedHookToken} <Button onClick={() => handleCopy()}>{t('common.copyToken')}</Button></Alert>) : null}
 
                     </Grid>
                     <Table sx={{ minWidth: 650 }} aria-label="caption table">
@@ -259,7 +259,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                                         {row.url}
                                     </TableCell>
                                     <TableCell align="right">{row.eventList.map((event) => hookEvents.find((e) => e.key === event)?.label).join(',')}</TableCell>
-                                    <TableCell align="right"><div><Button disabled>编辑</Button><Button disabled>重置token</Button><Button disabled>删除</Button></div></TableCell>
+                                    <TableCell align="right"><div><Button disabled>{t('common.edit')}</Button><Button disabled>{t('common.resetToken')}</Button><Button disabled>{t('common.delete')}</Button></div></TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

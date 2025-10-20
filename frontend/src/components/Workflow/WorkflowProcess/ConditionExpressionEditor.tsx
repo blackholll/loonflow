@@ -260,7 +260,7 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
                     {groupIndex > 0 && (
                         <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
                             <Typography variant="body2" color="primary" sx={{ fontWeight: 'bold' }}>
-                                或
+                                {t('common.or')}
                             </Typography>
                         </Box>
                     )}
@@ -288,7 +288,7 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
                                     {conditionIndex > 0 && (
                                         <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
                                             <Typography variant="body2" color="secondary" sx={{ fontWeight: 'bold' }}>
-                                                且
+                                                {t('common.and')}
                                             </Typography>
                                         </Box>
                                     )}

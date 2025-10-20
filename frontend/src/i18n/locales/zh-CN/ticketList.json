@@ -14,5 +14,7 @@
   "viewTickets": "查看工单",
   "dutyTickets": "待办工单",
   "relationTickets": "关联工单",
-  "interveneTickets": "干预工单"
+  "interveneTickets": "干预工单",
+  "adminActions": "管理员操作",
+  "selectAssignee": "选择处理人"
 }

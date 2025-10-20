@@ -44,14 +44,14 @@ function DepartmentField({
                 setDepts(response.data.deptPathList.map((dept: ISimpleDeptPath) => ({ label: `${dept.path}`, value: dept.id })) || []);
             }
         } catch (error) {
-            console.error('加载部门列表失败:', error);
+            console.error(t('common.loadDeptListFailed'), error);
         } finally {
             setLoading(false);
         }
-    }, [loading]);
+    }, [loading, t]);
 
 
-    const fetchDeptByIds = async (deptIds: string | string[]) => {
+    const fetchDeptByIds = useCallback(async (deptIds: string | string[]) => {
         if (!deptIds || (Array.isArray(deptIds) && deptIds.length === 0)) {
             return [];
         }
@@ -66,10 +66,10 @@ function DepartmentField({
                 }));
             }
         } catch (error) {
-            console.error('获取部门信息失败:', error);
+            console.error(t('common.getDeptInfoFailed'), error);
         }
         return [];
-    };
+    }, [t]);
 
     // 处理值变化
     const handleChange = (newValue: IOption | IOption[] | null) => {
@@ -105,7 +105,7 @@ function DepartmentField({
                 setSelectedDept(null);
             }
         }
-    }, [value, isMultiple]);
+    }, [value, isMultiple, fetchDeptByIds]);
 
 
 

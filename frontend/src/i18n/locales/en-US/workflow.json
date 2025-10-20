@@ -1,5 +1,6 @@
 {
   "release": "Release",
+  "unnamed": "unnamed",
   "releaseWorkflowSuccess": "Release Workflow Success",
   "releaseWorkflowFail": "Release Workflow Fail",
   "problemsFound": "The following problems were found:",
@@ -332,5 +333,15 @@
         "withdrawn": "Withdrawn"
       }
     }
-  }
+  },
+  "newField": "New Field",
+  "newRow": "New Row",
+  "inlineWidthExceedOne": "Inline component width cannot exceed 1",
+  "node": "Node",
+  "edge": "Edge",
+  "orangeBorderTip": "Orange border indicates current ticket node",
+  "externalApi": "External API",
+  "hookTokenPlaceholder": "Hook Access Token",
+  "defaultBranch": "Default Branch",
+  "defaultBranchEdgeId": "Default Branch Edge ID"
 }

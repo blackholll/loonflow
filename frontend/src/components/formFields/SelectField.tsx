@@ -1,4 +1,5 @@
 import { Autocomplete, FormControl, TextField as MuiTextField } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { FormOption } from '../../types/workflowDesign';
 import ViewField from './ViewField';
 
@@ -15,6 +16,7 @@ function SelectField({
     mode,
     props,
 }: SelectFieldProps) {
+    const { t } = useTranslation();
 
     // 获取选项列表
     const options: FormOption[] = props?.optionsWithKeys || [];
@@ -146,7 +148,7 @@ function SelectField({
                 renderInput={(params) => (
                     <MuiTextField
                         {...params}
-                        label={props?.placeholder || '请选择'}
+                        label={props?.placeholder || t('common.pleaseSelect')}
                         variant="outlined"
                         size="small"
                     />

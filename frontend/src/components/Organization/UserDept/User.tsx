@@ -79,15 +79,15 @@ function User() {
                 const transformedData = transformDeptData(response.data.deptList);
                 setDepartments(transformedData);
             } else {
-                showMessage(response.msg || '获取部门树失败', 'error');
+                showMessage(response.msg || t('common.loadDeptTreeFailed'), 'error');
             }
         } catch (error: any) {
-            showMessage(error.message || '获取部门树失败', 'error');
-            console.error('获取部门树失败:', error);
+            showMessage(error.message || t('common.loadDeptTreeFailed'), 'error');
+            console.error(t('common.loadDeptTreeFailed'), error);
         } finally {
             setLoading(false);
         }
-    }, [showMessage, transformDeptData]);
+    }, [showMessage, transformDeptData, t]);
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -97,15 +97,15 @@ function User() {
                 setUserList(response.data.userInfoList);
                 setTotal(response.data.total);
             } else {
-                showMessage(response.msg || '获取用户列表失败', 'error');
+                showMessage(response.msg || t('common.loadUserListFailed'), 'error');
             }
         } catch (error: any) {
-            showMessage(error.message || '获取用户列表失败', 'error');
-            console.error('获取用户列表失败:', error);
+            showMessage(error.message || t('common.loadUserListFailed'), 'error');
+            console.error(t('common.loadUserListFailed'), error);
         } finally {
             setLoading(false);
         }
-    }, [showMessage, selectedItems, page, perPage]);
+    }, [showMessage, selectedItems, page, perPage, t]);
 
     useEffect(() => {
         fetchUsers();
@@ -205,11 +205,11 @@ function User() {
                         const childrenData = transformDeptData(response.data.deptList);
                         setDepartments(prevDepts => updateDepartmentChildren(prevDepts, nodeId, childrenData));
                     } else {
-                        showMessage(response.msg || '获取部门子节点失败', 'error');
+                        showMessage(response.msg || t('common.loadDeptChildrenFailed'), 'error');
                     }
                 } catch (error: any) {
-                    showMessage(error.message || '获取部门子节点失败', 'error');
-                    console.error('获取部门子节点失败:', error);
+                    showMessage(error.message || t('common.loadDeptChildrenFailed'), 'error');
+                    console.error(t('common.loadDeptChildrenFailed'), error);
                 } finally {
                     setLoading(false);
                 }
@@ -244,7 +244,7 @@ function User() {
                 setTotal(response.data.total);
             }
         } catch (error: any) {
-            showMessage(error.message || '获取用户列表失败', 'error');
+            showMessage(error.message || t('common.loadUserListFailed'), 'error');
         }
     };
 

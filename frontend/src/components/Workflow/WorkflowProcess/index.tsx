@@ -377,15 +377,15 @@ function WorkflowProcess({
             visible: true,
             x: pos.x,
             y: pos.y,
-            title: props.name || props.label || '节点',
+            title: props.name || props.label || t('workflow.node'),
             lines: [
                 `类型: ${node.type || ''}`,
                 `nodeId: ${node.id}`,
-                ...(props.assignee ? [`处理人: ${props.assignee}`] : []),
-                ...(props.description ? [`描述: ${props.description}`] : [])
+                ...(props.assignee ? [`${t('common.assignee')}: ${props.assignee}`] : []),
+                ...(props.description ? [`${t('common.description')}: ${props.description}`] : [])
             ]
         });
-    }, [simpleViewMode, updateTooltipPosition]);
+    }, [simpleViewMode, updateTooltipPosition, t]);
 
     const onNodeMouseMove = useCallback((event: React.MouseEvent, node: Node) => {
         if (!simpleViewMode) return;
@@ -407,14 +407,14 @@ function WorkflowProcess({
             visible: true,
             x: pos.x,
             y: pos.y,
-            title: props.name || props.label || '连线',
+            title: props.name || props.label || t('workflow.edge'),
             lines: [
                 `类型: ${props.type || 'other'}`,
                 `edgeId: ${edge.id}`,
-                ...(props.condition ? [`条件: ${props.condition}`] : [])
+                ...(props.condition ? [`${t('common.condition')}: ${props.condition}`] : [])
             ]
         });
-    }, [simpleViewMode, updateTooltipPosition]);
+    }, [simpleViewMode, updateTooltipPosition, t]);
 
     const onEdgeMouseMove = useCallback((event: React.MouseEvent, edge: Edge) => {
         if (!simpleViewMode) return;
@@ -592,7 +592,7 @@ function WorkflowProcess({
                         ...selectedElement.data,
                         properties: {
                             ...(selectedElement.data?.properties && typeof selectedElement.data.properties === 'object' ? selectedElement.data.properties : {}),
-                            name: `${(selectedElement.data?.properties as any)?.name || '连线'} (副本)`,
+                            name: `${(selectedElement.data?.properties as any)?.name || t('workflow.edge')} (副本)`,
                         }
                     }
                 };
@@ -615,7 +615,7 @@ function WorkflowProcess({
                         ...selectedElement.data,
                         properties: {
                             ...(selectedElement.data?.properties && typeof selectedElement.data.properties === 'object' ? selectedElement.data.properties : {}),
-                            name: `${(selectedElement.data?.properties as any)?.name || '节点'} (副本)`,
+                            name: `${(selectedElement.data?.properties as any)?.name || t('workflow.node')} (副本)`,
                         }
                     }
                 };
@@ -629,7 +629,7 @@ function WorkflowProcess({
             setSelectedElement(null);
             setPropertyPanelOpen(false);
         }
-    }, [selectedElement, setNodes, setEdges, nodes, edges, saveToHistory, notifyParentChange]);
+    }, [selectedElement, setNodes, setEdges, nodes, edges, saveToHistory, notifyParentChange, t]);
 
 
     const propertyPanelComponent = useMemo(() => (
@@ -745,7 +745,7 @@ function WorkflowProcess({
                                         zIndex: 20
                                     }}
                                 >
-                                    橙色边框表示工单当前所在节点
+                                    {t('workflow.orangeBorderTip')}
                                 </Box>
                             ) : null}
                         </ReactFlow>

@@ -44,14 +44,14 @@ function UserField({
                 setUsers(response.data.userInfoList.map((user: ISimpleUser) => ({ label: `${user.name}(${user.alias})`, value: user.id })) || []);
             }
         } catch (error) {
-            console.error('加载用户列表失败:', error);
+            console.error(t('common.loadUserListFailed'), error);
         } finally {
             setLoading(false);
         }
     };
 
 
-    const fetchUsersByIds = async (userIds: string | string[]) => {
+    const fetchUsersByIds = useCallback(async (userIds: string | string[]) => {
         if (!userIds || (Array.isArray(userIds) && userIds.length === 0)) {
             return [];
         }
@@ -66,10 +66,10 @@ function UserField({
                 }));
             }
         } catch (error) {
-            console.error('获取用户信息失败:', error);
+            console.error(t('common.getUserInfoFailed'), error);
         }
         return [];
-    };
+    }, [t]);
 
     // 处理值变化
     const handleChange = (newValue: IOption | IOption[] | null) => {
@@ -97,7 +97,7 @@ function UserField({
                 }
             });
         }
-    }, [value, isMultiple]);
+    }, [value, isMultiple, fetchUsersByIds]);
 
 
     // 监控selectedUsers变化

@@ -1,5 +1,6 @@
 {
   "release": "发布",
+  "unnamed": "未命名",
   "releaseWorkflowSuccess": "发布工作流成功",
   "releaseWorkflowFail": "发布工作流失败",
   "problemsFound": "发现以下问题：",
@@ -332,5 +333,15 @@
         "withdrawn": "被撤回"
       }
     }
-  }
+  },
+  "newField": "新字段",
+  "newRow": "新行",
+  "inlineWidthExceedOne": "行内组件宽度不得超过1",
+  "node": "节点",
+  "edge": "连线",
+  "orangeBorderTip": "橙色边框表示工单当前所在节点",
+  "externalApi": "外部接口",
+  "hookTokenPlaceholder": "Hook访问令牌",
+  "defaultBranch": "默认分支",
+  "defaultBranchEdgeId": "默认分支的连线ID"
 }

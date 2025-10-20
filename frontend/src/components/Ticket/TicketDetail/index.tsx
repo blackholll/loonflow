@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
 import useSnackbar from "../../../hooks/useSnackbar";
@@ -39,6 +40,7 @@ interface IOption {
   value: string;
 }
 function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToken }: TicketDetailProps) {
+  const { t } = useTranslation();
 
   const [formActions, setFormActions] = useState<any>();
   const [adminFormActions, setAdminFormActions] = useState<any>();
@@ -227,7 +229,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
       ticketId: ticketId!, actionType: actionType, actionId: '', actionProps
     })
     if (res.code === 0) {
-      showMessage('操作成功', 'success')
+      showMessage(t('common.operationSuccess'), 'success')
       if (onTicketHandledChange) {
         onTicketHandledChange(res.data.ticketId)
       }
@@ -332,7 +334,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
       </Paper>
       {ticketId && (
         <Paper sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>管理员操作</Typography>
+          <Typography variant="h6" sx={{ mb: 1 }}>{t('ticket.adminActions')}</Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 2 }}>
             {adminFormActions?.map((action: IWorkflowAction) => {
               const buttonProps = getButtonProps(action.type);
@@ -393,8 +395,8 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="选择处理人"
-                  placeholder="输入关键词后搜索用户..."
+                  label={t('ticket.selectAssignee')}
+                  placeholder={t('common.searchUserPlaceholder')}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
