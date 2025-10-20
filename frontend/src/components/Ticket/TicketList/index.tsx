@@ -282,7 +282,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                   <TableCell>{t('ticketList.approveState')}</TableCell>
                   <TableCell>{t('ticketList.ticketCreator')}</TableCell>
                   <TableCell>{t('ticketList.ticketCreateTime')}</TableCell>
-                  <TableCell>{t('actions')}</TableCell>
+                  <TableCell>{t('common.actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

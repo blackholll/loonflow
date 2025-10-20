@@ -1,0 +1,19 @@
+{
+  "workbench": "Workbench",
+  "ticketManagement": "Ticket Management",
+  "ticketDuty": "My Duty",
+  "ticketOwner": "My Owner",
+  "ticketRelation": "My Relation",
+  "ticketView": "My View",
+  "ticketIntervene": "My Intervene",
+  "ticketAll": "All tickets",
+  "workflowManagement": "Workflow Management",
+  "organization": "Organization",
+  "userAndDept": "User & Dept",
+  "role": "Role",
+  "setting": "Setting",
+  "tenant": "Tenant",
+  "application": "Application",
+  "notification": "Notification",
+  "signin": "Sign In"
+}

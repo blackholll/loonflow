@@ -1,0 +1,16 @@
+{
+  "userInfo": "用户信息",
+  "updateProfileSuccess": "更新用户信息成功",
+  "updateProfileFail": "更新用户信息失败",
+  "name": "姓名",
+  "changePassword": "修改密码",
+  "currentPassword": "当前密码",
+  "newPassword": "新密码",
+  "confirmPassword": "确认新密码",
+  "changePasswordSuccess": "密码修改成功",
+  "changePasswordFail": "密码修改失败",
+  "passwordsNotMatch": "两次输入的新密码不一致",
+  "currentPasswordRequired": "请输入当前密码",
+  "newPasswordRequired": "请输入新密码",
+  "confirmPasswordRequired": "请确认新密码"
+}

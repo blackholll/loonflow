@@ -44,7 +44,6 @@ const nodeTypes: NodeTypes = {
     hook: (props: any) => <CustomNode {...props} />,
 };
 
-// 将 IWorkflowNode 转换为 React Flow Node
 const convertWorkflowNodeToReactFlowNode = (workflowNode: IWorkflowNode): Node => {
     return {
         id: workflowNode.id,
@@ -61,7 +60,6 @@ const convertWorkflowNodeToReactFlowNode = (workflowNode: IWorkflowNode): Node =
     };
 };
 
-// 将 IWorkflowEdge 转换为 React Flow Edge
 const convertWorkflowEdgeToReactFlowEdge = (workflowEdge: IWorkflowEdge): Edge => {
     return {
         id: workflowEdge.id,
@@ -104,7 +102,6 @@ const convertReactFlowNodeToWorkflowNode = (node: Node): IWorkflowNode => {
     };
 };
 
-// 将 React Flow Edge 转换为 IWorkflowEdge
 const convertReactFlowEdgeToWorkflowEdge = (edge: Edge): IWorkflowEdge => {
     const properties: any = edge.data?.properties || {};
     return {
@@ -142,7 +139,6 @@ function WorkflowProcess({
     selectedNodeIds = [],
     onProcessSchemaChange
 }: WorkflowProcessProps) {
-    // 初始化节点和边
     const initialNodes: Node[] = processSchema.nodeInfoList.map(convertWorkflowNodeToReactFlowNode);
     const initialEdges: Edge[] = processSchema.edgeInfoList.map(convertWorkflowEdgeToReactFlowEdge);
     const [currentFormSchema, setCurrentFormSchema] = useState<IFormSchema>(formSchema);
@@ -157,7 +153,7 @@ function WorkflowProcess({
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
 
-    // 悬停提示状态（仅 simpleViewMode 时启用）
+    // hover tooltip state (only enabled in simpleViewMode) 
     const [hoverTooltip, setHoverTooltip] = useState<{
         visible: boolean;
         x: number;
@@ -166,7 +162,7 @@ function WorkflowProcess({
         lines: string[];
     }>({ visible: false, x: 0, y: 0, title: '', lines: [] });
 
-    // 撤销重做历史记录
+    // undo redo history
     const [history, setHistory] = useState<Array<{ nodes: Node[]; edges: Edge[] }>>([
         { nodes: initialNodes, edges: initialEdges }
     ]);
@@ -176,7 +172,7 @@ function WorkflowProcess({
         setCurrentFormSchema(formSchema);
     }, [formSchema]);
 
-    // 使用 isCurrent 标记“当前工单节点”，与交互选中状态(selected)解耦
+    // use isCurrent to mark the current workflow node, decouple from the interactive selected state
     useEffect(() => {
         const key = Array.isArray(selectedNodeIds) ? selectedNodeIds.join(',') : '';
         if (!key) {
@@ -207,15 +203,15 @@ function WorkflowProcess({
     }, [selectedNodeIds, setNodes]);
 
 
-    // 保存历史记录
+    // save history
     const saveToHistory = useCallback((newNodes: Node[], newEdges: Edge[]) => {
         const newHistoryEntry = { nodes: newNodes, edges: newEdges };
         setHistory(prev => {
-            // 移除当前位置之后的历史记录
+            // remove the history after the current position
             const newHistory = prev.slice(0, historyIndex + 1);
-            // 添加新的历史记录
+            // add the new history
             newHistory.push(newHistoryEntry);
-            // 限制历史记录数量，避免内存泄漏
+            // limit the history length, avoid memory leak
             if (newHistory.length > 50) {
                 newHistory.shift();
             }
@@ -224,7 +220,7 @@ function WorkflowProcess({
         setHistoryIndex(prev => prev + 1);
     }, [historyIndex]);
 
-    // 通知父组件数据变化
+    // notify the parent component of the data change
     const notifyParentChange = useCallback((newNodes: Node[], newEdges: Edge[]) => {
         if (onProcessSchemaChange) {
             const newProcessSchema: IProcessSchema = {
@@ -235,20 +231,20 @@ function WorkflowProcess({
         }
     }, [onProcessSchemaChange]);
 
-    // 自定义节点变化处理，添加通知父组件的逻辑
+    // custom node change handling, add the logic to notify the parent component
     const onNodesChange = useCallback((changes: NodeChange[]) => {
         const processedChanges = simpleViewMode ? changes.filter((c: any) => c.type !== 'select') : changes;
         onNodesChangeBase(processedChanges);
-        // 延迟通知父组件，避免频繁更新
+        // delay the notification to the parent component, avoid frequent updates
         setTimeout(() => {
             notifyParentChange(nodes, edges);
         }, 100);
     }, [onNodesChangeBase, nodes, edges, notifyParentChange, simpleViewMode]);
 
-    // 自定义边变化处理，添加通知父组件的逻辑
+    // custom edge change handling, add the logic to notify the parent component
     const onEdgesChange = useCallback((changes: EdgeChange[]) => {
         onEdgesChangeBase(changes);
-        // 延迟通知父组件，避免频繁更新
+        // delay the notification to the parent component, avoid frequent updates
         setTimeout(() => {
             notifyParentChange(nodes, edges);
         }, 100);
@@ -256,11 +252,11 @@ function WorkflowProcess({
 
 
 
-    // 根据源节点和目标节点属性确定边的名称和类型
+    // determine the edge name and type based on the source node and target node properties
     const getEdgeNameAndType = useCallback((sourceNode: Node, targetNode: Node, sourceHandle?: string, targetHandle?: string) => {
         const sourceType = sourceNode.type;
 
-        // 默认边类型和名称
+        // default edge type and name
         let edgeType: 'agree' | 'reject' | 'other' | 'condition' = 'agree';
         let edgeName = t('workflow.propertyPanelLabel.edgeNameAccept');
         if (sourceType === 'start') {
@@ -277,40 +273,40 @@ function WorkflowProcess({
         return { edgeType, edgeName };
     }, [t]);
 
-    // 连接处理
+    // connect handling
     const onConnect = useCallback(
         (params: Connection) => {
             console.log('onConnect 被调用:', params);
 
-            // 验证连接是否有效
+            // validate the connection is valid
             if (!params.source || !params.target) {
                 console.log('连接参数无效:', params);
                 return;
             }
 
-            // 验证只能从 source 类型的 Handle 发起连线
+            // validate that only the source type handle can start the connection
             if (!params.sourceHandle) {
                 console.log('必须从 source 类型的 Handle 发起连线');
                 return;
             }
 
-            // 验证只能连接到 target 类型的 Handle
+            // validate that only the target type handle can be connected to
             if (!params.targetHandle) {
                 console.log('必须连接到 target 类型的 Handle');
                 return;
             }
 
-            // 额外验证：确保连接方向正确
-            // 通过检查 Handle 的样式来验证类型（绿色 = source，红色 = target）
+            // additional validation: ensure the connection direction is correct
+            // validate the type based on the handle style (green = source, red = target)
             const sourceNode = nodes.find(node => node.id === params.source);
             const targetNode = nodes.find(node => node.id === params.target);
 
             if (!sourceNode || !targetNode) {
-                console.log('找不到源节点或目标节点');
+                console.log('source node or target node not found');
                 return;
             }
 
-            // 根据源节点和目标节点属性确定边的名称和类型
+            // determine the edge name and type based on the source node and target node properties
             const { edgeType, edgeName } = getEdgeNameAndType(
                 sourceNode,
                 targetNode,
@@ -318,7 +314,7 @@ function WorkflowProcess({
                 params.targetHandle
             );
 
-            // 使用React Flow的addEdge函数创建连线
+            // use the React Flow addEdge function to create the edge
             const newEdge: Edge = {
                 ...params,
                 id: `temp_${uuidv4()}`,
@@ -348,7 +344,7 @@ function WorkflowProcess({
     );
 
 
-    // 节点选择处理
+    // node selection handling
     const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         if (simpleViewMode) {
             return;
@@ -357,7 +353,7 @@ function WorkflowProcess({
         setPropertyPanelOpen(true);
     }, [simpleViewMode]);
 
-    // 边选择处理
+    // edge selection handling
     const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
         if (simpleViewMode) {
             return;
@@ -366,7 +362,7 @@ function WorkflowProcess({
         setPropertyPanelOpen(true);
     }, [simpleViewMode]);
 
-    // 节点/边 悬停提示（仅在 simpleViewMode 下）
+    // node/edge hover tooltip (only enabled in simpleViewMode)
     const updateTooltipPosition = useCallback((event: React.MouseEvent) => {
         if (!reactFlowWrapper.current) return { x: 0, y: 0 };
         const rect = reactFlowWrapper.current.getBoundingClientRect();
@@ -432,7 +428,7 @@ function WorkflowProcess({
         setHoverTooltip(prev => ({ ...prev, visible: false }));
     }, [simpleViewMode]);
 
-    // 监听连线标签点击事件
+    // listen to the edge label click event
     React.useEffect(() => {
         const handleEdgeLabelClick = (event: CustomEvent) => {
             const edgeId = event.detail.edgeId;
@@ -450,13 +446,13 @@ function WorkflowProcess({
         };
     }, [edges]);
 
-    // 画布点击处理
+    // canvas click handling
     const onPaneClick = useCallback(() => {
         setSelectedElement(null);
         setPropertyPanelOpen(false);
     }, []);
 
-    // 添加节点
+    // add node
     const onAddNode = useCallback((nodeType: string, nodeData: any) => {
         const newNode: Node = {
             id: `temp_${uuidv4()}`,
@@ -480,7 +476,7 @@ function WorkflowProcess({
         });
     }, [setNodes, edges, saveToHistory, notifyParentChange]);
 
-    // 更新节点属性
+    // update node properties
     const onUpdateNodeProperties = useCallback((nodeId: string, properties: any) => {
         console.log('onUpdateNodeProperties:', nodeId, properties);
         setNodes((nds) => {
@@ -491,7 +487,7 @@ function WorkflowProcess({
                         data: {
                             ...node.data,
                             properties,
-                            // 如果修改了 name 属性，同时更新 label
+                            // if the name property is modified, also update the label
                             ...(properties.name && { label: properties.name })
                         }
                     }
@@ -503,7 +499,7 @@ function WorkflowProcess({
         });
     }, [setNodes, edges, saveToHistory, notifyParentChange]);
 
-    // 更新边属性
+    // update edge properties
     const onUpdateEdgeProperties = useCallback((edgeId: string, properties: any) => {
         setEdges((eds) => {
             const newEdges = eds.map((edge) =>
@@ -517,7 +513,7 @@ function WorkflowProcess({
         });
     }, [setEdges, nodes, saveToHistory, notifyParentChange]);
 
-    // 工具栏操作
+    // toolbar operations
     const handleClear = useCallback(() => {
         setNodes([]);
         setEdges([]);
@@ -555,7 +551,7 @@ function WorkflowProcess({
     const handleDelete = useCallback(() => {
         if (selectedElement) {
             if ('source' in selectedElement) {
-                // 删除边
+                // delete edge
                 setEdges((eds) => {
                     const newEdges = eds.filter((edge) => edge.id !== selectedElement.id);
                     saveToHistory(nodes, newEdges);
@@ -563,7 +559,7 @@ function WorkflowProcess({
                     return newEdges;
                 });
             } else {
-                // 删除节点和相关的边
+                // delete node and related edges
                 const nodeId = selectedElement.id;
                 setNodes((nds) => {
                     const newNodes = nds.filter((node) => node.id !== nodeId);
@@ -586,7 +582,7 @@ function WorkflowProcess({
     const handleCopy = useCallback(() => {
         if (selectedElement) {
             if ('source' in selectedElement) {
-                // 复制边
+                // copy edge
                 const newEdge: Edge = {
                     ...selectedElement,
                     id: `temp_${uuidv4()}`,
@@ -607,7 +603,7 @@ function WorkflowProcess({
                     return newEdges;
                 });
             } else {
-                // 复制节点
+                // copy node
                 const newNode: Node = {
                     ...selectedElement,
                     id: `temp_${uuidv4()}`,
@@ -649,15 +645,15 @@ function WorkflowProcess({
     return (
         <ReactFlowProvider>
             <Box sx={{ display: 'flex', height: '100vh', width: '100vw' }}>
-                {/* 左侧节点面板 */}
+                {/* left node panel */}
                 {!simpleViewMode ?
                     <Box sx={{ width: 280, borderRight: 1, borderColor: 'divider' }}>
                         <NodePanel onAddNode={onAddNode} />
                     </Box> : null}
 
-                {/* 主要内容区域 */}
+                {/* main content area */}
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    {/* 顶部工具栏 */}
+                    {/* top toolbar */}
                     {!simpleViewMode ?
                         <Toolbar
                             onClear={handleClear}
@@ -671,7 +667,7 @@ function WorkflowProcess({
                             canRedo={historyIndex < history.length - 1}
                         /> : null}
 
-                    {/* 流程图画布 */}
+                    {/* workflow canvas */}
                     <Box sx={{ flex: 1, position: 'relative' }} ref={reactFlowWrapper}>
                         <ReactFlow
                             nodes={nodes}
@@ -706,7 +702,7 @@ function WorkflowProcess({
                             <Controls />
                             <Background color="#aaa" gap={16} />
 
-                            {/* 悬停提示浮层 */}
+                            {/* hover tooltip layer */}
                             {simpleViewMode && hoverTooltip.visible ? (
                                 <Box
                                     sx={{
@@ -731,7 +727,7 @@ function WorkflowProcess({
                                 </Box>
                             ) : null}
 
-                            {/* 橙色边框说明提示：仅在存在 selectedNodeIds 时显示 */}
+                            {/* orange border说明提示：仅在存在 selectedNodeIds 时显示 */}
                             {selectedNodeIds && selectedNodeIds.length > 0 ? (
                                 <Box
                                     sx={{
@@ -756,7 +752,7 @@ function WorkflowProcess({
                     </Box>
                 </Box>
 
-                {/* 右侧属性面板 */}
+                {/* right property panel */}
                 {!simpleViewMode ? <Drawer
                     anchor="right"
                     open={propertyPanelOpen}
@@ -772,7 +768,7 @@ function WorkflowProcess({
                 </Drawer> : null}
             </Box>
 
-            {/* 提示信息 Snackbar */}
+            {/* snackbar for message */}
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={3000}

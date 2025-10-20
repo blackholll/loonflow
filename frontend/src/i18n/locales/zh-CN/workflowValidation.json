@@ -1,0 +1,56 @@
+{
+  "basic": {
+    "workflowNameEmpty": "工作流名称不能为空",
+    "nodeNameRequired": "{{nodeType}}节点\"{{nodeId}}\"必须要有名称",
+    "startNodeRequired": "工作流必须有一个开始节点",
+    "startNodeCountError": "工作流只能有一个开始节点，当前有{{count}}个开始节点",
+    "endNodeRequired": "工作流必须有一个结束节点",
+    "endNodeCountError": "工作流只能有一个结束节点，当前有{{count}}个结束节点"
+  },
+  "connectivity": {
+    "processDesignEmpty": "流程设计不能为空",
+    "startNodeNoOutput": "开始节点不能没有输出连线",
+    "endNodeNoInput": "结束节点不能没有输入连线",
+    "nodeNoConnection": "{{nodeType}}节点不能没有输入连线或输出连线"
+  },
+  "exclusive": {
+    "noInputEdge": "排他网关\"{{nodeName}}\"不能没有输入连线",
+    "noOutputEdge": "排他网关\"{{nodeName}}\"不能没有输出连线",
+    "sourceNodeCannotBeEnd": "排他网关\"{{nodeName}}\"的起始节点\"{{sourceNodeName}}\"不能是结束节点类型"
+  },
+  "fieldPermission": {
+    "infoComponentReadOnly": "信息组件\"{{key}}\"的只能设置为隐藏或者只读",
+    "startNodeNeedInputField": "开始节点\"{{nodeName}}\"的字段权限中至少有一个可输入字段",
+    "autoTitleMustHidden": "存在自动生成标题时，开始节点\"{{nodeName}}\"必须将标题字段设置为隐藏",
+    "nodeNeedNonHiddenField": "节点\"{{nodeName}}\"的字段权限中至少有一个非隐藏字段"
+  },
+  "form": {
+    "formDesignEmpty": "表单设计不能为空",
+    "rowComponentNoChildren": "行组件不能没有子组件",
+    "titleComponentCountError": "表单中标题组件（type=\"title\"）有且只能有一个，当前为{{count}}个"
+  },
+  "hook": {
+    "hookUrlRequired": "钩子节点\"{{nodeName}}\"必须填写hook地址",
+    "hookTokenRequired": "钩子节点\"{{nodeName}}\"必须填写hook token",
+    "needInputEdge": "钩子节点\"{{nodeName}}\"必须至少一个入边，当前有{{count}}个入边",
+    "onlyOneOutputEdge": "钩子节点\"{{nodeName}}\"只能有一个出边，当前有{{count}}个出边",
+    "outputEdgeCannotBeSelf": "钩子节点\"{{nodeName}}\"的出边目标节点不能是自己"
+  },
+  "normal": {
+    "assigneeTypeRequired": "普通节点\"{{nodeName}}\"必须设置处理人类型",
+    "assigneeRequired": "普通节点\"{{nodeName}}\"必须设置处理人",
+    "assignmentStrategyRequired": "普通节点\"{{nodeName}}\"必须设置分配策略"
+  },
+  "parallel": {
+    "convergenceNodeNotNormal": "并行节点\"{{nodeName}}\"的出边最终汇聚到的节点\"{{convergenceNodeName}}\"不是普通节点类型",
+    "noConvergenceNode": "并行节点\"{{nodeName}}\"的出边没有找到汇聚节点"
+  },
+  "timer": {
+    "needInputEdge": "定时器节点\"{{nodeName}}\"必须至少一个入边，当前有{{count}}个入边",
+    "onlyOneOutputEdge": "定时器节点\"{{nodeName}}\"只能有一个出边，当前有{{count}}个出边",
+    "outputEdgeCannotBeSelf": "定时器节点\"{{nodeName}}\"的出边目标节点不能是自己"
+  },
+  "edge": {
+    "conditionGroupRequired": "条件连线\"{{edgeName}}\"必须设置条件组"
+  }
+}

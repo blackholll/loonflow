@@ -1,0 +1,17 @@
+{
+  "roleList": "角色列表",
+  "addRoleSuccess": "添加角色成功",
+  "addRoleFail": "添加角色失败",
+  "updateRoleSuccess": "更新角色成功",
+  "updateRoleFail": "更新角色失败",
+  "deleteRoleSuccess": "删除角色成功",
+  "deleteRoleFail": "删除角色失败",
+  "roleName": "角色名称",
+  "roleDescription": "角色描述",
+  "rolePermission": "角色权限",
+  "roleMember": "角色成员",
+  "deleteMemberConfirm": "确认删除成员",
+  "deleteMemberConfirmMsg": "确定要从角色中删除该成员吗？删除后该成员将失去此角色的所有权限。",
+  "deleteMemberSuccess": "删除成员成功",
+  "deleteMemberFail": "删除成员失败"
+}
