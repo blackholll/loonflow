@@ -57,12 +57,12 @@ function Workbench() {
   const handleTicketHandledChange = (ticketId: string) => {
     if (openedTicketId) {
       // handle ticket
-      showMessage('工单已处理', 'success')
+      showMessage(t('ticket.ticketHandled'), 'success')
     } else {
       // new ticket
       const messageWithLink = (
         <>
-          工单已创建
+          {t('ticket.ticketCreated')}
           <Link
             component="button"
             variant="body2"
@@ -81,7 +81,7 @@ function Workbench() {
               }
             }}
           >
-            查看工单详情
+            {t('common.detail')}
           </Link>
         </>
       );

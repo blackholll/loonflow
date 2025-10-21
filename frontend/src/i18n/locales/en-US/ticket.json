@@ -40,5 +40,7 @@
     "withdrawn": "Withdrawn",
     "finished": "Finished",
     "closed": "Closed"
-  }
+  },
+  "ticketCreated": "Ticket Created",
+  "ticketHandled": "ticket handled"
 }

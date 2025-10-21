@@ -276,7 +276,11 @@ class TicketBaseService(BaseService):
                                                                 start_node_obj.id,
                                                                 request_data_dict.get('fields', {}))
         # add ticket custom field
-        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, version_id, request_data_dict.get('fields'))
+        for_update_field = {}
+        for field_key, field_value in request_data_dict.get('fields', {}).items():
+            if field_key in update_field_list:
+                for_update_field[field_key] = field_value
+        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, version_id, for_update_field)
 
         # update TicketNode
         next_ticket_node_result_list  = []
@@ -1477,7 +1481,12 @@ class TicketBaseService(BaseService):
                                                                 node_id, ticket_data)
 
         # add ticket custom field
-        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, workflow_version_id, request_data_dict.get('fields'))
+        for_update_field = {}
+        for field_key, field_value in request_data_dict.get('fields', {}).items():
+            if field_key in update_field_list:
+                for_update_field[field_key] = field_value
+
+        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, workflow_version_id, for_update_field)
 
         # update TicketNode
         next_ticket_node_result_list  = []

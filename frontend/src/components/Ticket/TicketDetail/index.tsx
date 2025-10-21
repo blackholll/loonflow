@@ -191,7 +191,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
           }
         })
         if (res.code === 0) {
-          showMessage(res.msg, 'success')
+          showMessage(t('ticket.ticketHandled'), 'success')
           if (onTicketHandledChange) {
             onTicketHandledChange(res.data.ticketId)
           }
