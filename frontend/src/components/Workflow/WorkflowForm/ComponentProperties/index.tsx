@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
 import {
-    Box,
-    Typography,
-    TextField,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    Button,
-    IconButton,
-    Alert,
-    FormControlLabel,
-    Checkbox,
-    RadioGroup,
-    Radio,
-    FormLabel
-} from '@mui/material';
-import {
-    Delete as DeleteIcon,
     Add as AddIcon,
+    Delete as DeleteIcon,
     Visibility as VisibilityIcon,
     VisibilityOff as VisibilityOffIcon
 } from '@mui/icons-material';
-import { FormOption } from '../../../../types/workflowDesign';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema } from '../../../../types/workflow';
-import TemplateEditor from '../../../../components/commonComponents/inputs/TemplateEditor';
+import {
+    Alert,
+    Box,
+    Button,
+    Checkbox,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Radio,
+    RadioGroup,
+    Select,
+    TextField,
+    Typography
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import TemplateEditor from '../../../../components/commonComponents/inputs/TemplateEditor';
+import { IFormSchema, IWorkflowComponent, IWorkflowComponentRow } from '../../../../types/workflow';
+import { FormOption } from '../../../../types/workflowDesign';
 
 
 interface ComponentPropertiesProps {
@@ -295,8 +295,8 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                             label={t('workflow.componentProperties.dateTimeFormat')}
                             onChange={(e) => handleChange('format', e.target.value)}
                         >
-                            <MenuItem value="YYYY-MM-DD HH:mm">年-月-日 时-分 (YYYY-MM-DD HH:mm)</MenuItem>
-                            <MenuItem value="YYYY-MM-DD HH:mm:ss">年-月-日 时-分-秒 (YYYY-MM-DD HH:mm:ss)</MenuItem>
+                            <MenuItem value="YYYY-MM-DD HH:mm">YYYY-MM-DD HH:mm</MenuItem>
+                            <MenuItem value="YYYY-MM-DD HH:mm:ss">YYYY-MM-DD HH:mm:ss</MenuItem>
                         </Select>
                     </FormControl>
                 </Box>

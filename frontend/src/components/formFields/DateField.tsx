@@ -1,5 +1,7 @@
-import React from 'react';
-import { FormControl, TextField as MuiTextField } from '@mui/material';
+import { FormControl } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
 import ViewField from './ViewField';
 
 interface DateFieldProps {
@@ -15,6 +17,7 @@ function DateField({
     mode,
     props,
 }: DateFieldProps) {
+    const { t } = useTranslation();
 
     // 将日期字符串转换为显示格式
     const formatDateForDisplay = (dateValue: string): string => {
@@ -41,19 +44,6 @@ function DateField({
         }
     };
 
-    // 将日期值保存为纯日期格式
-    const formatDateForSave = (dateValue: string): string => {
-        if (!dateValue) return '';
-
-        try {
-            // 直接返回日期格式字符串，不包含时间和时区信息
-            // 格式：YYYY-MM-DD
-            return dateValue;
-        } catch (error) {
-            return dateValue;
-        }
-    };
-
     // view mode only show value with formatting
     if (mode === 'view') {
         const displayValue = formatDateForDisplay(value);
@@ -63,50 +53,56 @@ function DateField({
     }
 
     // edit mode
-    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = event.target.value;
+    const handleDateChange = (newValue: dayjs.Dayjs | null) => {
         if (onChange) {
-            // 保存为纯日期格式
-            const formattedValue = formatDateForSave(newValue);
-            onChange(formattedValue);
+            if (newValue) {
+                // 保存为纯日期格式 YYYY-MM-DD
+                const formattedValue = newValue.format('YYYY-MM-DD');
+                onChange(formattedValue);
+            } else {
+                onChange('');
+            }
         }
     };
 
-    // 获取当前显示值
-    const getCurrentDisplayValue = (): string => {
-        if (!value) return '';
+    // 获取当前显示值（转换为 dayjs 对象）
+    const getCurrentDisplayValue = (): dayjs.Dayjs | null => {
+        if (!value) return null;
 
         try {
-            // 如果是纯日期格式（YYYY-MM-DD），直接返回
+            // 如果是纯日期格式（YYYY-MM-DD），直接解析
             if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-                return value;
+                return dayjs(value);
             }
 
             // 如果是ISO格式，提取日期部分
             if (value.includes('T') || value.includes('Z') || value.includes('+') || value.includes('-')) {
                 const dateMatch = value.match(/^(\d{4}-\d{2}-\d{2})/);
                 if (dateMatch) {
-                    return dateMatch[1];
+                    return dayjs(dateMatch[1]);
                 }
             }
 
-            return value;
+            // 尝试直接解析
+            const parsed = dayjs(value);
+            return parsed.isValid() ? parsed : null;
         } catch (error) {
-            return '';
+            return null;
         }
     };
 
     return (
         <FormControl fullWidth={true}>
-            <MuiTextField
-                type="date"
+            <DatePicker
                 value={getCurrentDisplayValue()}
                 onChange={handleDateChange}
-                variant={props?.variant ?? 'outlined'}
-                size={props?.size ?? 'small'}
-                placeholder={props?.placeholder || 'YYYY-MM-DD'}
-                InputLabelProps={{
-                    shrink: true,
+                slotProps={{
+                    textField: {
+                        variant: props?.variant ?? 'outlined',
+                        size: props?.size ?? 'small',
+                        placeholder: props?.placeholder || t('common.dateTimePicker.placeholder'),
+                        fullWidth: true,
+                    }
                 }}
             />
         </FormControl>

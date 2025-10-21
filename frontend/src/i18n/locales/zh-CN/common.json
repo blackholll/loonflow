@@ -110,5 +110,14 @@
   "copy": "副本",
   "noRecord": "暂无记录",
   "action": "操作",
-  "submit": "提交"
+  "submit": "提交",
+  "dateTimePicker": {
+    "placeholder": "请选择日期",
+    "dateFormat": "YYYY-MM-DD",
+    "timeFormat": "HH:mm",
+    "dateTimeFormat": "YYYY-MM-DD HH:mm:ss",
+    "invalidDate": "无效的日期格式",
+    "invalidTime": "无效的时间格式",
+    "invalidDateTime": "无效的日期时间格式"
+  }
 }

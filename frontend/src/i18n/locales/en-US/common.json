@@ -113,5 +113,14 @@
   },
   "noRecord": "no record",
   "action": "action",
-  "submit": "submit"
+  "submit": "submit",
+  "dateTimePicker": {
+    "placeholder": "Please select date",
+    "dateFormat": "YYYY-MM-DD",
+    "timeFormat": "HH:mm",
+    "dateTimeFormat": "YYYY-MM-DD HH:mm:ss",
+    "invalidDate": "Invalid date format",
+    "invalidTime": "Invalid time format",
+    "invalidDateTime": "Invalid date time format"
+  }
 }
