@@ -446,7 +446,7 @@ class SimpleRolesView(BaseView):
         except Exception as e:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", {})
-        data = dict(role_list=result.get('role_result_object_format_list'),
+        data = dict(role_info_list=result.get('role_result_object_format_list'),
                     per_page=result.get('paginator_info').get('per_page'),
                     page=result.get('paginator_info').get('page'),
                     total=result.get('paginator_info').get('total'))

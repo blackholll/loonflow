@@ -326,7 +326,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
                   handleActionClick(action)
                 }}
               >
-                {action.name}
+                {['add_comment', 'forward', 'consult', 'consult_submit', 'withdraw'].indexOf(action.type) !== -1 ? t('ticket.actionName.' + action.type) : action.name}
               </Button>
             );
           })}
@@ -334,7 +334,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
       </Paper>
       {ticketId && (
         <Paper sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>{t('ticket.adminActions')}</Typography>
+          <Typography variant="h6" sx={{ mb: 1 }}>{t('common.adminActions')}</Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 2 }}>
             {adminFormActions?.map((action: IWorkflowAction) => {
               const buttonProps = getButtonProps(action.type);
@@ -346,7 +346,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
                     handleActionClick(action)
                   }}
                 >
-                  {action.name}
+                  {t('ticket.actionName.' + action.type)}
                 </Button>
               );
             })}
@@ -416,7 +416,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
         )}
         <DialogContent>
           <TextField
-            label="Comment"
+            label={t('ticket.comment')}
             fullWidth
             multiline
             rows={4}
@@ -425,8 +425,8 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={() => handleDialogActionSubmit(dialogActionType)}>Submit</Button>
+          <Button onClick={handleDialogClose}>{t('common.cancel')}</Button>
+          <Button onClick={() => handleDialogActionSubmit(dialogActionType)}>{t('common.submit')}</Button>
         </DialogActions>
       </Dialog>
     </>

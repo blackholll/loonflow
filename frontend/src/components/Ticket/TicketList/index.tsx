@@ -47,17 +47,17 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
 
 
   const { showMessage } = useSnackbar();
-  let listTitle = t('ticketList.allTickets');
+  let listTitle = t('ticket.allTickets');
   if (category === 'owner') {
-    listTitle = t('ticketList.owerTickets');
+    listTitle = t('ticket.owerTickets');
   } else if (category === 'view') {
-    listTitle = t('ticketList.viewTickets');
+    listTitle = t('ticket.viewTickets');
   } else if (category === 'duty') {
-    listTitle = t('ticketList.dutyTickets');
+    listTitle = t('ticket.dutyTickets');
   } else if (category === 'relation') {
-    listTitle = t('ticketList.relationTickets');
+    listTitle = t('ticket.relationTickets');
   } else if (category === 'intervene') {
-    listTitle = t('ticketList.interveneTickets')
+    listTitle = t('ticket.interveneTickets')
 
   }
 
@@ -141,7 +141,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
         <CardContent>
           <Grid container spacing={1} justifyContent="left" alignItems="center">
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <TextField fullWidth label={t('ticketList.keyword')} size="small" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
+              <TextField fullWidth label={t('ticket.keyword')} size="small" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <Autocomplete
@@ -157,7 +157,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={t('ticketList.creator')}
+                    label={t('ticket.creator')}
                     placeholder={t('common.userSearchTip')}
                     InputProps={{
                       ...params.InputProps,
@@ -178,7 +178,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <TextField
                 fullWidth
-                label={t('ticketList.createDateStart')}
+                label={t('ticket.createDateStart')}
                 type="date"
                 slotProps={{
                   inputLabel: { shrink: true },
@@ -218,7 +218,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <TextField
                 fullWidth
-                label={t('ticketList.createDateEnd')}
+                label={t('ticket.createDateEnd')}
                 type="date"
                 slotProps={{
                   inputLabel: { shrink: true },
@@ -263,7 +263,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 disablePortal
                 options={workflowList}
                 sx={{ marginLeft: 0, marginRight: 0 }}
-                renderInput={(params) => <TextField {...params} label={t('ticketList.ticketType')} size="small" />}
+                renderInput={(params) => <TextField {...params} label={t('ticket.ticketType')} size="small" />}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
@@ -277,11 +277,11 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
               <TableHead>
                 <TableRow>
                   {/* <TableCell>Id</TableCell> */}
-                  <TableCell>{t('ticketList.ticketTitle')}</TableCell>
-                  <TableCell>{t('ticketList.ticketType')}</TableCell>
-                  <TableCell>{t('ticketList.approveState')}</TableCell>
-                  <TableCell>{t('ticketList.ticketCreator')}</TableCell>
-                  <TableCell>{t('ticketList.ticketCreateTime')}</TableCell>
+                  <TableCell>{t('ticket.ticketTitle')}</TableCell>
+                  <TableCell>{t('ticket.ticketType')}</TableCell>
+                  <TableCell>{t('ticket.approveState')}</TableCell>
+                  <TableCell>{t('ticket.ticketCreator')}</TableCell>
+                  <TableCell>{t('ticket.ticketCreateTime')}</TableCell>
                   <TableCell>{t('common.actions')}</TableCell>
                 </TableRow>
               </TableHead>

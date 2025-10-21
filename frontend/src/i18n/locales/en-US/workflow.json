@@ -343,5 +343,22 @@
   "externalApi": "External API",
   "hookTokenPlaceholder": "Hook Access Token",
   "defaultBranch": "Default Branch",
-  "defaultBranchEdgeId": "Default Branch Edge ID"
+  "defaultBranchEdgeId": "Default Branch Edge ID",
+  "nodeId": "node id",
+  "nodeType": {
+    "start": "Start",
+    "normal": "Normal",
+    "end": "End",
+    "parallel": "Parallel Gateway",
+    "exclusive": "Exclusive Gateway",
+    "timer": "Timer",
+    "hook": "Hook"
+  },
+  "assigneeType": {
+    "users": "Users",
+    "depts": "Departments",
+    "roles": "Roles",
+    "variables": "Variables",
+    "external": "External"
+  }
 }

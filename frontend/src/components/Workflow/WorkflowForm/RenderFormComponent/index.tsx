@@ -15,19 +15,7 @@ import {
     TicketActStateField,
     TicketCreatedAtField,
     TicketCreatorField,
-    TicketCurrentAssigneeInfosField
-    // UserField,
-    // DepartmentField,
-    ,
-
-
-
-
-
-
-
-
-
+    TicketCurrentAssigneeInfosField,
     TicketNodesField,
     TimeField,
     UserField,

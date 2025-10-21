@@ -21,6 +21,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
+import { getDeptPaths } from '../../../services/dept';
+import { getSimpleRoles } from '../../../services/role';
+import { getSimpleUsers } from '../../../services/user';
+
 import { IFormSchema, IProcessSchema, IWorkflowEdge, IWorkflowNode } from '../../../types/workflow';
 import { CustomEdge } from './CustomEdge';
 import { CustomNode } from './CustomNode';
@@ -276,23 +280,22 @@ function WorkflowProcess({
     // connect handling
     const onConnect = useCallback(
         (params: Connection) => {
-            console.log('onConnect 被调用:', params);
 
             // validate the connection is valid
             if (!params.source || !params.target) {
-                console.log('连接参数无效:', params);
+                console.log('onConnect: connection parameters are invalid:', params);
                 return;
             }
 
             // validate that only the source type handle can start the connection
             if (!params.sourceHandle) {
-                console.log('必须从 source 类型的 Handle 发起连线');
+                console.log('onConnect: must start the connection from the source type handle');
                 return;
             }
 
             // validate that only the target type handle can be connected to
             if (!params.targetHandle) {
-                console.log('必须连接到 target 类型的 Handle');
+                console.log('onConnect: must connect to the target type handle');
                 return;
             }
 
@@ -332,7 +335,7 @@ function WorkflowProcess({
                 },
             };
 
-            console.log('创建新连线:', newEdge);
+            console.log('onConnect: creating new edge:', newEdge);
             setEdges((eds) => {
                 const newEdges = addEdge(newEdge, eds);
                 saveToHistory(nodes, newEdges);
@@ -369,20 +372,66 @@ function WorkflowProcess({
         return { x: event.clientX - rect.left + 12, y: event.clientY - rect.top + 12 };
     }, []);
 
-    const onNodeMouseEnter = useCallback((event: React.MouseEvent, node: Node) => {
+    const onNodeMouseEnter = useCallback(async (event: React.MouseEvent, node: Node) => {
         if (!simpleViewMode) return;
         const pos = updateTooltipPosition(event);
         const props: any = (node.data as any)?.properties || {};
+        // get assignee info
+        const assignee = props.assignee
+        const assigneeType = props.assigneeType
+        let assigneeInfo = ''
+        if (assigneeType === 'users' && assignee) {
+            const assigneeListRes = await getSimpleUsers('', assignee);
+            const assigneeList = assigneeListRes.data.userInfoList.map((user) => (`${user.name}` + (user.alias ? `(${user.alias})` : '') + (user.email ? `-${user.email}` : ''))) || [];
+            assigneeInfo = assigneeList.join(',');
+        } else if (assigneeType === 'depts') {
+            const assigneeListRes = await getDeptPaths('', assignee, 1, 1000);
+            const assigneeList = assigneeListRes.data.deptPathList.map((dept) => (`${dept.name}`)) || [];
+            assigneeInfo = assigneeList.join(',');
+        }
+        else if (assigneeType === 'roles') {
+            const assigneeListRes = await getSimpleRoles('', assignee, 1, 1000);
+            const assigneeList = assigneeListRes.data.roleInfoList.map((role) => (`${role.name}-${role.description}`)) || [];
+            assigneeInfo = assigneeList.join(',');
+        } else if (assigneeType === 'variables') {
+            const assigneeList = assignee.split(',');
+            const assigneeInfoList = [];
+            assigneeList.map((assignee) => {
+                if (assignee === 'creator') {
+                    assigneeInfoList.push(t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.creator'));
+                } else if (assignee === 'dept_approver') {
+                    assigneeInfoList.push(t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.dept_approver'))
+                }
+            });
+            assigneeInfo = assigneeInfoList.join(',');
+        }
+
+        if (assignee === 'creator') {
+            assigneeInfo = t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.creator');
+        } else if (assignee === 'dept_approver') {
+            assigneeInfo = t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.dept_approver');
+        }
+
+        else if (assigneeType === 'external') {
+            assigneeInfo = '*';
+        } else if (assigneeType === 'timer') {
+            assigneeInfo = 'timer';
+        }
+        else if (assigneeType === 'hook') {
+            assigneeInfo = '*';
+        }
+
         setHoverTooltip({
             visible: true,
             x: pos.x,
             y: pos.y,
             title: props.name || props.label || t('workflow.node'),
             lines: [
-                `类型: ${node.type || ''}`,
-                `nodeId: ${node.id}`,
-                ...(props.assignee ? [`${t('common.assignee')}: ${props.assignee}`] : []),
-                ...(props.description ? [`${t('common.description')}: ${props.description}`] : [])
+                `${t('common.type')}: ${t('workflow.nodeType.' + node.type) || ''}`,
+                // `${t('workflow.nodeId')}: ${node.id}`,
+                ...(props.assigneeType ? [`${t('workflow.propertyPanelLabel.assigneeType')}: ${t('workflow.assigneeType.' + props.assigneeType)}`] : []),
+                ...(props.assignee ? [`${t('common.assignee')}: ${assigneeInfo}`] : []),
+                ...(props.assignmentStrategy ? [`${t('workflow.propertyPanelLabel.assignmentStrategy')}: ${t('workflow.propertyPanelLabel.assignmentStrategyOptions.' + props.assignmentStrategy)}`] : [])
             ]
         });
     }, [simpleViewMode, updateTooltipPosition, t]);
@@ -409,7 +458,7 @@ function WorkflowProcess({
             y: pos.y,
             title: props.name || props.label || t('workflow.edge'),
             lines: [
-                `类型: ${props.type || 'other'}`,
+                `${t('common.type')}: ${props.type || 'other'}`,
                 `edgeId: ${edge.id}`,
                 ...(props.condition ? [`${t('common.condition')}: ${props.condition}`] : [])
             ]
@@ -615,7 +664,7 @@ function WorkflowProcess({
                         ...selectedElement.data,
                         properties: {
                             ...(selectedElement.data?.properties && typeof selectedElement.data.properties === 'object' ? selectedElement.data.properties : {}),
-                            name: `${(selectedElement.data?.properties as any)?.name || t('workflow.node')} (副本)`,
+                            name: `${(selectedElement.data?.properties as any)?.name || t('workflow.node')}-${t('common.copy')}`,
                         }
                     }
                 };
@@ -715,7 +764,7 @@ function WorkflowProcess({
                                         p: 1,
                                         borderRadius: 1,
                                         boxShadow: 3,
-                                        maxWidth: 260,
+                                        maxWidth: 460,
                                         fontSize: 12,
                                         zIndex: 20
                                     }}

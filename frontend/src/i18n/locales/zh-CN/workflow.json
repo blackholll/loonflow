@@ -343,5 +343,22 @@
   "externalApi": "外部接口",
   "hookTokenPlaceholder": "Hook访问令牌",
   "defaultBranch": "默认分支",
-  "defaultBranchEdgeId": "默认分支的连线ID"
+  "defaultBranchEdgeId": "默认分支的连线ID",
+  "nodeId": "节点ID",
+  "nodeType": {
+    "start": "开始",
+    "normal": "普通",
+    "end": "结束",
+    "parallel": "并行网关",
+    "exclusive": "排他网关",
+    "timer": "定时器",
+    "hook": "钩子"
+  },
+  "assigneeType": {
+    "users": "用户",
+    "depts": "部门",
+    "roles": "角色",
+    "variables": "变量",
+    "external": "外部获取"
+  }
 }

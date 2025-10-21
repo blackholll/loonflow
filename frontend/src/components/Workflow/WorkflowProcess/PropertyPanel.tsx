@@ -117,7 +117,7 @@ function PropertyPanel(props: PropertyPanelProps) {
         try {
             const response = await getSimpleRoles(searchValue, roleIds, 1, 100);
             if (response.code === 0) {
-                const rawList = response.data?.roleList || response.data?.role_list || [];
+                const rawList = response.data?.roleInfoList || [];
                 const fetched = rawList.map((role: any) => ({ label: role.name, value: String(role.id) }));
                 setRoles((prev) => {
                     const map = new Map<string, { label: string, value: string }>();

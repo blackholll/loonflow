@@ -1,5 +1,6 @@
+import { Box, Divider, List, ListItem, Paper, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, List, ListItem, Divider } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { getTicketFlowHistory } from '../../../../services/ticket';
 import { ITicketFlowHistoryItem } from '../../../../types/ticket';
 
@@ -10,7 +11,7 @@ interface TicketHistoryProps {
 
 function TicketFlowHistory({ ticketId, refreshToken }: TicketHistoryProps) {
     const [items, setItems] = useState<ITicketFlowHistoryItem[]>([]);
-
+    const { t } = useTranslation();
     useEffect(() => {
         if (!ticketId) return;
         (async () => {
@@ -24,27 +25,27 @@ function TicketFlowHistory({ ticketId, refreshToken }: TicketHistoryProps) {
 
     return (
         <Paper sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="h6" sx={{ mb: 1 }}>操作记录</Typography>
+            <Typography variant="h6" sx={{ mb: 1 }}>{t('ticket.operationRecord')}</Typography>
             <List>
                 {items.map((it, idx) => (
                     <React.Fragment key={it.id}>
                         <ListItem alignItems="flex-start" disableGutters>
                             <Box sx={{ width: '100%' }}>
                                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                                    <Typography variant="body2"><strong>处理人</strong>：{it.processorInfo?.processorAlias || it.processorInfo?.processor || '-'}</Typography>
-                                    <Typography variant="body2"><strong>操作类型</strong>：{it.actionName || it.actionType || '-'}</Typography>
+                                    <Typography variant="body2"><strong>{t('ticket.processor')}</strong>: {it.processorInfo?.processorAlias || it.processorInfo?.processor || '-'}</Typography>
+                                    <Typography variant="body2"><strong>{t('common.action')}</strong>: {it.actionName || t('ticket.actionName.' + it.actionType)}</Typography>
                                 </Box>
                                 {it.comment && (
-                                    <Typography variant="body2" sx={{ mt: 0.5 }}><strong>留言</strong>：{it.comment}</Typography>
+                                    <Typography variant="body2" sx={{ mt: 0.5 }}><strong>{t('ticket.comment')}</strong>: {it.comment}</Typography>
                                 )}
-                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}><strong>操作时间</strong>：{new Date(it.createdAt).toLocaleString()}</Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}><strong>{t('ticket.operationTime')}</strong>: {new Date(it.createdAt).toLocaleString()}</Typography>
                             </Box>
                         </ListItem>
                         {idx < items.length - 1 && <Divider component="li" />}
                     </React.Fragment>
                 ))}
                 {items.length === 0 && (
-                    <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1 }}>暂无记录</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1 }}>{t('common.noRecord')}</Typography>
                 )}
             </List>
         </Paper>

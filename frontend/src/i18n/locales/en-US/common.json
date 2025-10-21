@@ -1,7 +1,7 @@
 {
   "welcomeMessage": "Welcome to loonflow",
-  "releaseWorkflowSuccess": "发布工作流成功",
-  "releaseWorkflowFail": "发布工作流失败",
+  "releaseWorkflowSuccess": "Release Workflow Success",
+  "releaseWorkflowFail": "Release Workflow Fail",
   "creator": "Creator",
   "createdAt": "Create At",
   "updatedAt": "Updated At",
@@ -18,6 +18,7 @@
   "close": "Close",
   "save": "Save",
   "actions": "Actions",
+  "adminActions": "Admin Actions",
   "name": "Name",
   "description": "Description",
   "new": "New",
@@ -61,7 +62,7 @@
   "actionFail": "Action failed",
   "searching": "Searching...",
   "confirmDeletion": "Confirm deletion",
-  "confirmDeleteMsg": "Confirm deletion, please be careful",
+  "confirmDeleteMsg": "Confirm deletion of user {{userName}}, please be careful",
   "lastSavedTime": "Last saved",
   "second": "Second",
   "minute": "Minute",
@@ -105,5 +106,12 @@
   "loadDeptListFailed": "Failed to load department list",
   "getDeptInfoFailed": "Failed to get department info",
   "unnamed": "unnamed",
-  "insert": "insert"
+  "insert": "insert",
+  "copy": "copy",
+  "workflow": {
+    "nodeId": "node id"
+  },
+  "noRecord": "no record",
+  "action": "action",
+  "submit": "submit"
 }

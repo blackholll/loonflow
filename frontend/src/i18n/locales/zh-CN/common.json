@@ -21,6 +21,7 @@
   "close": "关闭",
   "save": "保存",
   "actions": "操作",
+  "adminActions": "管理员操作",
   "name": "名称",
   "description": "描述",
   "new": "新建",
@@ -63,7 +64,7 @@
   "actionFail": "操作失败",
   "searching": "搜索中...",
   "confirmDeletion": "确认删除",
-  "confirmDeleteMsg": "确认删除后无法恢复，请谨慎操作",
+  "confirmDeleteMsg": "确认删除用户 {{userName}} 后无法恢复，请谨慎操作",
   "lastSavedTime": "最后保存",
   "second": "秒",
   "minute": "分",
@@ -105,5 +106,9 @@
     "noFilesSelected": "未选择文件",
     "fileProcessingFailed": "文件处理失败",
     "unknownFileType": "未知类型"
-  }
+  },
+  "copy": "副本",
+  "noRecord": "暂无记录",
+  "action": "操作",
+  "submit": "提交"
 }
