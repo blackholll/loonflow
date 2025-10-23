@@ -629,6 +629,17 @@ class externalAssigneeView(View):
                             <MenuItem value="other">{t('workflow.propertyPanelLabel.edgeNameOther')}</MenuItem>
                         </Select>
                     </FormControl>
+                    <Box sx={{ width: '100%' }}>
+                        <FormControlLabel
+                            sx={{ marginLeft: 0 }}
+                            control={
+                                <Switch checked={properties.skipFieldsRequiredCheck || false} onChange={(event: React.ChangeEvent<HTMLInputElement>) => handlePropertyChange('skipFieldsRequiredCheck', event.target.checked)} />
+                            }
+                            label={t('workflow.propertyPanelLabel.skipFieldsRequiredCheck')}
+                            labelPlacement='start'
+
+                        />
+                    </Box>
 
                     {properties.type === 'condition' && (
                         <ConditionExpressionEditor

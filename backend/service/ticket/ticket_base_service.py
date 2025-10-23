@@ -221,7 +221,7 @@ class TicketBaseService(BaseService):
 
         # required field check
         edge_obj = workflow_edge_service_ins.get_workflow_edge_by_id(tenant_id, workflow_id, version_id, action_id)
-        validate_fields = edge_obj.props.get('validate_fields', True)
+        skip_fields_required_check = edge_obj.props.get('skip_fields_required_check', False)
 
         ## get start node id
         required_field_list, update_field_list = [], []
@@ -241,7 +241,7 @@ class TicketBaseService(BaseService):
             elif field_permission == 'optional':
                 update_field_list.append(field_key)
         
-        if validate_fields:
+        if not skip_fields_required_check:
             for required_field in required_field_list:
                 if required_field not in request_data_dict.get('fields', {}).keys():
                     raise CustomCommonException('field {} is required'.format(required_field))
@@ -1431,12 +1431,13 @@ class TicketBaseService(BaseService):
 
 
         edge_record = workflow_edge_service_ins.get_workflow_edge_by_id(tenant_id, workflow_id, workflow_version_id, edge_id=action_id)
+        skip_fields_required_check = edge_record.props.get('skip_fields_required_check', False)
+
         if str(edge_record.source_node_id) != node_id:
             raise CustomCommonException("current node has no permission to run this transition")
         
         current_node_record = workflow_node_service_ins.get_node_by_id(tenant_id, node_id)
 
-        validate_fields = edge_record.props.get('validate_fields', True)
         
         ## get start node id
         required_field_list, update_field_list = [], []
@@ -1454,7 +1455,7 @@ class TicketBaseService(BaseService):
                 update_field_list.append(field_key)
             elif field_permission == 'optional':
                 update_field_list.append(field_key)
-        if validate_fields:
+        if skip_fields_required_check:
             for required_field in required_field_list:
                 if required_field not in fields.keys():
                     raise CustomCommonException('field {} is required'.format(required_field))

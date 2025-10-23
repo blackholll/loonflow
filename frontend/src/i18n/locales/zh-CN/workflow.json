@@ -298,7 +298,8 @@
       "optional": "选填",
       "required": "必填",
       "hidden": "隐藏"
-    }
+    },
+    "skipFieldsRequiredCheck": "跳过字段必填校验"
   },
   "advancedSettingLabel": {
     "notificationSetting": "通知配置",

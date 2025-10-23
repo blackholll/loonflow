@@ -298,7 +298,8 @@
       "optional": "Optional",
       "required": "Required",
       "hidden": "Hidden"
-    }
+    },
+    "skipFieldsRequiredCheck": "Skip Fields Required Check"
   },
   "advancedSettingLabel": {
     "notificationSetting": "Notification Settings",
