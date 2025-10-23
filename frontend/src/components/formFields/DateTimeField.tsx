@@ -19,9 +19,7 @@ function DateTimeField({
 }: DateTimeFieldProps) {
     const { t } = useTranslation();
 
-    // 获取显示格式配置，默认为 'YYYY-MM-DD HH:mm:ss'
-    const format = props?.format || 'YYYY-MM-DD HH:mm:ss'; // 'YYYY-MM-DD HH:mm', 'YYYY-MM-DD HH:mm:ss'
-    const includeSeconds = format.includes('HH:mm:ss');
+    // get display format configuration, default is 'YYYY-MM-DD HH:mm:ss'
 
 
 
@@ -37,7 +35,7 @@ function DateTimeField({
     const handleDateTimeChange = (newValue: dayjs.Dayjs | null) => {
         if (onChange) {
             if (newValue) {
-                // 保存为带时区信息的ISO字符串
+                // save as ISO string with timezone information
                 const formattedValue = newValue.toISOString();
                 onChange(formattedValue);
             } else {
@@ -46,12 +44,12 @@ function DateTimeField({
         }
     };
 
-    // 获取当前显示值（转换为 dayjs 对象）
+    // get current display value(convert to dayjs object)
     const getCurrentDisplayValue = (): dayjs.Dayjs | null => {
         if (!value) return null;
 
         try {
-            // 尝试直接解析为 dayjs 对象
+            // try to parse directly to dayjs object
             const parsed = dayjs(value);
             return parsed.isValid() ? parsed : null;
         } catch (error) {
@@ -59,22 +57,21 @@ function DateTimeField({
         }
     };
 
-    // 获取占位符
-    const getPlaceholder = (): string => {
-        return includeSeconds ? t('common.dateTimePicker.dateTimeFormat') : 'YYYY-MM-DD HH:mm';
-    };
 
     return (
         <FormControl fullWidth={true}>
             <DateTimePicker
                 value={getCurrentDisplayValue()}
                 onChange={handleDateTimeChange}
+                format={props?.format}
                 slotProps={{
                     textField: {
                         variant: props?.variant ?? 'outlined',
                         size: props?.size ?? 'small',
-                        placeholder: props?.placeholder || getPlaceholder(),
+                        placeholder: props?.placeholder || t('common.dateTimePicker.dateTimeFormatHourMinSec'),
                         fullWidth: true,
+                        error: false,
+                        helperText: '',
                     }
                 }}
             />

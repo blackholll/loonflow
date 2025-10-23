@@ -56,6 +56,7 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
                     value: newValue
                 }
             };
+            console.log('handleFieldChange', newValue);
             setValue(newValue);
             handleComponentUpdate(updatedComponent);
         }
@@ -65,6 +66,7 @@ function RenderFormComponent({ component, handleComponentUpdate }: RenderFormCom
     useEffect(() => {
         const currentValue = component?.props?.value || component?.props?.defaultValue;
         if (currentValue !== undefined && currentValue !== value) {
+            console.log('useEffect updating value from', value, 'to', currentValue);
             setValue(currentValue);
         }
     }, [component?.props?.value, component?.props?.defaultValue, value]);

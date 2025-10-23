@@ -19,16 +19,15 @@ function TimeField({
 }: TimeFieldProps) {
     const { t } = useTranslation();
 
-    // 获取显示格式配置，默认为 'HH:mm'
     const format = props?.format || 'HH:mm'; // 'HH:mm' 或 'HH:mm:ss'
     const includeSeconds = format === 'HH:mm:ss';
 
 
     // view mode only show value with formatting
     if (mode === 'view') {
-        const displayValue = value ? dayjs(value).format(includeSeconds ? 'HH:mm:ss' : 'HH:mm') : '';
+        console.log('TimeField value', value);
         return (
-            <ViewField type='time' value={displayValue} props={props} />
+            <ViewField type='time' value={value} props={props} />
         );
     }
 
@@ -36,8 +35,7 @@ function TimeField({
     const handleTimeChange = (newValue: dayjs.Dayjs | null) => {
         if (onChange) {
             if (newValue) {
-                // 保存为纯时间格式 HH:mm 或 HH:mm:ss
-                const formattedValue = includeSeconds ? newValue.format('HH:mm:ss') : newValue.format('HH:mm');
+                const formattedValue = newValue.format(format);
                 onChange(formattedValue);
             } else {
                 onChange('');
@@ -45,17 +43,17 @@ function TimeField({
         }
     };
 
-    // 获取当前显示值（转换为 dayjs 对象）
+    // get current display value(convert to dayjs object)
     const getCurrentDisplayValue = (): dayjs.Dayjs | null => {
         if (!value) return null;
 
         try {
-            // 如果是纯时间格式（HH:mm 或 HH:mm:ss），创建 dayjs 对象
+            // if it is a pure time format(HH:mm or HH:mm:ss), create dayjs object
             if (/^\d{2}:\d{2}(:\d{2})?$/.test(value)) {
                 return dayjs(value, includeSeconds ? 'HH:mm:ss' : 'HH:mm');
             }
 
-            // 如果是ISO格式，提取时间部分
+            // if it is a ISO format, extract the time part
             if (value.includes('T') || value.includes('Z') || value.includes('+') || value.includes('-')) {
                 const timeMatch = value.match(/T(\d{2}):(\d{2})(:(\d{2}))?/);
                 if (timeMatch) {
@@ -68,7 +66,7 @@ function TimeField({
                 }
             }
 
-            // 尝试直接解析
+            // try to parse directly
             const parsed = dayjs(value);
             return parsed.isValid() ? parsed : null;
         } catch (error) {
@@ -81,12 +79,15 @@ function TimeField({
             <TimePicker
                 value={getCurrentDisplayValue()}
                 onChange={handleTimeChange}
+                format={props?.format}
                 slotProps={{
                     textField: {
                         variant: props?.variant ?? 'outlined',
                         size: props?.size ?? 'small',
-                        placeholder: props?.placeholder || (includeSeconds ? t('common.dateTimePicker.timeFormat') + ':ss' : t('common.dateTimePicker.timeFormat')),
+                        placeholder: props?.placeholder || (includeSeconds ? t('common.dateTimePicker.timeFormatHourMinSec') : t('common.dateTimePicker.timeFormatHourMin')),
                         fullWidth: true,
+                        error: false,
+                        helperText: '',
                     }
                 }}
             />

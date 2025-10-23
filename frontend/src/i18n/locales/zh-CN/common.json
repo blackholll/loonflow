@@ -112,10 +112,11 @@
   "action": "操作",
   "submit": "提交",
   "dateTimePicker": {
-    "placeholder": "请选择日期",
-    "dateFormat": "YYYY-MM-DD",
-    "timeFormat": "HH:mm",
-    "dateTimeFormat": "YYYY-MM-DD HH:mm:ss",
+    "dateFormat": "年-月-日",
+    "timeFormatHourMin": "时:分(23:04)",
+    "timeFormatHourMinSec": "时:分:秒(如 23:04:03)",
+    "dateTimeFormatHourMinSec": "年-月-日 时:分:秒 (2025-03-04 13:03:02)",
+    "dateTimeFormatHourMin": "年-月-日 时:分 (2025-03-04 13:00)",
     "invalidDate": "无效的日期格式",
     "invalidTime": "无效的时间格式",
     "invalidDateTime": "无效的日期时间格式"

@@ -81,7 +81,7 @@ function NumberField({
                 value={value === undefined || value === null ? '' : value}
                 onValueChange={handleValueChange}
                 thousandSeparator={thousandSeparator}
-                allowNegative={props?.allowNegative ?? true}
+                allowNegative={props?.allowNegative ?? false}
                 decimalScale={decimalScale}
                 fixedDecimalScale={fixedDecimalScale}
                 allowLeadingZeros={false}

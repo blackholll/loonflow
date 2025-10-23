@@ -18,7 +18,7 @@ import {
     Group as UserIcon
 } from '@mui/icons-material';
 
-// 创建获取组件模板的函数
+// create function to get component templates
 const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
     {
         type: 'text',
@@ -27,7 +27,7 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         defaultProps: {
             description: '',
             fieldKey: '',
-            placeholder: t('workflow.componentCategories.textComponentDefaultPlaceholder'),
+            placeholder: '',
             layout: { span: 6 }
         }
     },
@@ -36,10 +36,9 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.textareaComponent'),
         icon: <TextFieldsIcon />,
         defaultProps: {
-            // label: '多行文本',
             description: '',
             fieldKey: '',
-            placeholder: t('workflow.componentCategories.textareaComponentDefaultPlaceholder'),
+            placeholder: '',
             layout: { span: 6 }
         }
     },
@@ -48,11 +47,21 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.numberComponent'),
         icon: <NumberIcon />,
         defaultProps: {
-            // label: '数字',
             description: '',
             fieldKey: '',
-            placeholder: t('workflow.componentCategories.numberComponentDefaultPlaceholder'),
-            layout: { span: 6 }
+            placeholder: '',
+            layout: { span: 6 },
+            props: {
+                allowNegative: false,
+                allowDecimal: false,
+                fixedPrecision: false,
+                thousandSeparator: true,
+                precision: 0,
+                min: 0,
+                max: 0,
+                unitPrefix: '',
+                unitSuffix: ''
+            }
         }
     },
     {
@@ -60,10 +69,9 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.selectComponent'),
         icon: <SelectIcon />,
         defaultProps: {
-            // label: '下拉选择',
             description: '',
             fieldKey: '',
-            extendedProps: {
+            props: {
                 multiple: false,
                 optionsWithKeys: [
                     { id: '1', label: t('workflow.componentCategories.optionComponentOption1'), key: 'custom_field_option_abcde' },
@@ -79,10 +87,9 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.radioComponent'),
         icon: <RadioButtonIcon />,
         defaultProps: {
-            // label: '单选框',
             description: '',
             fieldKey: '',
-            extendedProps: {
+            props: {
                 optionsWithKeys: [
                     { id: '1', label: t('workflow.componentCategories.optionComponentOption1'), key: 'custom_field_option_pqrst' },
                     { id: '2', label: t('workflow.componentCategories.optionComponentOption2'), key: 'custom_field_option_uvwxy' },
@@ -97,10 +104,9 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.checkboxComponent'),
         icon: <CheckBoxIcon />,
         defaultProps: {
-            // label: '复选框',
             description: '',
             fieldKey: '',
-            extendedProps: {
+            props: {
                 optionsWithKeys: [
                     { id: '1', label: t('workflow.componentCategories.optionComponentOption1'), key: 'custom_field_option_efghi' },
                     { id: '2', label: t('workflow.componentCategories.optionComponentOption2'), key: 'custom_field_option_jklmn' },
@@ -115,12 +121,11 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.timeComponent'),
         icon: <Schedule />,
         defaultProps: {
-            // label: '时间选择',
             description: '',
             fieldKey: '',
             layout: { span: 6 },
-            extendedProps: {
-                format: 'hh:mm:ss'
+            props: {
+                format: 'HH:mm:ss'
             }
         }
     },
@@ -132,6 +137,9 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
             description: '',
             fieldKey: '',
             layout: { span: 6 },
+            props: {
+                format: 'YYYY-MM-DD'
+            }
         }
     },
     {
@@ -142,8 +150,8 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
             description: '',
             fieldKey: '',
             layout: { span: 6 },
-            extendedProps: {
-                format: 'yyyy-mm-dd hh:mm:ss'
+            props: {
+                format: 'YYYY-MM-DD HH:mm:ss'
             }
         }
     },
@@ -163,10 +171,12 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.userComponent'),
         icon: <UserIcon />,
         defaultProps: {
-            // label: '用户',
             description: '',
             fieldKey: '',
-            layout: { span: 6 }
+            layout: { span: 6 },
+            props: {
+                multiple: false
+            }
         }
     },
     {
@@ -174,10 +184,12 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.departmentComponent'),
         icon: <GroupsIcon />,
         defaultProps: {
-            // label: '部门',
             description: '',
             fieldKey: '',
-            layout: { span: 6 }
+            layout: { span: 6 },
+            props: {
+                multiple: false
+            }
         }
     }
     // {
@@ -199,17 +211,18 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.titleComponent'),
         icon: <TitleIcon />,
         defaultProps: {
-            // label: '标题',
             description: '',
             fieldKey: '',
-            layout: { span: 6 }
+            layout: { span: 6 },
+            props: {
+                titleGenerateMode: 'manual',
+            }
         }
     }, {
         type: 'creator_info',
         componentName: t('workflow.componentCategories.customCreatorComponent'),
         icon: <CreatorIcon />,
         defaultProps: {
-            // label: '创建人',
             description: '',
             fieldKey: '',
             layout: { span: 6 }
@@ -219,7 +232,6 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.customCreatedAtComponent'),
         icon: <CalendarMonth />,
         defaultProps: {
-            // label: '创建时间',
             description: '',
             fieldKey: '',
             layout: { span: 6 }
@@ -229,7 +241,6 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.ticketNodesComponent'),
         icon: <TicketNodesIcon />,
         defaultProps: {
-            // label: '工单状态',
             description: '',
             fieldKey: '',
             layout: { span: 6 }
@@ -239,7 +250,6 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.approvalStatusComponent'),
         icon: <TicketActStatusIcon />,
         defaultProps: {
-            // label: '审批状态',
             description: '',
             fieldKey: '',
             layout: { span: 6 }
@@ -249,7 +259,6 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.ticketTypeComponent'),
         icon: <DefaultIcon />,
         defaultProps: {
-            // label: '工单类型',
             description: '',
             fieldKey: '',
             layout: { span: 6 }
@@ -259,7 +268,6 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
         componentName: t('workflow.componentCategories.currentHandlerComponent'),
         icon: <CreatorIcon />,
         defaultProps: {
-            // label: '当前处理人',
             description: '',
             fieldKey: '',
             layout: { span: 6 }
@@ -267,7 +275,7 @@ const getInfoComponentTemplates = (t: any): ComponentTemplate[] => [
     }
 ];
 
-// 创建获取组件分类的函数
+// create function to get component categories
 const getComponentCategories = (t: any) => ({
     basic: {
         title: t('workflow.componentCategories.basicComponent'),

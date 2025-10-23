@@ -115,10 +115,11 @@
   "action": "action",
   "submit": "submit",
   "dateTimePicker": {
-    "placeholder": "Please select date",
-    "dateFormat": "YYYY-MM-DD",
-    "timeFormat": "HH:mm",
-    "dateTimeFormat": "YYYY-MM-DD HH:mm:ss",
+    "dateFormat": "yyyy-mm-dd",
+    "timeFormatHourMin": "HH:mm(eg. 23:04)",
+    "timeFormatHourMinSec": "HH:mm:ss(eg. 23:04:03)",
+    "dateTimeFormatHourMinSec": "YYYY-MM-DD HH:mm:ss eg. 2025-03-04 13:03:02",
+    "dateTimeFormatHourMin": "YYYY-MM-DD HH:mm. eg.2025-03-04 13:00",
     "invalidDate": "Invalid date format",
     "invalidTime": "Invalid time format",
     "invalidDateTime": "Invalid date time format"

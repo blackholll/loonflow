@@ -19,17 +19,19 @@ function DateField({
 }: DateFieldProps) {
     const { t } = useTranslation();
 
-    // 将日期字符串转换为显示格式
+    // convert date string to display format
     const formatDateForDisplay = (dateValue: string): string => {
+        console.log('formatDateForDisplay', dateValue);
+        console.log('mode', mode);
         if (!dateValue) return '';
 
         try {
-            // 如果是纯日期格式（YYYY-MM-DD），直接返回
+            // if it is a pure date format(YYYY-MM-DD), return directly
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
                 return dateValue;
             }
 
-            // 如果是ISO格式，提取日期部分
+            // if it is a ISO format, extract the date part
             if (dateValue.includes('T') || dateValue.includes('Z') || dateValue.includes('+') || dateValue.includes('-')) {
                 const dateMatch = dateValue.match(/^(\d{4}-\d{2}-\d{2})/);
                 if (dateMatch) {
@@ -37,7 +39,7 @@ function DateField({
                 }
             }
 
-            // 其他格式直接返回
+            // other formats return directly
             return dateValue;
         } catch (error) {
             return dateValue;
@@ -47,8 +49,9 @@ function DateField({
     // view mode only show value with formatting
     if (mode === 'view') {
         const displayValue = formatDateForDisplay(value);
+        console.log('displayValue1111', displayValue);
         return (
-            <ViewField type='date' value={displayValue} props={props} />
+            <ViewField type='text' value={displayValue} props={props} />
         );
     }
 
@@ -65,17 +68,17 @@ function DateField({
         }
     };
 
-    // 获取当前显示值（转换为 dayjs 对象）
+    // get current display value(convert to dayjs object)
     const getCurrentDisplayValue = (): dayjs.Dayjs | null => {
         if (!value) return null;
 
         try {
-            // 如果是纯日期格式（YYYY-MM-DD），直接解析
+            // if it is a pure date format(YYYY-MM-DD), parse directly
             if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
                 return dayjs(value);
             }
 
-            // 如果是ISO格式，提取日期部分
+            // if it is a ISO format, extract the date part
             if (value.includes('T') || value.includes('Z') || value.includes('+') || value.includes('-')) {
                 const dateMatch = value.match(/^(\d{4}-\d{2}-\d{2})/);
                 if (dateMatch) {
@@ -83,7 +86,7 @@ function DateField({
                 }
             }
 
-            // 尝试直接解析
+            // try to parse directly
             const parsed = dayjs(value);
             return parsed.isValid() ? parsed : null;
         } catch (error) {
@@ -96,12 +99,15 @@ function DateField({
             <DatePicker
                 value={getCurrentDisplayValue()}
                 onChange={handleDateChange}
+                format={props?.format || 'YYYY-MM-DD'}
                 slotProps={{
                     textField: {
                         variant: props?.variant ?? 'outlined',
                         size: props?.size ?? 'small',
-                        placeholder: props?.placeholder || t('common.dateTimePicker.placeholder'),
+                        placeholder: props?.placeholder || t('common.dateTimePicker.dateFormat'),
                         fullWidth: true,
+                        error: false,
+                        helperText: '',
                     }
                 }}
             />

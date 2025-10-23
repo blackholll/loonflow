@@ -112,8 +112,8 @@ function FormDesign(props: FormDesignProps) {
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
-            if (template.defaultProps.extendedProps?.optionsWithKeys && template.defaultProps.extendedProps.optionsWithKeys.length > 0) {
-                optionsWithKeys = template.defaultProps.extendedProps.optionsWithKeys.map((option: FormOption) => ({
+            if (template.defaultProps.props?.optionsWithKeys && template.defaultProps.props.optionsWithKeys.length > 0) {
+                optionsWithKeys = template.defaultProps.props.optionsWithKeys.map((option: FormOption) => ({
                     id: generateId(),
                     label: option.label,
                     key: generateUniqueOptionKey(formSchemaDesignInfo.componentInfoList)
@@ -129,7 +129,7 @@ function FormDesign(props: FormDesignProps) {
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, template.type),
                 props: {
                     placeholder: template.defaultProps.placeholder || '',
-                    multiple: template.defaultProps.extendedProps?.multiple || false,
+                    multiple: template.defaultProps.props?.multiple || false,
                     optionsWithKeys: optionsWithKeys,
                 },
                 layout: { span: 6 }
@@ -431,8 +431,8 @@ function FormDesign(props: FormDesignProps) {
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
-            if (template.defaultProps.extendedProps?.optionsWithKeys && template.defaultProps.extendedProps.optionsWithKeys.length > 0) {
-                optionsWithKeys = template.defaultProps.extendedProps.optionsWithKeys.map((option: FormOption) => ({
+            if (template.defaultProps.props?.optionsWithKeys && template.defaultProps.props.optionsWithKeys.length > 0) {
+                optionsWithKeys = template.defaultProps.props.optionsWithKeys.map((option: FormOption) => ({
                     id: generateId(),
                     label: option.label,
                     key: generateUniqueOptionKey(formSchemaDesignInfo.componentInfoList)
@@ -447,8 +447,7 @@ function FormDesign(props: FormDesignProps) {
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, template.type),
                 label: {},
                 props: {
-                    placeholder: template.defaultProps.placeholder || '',
-                    multiple: template.defaultProps.extendedProps?.multiple || false,
+                    ...template.defaultProps.props,
                     optionsWithKeys: optionsWithKeys,
                 },
                 layout: { span: 6 }

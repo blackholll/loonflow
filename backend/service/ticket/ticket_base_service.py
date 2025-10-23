@@ -254,7 +254,7 @@ class TicketBaseService(BaseService):
             act_state = cls.get_act_state_by_node_and_edge_type(next_node_dict_list[0].get("type"), edge_obj.type)
         
         # title need check whether title need auto genirate
-        title = workflow_component_service_ins.get_title_from_template(tenant_id, workflow_id, version_id, request_data_dict.get('fields', {}))
+        title = workflow_component_service_ins.get_title_from_template(tenant_id, workflow_id, version_id, operator_id, request_data_dict.get('fields', {}))
 
         ticket_record = TicketRecord(title=title, workflow_id=workflow_id,
                                      parent_ticket_id=parent_ticket_id,

@@ -23,7 +23,7 @@ function ViewField({
         const handleUserOrDeptDisplay = async () => {
             if (type === 'user' || type === 'department') {
                 if (!value || value === '-' || (Array.isArray(value) && value.length === 0)) {
-                    setDisplayValue('-');
+                    setDisplayValue('');
                     return;
                 }
 
@@ -80,7 +80,7 @@ function ViewField({
                 } else if (type === 'file') {
                     // 文件类型特殊处理
                     if (!value || value === '-') {
-                        computedValue = '-';
+                        computedValue = '';
                     } else {
                         try {
                             const files = JSON.parse(value as string);
@@ -146,7 +146,7 @@ function ViewField({
         );
     }
 
-    return (<Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{displayValue || '-'}</Typography>)
+    return (<Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{displayValue}</Typography>)
 }
 
 export default ViewField;

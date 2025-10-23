@@ -147,10 +147,41 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
   }, [workflowId, fetchTicketCreationForm, fetchTicketCreationActions, refreshToken, ticketId, fetchTicketDetailFrom, fetchTicketDetailActions, fetchTicketDetailAdminActions]);
 
   const updateFormValue = (component: IWorkflowComponent) => {
+    console.log('updateFormValue', component.componentKey, component.props.value);
+
+    // 更新 fields 状态
     setFields({
       ...fields,
       [component.componentKey]: component.props.value
-    })
+    });
+
+    // 更新 formSchema 中的组件值
+    if (formSchema) {
+      const updatedFormSchema = {
+        ...formSchema,
+        componentInfoList: formSchema.componentInfoList.map((rowComponent: IWorkflowComponentRow | IWorkflowComponent) => {
+          if (rowComponent.type === 'row') {
+            return {
+              ...rowComponent,
+              children: (rowComponent as IWorkflowComponentRow).children.map((fieldComponent: IWorkflowComponent) => {
+                if (fieldComponent.componentKey === component.componentKey) {
+                  return {
+                    ...fieldComponent,
+                    props: {
+                      ...fieldComponent.props,
+                      value: component.props.value
+                    }
+                  };
+                }
+                return fieldComponent;
+              })
+            };
+          }
+          return rowComponent;
+        })
+      };
+      setFormSchema(updatedFormSchema);
+    }
   }
 
   const loadUsers = async (searchValue: string = '') => {
