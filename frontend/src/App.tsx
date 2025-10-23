@@ -35,18 +35,17 @@ const App = () => {
         const response = await getTenantByDomain(domain);
         if (response.code === 0) {
           dispatch(setTenantBasicInfo(response.data.tenantInfo));
-          console.log('获取租户信息成功:', response.data);
         }
       } catch (error) {
-        console.error('获取租户信息失败:', error);
+        console.error('get tenant info fail:', error);
       }
     };
     fetchTenantInfo();
 
-    // 设置定时刷新租户信息，每30分钟刷新一次
+    // set interval to refresh tenant info, every 30 minutes
     const intervalId = setInterval(fetchTenantInfo, 30 * 60 * 1000);
 
-    // 组件卸载时清除定时器
+    // clear interval when component unmount
     return () => clearInterval(intervalId);
   }, [dispatch]);
 

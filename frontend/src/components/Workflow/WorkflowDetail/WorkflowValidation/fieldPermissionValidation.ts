@@ -21,12 +21,10 @@ export const validateFieldPermissions = (workflowData: IWorkflowFullDefinition):
     const titleKey = titleComponent?.componentKey;
 
     for (const node of workflowData.processSchema.nodeInfoList) {
-        console.log('validatfieldpermission')
         const read_fields = ['creatorInfo', 'createdAt', 'ticketNodeInfos', 'actState', 'approvalStatus', 'workflowInfo', 'currentAssigneeInfos'];
         const fieldPermissions = node.props.fieldPermissions || {};
         // 遍历fieldPermissions的key
         for (const key of Object.keys(fieldPermissions)) {
-            console.log('key', key);
             if (read_fields.includes(key)) {
                 if (fieldPermissions[key] === 'optional' || fieldPermissions[key] === 'required') {
                     problems.push(getValidationMessage('fieldPermission', 'infoComponentReadOnly', {
