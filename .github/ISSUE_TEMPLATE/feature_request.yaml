@@ -1,0 +1,44 @@
+name: '💡 Request a feature'
+description: 'Request a new feature or change to loonflow'
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template helps your propose new feature, enhancements, or other ideas for Loonflow2
+  - type: textarea
+    id: need
+    validations:
+      required: true
+    attributes:
+      label: '🔖 Need'
+      description: What is the rationale for this change, and who will benefit from it?
+      placeholder: |
+        Explain why this change is important and who will benefit from it. Provide context for the change, such as highlighting relevant past work in this area or specific use cases.
+  - type: textarea
+    id: proposal
+    validations:
+      required: true
+    attributes:
+      label: '📝 Proposal'
+      description: Describe the change that you are suggesting.
+      placeholder: |
+        Provide sufficient detail for reviewers to give concrete feedback.
+
+        Including a proposed implementation is optional, but if you do, consider adding design details such as TypeScript examples, database schema, or sequence diagrams.
+
+        If the change requires particular care when being rolled out, it can be helpful to include a plan for a phased release.
+  - id: willing-to-submit-pr
+    type: dropdown
+    attributes:
+      label: Are you willing to submit a PR?
+      description: This is absolutely not required, but we are happy to guide you in the contribution process.
+      options:
+        - Undecided
+        - Yes, and I have enough information to get started
+        - Yes, but I would like some more guidance
+        - No, but I'm happy to collaborate on a PR with someone else
+        - No, I don't have time to work on this right now
+    validations:
+      required: true
