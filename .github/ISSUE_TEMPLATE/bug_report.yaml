@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please fill in each section completely, and [search in GitHub](https://github.com/blackholll/loonflow/search?type=Issues) before reporting a new bug to avoid duplicates. Thank you!
+        Please use English to describe your issue, otherwise the issue will be force closed. Search with keyword before reporting a new bug to avoid duplicates. Thank you!
   - type: textarea
     id: description
     validations:
