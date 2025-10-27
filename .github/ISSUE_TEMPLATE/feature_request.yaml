@@ -1,0 +1,50 @@
+name: '🪲 Report a bug'
+description: 'Report a bug that you have encountered'
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use English to describe your issue, otherwise the issue will be force closed. Search with keyword before reporting a new bug to avoid duplicates. Thank you!
+  - type: textarea
+    id: description
+    validations:
+      required: true
+    attributes:
+      label: '📝 Description & Context'
+      placeholder: |
+        Describe the observed behavior that you believe to be incorrect, as well as any additional context that might be useful in understanding the bug.
+  - type: textarea
+    id: expected-behavior
+    validations:
+      required: true
+    attributes:
+      label: '👍 Expected Behavior'
+      placeholder: |
+        Describe the behavior or result that you expected instead of the observed one. Please provide screenshots if needed
+  - type: input
+    id: version
+    validations:
+      required: true
+    attributes:
+      label: Version
+      description: please use the released version, name is startswith 'r'. eg. r3.0.0, r.2.0.18 etc.
+  - type: input
+    id: os
+    attributes:
+       label: os
+       description: if you think this is os related issue, please provide the os info.
+  - type: input
+    id: browser
+    attributes:
+      label: browser
+      description: if you think this is browser related issue, please provide the browser and version info
+
+      
+      
+    
+     
+      
+      
+    
