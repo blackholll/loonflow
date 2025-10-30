@@ -7,8 +7,8 @@ import copy
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from apps.workflow.models import Component
-from backend.service.account.account_user_service import account_user_service_ins
-from backend.service.account.account_dept_service import account_dept_service_ins
+from service.account.account_user_service import account_user_service_ins
+from service.account.account_dept_service import account_dept_service_ins
 from service.base_service import BaseService
 from service.common.log_service import auto_log
 from service.util.archive_service import archive_service_ins

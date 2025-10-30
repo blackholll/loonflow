@@ -23,7 +23,7 @@ services:
 
   loonflow-ui:
     hostname: loonflow-ui
-    image: blackholll/loonflow-ui:latest
+    image: blackholll/loonflow-ui:r3.0.1
     container_name: loonflow-ui
     depends_on:
       - loonflow-redis
@@ -33,7 +33,7 @@ services:
 
   loonflow-backend:
     hostname: loonflow-backend
-    image: blackholll/loonflow-backend:latest
+    image: blackholll/loonflow-backend:r3.0.1
     container_name: loonflow-backend
     environment:
       DB_NAME: ${POSTGRES_DB}
@@ -42,6 +42,10 @@ services:
       DB_PASS: ${POSTGRES_PASSWORD}
       REDIS_HOST: loonflow-redis
       REDIS_PASS: ${REDIS_PASSWORD}
+      DJANGO_SUPERUSER_PASSWORD: ${ADMIN_PASSWORD}
+      TENANT_NAME: ${TENANT_NAME}
+      TENANT_DOMAIN: ${TENANT_DOMAIN}
+
     working_dir: /app/loonflow
     ports:
       - 8000:8000
@@ -49,12 +53,16 @@ services:
       - sh
       - -c
       - |
+        python manage.py makemigrations
         python manage.py migrate
-        gunicorn --bind 0.0.0.0:8000 --workers 4 --chdir /app/loonflow --pythonpath /app/loonflow loonflow.wsgi:application
+        python manage.py createsuperuser --noinput --email ${ADMIN_EMAIL} --name ${ADMIN_NAME} || true
+        gunicorn --bind 0.0.0.0:8000 --workers 4 --chdir /app/loonflow --pythonpath /app/loonflow \
+        --access-logfile - --error-logfile - --log-level info \
+        loonflow.wsgi:application
 
   loonflow-task:
     hostname: loonflow-task
-    image: blackholll/loonflow-backend:latest
+    image: blackholll/loonflow-backend:r3.0.1
     container_name: loonflow-task
     depends_on:
       - loonflow-redis
@@ -76,4 +84,4 @@ services:
 
 volumes:
   pg_data:
-    name: loonflow-pg-data
+    name: ${PG_DATA_VOLUME}

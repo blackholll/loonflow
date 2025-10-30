@@ -67,22 +67,16 @@ LOGGING = {
             },
         },
         'handlers': {
-            'file_handler': {
-                'level': 'INFO',
-                'class': 'logging.FileHandler',
-                'filename': HOMEPATH + '/loonflow.log',
-                'formatter': 'standard'
-            },
             'console': {
                 'level': 'INFO',
-                'filters': ['require_debug_true'],
                 'class': 'logging.StreamHandler',
+                'stream': 'ext://sys.stdout',
                 'formatter': 'standard'
             },
         },
         'loggers': {
             'django': {
-                'handlers': ['console','file_handler'],
+                'handlers': ['console'],
                 'propagate': True,
                 'level': 'INFO',
                         },
