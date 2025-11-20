@@ -391,7 +391,7 @@ export function RoleMember({ open, roleId, roleName, onClose }: RoleMemberProps)
                     {selectedUsers.length > 0 && (
                         <Box sx={{ mt: 2 }}>
                             <Chip
-                                label={`已选择 ${selectedUsers.length} 个用户`}
+                                label={`${t('common.selected')} ${selectedUsers.length} ${t('common.users')}`}
                                 color="primary"
                                 variant="outlined"
                             />

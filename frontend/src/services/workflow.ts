@@ -150,6 +150,15 @@ export const getWorkflowVersionList = async (workflowId: string, searchValue: st
   }
 };
 
+export const updateWorkflowVersion = async (workflowId: string, versionId: string, params: any): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.patch(`/api/v1.0/workflows/${workflowId}/versions/${versionId}`, params);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const getTicketCreationForm = async (workflowId: string, versionName?: string): Promise<IWorkflowCreationFormRes | IApiErrResponse> => {
   try {
     const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}/ticket_creation_form`, { params: { version_name: versionName } });

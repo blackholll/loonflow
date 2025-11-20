@@ -361,5 +361,7 @@
     "roles": "角色",
     "variables": "变量",
     "external": "外部获取"
-  }
+  },
+  "versionType": "版本类型",
+  "updateVersionSuccess": "更新版本成功"
 }

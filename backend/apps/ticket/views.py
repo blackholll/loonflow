@@ -67,7 +67,7 @@ class TicketListView(BaseView):
         from_admin = request_data.get('from_admin', '')
         creator_id = request_data.get('creator_id', '')
         parent_ticket_id = request_data.get('parent_ticket_id', '')
-        parent_ticket_state_id = request_data.get('parent_ticket_state_id', '')
+        parent_ticket_node_id = request_data.get('parent_ticket_node_id', '')
 
         # duty, owner, relation, view, intervene
         category = request_data.get('category')
@@ -86,7 +86,7 @@ class TicketListView(BaseView):
                 tenant_id, search_value, user_id, creator_id, create_start, create_end,
                 workflow_ids, node_ids, ticket_ids, category, reverse,
                 per_page, page, app_name, act_state_id=act_state_id, from_admin=from_admin,
-                parent_ticket_id=parent_ticket_id, parent_ticket_state_id=parent_ticket_state_id)
+                parent_ticket_id=parent_ticket_id, parent_ticket_node_id=parent_ticket_node_id)
             paginator_info = result.get('paginator_info')
             data = dict(ticket_list=result.get('ticket_result_restful_list'), per_page=paginator_info.get('per_page'),
                         page=paginator_info.get('page'), total=paginator_info.get('total'))
@@ -246,7 +246,7 @@ class TicketHandleView(BaseView):
                 return api_response(-1, "user has no permission to handle this ticket", '')
 
             result = ticket_base_service_ins.handle_ticket(tenant_id, app_name, ticket_id, user_id, request_data_dict)
-            return api_response(0, '', dict(ticket_id=result))
+            return api_response(0, '', dict())
         except CustomCommonException as e:
             return api_response(-1, str(e), '')
         except Exception:

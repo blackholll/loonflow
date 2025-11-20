@@ -120,5 +120,7 @@
     "invalidDate": "无效的日期格式",
     "invalidTime": "无效的时间格式",
     "invalidDateTime": "无效的日期时间格式"
-  }
+  },
+  "update": "更新",
+  "selected": "已选择"
 }

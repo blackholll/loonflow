@@ -4,6 +4,7 @@ import { initReactI18next } from 'react-i18next';
 
 // 导入中文翻译模块
 import zhCommon from './locales/zh-CN/common.json';
+import zhDepartment from './locales/zh-CN/department.json';
 import zhLayout from './locales/zh-CN/layout.json';
 import zhMenu from './locales/zh-CN/menu.json';
 import zhRole from './locales/zh-CN/role.json';
@@ -16,6 +17,7 @@ import zhWorkflowValidation from './locales/zh-CN/workflowValidation.json';
 
 // 导入英文翻译模块
 import enCommon from './locales/en-US/common.json';
+import enDepartment from './locales/en-US/department.json';
 import enLayout from './locales/en-US/layout.json';
 import enMenu from './locales/en-US/menu.json';
 import enRole from './locales/en-US/role.json';
@@ -33,6 +35,7 @@ const resources = {
       layout: enLayout,
       common: enCommon,
       user: enUser,
+      department: enDepartment,
       role: enRole,
       signIn: enSignIn,
       menu: enMenu,
@@ -47,6 +50,7 @@ const resources = {
       layout: zhLayout,
       common: zhCommon,
       user: zhUser,
+      department: zhDepartment,
       role: zhRole,
       signIn: zhSignIn,
       menu: zhMenu,

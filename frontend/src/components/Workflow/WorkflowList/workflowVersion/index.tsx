@@ -5,7 +5,7 @@ import { Button, CircularProgress, Dialog, DialogContent, DialogTitle, MenuItem,
 import Grid from '@mui/material/Grid2';
 import { useNavigate } from 'react-router-dom';
 import useSnackbar from '../../../../hooks/useSnackbar';
-import { getWorkflowVersionList } from '../../../../services/workflow';
+import { getWorkflowVersionList, updateWorkflowVersion } from '../../../../services/workflow';
 import { formatDate } from '../../../../utils/dateFormat';
 
 
@@ -75,6 +75,23 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
         setVersionDescription(workflowVersion.description);
         setVersionType(workflowVersion.type);
     };
+    const handleUpdateVersion = async () => {
+        if (!workflowId || !openedVersionId) {
+            return;
+        }
+        try {
+            const res = await updateWorkflowVersion(workflowId, openedVersionId, { name: versionName, description: versionDescription, type: versionType });
+            if (res.code === 0) {
+                showMessage(t('workflow.updateVersionSuccess'), 'success');
+                handleWorkflowVersionClose();
+            } else {
+                showMessage(res.msg, 'error');
+            }
+        } catch (error: any) {
+            showMessage(error.message, 'error');
+        }
+    }
+
 
     return (
         <div>
@@ -131,11 +148,11 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                 aria-describedby="alert-dialog-slide-description"
                 fullWidth
             >
-                <DialogTitle>{"编辑版本"}</DialogTitle>
+                <DialogTitle>{t('workflow.editVersion')}</DialogTitle>
                 <DialogContent>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <TextField
-                            label="名称"
+                            label={t('common.name')}
                             value={versionName}
                             fullWidth
                             margin="normal"
@@ -144,7 +161,7 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                             }}
                         />
                         <TextField
-                            label="描述"
+                            label={t('common.description')}
                             value={versionDescription}
                             fullWidth
                             margin="normal"
@@ -154,7 +171,7 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                         />
                         <Select
                             value={versionType}
-                            label="版本类型"
+                            label={t('workflow.versionType')}
                             onChange={(event: SelectChangeEvent) => {
                                 setVersionType(event.target.value);
                             }}
@@ -164,7 +181,7 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                             <MenuItem value={'candidate'}>candidate</MenuItem>
                         </Select>
                         <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-                            <Button variant="outlined" size={'large'} sx={{ width: '150px' }} >{t('common.save')}</Button>
+                            <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={handleUpdateVersion}>{t('common.save')}</Button>
                             <Button variant="outlined" size={'large'} sx={{ width: '150px' }} >{t('common.cancel')}</Button>
                         </div>
                     </div>

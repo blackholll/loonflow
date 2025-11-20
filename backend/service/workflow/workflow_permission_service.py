@@ -132,7 +132,10 @@ class WorkflowPermissionService(BaseService):
 
         if app_name == "loonflow" and workflow_base_service_ins.get_workflow_record_by_id(tenant_id, workflow_id):
             return True
-        permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id, permission="api", target=app_name).all()
+        if not version_id:
+            permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, permission="api", type='default', target=app_name).all()
+        else:
+            permission_queryset = WorkflowPermission.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, version_id=version_id, permission="api", target=app_name).all()
         if permission_queryset:
             return True
         raise CustomCommonException("app has no permission to this workflow")

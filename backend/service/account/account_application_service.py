@@ -113,15 +113,19 @@ class AccountApplicationService(BaseService):
         return True
 
     @classmethod
-    def app_type_check(cls, tenant_id:str, application_name:str, type:str, workflow_id:str)->bool:
+    def app_type_check(cls, tenant_id:str, application_name:str, type:str, workflow_id:str, workflow_version_id:str)->bool:
         """
         check application type
         :param tenant_id:
         :param application_name:
         :param type:
+        :param workflow_id:
+        :param workflow_version_id:
         :return:
         """
-        app_record = Application.objects.get(id=tenant_id, name=application_name)
+        app_record = Application.objects.filter(tenant_id=tenant_id, name=application_name).first()
+        if not app_record:
+            raise CustomCommonException('application is not exist or has been deleted')
         app_type = app_record.type
         if type == 'admin':
             if app_type == 'admin':
@@ -130,20 +134,25 @@ class AccountApplicationService(BaseService):
         elif type == 'workflow_admin':
             if app_type == 'admin':
                 return True
-            else:
-                if not cls.application_workflow_checker(tenant_id, app_record.id, workflow_id):
-                    raise CustomCommonException(f'permission check fail, need admin or workflow_admin')
-                return True
+            if not cls.application_workflow_checker(tenant_id, app_record.id, workflow_id, workflow_version_id):
+                raise CustomCommonException(f'permission check fail, need admin or workflow_admin')
+            return True
     @classmethod
-    def application_workflow_checker(cls, tenant_id:str, application_id:str, workflow_id:str):
+    def application_workflow_checker(cls, tenant_id:str, application_id:str, workflow_id:str, workflow_version_id:str):
         """
-        check where application is workflow admin of one workflow
+        check whether the application is workflow admin of one workflow
         """
         try:
-            ApplicationWorkflow.objects.get(tenant_id=tenant_id, application_id=application_id, workflow_id=workflow_id)
-            return True
+            from service.workflow.workflow_permission_service import workflow_permission_service_ins
+            return workflow_permission_service_ins.app_workflow_permission_check(tenant_id, workflow_id, workflow_version_id, application_id)
         except Exception as e:
             return  False
 
+    @classmethod
+    def get_record_by_app_name(cls, tenant_id:str, app_name:str):
+        """
+        get record by app name
+        """
+        return Application.objects.get(tenant_id=tenant_id, name=app_name)
 
 account_application_service_ins = AccountApplicationService()

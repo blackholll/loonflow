@@ -36,7 +36,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
                 showMessage(result.msg, 'error');
             }
         } catch (error: any) {
-            showMessage('搜索deptpath失败', 'error');
+            showMessage('search deptpath failed', 'error');
         } finally {
             setLoading(false);
         }
@@ -105,7 +105,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
                     renderInput={(params) => (
                         <TextField
                             {...params}
-                            label='上级部门'
+                            label={t('department.parentDepartment')}
                             slotProps={{
                                 input: {
                                     ...params.InputProps,

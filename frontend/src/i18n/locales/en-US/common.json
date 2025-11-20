@@ -123,5 +123,7 @@
     "invalidDate": "Invalid date format",
     "invalidTime": "Invalid time format",
     "invalidDateTime": "Invalid date time format"
-  }
+  },
+  "update": "update",
+  "selected": "selected"
 }

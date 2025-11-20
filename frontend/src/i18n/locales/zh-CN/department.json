@@ -1,0 +1,6 @@
+{
+    "parentDepartment": "上级部门",
+    "parentDepartmentHelpText": "请在左侧部门树中选择上级部门",
+    "departmentLeader": "部门负责人",
+    "departmentApprover": "部门审批人"
+}
