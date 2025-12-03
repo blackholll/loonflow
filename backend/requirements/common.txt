@@ -12,7 +12,7 @@ click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
 cryptography==46.0.2
-Django==5.2.7
+Django==5.2.9
 idna==3.10
 kombu==5.5.4
 packaging==25.0
