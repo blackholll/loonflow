@@ -1,0 +1,24 @@
+r1.0.0
+---------
+
+- Upgraded to Python 3.6
+- Unified configuration file to config.py
+- New API: Withdraw ticket
+- Ticket details API added return of current state detailed information
+- Allow ticket creator to close ticket directly in initial state
+- Ticket list API performance optimization
+- flowstep API added return of current state information, and records sorted by state order id
+- Ticket list query API added support for query conditions: draft, in progress, withdrawn, returned, completed
+- Custom notifications changed from script to hook method
+- Admin panel homepage added ticket quantity classification statistics
+- Admin panel displays current detailed version number
+- Admin panel supports user, department, and role editing
+- Admin panel hides handler input box information for initial and end states when configuring states
+- Admin panel supports ticket intervention: directly close, transfer, modify ticket state, delete
+- Support setting multiple departments when state participant type is department
+- Transition operation supports target state as initial state: no longer need to configure an intermediate state like "Creator Editing"
+- Workflow state hook supports configuring additional parameter information
+- Admin panel permission control refined: divided into super administrator and workflow administrator
+- Using readthedoc to manage project documentation
+- Static files moved from CDN to local to avoid inability to use normally when internal network deployment has no external network access
+- Code structure and internal logic optimization (removed redundant code, singleton pattern to reduce memory usage, database operation statement optimization, type hints, view parameter strong validation, etc.)

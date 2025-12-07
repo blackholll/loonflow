@@ -5,63 +5,48 @@
 
 Welcome to loonflow's documentation!
 ====================================
-r0.x.x之前版本见 https://github.com/blackholll/loonflow/wiki
 
 .. toctree::
-   :maxdepth: 2
-   :caption: 关于loonflow
-
-   about/what
-   about/preface
-   about/os
-   about/get_source
-   about/start
-   about/update
-   about/related_terms
-   about/infrastructure
-   about/code_structure
+   :maxdepth: 3
+   :caption: Introduction
+   
+   introduction/welcome/index
+   introduction/quick_start/index
 
 .. toctree::
-   :maxdepth: 2
-   :caption: 管理后台
-
-   manage/login
-   manage/sync_account
-   manage/workflow_config
-   manage/user&permission
+   :maxdepth: 3
+   :caption: Installation & Deployment
+   
+   installtion_deployment/system_requirements/index   
+   installtion_deployment/installation_guide/index
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: API文档
-
-   api_docs/authentication
-   api_docs/call_logic
-   api_docs/workflow
-   api_docs/ticket
+   :maxdepth: 3
+   :caption: Core Concepts
+   
+   core_concepts/ticket_system_fundamentals/index
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: 相关常量
+   :maxdepth: 3
+   :caption: User Guide
 
-   constant
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: 常见问题
-
-   q&a
+   user_guide/ticket/index
+   user_guide/workflow/index   
+   user_guide/organization/index
+   user_guide/setting/index
 
 .. toctree::
-   :maxdepth: 2
-   :caption: 其他
+   :maxdepth: 3
+   :caption: API Reference
+   
+   api_reference/postman
 
-   others/donation
-   others/release_note
-
-
-
+.. toctree::
+   :maxdepth: 3
+   :caption: Release Notes
+   
+   others/release_notes/index
 
 
