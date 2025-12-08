@@ -51,6 +51,12 @@ Force Forward
 
 Administrators or workflow administrators can directly force forward a ticket to another handler. After forward, the ticket remains at the same node, but the handler changes to the specified person.
 
+Force Close
+--------------
+
+Administrators or workflow administrators can directly force close a ticket. After force close, the ticket node changes to "end"(the node's type is "end").
+
+
 Withdraw
 -----------
 
