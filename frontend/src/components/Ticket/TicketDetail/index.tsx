@@ -29,6 +29,7 @@ import WorkflowDiagram from "./WorkflowDiagram";
 
 interface TicketDetailProps {
   workflowId?: string;
+  workflowVersionName?: string;
   ticketId?: string;
   onTicketHandledChange?: (ticketId: string) => void;
   refreshToken?: number;
@@ -39,7 +40,7 @@ interface IOption {
   label: string;
   value: string;
 }
-function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToken }: TicketDetailProps) {
+function TicketDetail({ workflowId, workflowVersionName, ticketId, onTicketHandledChange, refreshToken }: TicketDetailProps) {
   const { t } = useTranslation();
 
   const [formActions, setFormActions] = useState<any>();
@@ -76,22 +77,22 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
   }
 
   const fetchTicketCreationForm = useCallback(async () => {
-    const res = await getTicketCreationForm(workflowId!);
+    const res = await getTicketCreationForm(workflowId!, workflowVersionName);
     if (res.code === 0) {
       setFormSchema(res.data.formSchema);
     } else {
       showMessage(res.msg, 'error');
     }
-  }, [workflowId, showMessage]);
+  }, [workflowId, workflowVersionName, showMessage]);
 
   const fetchTicketCreationActions = useCallback(async () => {
-    const res = await getTicketCreationActions(workflowId!);
+    const res = await getTicketCreationActions(workflowId!, workflowVersionName);
     if (res.code === 0) {
       setFormActions(res.data.actions);
     } else {
       showMessage(res.msg, 'error');
     }
-  }, [workflowId, showMessage]);
+  }, [workflowId, workflowVersionName, showMessage]);
 
   const fetchTicketDetailFrom = useCallback(async (ticketId: string) => {
     const res = await getTicketDetailForm(ticketId);
@@ -144,7 +145,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
       fetchTicketDetailActions(ticketId);
       fetchTicketDetailAdminActions(ticketId);
     }
-  }, [workflowId, fetchTicketCreationForm, fetchTicketCreationActions, refreshToken, ticketId, fetchTicketDetailFrom, fetchTicketDetailActions, fetchTicketDetailAdminActions]);
+  }, [workflowId, workflowVersionName, fetchTicketCreationForm, fetchTicketCreationActions, refreshToken, ticketId, fetchTicketDetailFrom, fetchTicketDetailActions, fetchTicketDetailAdminActions]);
 
   const updateFormValue = (component: IWorkflowComponent) => {
     console.log('updateFormValue', component.componentKey, component.props.value);
@@ -235,7 +236,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
     } else {
       // new ticket
       console.log('no ticketId')
-      const res = await newTicket({ workflowId: workflowId!, actionId: action.id, fields: fields })
+      const res = await newTicket({ workflowId: workflowId!, actionId: action.id, fields: fields, workflowVersion: workflowVersionName })
       if (res.code === 0) {
         showMessage(res.msg, 'success')
         if (onTicketHandledChange) {

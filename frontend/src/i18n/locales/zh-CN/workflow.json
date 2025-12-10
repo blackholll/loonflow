@@ -363,5 +363,6 @@
     "external": "外部获取"
   },
   "versionType": "版本类型",
-  "updateVersionSuccess": "更新版本成功"
+  "updateVersionSuccess": "更新版本成功",
+  "createTicket": "创建工单"
 }

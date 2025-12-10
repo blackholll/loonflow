@@ -15,6 +15,7 @@ import Tenant from './components/Setting/Tenant';
 import AllTicket from './components/Ticket/AllTicket';
 import DutyTicket from './components/Ticket/DutyTicket';
 import InterveneTicket from './components/Ticket/InterveneTicket';
+import NewTicketPage from './components/Ticket/NewTicketPage';
 import OwerTicket from './components/Ticket/OwnerTicket';
 import RelationTicket from './components/Ticket/RelationTicket';
 import TicketDetailPage from './components/Ticket/TicketDetailPage';
@@ -71,6 +72,10 @@ const App = () => {
       key={'ticketManagement'}
       path={'/ticket'}
     >
+      <Route key={'ticketNew'}
+        path={'/ticket/new'}
+        element={<PrivateRoute element={<Layout children={<NewTicketPage />} />} />}
+      />
       <Route key={'ticketDuty'}
         path={'/ticket/duty'}
         element={<PrivateRoute element={<Layout children={<DutyTicket />} />} />}

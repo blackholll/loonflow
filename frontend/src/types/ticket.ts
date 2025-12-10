@@ -1,6 +1,6 @@
 import { IApiResponse, ISimpleEntity } from './common';
 import { ISimpleUser } from './user';
-import { IWorkflowAction, IFormSchema } from './workflow';
+import { IFormSchema, IWorkflowAction } from './workflow';
 
 
 export interface ITicketListQueryParam {
@@ -20,6 +20,7 @@ export interface INewTicketReqParam {
   workflowId: string;
   actionId: string;
   fields: any;
+  workflowVersion?: string;
 }
 
 export interface IActionProps {

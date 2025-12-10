@@ -366,5 +366,6 @@
   "common": {
     "updateVersionSuccess": "update version success"
   },
-  "updateVersionSuccess": "update version success"
+  "updateVersionSuccess": "update version success",
+  "createTicket": "New Ticket"
 }
