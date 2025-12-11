@@ -13,7 +13,7 @@ build:
 # Build documentation with Sphinx
 # Note: This configuration file is in sphinx_docs/ directory
 sphinx:
-   configuration: sphinx_docs/conf.py
+   configuration: sphinx_docs/source/conf.py
    builder: html
 
 # Configure the languages supported
