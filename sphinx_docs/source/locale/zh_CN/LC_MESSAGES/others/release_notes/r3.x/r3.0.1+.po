@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loonflow \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"POT-Creation-Date: 2025-12-11 22:29+0800\n"
 "PO-Revision-Date: 2025-12-11 00:00+0800\n"
 "Last-Translator: ChatGPT <noreply@example.com>\n"
 "Language: zh_CN\n"
@@ -27,6 +27,51 @@ msgid "r3.0.1"
 msgstr "r3.0.1"
 
 #: ../../source/others/release_notes/r3.x/r3.0.1+.rst:7
-msgid "xxxx"
-msgstr "xxxx"
+msgid ""
+"Docker Compose: custom Redis/Postgres ports, drop version key, ARM build,"
+" pinned tags."
+msgstr "Docker Compose：支持自定义 Redis/Postgres 端口，移除 version 字段，提供 ARM 构建，镜像标签固定。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:8
+msgid ""
+"User-facing: reset personal password; choose workflow version on create; "
+"English publish hint; flow preview node text; default language follows "
+"browser."
+msgstr "用户侧：可重置个人密码；创建流程时可选版本；英文发布提示；流程预览节点文案；默认语言跟随浏览器。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:9
+msgid ""
+"Frontend: remove unused imports; upgrade yarn 4 / Node 22 / TS 5; "
+"incremental `yarn tsc`; type fixes; required label handled."
+msgstr "前端：清理未使用 import；升级到 yarn 4 / Node 22 / TS5 ；类型修复；必填标签处理。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:10
+msgid ""
+"I18n: numbers/dates/components/templates covered; i18-ally config; "
+"default language follows browser."
+msgstr "国际化：覆盖数字/日期/组件/模板；补充 i18-ally 配置；默认语言跟随浏览器。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:11
+msgid ""
+"Quality (workflow/forms): workflow version type editable; ticket field "
+"edits fixed; edge required check; user component drag fixed; rule editor "
+"i18n; notification editing fixed."
+msgstr "质量（流程/表单）：流程版本类型可编辑；工单字段修改已修复；连线必填校验；用户组件拖拽修复；规则编辑器国际化；通知编辑修复。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:12
+msgid ""
+"Quality (templates/dates): date/time placeholders fixed; title template "
+"parsing fixed (creator, select display, editing)."
+msgstr "质量（模板/时间）：修复日期/时间占位符；修复标题模板解析（创建人、下拉展示、编辑）。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:13
+msgid "Ops: stdout logging restored; add initial user on deploy."
+msgstr "运维：恢复 stdout 日志输出；部署时新增初始用户。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:14
+msgid "Docs: issue templates refreshed; user/API docs."
+msgstr "文档：更新 issue 模板；完成用户/API 文档。"
+
+#~ msgid "xxxx"
+#~ msgstr "xxxx"
 

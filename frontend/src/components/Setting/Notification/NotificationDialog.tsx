@@ -89,13 +89,13 @@ const NotificationDialog = ({ open, onClose, notificationId }: NotificationDetai
             notificationDetail.fsAppId = result.data.notificationInfo.extra.fsAppId;
             notificationDetail.fsAppSecret = result.data.notificationInfo.extra.fsAppSecret
           }
-          setFormData({ ...formData, ...notificationDetail })
+          setFormData((prev) => ({ ...prev, ...notificationDetail }));
         }
       } catch (error: any) {
         showMessage(`fail to get notification detail: ${error.message}`, 'error');
       }
     }
-  }, [notificationId, showMessage, formData])
+  }, [notificationId, showMessage])
 
   useEffect(() => {
     getNotificationDetailR();

@@ -1,6 +1,6 @@
 # 🗺️ Project Roadmap
 
-## 🎯 Version 3.1.0 (November-December 2025)
+## 🎯 Version 3.1.0 (Feb.-Mar. 2026)
 ### Core Feature Enhancements
 - 📝 **Form Field Extensions** - New file upload, external data source, rich text editor field types
 - ⏰ **Process Timeout Control** - Support for automatic node timeout transitions, improving process automation
@@ -23,7 +23,7 @@
 - 🌐 **Backend Internationalization** - Backend API internationalization support
 - 🐛 **Bug Fixes** - Continuous issue fixes and minor feature optimizations
 
-## Medium-term Planning (March-June 2026)
+## Medium-term Planning (May.-Jun. 2026)
 - 🚀 **Performance Optimization** - Optimize system performance for large data volume scenarios
 - 🔌 **Plugin Ecosystem** - Enrich official plugin library, support more business scenarios
 - 📱 **Mobile Adaptation** - Optimize user experience on mobile devices

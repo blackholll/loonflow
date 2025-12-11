@@ -4,4 +4,11 @@ r3.0.1+
 ---------
 r3.0.1
 ---------
-- xxxx
+- Docker Compose: custom Redis/Postgres ports, drop version key, ARM build, pinned tags.
+- User-facing: reset personal password; choose workflow version on create; English publish hint; flow preview node text; default language follows browser.
+- Frontend: remove unused imports; upgrade yarn 4 / Node 22 / TS 5; incremental `yarn tsc`; type fixes; required label handled.
+- I18n: numbers/dates/components/templates covered; i18-ally config; default language follows browser.
+- Quality (workflow/forms): workflow version type editable; ticket field edits fixed; edge required check; user component drag fixed; rule editor i18n; notification editing fixed.
+- Quality (templates/dates): date/time placeholders fixed; title template parsing fixed (creator, select display, editing).
+- Ops: stdout logging restored; add initial user on deploy.
+- Docs: issue templates refreshed; user/API docs.

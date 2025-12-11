@@ -65,10 +65,9 @@ Login to loonflow using the email and password you created in step 3
 
 # 📖 Deep Dive
 
-- 📚 **Complete Documentation** - Learn all the details about installation, configuration, usage, and development.
-- 🎬 **Usage Tutorials** - Step-by-step guide on how to configure a complete IT operations ticket process.
+- 📚 **Complete Documentation** - Learn all the details about installation, configuration, usage, and development: https://loonflow.readthedocs.io
 - 🔌 **Hook Development Guide** - Learn how to develop custom plugins for Loonflow.
-- 🌐 **API Reference** - View complete API interface documentation.
+- 🌐 **API Reference** - View complete API interface documentation. https://documenter.getpostman.com/view/15031929/2sB3WyJbap
 
 # 🤝 Contributing
 
