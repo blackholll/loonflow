@@ -1,0 +1,49 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/setting/application.rst:2
+msgid "Application Management"
+msgstr "应用管理"
+
+#: ../../source/user_guide/setting/application.rst:4
+msgid ""
+"Applications are used to authenticate API calls. After creating an "
+"application, a token is generated and should be used to sign each "
+"request. The signing algorithm is documented in the Postman collection: "
+"https://documenter.getpostman.com/view/15031929/2sB3WyJbap"
+msgstr "应用用于鉴权 API 调用。创建应用后会生成 token，需在每次请求中签名，签名算法见 Postman 集合：https://documenter.getpostman.com/view/15031929/2sB3WyJbap"
+
+#: ../../source/user_guide/setting/application.rst:6
+msgid "Application management page"
+msgstr "应用管理页面"
+
+#: ../../source/user_guide/setting/application.rst:13
+msgid "Application types"
+msgstr "应用类型"
+
+#: ../../source/user_guide/setting/application.rst:14
+msgid "admin: Administrators can call all APIs."
+msgstr "admin：管理员可调用全部接口"
+
+#: ../../source/user_guide/setting/application.rst:15
+msgid ""
+"workflow_admin: Workflow administrators can call workflow/ticket APIs and"
+" common APIs."
+msgstr "workflow_admin：流程管理员可调用工作流/工单及公共接口"

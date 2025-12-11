@@ -1,0 +1,128 @@
+r1.0.1+
+==================
+
+---------
+r1.0.13
+---------
+- Fixed: Creator close ticket functionality exception
+- Fixed: Multiple people processing ticket logic exception
+- Fixed: Hook processing did not properly record hook execution state
+- Fixed: Format error in all field value information recorded in operation record when processing ticket
+
+
+---------
+r1.0.12
+---------
+- Fixed: Admin panel workflow list query not working
+- Fixed: Admin panel unable to add department
+- Fixed: Ticket not appearing in creator's todo list after ticket withdrawal
+- Fixed: State unable to transition when handler type is hook
+- Fixed: All ticket field information not successfully saved when handler type is hook and processing fails
+- Fixed: Deduplication logic issue in multiple people processing
+- Optimized: Admin panel supports Enter key login
+
+
+---------
+r1.0.11
+---------
+- Fixed: Unreasonable return result format when user has no processing permission in get user executable operations API
+- Fixed: Ticket progress state field value not updated when ticket is withdrawn, causing this state unable to be queried
+- Fixed: Title template and notification template not updated in frontend after modification when editing workflow
+- Fixed: Role users unable to be successfully deleted
+- Fixed: Processing comments unable to be successfully saved in ticket operation record
+
+
+---------
+r1.0.10
+---------
+- Fixed: Unable to correctly transition to corresponding person when participant type is department and participant sets multiple department ids (comma separated)
+- Fixed: "Click popup prompt" attribute unable to be successfully saved when configuring transition in admin panel
+
+
+---------
+r1.0.9
+---------
+- Fixed: Ticket not appearing in current handler's todo list after add sign completion
+- Fixed: Unable to get current handler when next state handler type is ticket field after all multiple people complete processing
+- Optimized: Modified current participant field length in ticket base table, modified processing comment field length in ticket processing record, modified participant field length in workflow state
+
+
+---------
+r1.0.8
+---------
+- Fixed: Error in get user executable transitions API when ticket current state requires acceptance
+- Fixed: Unable to delete role user records
+- Optimized: Do not request favicon.ico
+
+
+---------
+r1.0.7
+---------
+- Fixed: Issue where one person processing directly transitions to next state when state allocation method is all process and participant is set to ticket field
+- Fixed: Ticket script hook execution state not updated when state hook callback result is false
+- Fixed: Function not working when state participant is set to parent ticket field
+- Added: Ticket state participant type variable, ticket field, parent ticket field support setting multiple (comma separated)
+
+
+---------
+r1.0.6
+---------
+- Optimized: Hook transition suggestion acquisition method adjustment
+- Optimized: Added several common questions and answers to sphinx documentation
+- Optimized: Modified calling party demo related information in readme
+
+
+---------
+r1.0.5
+---------
+- Fixed: Issue where participants did not complete processing but transitioned to next state when state participants are multiple people and allocation method is all process
+- Fixed: Unable to transition normally when state participant is hook, wait=false (i.e., do not wait for callback, transition directly)
+- Added: New mobile calling party open source approval system project based on DingTalk ecosystem, https://gitee.com/shihow/howflow-open
+
+
+---------
+r1.0.4
+---------
+- Fixed: Ticket custom field values unable to be normally updated
+- Fixed: Handler calculation error when handler is multiple departments
+- Fixed: Ticket state not updated when ticket is withdrawn
+
+
+---------
+r1.0.3
+---------
+- Fixed: Handler exception after forcibly modifying ticket state
+- Fixed: Ticket withdrawal condition judgment logic error
+- Added: New docker compose deployment method for loonflow_shutongflow (for demonstration only)
+
+
+---------
+r1.0.2
+---------
+- Fixed: Error in get workflow state details API
+- Fixed: Error on ticket management interface when workflow is not yet configured
+- Fixed: Unable to save when department approval person is not selected when editing department
+- Fixed: Title template and content template not successfully saved when editing workflow
+- Fixed: Error in getting handler information when handler type is ticket field
+- Fixed: Transition list not appearing when target state is not selected when configuring transition
+- Fixed: Ticket unable to continue processing after forcibly modifying ticket state in admin panel
+- Fixed: Handler error when state is forcibly modified to initial state or end state
+- Fixed: Form retains last edited content when adding new record after editing call permission
+- Fixed: Issue description in readthedoc documentation where two dashes in startup command were converted to one --
+- Fixed: Log file has no content after deployment with uwsgi (temporarily changed to print logs to console, can view logs in uwsgi logs)
+- Optimized: Prompt user to add call permission after adding new workflow
+- Optimized: Added prompt on how to add notification when configuring workflow notification selection
+
+
+---------
+r1.0.1
+---------
+- Fixed: Production environment dependency package uwsgi version update
+- Fixed: Ticket list query condition creation start and end time processing logic error
+- Fixed: Comment ticket API logic error
+- Fixed: Ticket progress state attribute not updated after forced close
+- Fixed: Handler exception when state participant type is role
+- Fixed: Error in ticket list API query my todo tickets in some cases
+- New Feature: Ticket list supports querying tickets I have processed
+- New Feature: Ticket list query API state attribute condition supports "closed" query
+- Optimized: Admin panel ticket management exception prompt information optimization and some other detail optimizations

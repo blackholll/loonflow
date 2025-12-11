@@ -1,0 +1,132 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:2
+msgid "Server Hardware Requirements"
+msgstr "服务器硬件要求"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:4
+msgid ""
+"This section describes the baseline and recommended hardware requirements"
+" for running **LoonFlow**, including CPU, memory, disk, and network "
+"resources. Actual requirements will vary depending on the number of "
+"concurrent users, ticket volume, and the number of integrated systems. "
+"The values below are general guidelines for typical deployments."
+msgstr ""
+"本节描述运行 **LoonFlow** 的基础与推荐硬件要求，涵盖 CPU、内存、磁盘与网络资源。实际需求取决于并发用户数、工单量以及集成系统数量。下列数值为典型部署的参考。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:8
+msgid "Docker Compose Deployment"
+msgstr "Docker Compose 部署"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:10
+msgid ""
+"Suitable for personal evaluation, local development, feature "
+"verification, or small pilot environments, where all components (web "
+"application, database, Redis, etc.) are deployed on a single server."
+msgstr "适用于个人评估、本地开发、功能验证或小规模试点，将 Web、数据库、Redis 等组件部署在同一台服务器上。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:12
+msgid "**Minimum configuration**"
+msgstr "**最低配置**"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:14
+msgid "**CPU**: 4 vCPU"
+msgstr "**CPU**：4 vCPU"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:15
+msgid "**Memory**: 8 GB"
+msgstr "**内存**：8 GB"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:16
+msgid "**Disk**: 40 GB of available space"
+msgstr "**磁盘**：可用空间 40 GB"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:22
+msgid ""
+"When multiple components run on the same machine, memory is usually the "
+"first resource to become a bottleneck. If you frequently observe memory "
+"pressure or unstable services in test environments, first consider adding"
+" more memory or moving the database to a separate instance."
+msgstr "多组件同机部署时，内存通常最先成为瓶颈。若在测试环境频繁出现内存紧张或服务不稳定，优先考虑加内存或将数据库独立出来。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:26
+msgid "High Availability and Scalability Recommendations"
+msgstr "高可用与扩展性建议"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:28
+msgid ""
+"For production environments that require higher stability and "
+"availability, consider the following enhancements based on your actual "
+"needs:"
+msgstr "若生产环境需要更高稳定性和可用性，可按实际情况采用以下增强："
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:30
+msgid "**multiple backend or task instances**"
+msgstr "**多后端或任务实例**"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:32
+msgid ""
+"use \"replicas\" attribute to start multiple backend or task instances in"
+" docker-compose.yml."
+msgstr "在 docker-compose.yml 中使用 \\\"replicas\\\" 属性启动多个后端或任务实例。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:34
+msgid "**Database high availability**"
+msgstr "**数据库高可用**"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:36
+msgid ""
+"use a separate database server, rather than starting on a single server "
+"through docker compose."
+msgstr "使用独立的数据库服务器，而非在单机 docker compose 中启动。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:38
+msgid "**Monitoring and capacity planning**"
+msgstr "**监控与容量规划**"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:40
+msgid ""
+"Use monitoring systems (such as Prometheus + Grafana or cloud monitoring "
+"services) to track CPU, memory, I/O, database connections, and other key "
+"metrics."
+msgstr "使用监控系统（如 Prometheus + Grafana 或云监控）跟踪 CPU、内存、I/O、数据库连接等关键指标。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:41
+msgid ""
+"Based on historical load and growth trends, plan CPU, memory, and disk "
+"expansions in advance to avoid emergency scaling during business peaks."
+msgstr "根据历史负载与增长趋势，提前规划 CPU、内存、磁盘扩容，避免业务峰值时紧急扩容。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:44
+msgid "Summary"
+msgstr "总结"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:46
+msgid ""
+"Hardware planning should be based on your organization's actual business "
+"scale and future growth expectations. Ensure that LoonFlow has enough "
+"resources to run reliably while keeping some buffer for headroom. It is "
+"strongly recommended to perform stress testing before going live and adjust "
+"CPU, memory, and database configurations according to the test results to "
+"achieve a more robust production environment."
+msgstr ""
+"硬件规划应结合组织的实际业务规模与增长预期，既要保证 LoonFlow 可靠运行，又要预留一定余量。"
+"强烈建议上线前进行压测，并根据结果调整 CPU、内存和数据库配置，以获得更稳健的生产环境。"

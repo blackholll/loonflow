@@ -1,0 +1,92 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:2
+msgid "Query tickets"
+msgstr "查询工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:4
+msgid ""
+"After signing in to Loonflow you can browse different ticket lists. The "
+"workbench shows your pending tasks. Under the “Ticket management” menu "
+"you will find:"
+msgstr "登录 Loonflow 后，可浏览不同工单列表。工作台展示你的待办；在“工单管理”菜单下你可以看到："
+
+#: ../../source/user_guide/ticket/query_ticket.rst:6
+msgid "`My Duty`: tickets currently assigned to you"
+msgstr "`我的待办`：当前分派给你的工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:7
+msgid "`My Owner`: tickets you created"
+msgstr "`我的创建`：你创建的工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:8
+msgid ""
+"`My Relation`: tickets you are related to (created by you, previously "
+"assigned to you, handled by you, commented by you, or force‑intervened by"
+" you)"
+msgstr "`与我相关`：与你有关的工单（你创建、曾分配给你、你处理过、你评论过或你强制干预过）"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:9
+msgid "`My View`: tickets in workflows where you have view permission"
+msgstr "`我的视图`：你对流程拥有查看权限的工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:10
+msgid "`My Intervene`: tickets whose workflows list you as Dispatcher"
+msgstr "`我的干预`：流程中将你设为干预人的工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:11
+msgid ""
+"`All Tickets`: every ticket; only administrators can view and intervene "
+"through this entry"
+msgstr "`全部工单`：所有工单，只有管理员可通过此入口查看和干预"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:13
+msgid "Category Tickets"
+msgstr "分类工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:18
+msgid ""
+"Each ticket list provides filters above the table: `Keyword`, `Creator`, "
+"`Created time range`, and `Workflow` (ticket type). `Keyword` currently "
+"supports fuzzy search on the ticket title only. To enable searching by "
+"custom fields, set the title field to `Auto Generate` in the workflow "
+"form designer and include the desired fields in the title template. The "
+"system will then auto-generate titles containing those field values, "
+"letting you find tickets via those custom fields."
+msgstr ""
+"每个工单列表上方提供筛选：`关键词`、`创建人`、`创建时间范围`、`流程`（工单类型）。目前关键词仅支持模糊匹配工单标题。如需按自定义字段搜索，可在流程表单设计中将标题字段设为"
+" `自动生成`，并在标题模板包含所需字段，系统会自动生成包含字段值的标题，从而通过这些字段间接搜索。"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:20
+msgid "title property"
+msgstr "标题属性"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:26
+msgid ""
+"if you set title property to \"Auto Generate\", the system will auto-"
+"generate a title for the ticket based on the custom fields. so you must "
+"set the title field's permission to \"hidden\" for the start node."
+msgstr "若标题属性设为“自动生成”，系统会根据自定义字段自动生成标题，因此需在起始节点将标题字段权限设为“隐藏”。"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:29
+msgid "start node properly if title field is auto_generate"
+msgstr "标题自动生成时的起始节点配置"
+

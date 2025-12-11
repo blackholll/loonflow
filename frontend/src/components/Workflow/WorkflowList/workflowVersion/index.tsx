@@ -123,8 +123,10 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
 
                                     <TableCell>{formatDate(workflowVersion.createdAt)}</TableCell>
                                     <TableCell>
-                                        <div><Button onClick={() => handleEditVersion(workflowVersion)}>{t('workflow.editVersion')}</Button>
+                                        <div>
+                                            <Button onClick={() => handleEditVersion(workflowVersion)}>{t('workflow.editVersion')}</Button>
                                             <Button disabled={workflowVersion.type === 'archived'} onClick={() => workflowVersion.type !== 'archived' && navigate(`/workflow/${workflowId}?version_name=${workflowVersion.name}`)}>{t('workflow.editWorkflow')}</Button>
+                                            <Button disabled={workflowVersion.type === 'archived'} onClick={() => workflowVersion.type !== 'archived' && navigate(`/ticket/new?workflow_id=${workflowId}&version_name=${workflowVersion.name}`)}>{t('workflow.createTicket')}</Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>

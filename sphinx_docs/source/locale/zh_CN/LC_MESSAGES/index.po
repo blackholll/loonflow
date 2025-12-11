@@ -1,0 +1,48 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 18:56+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/index.rst:9
+msgid "Introduction"
+msgstr "引言"
+
+#: ../../source/index.rst:16
+msgid "Installation & Deployment"
+msgstr "安装与部署"
+
+#: ../../source/index.rst:24
+msgid "Core Concepts"
+msgstr "核心概念"
+
+#: ../../source/index.rst:31
+msgid "User Guide"
+msgstr "用户指南"
+
+#: ../../source/index.rst:40
+msgid "API Reference"
+msgstr "API 参考"
+
+#: ../../source/index.rst:46
+msgid "Release Notes"
+msgstr "发行说明"
+
+#: ../../source/index.rst:7
+msgid "Welcome to loonflow's documentation!"
+msgstr "欢迎阅读 loonflow 文档！"
+

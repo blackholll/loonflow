@@ -1,0 +1,23 @@
+r3.0.0
+---------
+
+🎯 Revolutionary Visual Design
+
+- **Drag-and-Drop Process Designer**: No complex configuration needed. Complete complex business process modeling through intuitive drag-and-drop connections. Supports advanced nodes like conditional branches, parallel tasks, and hooks.
+- **Smart Form Designer**: Powerful visual form building tool with rich field types (text, numbers, dropdowns, personnel selection, attachments, etc.) and flexible layouts.
+- **Real-time Preview & Validation**: Real-time preview during process design with built-in process logic validation to prevent design errors early.
+- **Multi-Version Process Configuration**: You can configure multiple versions of processes and easily test and switch between versions.
+
+
+🔧 Ultimate Flexibility & Extensibility
+
+- **Plugin Architecture**: We provide plugin extension capabilities for almost all key nodes (such as custom actions, permission validation, notification methods, etc.). Your unique business logic can be easily integrated like building blocks.
+- **Powerful API System**: Provides comprehensive and clear RESTful APIs for seamless integration with your customer service systems, CMDB, monitoring systems, CI/CD, OA, and other third-party systems.
+- **Highly Customizable Permission Model**: Supports fine-grained permission control based on roles, departments, or even specific business conditions to meet complex enterprise permission management needs.
+
+💼 Enterprise-Ready Features Out of the Box
+
+- **Multi-Type Ticket Support**: Easily manage various processes including IT operations, HR approvals, financial reimbursements, customer service, etc.
+- **Automation & Smart Routing**: Supports conditional routing based on form data, automatic assignee assignment, and intelligent ticket flow.
+- **Comprehensive Audit Logs**: Complete records of every operation from ticket creation to closure, meeting compliance and audit requirements.
+- **Multi-Tenant Support (Optional)**: Provides data isolation capabilities for SaaS providers or large enterprise groups (requires additional authorization).

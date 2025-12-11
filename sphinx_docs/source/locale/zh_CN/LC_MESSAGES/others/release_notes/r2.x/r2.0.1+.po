@@ -1,0 +1,713 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:2
+msgid "r2.0.1+"
+msgstr "r2.0.1+"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:6
+msgid "r2.0.20"
+msgstr "r2.0.20"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:7
+msgid ""
+"Fixed: Error in sample workflow configuration code in initialization SQL "
+"for docker compose deployment"
+msgstr "修复：docker compose 部署初始化 SQL 中示例工作流配置代码错误"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:12
+msgid "r2.0.19"
+msgstr "r2.0.19"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:13
+msgid "Fixed: Comment button should not appear when creating a new ticket"
+msgstr "修复：新建工单时不应出现评论按钮"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:14
+msgid ""
+"Fixed: Error in sample workflow configuration information in "
+"initialization SQL"
+msgstr "修复：初始化 SQL 中示例工作流配置信息错误"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:15
+msgid ""
+"Fixed: Transfer ticket and add sign ticket did not trigger notification "
+"hook"
+msgstr "修复：转交工单、加签工单未触发通知钩子"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:20
+msgid "r2.0.18"
+msgstr "r2.0.18"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:21
+msgid "Fixed: [User Management] Missing required field markers when adding users"
+msgstr "修复：[用户管理] 新增用户时缺少必填标识"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:22
+msgid ""
+"Optimized: [Deployment] Added media directory configuration for docker "
+"compose deployment"
+msgstr "优化：[部署] docker compose 部署新增媒体目录配置"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:23
+msgid "Optimized: [Admin Panel] Migrated SVG background files to local"
+msgstr "优化：[管理端] SVG 背景文件改为本地"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:24
+msgid ""
+"Fixed: [User Management] When adding records in department management "
+"page, parent department can only select from current page list"
+msgstr "修复：[用户管理] 部门管理页新增记录时父部门只能选本页列表"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:25
+msgid "Fixed: [User Management] Unable to switch pages in user role page"
+msgstr "修复：[用户管理] 用户角色页无法翻页"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:26
+msgid ""
+"Fixed: [Ticket Details] When date or datetime fields are empty and ticket"
+" is returned directly, these fields cannot be edited subsequently"
+msgstr "修复：[工单详情] 日期/时间字段为空且直接退回后无法再次编辑"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:27
+msgid ""
+"Fixed: [Ticket Details] Required validation for file type fields not "
+"working when processing tickets"
+msgstr "修复：[工单详情] 处理工单时文件类型字段必填校验无效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:32
+msgid "r2.0.17"
+msgstr "r2.0.17"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:33
+msgid ""
+"Fixed: [Ticket Details] Error on ticket details page when date type field"
+" has value and is in editable state"
+msgstr "修复：[工单详情] 日期字段有值且可编辑时详情页报错"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:34
+msgid ""
+"Fixed: [Ticket Details] Error on ticket details page when file type field"
+" has no value and current configuration is displayed"
+msgstr "修复：[工单详情] 文件字段无值且展示当前配置时详情页报错"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:35
+msgid "Optimized: [Documentation] Updated readme documentation"
+msgstr "优化：[文档] 更新 readme 文档"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:40
+msgid "r2.0.16"
+msgstr "r2.0.16"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:41
+msgid ""
+"Optimized: [Deployment] Simplified docker compose deployment, images "
+"uploaded to docker hub, no longer need local build, supports container "
+"startup mysql"
+msgstr "优化：[部署] 精简 docker compose 部署，镜像已上传 docker hub，无需本地构建，支持容器启动 mysql"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:42
+msgid "Fixed: [API] Error in admin list information returned by workflow list API"
+msgstr "修复：[接口] 工作流列表接口返回的管理员列表信息错误"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:43
+msgid ""
+"Optimized: [New Feature] Support configuring trusted host list for "
+"hook_url to improve security"
+msgstr "优化：[新特性] hook_url 支持配置可信主机列表以提升安全性"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:44
+msgid ""
+"Fixed: [Admin Panel] Typo in per_page parameter in frontend code for "
+"state list and custom field list (does not affect functionality)"
+msgstr "修复：[管理端] 状态列表、自定义字段列表前端代码 per_page 参数拼写错误（不影响功能）"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:45
+msgid ""
+"Fixed: [Admin Panel] Page number display error after adding configuration"
+" on second page in workflow configuration related pages"
+msgstr "修复：[管理端] 工作流配置相关页面在第二页新增配置后页码显示错误"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:46
+msgid ""
+"Fixed: [Code Logic] Ticket title template did not support built-in fields"
+" (creator, sn, etc.)"
+msgstr "修复：[代码逻辑] 工单标题模板不支持内置字段（creator、sn 等）"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:47
+msgid ""
+"Fixed: [Code Logic] Ticket list page requires 1 minute to display latest "
+"ticket record after creating new ticket"
+msgstr "修复：[代码逻辑] 新建工单后工单列表页面需 1 分钟才显示最新记录"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:48
+msgid "Fixed: [Admin Panel] No prompt information on login failure page"
+msgstr "修复：[管理端] 登录失败页面无提示信息"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:49
+msgid ""
+"Fixed: [Code Logic] Operation log not recorded when ticket state hook "
+"executes successfully"
+msgstr "修复：[代码逻辑] 工单状态钩子执行成功未记录操作日志"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:50
+msgid ""
+"Fixed: [Code Logic] count parameter in ticket creation limit expression "
+"did not actually take effect"
+msgstr "修复：[代码逻辑] 工单创建限制表达式中的 count 参数未生效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:55
+msgid "r2.0.15"
+msgstr "r2.0.15"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:56
+msgid ""
+"Fixed: Docker-compose deployment unable to start after Python version "
+"upgrade"
+msgstr "修复：升级 Python 版本后 docker-compose 部署无法启动"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:57
+msgid ""
+"Fixed: Error in calculating final handler when handler type uses external"
+" fetch"
+msgstr "修复：处理人类型为外部获取时最终处理人计算错误"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:58
+msgid ""
+"Fixed: Missing ticket information when triggering hook for second state "
+"with handler type as external fetch"
+msgstr "修复：处理人类型外部获取且第二个状态触发钩子时缺少工单信息"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:63
+msgid "r2.0.14"
+msgstr "r2.0.14"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:64
+msgid ""
+"Optimized: Ticket details API does not error when current ticket state is"
+" deleted"
+msgstr "优化：当前工单状态被删除时工单详情接口不报错"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:65
+msgid ""
+"Optimized: Upgraded Python version to 3.10, replaced mysqlclient with "
+"pymysql to reduce installation complexity"
+msgstr "优化：Python 升级至 3.10，mysqlclient 替换为 pymysql 降低安装复杂度"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:66
+msgid ""
+"Optimized: Migrated frontend icon files to local to avoid slow page "
+"loading when users cannot connect to external network"
+msgstr "优化：前端图标文件改为本地，避免用户无法访问外网时页面加载缓慢"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:67
+msgid "Optimized: Updated initialization SQL"
+msgstr "优化：初始化 SQL 调整"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:68
+msgid "Optimized: Updated screenshots in documentation to latest version"
+msgstr "优化：文档截图更新至最新版本"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:69
+msgid ""
+"Fixed: Content confusion in creator department id information returned by"
+" ticket details API"
+msgstr "修复：工单详情接口返回的创建人部门 ID 信息混乱"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:70
+msgid ""
+"Fixed: \"Client sent AUTH, but no password is set\" error when creating "
+"ticket with redis server without password configured"
+msgstr "修复：redis 未配置密码时创建工单报 “Client sent AUTH, but no password is set” 错误"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:71
+msgid ""
+"Added: Ticket handler now supports real-time external fetch during "
+"workflow process"
+msgstr "新增：工单处理人支持在流程进行中实时外部获取"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:72
+msgid "Added: English version readme"
+msgstr "新增：英文版 readme"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:77
+msgid "r2.0.13"
+msgstr "r2.0.13"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:78
+msgid ""
+"Fixed: New ticket interface incorrectly displayed ticket list (caused by "
+"improper handling of sub-ticket list)"
+msgstr "修复：新建工单界面错误展示工单列表（因子工单列表处理不当）"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:79
+msgid "Fixed: Error logs not recorded after production environment deployment"
+msgstr "修复：生产环境部署后错误日志未记录"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:80
+msgid ""
+"Fixed: When ticket state handler is all handlers and ticket is processed "
+"through different paths, then state is forcibly modified, ticket cannot "
+"continue processing"
+msgstr "修复：工单状态处理人类型为全部处理人，工单经不同路径处理后再强制变更状态无法继续处理"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:85
+msgid "r2.0.12"
+msgstr "r2.0.12"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:86
+msgid "Optimized: Admin ticket list supports ticket deletion"
+msgstr "优化：管理端工单列表支持工单删除"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:87
+msgid ""
+"Optimized: Ticket details page supports creator closing and withdrawing "
+"tickets"
+msgstr "优化：工单详情页支持创建人关闭与撤销工单"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:88
+msgid ""
+"Optimized: Ticket details page processing button supports popup prompt "
+"after clicking"
+msgstr "优化：工单详情页处理按钮点击后支持弹窗提示"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:89
+msgid "Optimized: Ticket list API supports querying sub-tickets"
+msgstr "优化：工单列表接口支持查询子工单"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:90
+msgid "Optimized: Ticket details page displays sub-ticket list"
+msgstr "优化：工单详情页展示子工单列表"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:91
+msgid "Fixed: Unable to submit ticket when date field is not filled"
+msgstr "修复：日期字段未填写时无法提交工单"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:92
+msgid ""
+"Fixed: Notification hook not triggered when ticket state is forcibly "
+"modified"
+msgstr "修复：强制修改工单状态时未触发通知钩子"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:93
+msgid ""
+"Fixed: Switch for enabling popup in transition operation during workflow "
+"configuration not working"
+msgstr "修复：工作流配置中流转操作的开启弹窗开关不生效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:98
+msgid "r2.0.11"
+msgstr "r2.0.11"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:99
+msgid "Removed login authentication from backend homepage"
+msgstr "移除后台首页登录鉴权"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:100
+msgid ""
+"Fixed: Unable to submit or process ticket when form contains read-only "
+"time or date type"
+msgstr "修复：表单包含只读时间/日期类型时无法提交或处理工单"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:101
+msgid "Docker compose deployment uses utf8mb4 character set"
+msgstr "docker compose 部署使用 utf8mb4 字符集"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:102
+msgid "Fixed: Flowchart interface page crash due to missing message import"
+msgstr "修复：流程图界面缺少 message 引用导致页面崩溃"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:103
+msgid ""
+"Fixed: Unable to upload attachments when submitting or processing tickets"
+" in development mode"
+msgstr "修复：开发模式下提交或处理工单无法上传附件"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:104
+msgid ""
+"Optimized: Removed description information of built-in ticket fields to "
+"avoid display on ticket details page"
+msgstr "优化：去除工单内置字段的描述信息，避免在详情页展示"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:105
+msgid ""
+"Fixed: Unable to save when conditional expression is configured but "
+"target state is not selected when creating new workflow"
+msgstr "修复：新建工作流时配置条件表达式但未选目标状态无法保存"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:106
+msgid ""
+"Fixed: Attachments in ticket details not accessible in development "
+"environment"
+msgstr "修复：开发环境工单详情中的附件不可访问"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:107
+msgid "Optimized: Download files in ticket details saved with original filename"
+msgstr "优化：工单详情下载文件保留原始文件名"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:108
+msgid ""
+"Optimized: Error on ticket details page when workflow display form is not"
+" configured"
+msgstr "优化：工单详情未配置流程表单展示时的报错"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:109
+msgid "Deployment: Some notes on docker compose deployment method"
+msgstr "部署：docker compose 部署方式的一些注意事项"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:110
+msgid ""
+"Fixed: Only first 10 departments can be selected when adding user's "
+"department"
+msgstr "修复：为用户新增部门时只能选择前 10 个部门"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:111
+msgid ""
+"Fixed: Empty list returned on ticket view and ticket intervention pages "
+"when view or intervention permissions are configured"
+msgstr "修复：配置工单视图或干预权限后，工单视图/干预页面返回空列表"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:116
+msgid "r2.0.10"
+msgstr "r2.0.10"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:117
+msgid ""
+"Compatibility: [Flowchart] Compatibility for flowchart page error after "
+"automatic upgrade of frontend ant design chart version"
+msgstr "兼容性：[流程图] 前端 ant design chart 自动升级后流程图页面报错的兼容处理"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:118
+msgid ""
+"Compatibility: [Deployment] Compatibility for docker compose deployment "
+"unable to download due to nodejs source certificate issue"
+msgstr "兼容性：[部署] 处理 nodejs 源证书问题导致 docker compose 部署无法下载的兼容性修复"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:122
+msgid "r2.0.9"
+msgstr "r2.0.9"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:123
+msgid "Added: [Details Page] Support for add sign completion operation"
+msgstr "新增：[详情页] 支持加签完成操作"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:124
+msgid ""
+"Optimized: [API] Ticket state deletion does not affect data return of "
+"list API (no exception thrown, replaced with 'Unknown State')"
+msgstr "优化：[接口] 工单状态被删除时不影响列表接口返回（不抛异常，显示“未知状态”）"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:125
+msgid ""
+"Fixed: [API] Operation type not recorded after hook operation, causing "
+"hook operation name to be 'Unknown' in operation log API"
+msgstr "修复：[接口] 钩子操作未记录操作类型，导致操作日志接口中钩子操作名称为“未知”"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:126
+msgid "Optimized: [Code Logic] Improved eval security"
+msgstr "优化：[代码逻辑] eval 安全性提升"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:131
+msgid "r2.0.8"
+msgstr "r2.0.8"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:132
+msgid ""
+"Fixed: [Code Logic] Application API call permission cannot pass "
+"permission verification after being added"
+msgstr "修复：[代码逻辑] 应用接口调用权限新增后无法通过权限校验"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:137
+msgid "r2.0.7"
+msgstr "r2.0.7"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:138
+msgid "Fixed: [Code Logic] Error in calculating user's parent department logic"
+msgstr "修复：[代码逻辑] 用户所属父部门计算逻辑错误"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:139
+msgid "Fixed: [Admin Panel] Unable to add workflow call permission successfully"
+msgstr "修复：[管理端] 无法成功添加工作流调用权限"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:140
+msgid "Fixed: [Admin Panel] Unable to add role users in role user management"
+msgstr "修复：[管理端] 角色用户管理中无法添加角色用户"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:141
+msgid ""
+"Fixed: [Admin Panel] Unable to search applications when adding "
+"application authorization in workflow basic configuration"
+msgstr "修复：[管理端] 工作流基础配置中新增应用授权时无法搜索应用"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:142
+msgid ""
+"Optimized: [Admin Panel] Display state id in workflow state list for "
+"convenience in writing conditional expressions"
+msgstr "优化：[管理端] 工作流状态列表展示状态 id，便于编写条件表达式"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:143
+msgid ""
+"Optimized: [Admin Panel] Application name not allowed to be duplicated "
+"when adding or editing application call permission records"
+msgstr "优化：[管理端] 新增/编辑应用调用权限记录时应用名不允许重复"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:144
+msgid ""
+"Optimized: [API] Optimized error when operation record API uses deleted "
+"transition operation"
+msgstr "优化：[接口] 操作记录接口使用被删除的流转操作时的错误提示"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:145
+msgid ""
+"Optimized: [API] Optimized prompt information when redis is not started "
+"when creating new ticket"
+msgstr "优化：[接口] 新建工单时 redis 未启动的提示信息"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:146
+msgid "Optimized: [Documentation] Added description of frontend code interfaces"
+msgstr "优化：[文档] 补充前端代码接口说明"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:147
+msgid "Optimized: [Code] Removed deprecated frontend pages and related images"
+msgstr "优化：[代码] 移除已废弃的前端页面及相关图片"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:152
+msgid "r2.0.6"
+msgstr "r2.0.6"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:153
+msgid "Fixed: [Admin Panel] Workflow list pagination not working"
+msgstr "修复：[管理端] 工作流列表分页无效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:154
+msgid "Fixed: [Admin Panel] Unable to delete workflow"
+msgstr "修复：[管理端] 无法删除工作流"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:155
+msgid ""
+"Fixed: [Admin Panel] Participant type selected as none, but participant "
+"is still required"
+msgstr "修复：[管理端] 参与人类型选为无，但仍要求填写参与人"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:156
+msgid ""
+"Fixed: [Admin Panel] Unable to add department when approval person is not"
+" selected when adding department"
+msgstr "修复：[管理端] 新增部门未选择审批人时无法新增"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:157
+msgid ""
+"Fixed: [Admin Panel] Unable to add back API authorized application after "
+"deletion when editing workflow"
+msgstr "修复：[管理端] 编辑工作流时删除的接口授权应用无法重新添加"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:158
+msgid ""
+"Optimized: [Admin Panel] Display department approval person name and "
+"leader name in department list"
+msgstr "优化：[管理端] 部门列表展示审批人名称和部门负责人名称"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:159
+msgid ""
+"Fixed: [Deployment] Unable to stop service with docker compose method, "
+"error when executing python3 run.py stop"
+msgstr "修复：[部署] docker compose 方式无法停止服务，执行 python3 run.py stop 报错"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:160
+msgid "Optimized: [Deployment] Docker compose deployment supports upgrade"
+msgstr "优化：[部署] docker compose 部署支持升级"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:165
+msgid "r2.0.5"
+msgstr "r2.0.5"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:166
+msgid ""
+"Fixed: [Admin Panel] Notification selection echo exception when editing "
+"workflow"
+msgstr "修复：[管理端] 编辑工作流时通知选择回显异常"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:167
+msgid ""
+"Fixed: [Admin Panel] JSON repeatedly converted causing content exception "
+"when editing workflow state transitions multiple times"
+msgstr "修复：[管理端] 多次编辑工作流状态流转时 JSON 反复转换导致内容异常"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:168
+msgid "Fixed: [Admin Panel] Unable to delete user's department"
+msgstr "修复：[管理端] 无法删除用户所属部门"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:169
+msgid "Fixed: [Ticket Details] Unable to submit multi-select type fields"
+msgstr "修复：[工单详情] 多选类型字段无法提交"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:170
+msgid ""
+"Fixed: [Admin Panel] Display exception for select type fields in read-"
+"only state"
+msgstr "修复：[管理端] 只读状态下选择类字段显示异常"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:171
+msgid "Added: [Ticket Details] Added support for rich text display and echo"
+msgstr "新增：[工单详情] 支持富文本展示与回显"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:172
+msgid ""
+"Optimized: [API] Performance optimization for ticket list when ticket "
+"handler is multiple people"
+msgstr "优化：[接口] 工单处理人为多人时工单列表性能优化"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:176
+msgid "r2.0.4"
+msgstr "r2.0.4"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:177
+msgid ""
+"Fixed: [Deployment] Field error in initial SQL causing unable to add call"
+" permission record"
+msgstr "修复：[部署] 初始化 SQL 字段错误导致无法添加调用权限记录"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:178
+msgid "Optimized: [Admin Panel] Flowchart display optimization"
+msgstr "优化：[管理端] 流程图展示优化"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:179
+msgid "Fixed: [Admin Panel] Department list only displays first page"
+msgstr "修复：[管理端] 部门列表仅显示第一页"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:180
+msgid ""
+"Fixed: [Admin Panel] Default approval person information error in add "
+"department popup causing unable to add department directly"
+msgstr "修复：[管理端] 新增部门弹窗默认审批人信息错误，无法直接添加部门"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:181
+msgid ""
+"Fixed: [Admin Panel] Default workflow selection initial value empty in "
+"add call permission record popup causing unable to add directly"
+msgstr "修复：[管理端] 新增调用权限记录弹窗默认工作流选择初始值为空，无法直接添加"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:185
+msgid "r2.0.3"
+msgstr "r2.0.3"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:186
+msgid ""
+"Fixed: [Admin Panel] Query conditions not working on workflow management "
+"page"
+msgstr "修复：[管理端] 工作流管理页面查询条件无效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:187
+msgid ""
+"Fixed: [Admin Panel] Ticket list filter conditions (creator, creation "
+"time not working)"
+msgstr "修复：[管理端] 工单列表筛选条件（创建人、创建时间）不生效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:188
+msgid "Fixed: [Admin Panel] Conditional expression not displayed in flowchart"
+msgstr "修复：[管理端] 流程图中未展示条件表达式"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:189
+msgid "Fixed: [Admin Panel] No configuration entry for timer"
+msgstr "修复：[管理端] 缺少定时器配置入口"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:190
+msgid ""
+"Fixed: [Admin Panel] Some personnel information not saved when creating "
+"workflow"
+msgstr "修复：[管理端] 创建工作流时部分人员信息未保存"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:191
+msgid "Fixed: [Admin Panel] New record added after editing transition record"
+msgstr "修复：[管理端] 编辑流转记录后新增了一条新记录"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:192
+msgid "Fixed: [Admin Panel] Hook type frontend display error"
+msgstr "修复：[管理端] 钩子类型前端展示错误"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:193
+msgid ""
+"Fixed: [Deployment] Database import failure did not stop deployment "
+"process during docker compose deployment"
+msgstr "修复：[部署] docker compose 部署导入数据库失败未阻断部署流程"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:194
+msgid ""
+"Fixed: [Deployment] Database port specification not effective when "
+"importing initialization data during docker compose deployment"
+msgstr "修复：[部署] docker compose 部署导入初始化数据时指定数据库端口未生效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:199
+msgid "r2.0.2"
+msgstr "r2.0.2"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:200
+msgid "Fixed: Jump to error page when creating ticket with invalid content"
+msgstr "修复：创建工单内容不合法时跳转到错误页面"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:201
+msgid "Fixed: Newly created users unable to login"
+msgstr "修复：新建用户无法登录"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:202
+msgid "Fixed: Regular users unable to reset password"
+msgstr "修复：普通用户无法重置密码"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:203
+msgid "Fixed: Permissions not working for different user types"
+msgstr "修复：不同用户类型的权限未生效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:204
+msgid "Fixed: Super administrator unable to manage all tickets"
+msgstr "修复：超级管理员无法管理所有工单"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:205
+msgid "Fixed: Regular users can view intervention ticket menu"
+msgstr "修复：普通用户可看到干预工单菜单"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:206
+msgid "Fixed: Unable to delete role"
+msgstr "修复：无法删除角色"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:207
+msgid "Fixed: Workflow type query condition not working in ticket list"
+msgstr "修复：工单列表工作流类型查询条件无效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:208
+msgid "Fixed: Title template not working after configuration"
+msgstr "修复：配置标题模板后未生效"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:209
+msgid ""
+"Optimized: Popup error when clicking new ticket button without selecting "
+"workflow"
+msgstr "优化：未选择工作流点击新建工单按钮时的弹窗提示"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:214
+msgid "r2.0.1"
+msgstr "r2.0.1"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:215
+msgid "Fixed: Permission issue when deploying with docker compose method"
+msgstr "修复：docker compose 部署方式的权限问题"
+
+#: ../../source/others/release_notes/r2.x/r2.0.1+.rst:216
+msgid "Fixed: Error when adding new workflow in admin panel"
+msgstr "修复：管理端新增工作流时报错"

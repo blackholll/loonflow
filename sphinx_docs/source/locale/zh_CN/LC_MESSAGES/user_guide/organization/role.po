@@ -1,0 +1,35 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/organization/role.rst:2
+msgid "Role Management"
+msgstr "角色管理"
+
+#: ../../source/user_guide/organization/role.rst:4
+msgid ""
+"Loonflow supports managing roles so you can create, edit, delete, and "
+"maintain role members. Roles are primarily used when configuring "
+"workflows to specify handlers, allowing you to assign a role as the "
+"processor for a workflow node."
+msgstr "Loonflow 支持角色管理，可创建、编辑、删除并维护角色成员。配置流程时可将角色指定为节点处理人。"
+
+#: ../../source/user_guide/organization/role.rst:6
+msgid "role management"
+msgstr "角色管理页面"

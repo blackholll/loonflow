@@ -1,5 +1,5 @@
-import { IApiResponse, ILabel } from '../types/common';
 import { v4 as uuidv4 } from 'uuid';
+import { IApiResponse, ILabel } from '../types/common';
 
 
 export interface ILayout {
@@ -79,6 +79,7 @@ export interface IWorkflowVersionListResData {
   versionInfoList: IWorkflowVersionEntity[]
 }
 export interface IWorkflowVersionListRes extends IApiResponse<IWorkflowVersionListResData> { }
+export interface IWorkflowVersionDetailRes extends IApiResponse<IWorkflowVersionEntity> { }
 
 export interface IWorkflowComponent {
   id: string,

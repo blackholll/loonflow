@@ -1,0 +1,51 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:2
+msgid "Workflow Version Management"
+msgstr "流程版本管理"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:4
+msgid ""
+"Loonflow supports multiple workflow versions. Each workflow can have the "
+"following version types:"
+msgstr "Loonflow 支持多版本流程。每个流程可拥有以下版本类型："
+
+#: ../../source/user_guide/workflow/workflow_version.rst:7
+msgid ""
+"**default**: The active version used when a user selects the workflow in "
+"Workbench to create a new ticket."
+msgstr "**default**：当前生效版本，工作台选择流程创建工单时使用。"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:9
+msgid ""
+"**candidate**: A draft version for validation. Administrators can switch "
+"the version type or create test tickets with the candidate version."
+msgstr "**candidate**：候选版本，用于验证。管理员可切换版本类型或用该版本创建测试工单。"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:11
+msgid ""
+"**archived**: A retired version. New tickets cannot be created with it, "
+"but existing tickets created in the past can still be processed."
+msgstr "**archived**：归档版本，不能再创建新工单，但历史工单仍可按该版本继续处理。"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:14
+msgid "workflow version management"
+msgstr "流程版本管理页面"
