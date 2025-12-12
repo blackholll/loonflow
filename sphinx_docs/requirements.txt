@@ -28,3 +28,4 @@ sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.4
 stevedore==1.32.0
 urllib3==1.25.8
+distutils
