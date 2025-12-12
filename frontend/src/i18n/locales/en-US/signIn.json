@@ -1,0 +1,12 @@
+{
+  "title": "Loonflow",
+  "description": "Unified Workflow Solutions for the Enterprise",
+  "emailLabel": "Email Address",
+  "passwordLabel": "Password",
+  "rememberMe": "Remember me",
+  "signInButton": "Sign In",
+  "forgotPassword": "Forgot password?",
+  "noAccount": "Don't have an account? Sign Up",
+  "welcomeBack": "Welcome back! Please sign in to continue.",
+  "welcomeMessage": "Welcome to our app!"
+}

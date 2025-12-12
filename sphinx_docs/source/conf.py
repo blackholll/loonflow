@@ -13,12 +13,13 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
+import jieba
 
 # -- Project information -----------------------------------------------------
 
+
 project = 'loonflow'
-copyright = '2020-2023, blackholll'
+copyright = '2020-2025, blackholll'
 author = 'blackholll'
 
 # The full version, including alpha/beta/rc tags
@@ -41,7 +42,7 @@ templates_path = ['_templates']
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'zh_CN'
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -56,8 +57,13 @@ exclude_patterns = []
 #
 import sphinx_rtd_theme
 html_theme = "sphinx_rtd_theme"
+html_theme_options = {
+    "collapse_navigation": True,
+    # "navigation_depth": 4,
+}
 
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+# html_theme_path is no longer needed in newer versions of sphinx_rtd_theme
+# html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # html_theme = 'alabaster'
 
@@ -65,4 +71,25 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-html_search_language = 'zh'
+if language and language.lower().startswith('zh'):
+    html_search_language = 'zh'
+    html_search_options = {'dict': 'jieba'}
+    
+    # Use custom jieba splitter for better Chinese search
+    from sphinx.search import jssplitter
+    def custom_splitter(inputstring):
+        """Custom splitter using jieba for Chinese text"""
+        # For Chinese, return jieba tokens
+        if any('\u4e00' <= char <= '\u9fff' for char in inputstring):
+            return list(jieba.cut_for_search(inputstring))
+        # For non-Chinese, use default splitter
+        return jssplitter.split(inputstring)
+    
+    jssplitter.split = custom_splitter
+else:
+    html_search_language = 'en'
+    html_search_options = {}
+
+locale_dirs = ['locale/']
+# Generate one .po per .rst instead of merging.
+gettext_compact = False

@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, CircularProgress, OutlinedInput, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Box, Stack, Grid2, FormLabel, Autocomplete, TextField, Chip, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Alert, Autocomplete, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormLabel, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { getSimpletApplicationList } from '../../../../services/application'
-import { ISimpleApplicationResEntity } from '../../../../types/application';
-import { v4 as uuidv4 } from 'uuid';
-import { ICustomizationInfo, IWorkflowHook } from '../../../../types/workflow';
-import useSnackbar from '../../../../hooks/useSnackbar';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import useSnackbar from '../../../../hooks/useSnackbar';
+import { getSimpletApplicationList } from '../../../../services/application';
+import { ISimpleApplicationResEntity } from '../../../../types/application';
+import { ICustomizationInfo, IWorkflowHook } from '../../../../types/workflow';
 
 
 interface IHookEvent {
@@ -31,8 +31,6 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
     const [addedHookToken, setAddedHookToken] = useState('');
     const [hooks, setHooks] = useState<IWorkflowHook[]>(customizeConfig.hookInfoList || []);
     const [hookUrl, setHookUrl] = useState('');
-    const [appSearchValue, setAppSearchValue] = useState('');
-    const [loadingApplications, setLoadingApplications] = useState(false);
     const { t } = useTranslation();
 
     const { showMessage } = useSnackbar();
@@ -129,14 +127,14 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
         try {
             const successful = document.execCommand('copy');
             if (successful) {
-                showMessage('复制成功', 'success');
+                showMessage(t('common.copySuccess'), 'success');
             } else {
-                showMessage('复制失败', 'error');
+                showMessage(t('common.copyFailed'), 'error');
             }
             setAddedHookToken('');
             return successful;
         } catch (err: any) {
-            showMessage('复制失败', 'error');
+            showMessage(t('common.copyFailed'), 'error');
             return false;
         } finally {
             document.body.removeChild(textarea);
@@ -148,7 +146,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
         try {
             await navigator.clipboard.writeText(addedHookToken);
             setAddedHookToken('');
-            showMessage('复制成功', 'success');
+            showMessage(t('common.copySuccess'), 'success');
         } catch (err) {
             // 降级方案
             copyToClipboardFallback(addedHookToken);
@@ -190,9 +188,8 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                             options={applicationList}
                             getOptionLabel={(option) => option.name}
                             value={selectedApplications}
-                            onChange={(e, value) => handleAuthorizedAppChange(value)}
-                            onInputChange={(e, value) => {
-                                setAppSearchValue(value);
+                            onChange={(_, value) => handleAuthorizedAppChange(value)}
+                            onInputChange={(_, value) => {
                                 if (value.length > 0) {
                                     loadApplications(value);
                                 }
@@ -205,14 +202,14 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                                         ...params.InputProps,
                                         endAdornment: (
                                             <>
-                                                {loadingApplications ? <CircularProgress color="inherit" size={20} /> : null}
+                                                {loadingApps ? <CircularProgress color="inherit" size={20} /> : null}
                                                 {params.InputProps.endAdornment}
                                             </>
                                         ),
                                     }}
                                 />
                             )}
-                            loading={loadingApplications}
+                            loading={loadingApps}
                             size="small"
                             fullWidth
                         />
@@ -244,7 +241,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                         <Button onClick={() => setOpen(true)}>
                             {t('common.add')}
                         </Button>
-                        {addedHookToken !== "" ? (<Alert severity="info">{addedHookToken} <Button onClick={() => handleCopy()}>复制Token</Button></Alert>) : null}
+                        {addedHookToken !== "" ? (<Alert severity="info">{addedHookToken} <Button onClick={() => handleCopy()}>{t('common.copyToken')}</Button></Alert>) : null}
 
                     </Grid>
                     <Table sx={{ minWidth: 650 }} aria-label="caption table">
@@ -262,7 +259,7 @@ function CustomizeConfig({ onCustomizeConfigChange, customizeConfig }: Customize
                                         {row.url}
                                     </TableCell>
                                     <TableCell align="right">{row.eventList.map((event) => hookEvents.find((e) => e.key === event)?.label).join(',')}</TableCell>
-                                    <TableCell align="right"><div><Button disabled>编辑</Button><Button disabled>重置token</Button><Button disabled>删除</Button></div></TableCell>
+                                    <TableCell align="right"><div><Button disabled>{t('common.edit')}</Button><Button disabled>{t('common.resetToken')}</Button><Button disabled>{t('common.delete')}</Button></div></TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

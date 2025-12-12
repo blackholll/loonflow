@@ -32,7 +32,6 @@ export const validateNodeConnectivity = (workflowData: IWorkflowFullDefinition):
         }
 
         if (['normal', 'parallel', 'exclusive', 'timer', 'hook'].includes(node.type)) {
-            console.log(outputEdgeList, inputEdgeList);
             if (outputEdgeList.length === 0 || inputEdgeList.length === 0) {
                 problems.push(getValidationMessage('connectivity', 'nodeNoConnection', {
                     nodeType: node.type

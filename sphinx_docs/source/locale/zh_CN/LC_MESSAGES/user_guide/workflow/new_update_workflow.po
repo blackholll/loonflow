@@ -1,0 +1,116 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:2
+msgid "Create Or Update Workflow"
+msgstr "创建或更新流程"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:4
+msgid ""
+"This guide is intended for new admin or workflow admin who want to "
+"configure workflows."
+msgstr "本指南面向需要配置流程的新管理员或流程管理员。"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:7
+msgid "Create New Workflow"
+msgstr "新建流程"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:9
+#: ../../source/user_guide/workflow/new_update_workflow.rst:55
+msgid "Login to LoonFlow"
+msgstr "登录 LoonFlow"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:10
+msgid "Click the "Workflow Management" button in the left sidebar"
+msgstr "点击左侧“流程管理”菜单"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:11
+msgid "Click the "New Workflow" button"
+msgstr "点击“新建流程”按钮"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:13
+msgid "Workflow List"
+msgstr "流程列表"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:18
+msgid "Fill in the workflow basic information"
+msgstr "填写流程基础信息"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:20
+msgid "Fill Workflow Basic Info"
+msgstr "填写流程基础信息"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:25
+msgid "Finish form design"
+msgstr "完成表单设计"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:27
+msgid "Fill Workflow Form Design"
+msgstr "填写流程表单设计"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:32
+msgid "Finish process design"
+msgstr "完成流程设计"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:34
+#: ../../source/user_guide/workflow/new_update_workflow.rst:39
+#: ../../source/user_guide/workflow/new_update_workflow.rst:44
+msgid "Fill Workflow Process Design"
+msgstr "填写流程设计"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:49
+msgid ""
+"Click the "RELEASE" button, then set the workflow version and click the"
+" "CONFIRM" button"
+msgstr "点击“发布”，设置流程版本后再点击“确认”"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:53
+msgid "Update Workflow"
+msgstr "更新流程"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:56
+msgid "Click the "Workflow Management" menu in the left sidebar"
+msgstr "点击左侧“流程管理”菜单"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:57
+msgid ""
+"Find the workflow you want to modify and click the EDIT button in the "
+"action column on the right"
+msgstr "找到要修改的流程，点击右侧操作列的编辑按钮"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:58
+msgid ""
+"In the version list popup, choose the version to edit and click the "
+"workflow edit button on the right to open the workflow edit page"
+msgstr "在版本列表弹窗中选择要编辑的版本，点击右侧编辑按钮打开流程编辑页"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:59
+msgid ""
+"After editing the workflow, click the "RELEASE" button, then set the "
+"workflow version and click the "CONFIRM" button"
+msgstr "编辑完成后点击“发布”，设置版本并点击“确认”"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:62
+msgid ""
+"LoonFlow automatically checks whether your changes are compatible with "
+"previous versions and will remind you. You can save as a new version or "
+"keep the current version. If you save as a new version, you can adjust "
+"the version type on the workflow version management page."
+msgstr "LoonFlow 会自动检查你的修改与旧版本的兼容性并提醒。你可以另存为新版本或沿用当前版本；如选择新版本，可在流程版本管理页调整版本类型。"

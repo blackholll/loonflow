@@ -1,0 +1,215 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:2
+msgid "Developer Setup"
+msgstr "开发环境搭建"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:4
+msgid ""
+"This guide will help you set up the Loonflow development environment on "
+"your local machine."
+msgstr "本指南将帮助你在本地搭建 Loonflow 开发环境。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:7
+msgid "Prerequisites"
+msgstr "前置条件"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:9
+msgid "Before starting, ensure you have the following installed:"
+msgstr "开始前，请确保已安装以下组件："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:11
+msgid "Python 3.12.x (latest stable version of Python 3.12)"
+msgstr "Python 3.12.x（3.12 最新稳定版）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:12
+msgid "Node.js 22.x (latest stable version of Node.js 22)"
+msgstr "Node.js 22.x（22 最新稳定版）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:13
+msgid "Redis (for generating unique ticket serial numbers and Celery async tasks)"
+msgstr "Redis（用于生成工单流水号与 Celery 异步任务）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:14
+msgid "PostgreSQL(database)"
+msgstr "PostgreSQL（数据库）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:17
+msgid "Backend Setup"
+msgstr "后端配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:19
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:118
+msgid "Navigate to the backend directory:"
+msgstr "进入后端目录："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:25
+msgid "Create configuration file:"
+msgstr "创建配置文件："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:27
+msgid ""
+"Copy ``settings/dev.py.sample`` to ``settings/config.py`` in the settings"
+" directory."
+msgstr "将 ``settings/dev.py.sample`` 复制为 ``settings/config.py``。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:33
+msgid "Configure settings:"
+msgstr "配置 settings："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:35
+msgid "Edit ``settings/config.py`` and update the following configurations:"
+msgstr "编辑 ``settings/config.py`` 并更新以下配置："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:37
+msgid "Database configuration (connection settings)"
+msgstr "数据库配置（连接信息）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:38
+msgid "Redis address configuration"
+msgstr "Redis 地址配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:39
+msgid "Log path configuration"
+msgstr "日志路径配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:40
+msgid "Other environment-specific settings"
+msgstr "其他环境相关配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:42
+msgid "Create and activate a Python virtual environment:"
+msgstr "创建并激活 Python 虚拟环境："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:49
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:93
+msgid "Install dependencies:"
+msgstr "安装依赖："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:55
+msgid "Start Redis:"
+msgstr "启动 Redis："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:57
+msgid "Redis is required for:"
+msgstr "Redis 用于："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:59
+msgid "Celery async tasks (script execution, status hooks, notification hooks)"
+msgstr "Celery 异步任务（脚本执行、状态钩子、通知钩子）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:61
+msgid "Make sure Redis is running before proceeding."
+msgstr "继续之前请确保 Redis 已运行。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:63
+msgid "Initialize the database:"
+msgstr "初始化数据库："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:70
+msgid "Create a superuser:"
+msgstr "创建超级用户："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:76
+msgid "Start the backend server:"
+msgstr "启动后端服务："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:82
+#, python-brace-format
+msgid "The backend will be available at ``http://{your_ip}:8000``."
+msgstr "后端访问地址：``http://{your_ip}:8000``。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:85
+msgid "Frontend Setup"
+msgstr "前端配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:87
+msgid "Navigate to the frontend directory:"
+msgstr "进入前端目录："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:99
+msgid "Start the frontend development server:"
+msgstr "启动前端开发服务器："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:105
+#, python-brace-format
+msgid "The frontend will be available at ``http://{your_ip}:3000``."
+msgstr "前端访问地址：``http://{your_ip}:3000``。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:108
+msgid "Celery Worker (Optional)"
+msgstr "Celery Worker（可选）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:110
+msgid ""
+"For local development, the Celery worker is optional unless you need the "
+"following features:"
+msgstr "本地开发可不启动 Celery worker，除非需要以下功能："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:112
+msgid "Script execution"
+msgstr "脚本执行"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:113
+msgid "Status hooks"
+msgstr "状态钩子"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:114
+msgid "Notification hooks"
+msgstr "通知钩子"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:116
+msgid "If you need these features, start the Celery worker:"
+msgstr "如需上述功能，请启动 Celery worker："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:124
+msgid "Start the Celery worker:"
+msgstr "启动 Celery worker："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:131
+msgid "Access the Application"
+msgstr "访问应用"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:133
+msgid "Once both the backend and frontend are running, access the application at:"
+msgstr "当后端和前端都运行后，可通过以下地址访问应用："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:135
+#, python-brace-format
+msgid "http://{your_ip}:3000"
+msgstr "http://{your_ip}:3000"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:137
+#, fuzzy, python-brace-format
+msgid ""
+"The frontend is configured to proxy API requests to the backend at "
+"``http://{your_ip}:8000``."
+msgstr "前端访问地址：``http://{your_ip}:3000``。"
+
+#~ msgid "Use the default login credentials from the `.env` file:"
+#~ msgstr "使用 `.env` 中的默认登录凭据："
+
+#~ msgid "Email: admin@example.com"
+#~ msgstr "邮箱：admin@example.com"
+
+#~ msgid "Password: admin123"
+#~ msgstr "密码：admin123"
+

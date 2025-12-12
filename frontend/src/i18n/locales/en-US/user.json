@@ -1,0 +1,16 @@
+{
+  "leader": "Leader",
+  "changeParentDept": "Change Parent Dept",
+  "passwordNotMatch": "The two passwords entered are not the same",
+  "resetPassword": "Reset Password",
+  "confirmResetPassword": "Confirm Reset Password",
+  "confirmResetPasswordMsg": "Password will be reset to '123456', please change it as soon as possible",
+  "resetPasswordSuccess": "Reset Password Success",
+  "resetPasswordFail": "Reset Password Fail",
+  "deleteUserSuccess": "Delete User Success",
+  "deleteUserFail": "Delete User Fail",
+  "admin": "Admin",
+  "workflowAdmin": "Workflow Admin",
+  "normal": "Normal",
+  "userDeptHelpText": "User belongs to departments, support setting multiple departments, the first department will be used as the main department, and the department approvers will be obtained based on the main department when approving"
+}

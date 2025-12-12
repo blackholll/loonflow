@@ -1,0 +1,17 @@
+{
+  "roleList": "Role List",
+  "addRoleSuccess": "Add Role Success",
+  "addRoleFail": "Add Role Fail",
+  "updateRoleSuccess": "Update Role Success",
+  "updateRoleFail": "Update Role Fail",
+  "deleteRoleSuccess": "Delete Role Success",
+  "deleteRoleFail": "Delete Role Fail",
+  "roleName": "Role Name",
+  "roleDescription": "Role Description",
+  "rolePermission": "Role Permission",
+  "roleMember": "Role Member",
+  "deleteMemberConfirm": "Confirm Delete Member",
+  "deleteMemberConfirmMsg": "Are you sure you want to remove this member from the role? The member will lose all permissions associated with this role.",
+  "deleteMemberSuccess": "Delete Member Success",
+  "deleteMemberFail": "Delete Member Fail"
+}

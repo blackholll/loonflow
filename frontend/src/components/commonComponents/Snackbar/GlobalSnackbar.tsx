@@ -1,6 +1,6 @@
 // src/components/Snackbar/GlobalSnackbar.tsx
+import { Alert, Snackbar } from '@mui/material';
 import React from 'react';
-import { Snackbar, Alert, SnackbarProps } from '@mui/material';
 
 interface GlobalSnackbarProps {
   open: boolean;

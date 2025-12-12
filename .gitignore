@@ -50,3 +50,5 @@ docker_compose_deploy/loonflow_shutongflow/dbdata/*
 # System Files
 .DS_Store
 clock_flag.txt
+
+*.mo

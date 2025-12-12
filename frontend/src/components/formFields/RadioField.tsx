@@ -1,11 +1,10 @@
+import { FormControl, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import React from 'react';
-import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, FormHelperText } from '@mui/material';
-import ViewField from './ViewField';
 import { FormOption } from '../../types/workflowDesign';
+import ViewField from './ViewField';
 
 interface RadioFieldProps {
     value: string | FormOption;
-    fieldRequired: boolean;
     onChange: (value: string | FormOption) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -13,7 +12,6 @@ interface RadioFieldProps {
 
 function RadioField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,

@@ -1,19 +1,14 @@
 import { Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface TicketActStateFieldProps {
     value: string;
 }
 
-const stateMap: Record<string, string> = {
-    'in-draft': '草稿中',
-    'on-going': '进行中',
-    'rejected': '被拒绝',
-    'withdrawn': '被撤回',
-    'finished': '已完成',
-    'closed': '已关闭',
-}
 export default function TicketActStateField({ value }: TicketActStateFieldProps) {
+    const { t } = useTranslation();
+
     return (<Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
-        {stateMap[value] ? stateMap[value] : ''}
+        {t(`ticket.state.${value}`)}
     </Typography>)
 }

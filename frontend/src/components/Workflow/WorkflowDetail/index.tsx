@@ -1,29 +1,29 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 
 
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-import Tooltip from '@mui/material/Tooltip';
+import DialogTitle from '@mui/material/DialogTitle';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
-import Alert from '@mui/material/Alert';
-import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import Tooltip from '@mui/material/Tooltip';
+import { useSearchParams } from 'react-router-dom';
+import useSnackbar from '../../../hooks/useSnackbar';
+import { addWorkflow, getWorkflowDetail, updateWorkflow } from '../../../services/workflow';
+import { createEmptyWorkflowFullDefinition, IAdvancedSchema, IFormSchema, IProcessSchema, IWorkflowFullDefinition } from '../../../types/workflow';
+import WorkflowAdvanced from '../WorkflowAdvanced';
 import WorkflowBasic from '../WorkflowBasic';
 import WorkflowForm from '../WorkflowForm';
 import WorkflowProcess from '../WorkflowProcess';
-import WorkflowAdvanced from '../WorkflowAdvanced';
-import { IWorkflowFullDefinition, createEmptyWorkflowFullDefinition, IFormSchema, IProcessSchema, IAdvancedSchema } from '../../../types/workflow';
-import { getWorkflowDetail, addWorkflow, updateWorkflow } from '../../../services/workflow';
-import useSnackbar from '../../../hooks/useSnackbar';
-import { useSearchParams } from 'react-router-dom';
 import checkWorkflowCompatibility from './checkWorkflowCompatibility';
 import { checkWorkflowProblems } from './WorkflowValidation';
 
@@ -159,7 +159,6 @@ function WorkflowDetail() {
 
     // 当 workflowDetailInfo 变化时保存到 localStorage（延迟保存，避免频繁更新）
     useEffect(() => {
-        console.log('useEffect 111')
         if (workflowId === NEW_WORKFLOW_ID && isInitialized && Object.keys(workflowDetailInfo).length > 0) {
             const timeoutId = setTimeout(() => {
                 saveToLocalStorage(workflowDetailInfo);

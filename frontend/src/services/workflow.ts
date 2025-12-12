@@ -1,8 +1,7 @@
 
-import apiClient from './api';
-import { ISimpleWorkflowListRes, IWorkflowListRes, IWorkflowFullDefinitionRes, IWorkflowVersionListRes, IWorkflowReleaseRes, IWorkflowInitNodeRes } from '../types/workflow';
 import { IApiErrResponse, } from '@/types/common';
-import { IWorkflowActionsRes, IWorkflowCreationFormRes, IWorkflowDiagramRes } from '../types/workflow';
+import { ISimpleWorkflowListRes, IWorkflowActionsRes, IWorkflowCreationFormRes, IWorkflowDiagramRes, IWorkflowFullDefinitionRes, IWorkflowListRes, IWorkflowReleaseRes, IWorkflowVersionDetailRes, IWorkflowVersionListRes } from '../types/workflow';
+import apiClient from './api';
 
 
 
@@ -145,6 +144,24 @@ export const deleteWorkflow = async (workflowId: string): Promise<ISimpleWorkflo
 export const getWorkflowVersionList = async (workflowId: string, searchValue: string, page: number, perPage: number): Promise<IWorkflowVersionListRes | IApiErrResponse> => {
   try {
     const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}/versions`, { params: { searchValue, page, perPage } });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateWorkflowVersion = async (workflowId: string, versionId: string, params: any): Promise<ISimpleWorkflowListRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.patch(`/api/v1.0/workflows/${workflowId}/versions/${versionId}`, params);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getWorkflowVersionDetail = async (workflowId: string, versionId: string): Promise<IWorkflowVersionDetailRes | IApiErrResponse> => {
+  try {
+    const response = await apiClient.get(`/api/v1.0/workflows/${workflowId}/versions/${versionId}`);
     return response.data;
   } catch (error) {
     throw error;

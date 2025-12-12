@@ -44,7 +44,6 @@ class AppPermissionCheck(MiddlewareMixin):
                 return
             # for app call token check
             try:
-                # todo: whether need update userid to header?
                 self.token_permission_check(request)
                 return
             except Exception as e:
@@ -61,10 +60,22 @@ class AppPermissionCheck(MiddlewareMixin):
         app_name = request.META.get('HTTP_APPNAME')
         email = request.META.get('HTTP_EMAIL')
         tenant_id = request.META.get('HTTP_TENANTID')
+        err_msg = ''
+        if not signature:
+            err_msg += 'signature is not provide in request header;'
+        if not timestamp:
+            err_msg += 'timestamp is not provide in request header;'
         if not app_name:
-            raise CustomCommonException('appname is not provide in request header')
+            err_msg += 'appname is not provide in request header;'
+        if not email:
+            err_msg += 'email is not provide in request header;'
+        if not tenant_id:
+            err_msg += 'tenantid is not provide in request header;'
+        if err_msg:
+            raise CustomCommonException(err_msg)
+        
         try:
-            app_record = account_application_service_ins.get_token_by_app_name(tenant_id, app_name)
+            app_record = account_application_service_ins.get_record_by_app_name(tenant_id, app_name)
             user_record = account_user_service_ins.get_user_by_email(email)
             request.META.update(dict(HTTP_USERID=user_record.id))
         except CustomCommonException:

@@ -1,0 +1,256 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:2
+msgid "Ticket & Workflow"
+msgstr "工单与工作流"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:5
+msgid "Ticket"
+msgstr "工单"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:7
+msgid ""
+"A ticket represents a specific task or item that needs to be processed. "
+"When users create a new ticket, it follows the workflow design to "
+"transition between different nodes and different handlers."
+msgstr "工单表示需要处理的具体任务或事项。用户新建工单后，会按照工作流设计在不同节点、不同处理人之间流转。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:10
+msgid "Workflow"
+msgstr "工作流"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:12
+msgid "A workflow defines the approval chain for tickets, including:"
+msgstr "工作流定义了工单的审批链，包含："
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:14
+msgid "The handlers for each node"
+msgstr "各节点的处理人"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:15
+msgid ""
+"Available operations at each node (submit, save, complete, reject, close,"
+" etc.)"
+msgstr "各节点可执行的操作（提交、暂存、完成、驳回、关闭等）"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:16
+msgid "Which fields are displayed at each node"
+msgstr "各节点展示哪些字段"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:17
+msgid "Which fields can be edited at which nodes"
+msgstr "哪些字段可在对应节点编辑"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:20
+msgid "Sub-ticket"
+msgstr "子工单"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:22
+msgid ""
+"Sub-tickets are primarily used when ticket flow involves hierarchical "
+"relationships. For example, in a project development cycle, there may be "
+"two levels: project cycle and application cycle. When a project is in "
+"development, multiple related applications may be at different stages "
+"(code writing, static scanning, unit testing, development completion, "
+"etc.). When all application nodes complete development, the project node "
+"transitions to testing. In this scenario, application tickets are sub-"
+"tickets of the project ticket, and the parent node of application tickets"
+" is the project's \"In Development\" node."
+msgstr "子工单主要用于工单流转存在层级关系的场景。例如在项目开发周期中，可能存在项目周期与应用周期两个层级。当项目处于开发中时，多个关联应用可能处于不同阶段（代码编写、静态扫描、单元测试、开发完成等）。当所有应用节点完成开发后，项目节点进入测试。在这种场景下，应用工单是项目工单的子工单，应用工单的父节点是项目的“开发中”节点。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:25
+msgid "Sub-workflow"
+msgstr "子工作流"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:27
+msgid ""
+"The parent-child hierarchy of workflows is not reflected in workflow "
+"records, but rather in node records. When configuring a workflow, you can"
+" set a sub-workflow for a specific node of a workflow. Different nodes "
+"within the same workflow can have different sub-workflows."
+msgstr "工作流的父子层级不是体现在工作流记录上，而是体现在节点记录上。配置工作流时，可以为某个工作流的特定节点设置子工作流。同一工作流的不同节点可以配置不同的子工作流。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:30
+msgid "Flowchart"
+msgstr "流程图"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:32
+msgid ""
+"To help users understand workflow transition rules, flowcharts can be "
+"used to visualize the workflow."
+msgstr "为帮助用户理解工作流的流转规则，可以使用流程图来可视化工作流。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:35
+msgid "Accept"
+msgstr "接单"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:37
+msgid ""
+"When a ticket reaches a node where there are multiple actual handlers and"
+" the assignment method is \"Voluntary Pick-up\", users must first "
+"\"accept\" the ticket before processing it. This prevents multiple people"
+" from processing the same ticket simultaneously. The handler can only "
+"formally process the ticket after successfully accept it."
+msgstr "当工单到达的节点存在多个实际处理人且分配方式为“自愿领取”时，用户需要先“接单”工单才能处理，避免多人同时处理同一工单。接单成功后，处理人才可正式处理工单。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:39
+msgid "voluntary pickup workflow"
+msgstr "自愿领取型流程"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:45
+msgid "Forward"
+msgstr "转交"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:47
+msgid ""
+"Normally, tickets flow according to the rules set by their corresponding "
+"workflow (nodes, handler types, handlers, etc.). In practice, for "
+"example, User A submits a ticket that reaches the \"Operations "
+"Processing\" node. User B picks up and processes it, but during "
+"processing, User B realizes they cannot handle it and needs User C to "
+"process it instead. User B then forwards the ticket to User C."
+msgstr "正常情况下，工单按对应工作流设定的规则流转（节点、处理人类型、处理人等）。在实际场景中，如用户A提交工单到“运维处理”节点，用户B领取并处理过程中发现无法处理，需要用户C处理，则用户B可将工单转交给用户C。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:50
+msgid "Force Forward"
+msgstr "强制转交"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:52
+msgid ""
+"Administrators or workflow administrators can directly force forward a "
+"ticket to another handler. After forward, the ticket remains at the same "
+"node, but the handler changes to the specified person."
+msgstr "管理员或工作流管理员可以直接将工单强制转交给其他处理人。转交后工单仍停留在同一节点，但处理人变为指定人员。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:55
+msgid "Force Close"
+msgstr "强制关闭"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:57
+msgid ""
+"Administrators or workflow administrators can directly force close a "
+"ticket. After force close, the ticket node changes to \"end\"(the node's "
+"type is \"end\")."
+msgstr "管理员或工作流管理员可以直接强制关闭工单。强制关闭后，工单节点变为“结束”（节点类型为 end）。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:61
+msgid "Withdraw"
+msgstr "撤回"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:63
+msgid ""
+"When a ticket's current node has withdrawal enabled, the ticket submitter"
+" can withdraw the ticket. After withdrawal, the ticket returns to the "
+"initial node of the corresponding workflow. Only nodes configured to "
+"allow withdrawal can be withdrawn, to avoid scenarios where a ticket is "
+"being processed and cannot be rolled back. If a ticket is at a node that "
+"does not allow withdrawal and the initiator needs to withdraw it, they "
+"can contact the current handler and administrator for intervention."
+msgstr "当工单当前节点开启了可撤回时，工单提交人可以撤回工单。撤回后工单会回到对应工作流的初始节点。只有配置了允许撤回的节点才能撤回，避免工单正在处理中无法回滚的情况。如工单处于不允许撤回的节点且发起人需要撤回，可联系当前处理人和管理员协助处理。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:65
+msgid "allow withdraw"
+msgstr "允许撤回"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:71
+msgid "Consult"
+msgstr "加签"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:73
+msgid ""
+"Consult differs from transfer. Normally, tickets flow according to the "
+"rules set by their corresponding workflow (nodes, handler types, "
+"handlers, etc.). In practice, for example, User A submits a ticket that "
+"reaches the \"Operations Processing\" node. User B picks up and processes"
+" it, but during processing, User B discovers that User C needs to perform"
+" some operations or provide information before User B can proceed. User B"
+" then consults the ticket to User C. After User C completes processing, "
+"the ticket handler returns to User B, allowing User B to continue "
+"processing."
+msgstr "加签不同于转交。正常情况下，工单按对应工作流设定的规则流转（节点、处理人类型、处理人等）。在实际场景中，如用户A提交工单到“运维处理”节点，用户B领取并处理时发现需要用户C先做一些操作或提供信息后才能继续，用户B可以将工单咨询给用户C。用户C处理完成后，工单处理人再回到用户B，用户B继续处理。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:76
+msgid "Consult Submit"
+msgstr "加签完成"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:78
+msgid ""
+"When User A consults a ticket to User B, User B can only perform the "
+"\"consult_submit\" operation on the ticket detail page, and can also fill"
+" in processing comments. After consult_submit, the ticket handler becomes"
+" User A again, allowing User A to continue processing the ticket based on"
+" User B's comments."
+msgstr "当用户A将工单咨询给用户B后，用户B只能在工单详情页执行“consult_submit”操作，并可填写处理意见。consult_submit 后，工单处理人重新变为用户A，用户A可根据用户B的意见继续处理工单。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:81
+msgid "Notes"
+msgstr "说明"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:83
+msgid "**Difference between Ticket Custom Fields and Workflow Custom Fields:**"
+msgstr "**工单自定义字段与工作流自定义字段的区别：**"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:85
+msgid ""
+"Workflow custom fields define which custom fields a workflow has. For "
+"example, when configuring a leave request workflow, you need a \"Leave "
+"Days\" field."
+msgstr "工作流自定义字段定义了某个工作流拥有哪些自定义字段。例如配置请假流程时，需要一个“请假天数”字段。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:86
+msgid ""
+"Ticket custom fields store the specific values of custom fields. For "
+"example, when a user creates a new leave ticket and fills in the leave "
+"days, this value is saved in the ticket's custom fields table."
+msgstr "工单自定义字段存储的是字段的具体值。例如用户新建请假工单并填写请假天数时，该值会保存在工单自定义字段表中。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:88
+msgid "**Workflow Processing Process:**"
+msgstr "**工作流处理流程：**"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:90
+msgid ""
+"The workflow processing process can be understood as changes in the "
+"ticket's node. A workflow can be in one or more of the following nodes "
+"during processing: \"Initiator Creating\", \"Initiator Editing\", "
+"\"Department Manager Reviewing\", \"Technical Staff Processing\", "
+"\"Initiator Verifying\", \"Completed\". Each node corresponds to specific"
+" handlers (e.g., only the department manager can handle tickets in the "
+"\"Department Manager Reviewing\" node)."
+msgstr "工作流的处理过程可以理解为工单节点的变化。处理过程中，工作流可能处于以下一个或多个节点：“发起人新建”、“发起人编辑”、“部门经理审核”、“技术人员处理”、“发起人验证”、“已完成”。每个节点对应特定的处理人（例如“部门经理审核”节点只能由部门经理处理）。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:92
+msgid ""
+"For example, when a user creates a new ticket, it is in the \"Initiator "
+"Creating\" node. After submission, the ticket moves to \"Department "
+"Manager Reviewing\". After the department manager (the handler for the "
+"\"Department Manager Reviewing\" node) approves, the ticket node changes "
+"to \"Technical Staff Processing\"."
+msgstr "例如用户新建工单时，工单处于“发起人新建”节点。提交后进入“部门经理审核”。部门经理（即“部门经理审核”节点的处理人）审批通过后，工单节点变为“技术人员处理”。"
+
+#: ../../source/core_concepts/ticket_system_fundamentals/ticket_workflow.rst:94
+msgid ""
+"**Important:** \"Transfer\" and \"Consult\" have different use cases. The"
+" frontend should provide necessary explanations when using these features"
+" to avoid user errors."
+msgstr "**重要提示：**“转交”和“咨询”的使用场景不同，前端使用这些功能时应提供必要说明，避免用户误用。"
+

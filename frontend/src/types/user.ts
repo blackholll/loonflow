@@ -1,5 +1,4 @@
 import { IApiResponse } from './common';
-import { ISimpleDept } from './dept';
 
 export interface IUser {
     id: string;
@@ -12,7 +11,7 @@ export interface IUser {
     avatar?: string;
     lang?: string;
     isActive: boolean;
-    deptInfoList: ISimpleDept[];
+    deptInfoList: any[]; // 使用any避免循环依赖，实际使用时应该导入ISimpleDept
 }
 
 export interface IUserListResData {

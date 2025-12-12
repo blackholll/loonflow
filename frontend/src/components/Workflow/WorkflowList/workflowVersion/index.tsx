@@ -1,11 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { getWorkflowVersionList } from '../../../../services/workflow';
-import { SelectChangeEvent, Card, CardHeader, Button, Dialog, DialogTitle, DialogActions, DialogContent, Autocomplete, Container, TextField, Select, MenuItem, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TablePagination, CircularProgress } from '@mui/material';
+import { Button, CircularProgress, Dialog, DialogContent, DialogTitle, MenuItem, Paper, Select, SelectChangeEvent, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import { useNavigate } from 'react-router-dom';
 import useSnackbar from '../../../../hooks/useSnackbar';
-import { Link, useNavigate } from 'react-router-dom';
+import { getWorkflowVersionList, updateWorkflowVersion } from '../../../../services/workflow';
 import { formatDate } from '../../../../utils/dateFormat';
 
 
@@ -75,6 +75,23 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
         setVersionDescription(workflowVersion.description);
         setVersionType(workflowVersion.type);
     };
+    const handleUpdateVersion = async () => {
+        if (!workflowId || !openedVersionId) {
+            return;
+        }
+        try {
+            const res = await updateWorkflowVersion(workflowId, openedVersionId, { name: versionName, description: versionDescription, type: versionType });
+            if (res.code === 0) {
+                showMessage(t('workflow.updateVersionSuccess'), 'success');
+                handleWorkflowVersionClose();
+            } else {
+                showMessage(res.msg, 'error');
+            }
+        } catch (error: any) {
+            showMessage(error.message, 'error');
+        }
+    }
+
 
     return (
         <div>
@@ -106,8 +123,10 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
 
                                     <TableCell>{formatDate(workflowVersion.createdAt)}</TableCell>
                                     <TableCell>
-                                        <div><Button onClick={() => handleEditVersion(workflowVersion)}>{t('workflow.editVersion')}</Button>
+                                        <div>
+                                            <Button onClick={() => handleEditVersion(workflowVersion)}>{t('workflow.editVersion')}</Button>
                                             <Button disabled={workflowVersion.type === 'archived'} onClick={() => workflowVersion.type !== 'archived' && navigate(`/workflow/${workflowId}?version_name=${workflowVersion.name}`)}>{t('workflow.editWorkflow')}</Button>
+                                            <Button disabled={workflowVersion.type === 'archived'} onClick={() => workflowVersion.type !== 'archived' && navigate(`/ticket/new?workflow_id=${workflowId}&version_name=${workflowVersion.name}`)}>{t('workflow.createTicket')}</Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -131,11 +150,11 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                 aria-describedby="alert-dialog-slide-description"
                 fullWidth
             >
-                <DialogTitle>{"编辑版本"}</DialogTitle>
+                <DialogTitle>{t('workflow.editVersion')}</DialogTitle>
                 <DialogContent>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <TextField
-                            label="名称"
+                            label={t('common.name')}
                             value={versionName}
                             fullWidth
                             margin="normal"
@@ -144,7 +163,7 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                             }}
                         />
                         <TextField
-                            label="描述"
+                            label={t('common.description')}
                             value={versionDescription}
                             fullWidth
                             margin="normal"
@@ -154,7 +173,7 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                         />
                         <Select
                             value={versionType}
-                            label="版本类型"
+                            label={t('workflow.versionType')}
                             onChange={(event: SelectChangeEvent) => {
                                 setVersionType(event.target.value);
                             }}
@@ -164,7 +183,7 @@ function WorkflowVersion({ workflowId }: { workflowId: string }) {
                             <MenuItem value={'candidate'}>candidate</MenuItem>
                         </Select>
                         <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-                            <Button variant="outlined" size={'large'} sx={{ width: '150px' }} >{t('common.save')}</Button>
+                            <Button variant="outlined" size={'large'} sx={{ width: '150px' }} onClick={handleUpdateVersion}>{t('common.save')}</Button>
                             <Button variant="outlined" size={'large'} sx={{ width: '150px' }} >{t('common.cancel')}</Button>
                         </div>
                     </div>

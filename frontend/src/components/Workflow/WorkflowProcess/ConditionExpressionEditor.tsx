@@ -1,25 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Box,
-    Typography,
-    TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    IconButton,
-    Button,
-    Paper,
-    Autocomplete,
-    CircularProgress,
-    Alert
-} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import {
+    Alert,
+    Box,
+    Button,
+    FormControl,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    TextField,
+    Typography
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IFormSchema } from '../../../types/workflow';
-import { getSimpleUsers } from '../../../services/user';
-import { ISimpleUser } from '../../../types/user';
 
 export interface ConditionGroup {
     id: string;
@@ -47,8 +43,6 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
 }) => {
     const { t } = useTranslation();
     const [conditionGroups, setConditionGroups] = useState<ConditionGroup[]>([]);
-    const [userOptions, setUserOptions] = useState<{ label: string; value: string }[]>([]);
-    const [loadingUsers, setLoadingUsers] = useState(false);
 
     // 解析现有值（优先当作结构化的条件组数组）
     useEffect(() => {
@@ -68,24 +62,6 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
         }
     }, [value]);
 
-    // 加载用户列表
-    const loadUsers = async (searchValue: string = '') => {
-        if (loadingUsers) return;
-        setLoadingUsers(true);
-        try {
-            const response = await getSimpleUsers(searchValue);
-            if (response.code === 0) {
-                setUserOptions(response.data.userInfoList.map((user: ISimpleUser) => ({
-                    label: `${user.name}(${user.alias})`,
-                    value: user.id
-                })) || []);
-            }
-        } catch (error) {
-            console.error('加载用户列表失败:', error);
-        } finally {
-            setLoadingUsers(false);
-        }
-    };
 
 
     // 返回结构化条件组（不做Python语法转换）
@@ -216,11 +192,6 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
             case 'checkbox':
             case 'user':
             case 'department':
-            case 'ticketStatus':
-            case 'approvalStatus':
-            case 'ticketType':
-            case 'currentHandler':
-                return 'select';
             default:
                 return 'text';
         }
@@ -289,7 +260,7 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
                     {groupIndex > 0 && (
                         <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
                             <Typography variant="body2" color="primary" sx={{ fontWeight: 'bold' }}>
-                                或
+                                {t('common.or')}
                             </Typography>
                         </Box>
                     )}
@@ -317,7 +288,7 @@ const ConditionExpressionEditor: React.FC<ConditionExpressionEditorProps> = ({
                                     {conditionIndex > 0 && (
                                         <Box sx={{ display: 'flex', justifyContent: 'center', my: 1 }}>
                                             <Typography variant="body2" color="secondary" sx={{ fontWeight: 'bold' }}>
-                                                且
+                                                {t('common.and')}
                                             </Typography>
                                         </Box>
                                     )}

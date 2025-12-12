@@ -1,0 +1,26 @@
+{
+  "tenant": {
+    "name": "Name",
+    "domain": "Domain",
+    "workflowLimit": "Workflow Limit",
+    "ticketLimit": "Ticket Limit",
+    "unLimited": "Unlimited",
+    "tenantInfo": "Tenant Info",
+    "tenantDetail": "Tenant Detail",
+    "tenantId": "Tenant Id"
+  },
+  "application": {
+    "appTypeDescription": "Admin can call all apis, workflow_admin can only call ticket and workflow related apis and some common apis",
+    "applicationList": "Application List",
+    "searchWithKeyword": "Search With Keyword",
+    "applicationDetial": "Application",
+    "newApplication": "New Application",
+    "tokenCopied": "Token Copied"
+  },
+  "notification": {
+    "notificationList": "Notification",
+    "notificationDetial": "Notification Detail",
+    "newNotification": "New Notification",
+    "notificationTypeDescription": "Notification Type Description"
+  }
+}

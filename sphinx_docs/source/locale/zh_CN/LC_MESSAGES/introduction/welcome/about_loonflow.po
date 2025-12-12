@@ -1,0 +1,32 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/introduction/welcome/about_loonflow.rst:2
+msgid "1.2 About Loonflow"
+msgstr "1.2 关于 Loonflow"
+
+#: ../../source/introduction/welcome/about_loonflow.rst:4
+msgid ""
+"Loonflow is an open-source process automation platform developed based on"
+" Django. After multiple versions of iteration and refactoring, we proudly"
+" present Loonflow 3.0 - a version that achieves a qualitative leap in "
+"visualization, flexibility, and scalability."
+msgstr "Loonflow 是基于 Django 开发的开源流程自动化平台。经过多次迭代与重构，我们自豪地推出 Loonflow 3.0——在可视化、灵活性和可扩展性上实现了质的飞跃。"
+

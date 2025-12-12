@@ -41,7 +41,7 @@ class AccountUserService(BaseService):
         return True
 
     @classmethod
-    def user_type_check(cls, email: str = "", user_id: str = 0, tenant_id: str = "", types: str = "") -> bool:
+    def user_type_check(cls, email: str = "", user_id: str = 0, tenant_id: str = "", type: str = "") -> bool:
         """
         user type check
         :param email:
@@ -56,14 +56,15 @@ class AccountUserService(BaseService):
             result = cls.get_user_by_user_id(tenant_id, user_id)
         else:
             raise CustomCommonException("username or user_id is required")
-        if result.type in (types.split(',')):
-            return True
-        else:
-            raise CustomCommonException("user type is not allowed")
-
-
-
-
+        if type == 'admin':
+            if result.type == 'admin':
+                return True
+            raise CustomCommonException(f'permission check fail, need {type}')
+        elif type == 'workflow_admin':
+            if result.type in ('admin', 'workflow_admin'):
+                return True
+            else:
+                raise CustomCommonException(f'permission check fail, need admin or workflow_admin')
 
 
     @classmethod
@@ -486,7 +487,7 @@ class AccountUserService(BaseService):
 
 
     @classmethod
-    def change_password(cls, operator_id: int, source_password: str, new_password: str) -> bool:
+    def change_password(cls, tenant_id: str, operator_id: str, source_password: str, new_password: str) -> bool:
         """
         change password
         :param operator_id:
@@ -494,7 +495,7 @@ class AccountUserService(BaseService):
         :param new_password:
         :return:
         """
-        user_queryset = User.objects.filter(id=operator_id).all()
+        user_queryset = User.objects.filter(id=operator_id, tenant_id=tenant_id).all()
         user = authenticate(email=user_queryset[0].email, password=source_password)
         if user is None:
             raise CustomCommonException("source password is invalid")

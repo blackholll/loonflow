@@ -1,11 +1,10 @@
-import React from 'react';
 import { Autocomplete, FormControl, TextField as MuiTextField } from '@mui/material';
-import ViewField from './ViewField';
+import { useTranslation } from 'react-i18next';
 import { FormOption } from '../../types/workflowDesign';
+import ViewField from './ViewField';
 
 interface SelectFieldProps {
     value: string | string[] | FormOption | FormOption[];
-    fieldRequired: boolean;
     onChange: (value: string | string[] | FormOption | FormOption[]) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -13,11 +12,11 @@ interface SelectFieldProps {
 
 function SelectField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
 }: SelectFieldProps) {
+    const { t } = useTranslation();
 
     // 获取选项列表
     const options: FormOption[] = props?.optionsWithKeys || [];
@@ -135,16 +134,21 @@ function SelectField({
                 multiple={isMultiple}
                 value={currentValue}
                 onChange={handleChange}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, value) => option.key === value.key}
+                getOptionLabel={(option) => (option as FormOption).label}
+                isOptionEqualToValue={(option, val) => {
+                    if (isMultiple) {
+                        return Array.isArray(val) && val.some((v: FormOption) => v.id === (option as FormOption).id);
+                    } else {
+                        return (option as FormOption).id === (val as FormOption)?.id;
+                    }
+                }}
                 disablePortal
                 options={options}
                 sx={{ marginLeft: 0, marginRight: 0 }}
                 renderInput={(params) => (
                     <MuiTextField
                         {...params}
-                        label={props?.placeholder || '请选择'}
-                        required={fieldRequired}
+                        label={props?.placeholder || t('common.pleaseSelect')}
                         variant="outlined"
                         size="small"
                     />

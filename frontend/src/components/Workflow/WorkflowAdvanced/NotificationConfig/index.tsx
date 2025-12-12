@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { Box, TextField, FormLabel, Stack, Chip } from '@mui/material';
-import Grid from '@mui/material/Grid2';
-import TemplateEditor from '../../../commonComponents/inputs/TemplateEditor';
+import { Box, Chip, FormLabel, Stack, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-import { getSimpleNotificationList } from '../../../../services/notification';
-import { INotification, IFormSchema } from '../../../../types/workflow';
+import Grid from '@mui/material/Grid2';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getSimpleNotificationList } from '../../../../services/notification';
+import { IFormSchema, INotification } from '../../../../types/workflow';
+import TemplateEditor from '../../../commonComponents/inputs/TemplateEditor';
 
 
 
@@ -26,7 +26,6 @@ interface NotificationConfigProps {
 
 
 function NotificationConfig({ onNotificationConfigChange, notificationConfig, formSchema }: NotificationConfigProps) {
-    const [notificationConfigInfo, setNotificationConfigInfo] = useState(notificationConfig);
     const [titleTemplate, setTitleTemplate] = useState(notificationConfig.titleTemplate || '');
     const [contentTemplate, setContentTemplate] = useState(notificationConfig.contentTemplate || '');
     const [notificationList, setNotificationList] = useState<NotificationItem[]>([]);
@@ -47,7 +46,6 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
     useEffect(() => {
         setTitleTemplate(notificationConfig.titleTemplate || '');
         setContentTemplate(notificationConfig.contentTemplate || '');
-        setNotificationConfigInfo(notificationConfig);
     }, [notificationConfig]);
 
     useEffect(() => {
@@ -91,29 +89,17 @@ function NotificationConfig({ onNotificationConfigChange, notificationConfig, fo
 
     const handleTitleTemplateChange = useCallback((value: string) => {
         setTitleTemplate(value);
-        setNotificationConfigInfo(prevConfig => {
-            const newNotificationConfig = { ...prevConfig, titleTemplate: value };
-            onNotificationConfigChange(newNotificationConfig);
-            return newNotificationConfig;
-        });
-    }, [onNotificationConfigChange]);
+        onNotificationConfigChange({ ...notificationConfig, titleTemplate: value });
+    }, [onNotificationConfigChange, notificationConfig]);
 
     const handleContentTemplateChange = useCallback((value: string) => {
         setContentTemplate(value);
-        setNotificationConfigInfo(prevConfig => {
-            const newNotificationConfig = { ...prevConfig, contentTemplate: value };
-            onNotificationConfigChange(newNotificationConfig);
-            return newNotificationConfig;
-        });
-    }, [onNotificationConfigChange]);
+        onNotificationConfigChange({ ...notificationConfig, contentTemplate: value });
+    }, [onNotificationConfigChange, notificationConfig]);
 
     const handleSelectedChannelListChange = useCallback((value: NotificationItem[]) => {
-        setNotificationConfigInfo(prevConfig => {
-            const newNotificationConfig = { ...prevConfig, selectedChannelList: value.map((item: any) => item.id) };
-            onNotificationConfigChange(newNotificationConfig);
-            return newNotificationConfig;
-        });
-    }, [onNotificationConfigChange]);
+        onNotificationConfigChange({ ...notificationConfig, selectedChannelList: value.map((item: any) => item.id) });
+    }, [onNotificationConfigChange, notificationConfig]);
 
     return (
         <Box>

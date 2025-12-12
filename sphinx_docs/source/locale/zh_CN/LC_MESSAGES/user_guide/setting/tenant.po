@@ -1,0 +1,49 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/setting/tenant.rst:2
+msgid "Tenant Management"
+msgstr "租户管理"
+
+#: ../../source/user_guide/setting/tenant.rst:4
+msgid ""
+"Loonflow supports multi-tenant. Most users only need a single tenant; if "
+"you require multi-tenant capabilities, please contact blackholll "
+"(blackholll@163.com; blackholll_cn@gmail.com) for licensing. In multi-"
+"tenant mode all data—users, tickets, workflows, notifications, "
+"applications, roles, departments, and more—are fully isolated. Typical "
+"scenarios include group enterprises or SaaS deployments where multiple "
+"independent organizations share one platform."
+msgstr "Loonflow 支持多租户。大多数用户只需单租户；如需多租户能力，请联系 blackholll（blackholll@163.com;blackholll_cn@gmail.com）获取授权。多租户模式下，用户、工单、流程、通知、应用、角色、部门等数据完全隔离，适用于集团企业或多组织共用平台的 SaaS 场景。"
+
+#: ../../source/user_guide/setting/tenant.rst:6
+msgid "tenant info"
+msgstr "租户信息"
+
+#: ../../source/user_guide/setting/tenant.rst:12
+msgid "Future roadmap"
+msgstr "后续规划"
+
+#: ../../source/user_guide/setting/tenant.rst:13
+msgid ""
+"Planned: cross-tenant ticket collaboration, allowing tickets to flow "
+"between tenants. Example scenarios: inter-company ticket handling, "
+"external customer cases, supplier tickets, and reseller/partner support."
+msgstr "规划中：跨租户工单协同，支持工单在租户间流转，适用于跨公司工单处理、外部客户案例、供应商工单、渠道伙伴支持等场景。"

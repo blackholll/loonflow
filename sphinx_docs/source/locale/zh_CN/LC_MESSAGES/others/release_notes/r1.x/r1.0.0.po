@@ -1,0 +1,127 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:2
+msgid "r1.0.0"
+msgstr "r1.0.0"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:4
+msgid "Upgraded to Python 3.6"
+msgstr "升级至 Python 3.6"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:5
+msgid "Unified configuration file to config.py"
+msgstr "配置文件统一为 config.py"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:6
+msgid "New API: Withdraw ticket"
+msgstr "新增 API：撤回工单"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:7
+msgid "Ticket details API added return of current state detailed information"
+msgstr "工单详情接口新增返回当前状态详情"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:8
+msgid "Allow ticket creator to close ticket directly in initial state"
+msgstr "允许工单创建人在初始状态直接关闭工单"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:9
+msgid "Ticket list API performance optimization"
+msgstr "工单列表接口性能优化"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:10
+msgid ""
+"flowstep API added return of current state information, and records "
+"sorted by state order id"
+msgstr "flowstep 接口新增返回当前状态信息，记录按状态顺序 ID 排序"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:11
+msgid ""
+"Ticket list query API added support for query conditions: draft, in "
+"progress, withdrawn, returned, completed"
+msgstr "工单列表查询接口新增查询条件：草稿、处理中、已撤回、已退回、已完成"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:12
+msgid "Custom notifications changed from script to hook method"
+msgstr "自定义通知由脚本改为钩子方式"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:13
+msgid "Admin panel homepage added ticket quantity classification statistics"
+msgstr "管理端首页新增工单数量分类统计"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:14
+msgid "Admin panel displays current detailed version number"
+msgstr "管理端显示当前详细版本号"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:15
+msgid "Admin panel supports user, department, and role editing"
+msgstr "管理端支持用户、部门、角色编辑"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:16
+msgid ""
+"Admin panel hides handler input box information for initial and end "
+"states when configuring states"
+msgstr "管理端配置状态时，初始/结束状态隐藏处理人输入框"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:17
+msgid ""
+"Admin panel supports ticket intervention: directly close, transfer, "
+"modify ticket state, delete"
+msgstr "管理端支持工单干预：直接关闭、转交、修改状态、删除"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:18
+msgid ""
+"Support setting multiple departments when state participant type is "
+"department"
+msgstr "状态参与人类型为部门时支持设置多个部门"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:19
+msgid ""
+"Transition operation supports target state as initial state: no longer "
+"need to configure an intermediate state like \"Creator Editing\""
+msgstr "流转操作支持目标状态为初始状态：无需再配置“创建人编辑”这类中间状态"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:20
+msgid "Workflow state hook supports configuring additional parameter information"
+msgstr "工作流状态钩子支持配置附加参数信息"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:21
+msgid ""
+"Admin panel permission control refined: divided into super administrator "
+"and workflow administrator"
+msgstr "管理端权限精细化：分为超级管理员和工作流管理员"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:22
+msgid "Using readthedoc to manage project documentation"
+msgstr "使用 readthedoc 管理项目文档"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:23
+msgid ""
+"Static files moved from CDN to local to avoid inability to use normally "
+"when internal network deployment has no external network access"
+msgstr "静态文件从 CDN 改为本地，避免内网部署无法访问外网时的不可用"
+
+#: ../../source/others/release_notes/r1.x/r1.0.0.rst:24
+msgid ""
+"Code structure and internal logic optimization (removed redundant code, "
+"singleton pattern to reduce memory usage, database operation statement "
+"optimization, type hints, view parameter strong validation, etc.)"
+msgstr "代码结构与逻辑优化（去冗余、单例减少内存占用、数据库语句优化、类型提示、视图参数严格校验等）"
+

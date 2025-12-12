@@ -1,0 +1,6 @@
+{
+    "parentDepartment": "Parent Department",
+    "parentDepartmentHelpText": "please select parent department on the left parent tree",
+    "departmentLeader": "Department Leader",
+    "departmentApprover": "Department Approver"
+}

@@ -4,7 +4,6 @@ import ViewField from './ViewField';
 
 interface TextAreaFieldProps {
     value: string;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -12,7 +11,6 @@ interface TextAreaFieldProps {
 
 function TextAreaField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -39,7 +37,6 @@ function TextAreaField({
                 multiline={true}
                 rows={3}
                 onChange={handleChange}
-                required={fieldRequired}
                 variant="outlined"
                 fullWidth={true}
                 size="small"

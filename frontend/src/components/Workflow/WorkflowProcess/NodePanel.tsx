@@ -1,24 +1,22 @@
-import React from 'react';
+import {
+    Stop as EndIcon,
+    CallSplit as ExclusiveIcon,
+    Circle as NormalIcon,
+    AccountTree as ParallelIcon,
+    PlayArrow as StartIcon,
+    Webhook as WebhookIcon
+} from '@mui/icons-material';
 import {
     Box,
-    Typography,
-    Paper,
+    Divider,
     List,
     ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Divider,
+    Paper,
+    Typography,
 } from '@mui/material';
-import {
-    PlayArrow as StartIcon,
-    Circle as NormalIcon,
-    Stop as EndIcon,
-    AccountTree as ParallelIcon,
-    CallSplit as ExclusiveIcon,
-    Timer as TimerIcon,
-    Webhook as WebhookIcon
-} from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 interface NodePanelProps {
     onAddNode: (nodeType: string, nodeData: any) => void;

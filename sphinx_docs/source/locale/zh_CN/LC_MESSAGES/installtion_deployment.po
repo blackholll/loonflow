@@ -1,0 +1,745 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:06+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:2
+msgid "Deployment with Docker Compose"
+msgstr "使用 Docker Compose 部署"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:4
+msgid ""
+"This guide will help you deploy Loonflow in a production environment "
+"using Docker Compose."
+msgstr "本指南帮助你使用 Docker Compose 在生产环境部署 Loonflow。"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:7
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:7
+msgid "Prerequisites"
+msgstr "前置条件"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:9
+msgid "Before starting, ensure you have the following requirements:"
+msgstr "开始前，请确保满足以下要求："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:11
+msgid ""
+"Linux server (refer to  "
+":doc:`../system_requirements/server_hardware_requirements`)"
+msgstr "Linux 服务器（参考 :doc:`../system_requirements/server_hardware_requirements`）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:12
+msgid "Docker 20.10+ installed"
+msgstr "已安装 Docker 20.10+"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:13
+msgid "Docker Compose 2.0+ installed"
+msgstr "已安装 Docker Compose 2.0+"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:17
+msgid "Installing Docker and Docker Compose"
+msgstr "安装 Docker 与 Docker Compose"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:19
+msgid ""
+"If Docker and Docker Compose are not yet installed on your server, follow"
+" these steps:"
+msgstr "如服务器尚未安装 Docker 和 Docker Compose，请按以下步骤："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:21
+msgid "Install Docker:"
+msgstr "安装 Docker："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:34
+msgid "Install Docker Compose:"
+msgstr "安装 Docker Compose："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:42
+msgid "Verify installation:"
+msgstr "验证安装："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:50
+msgid "Downloading Docker Compose Configuration Files"
+msgstr "下载 Docker Compose 配置文件"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:52
+msgid "Create a deployment directory:"
+msgstr "创建部署目录："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:59
+msgid "Download the necessary configuration files:"
+msgstr "下载所需配置文件："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:66
+msgid ""
+"Alternatively, if you have already cloned the repository, you can copy "
+"the files directly:"
+msgstr "如果已克隆仓库，也可直接复制文件："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:70
+msgid "Configuring Environment Variables"
+msgstr "配置环境变量"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:72
+msgid ""
+"Edit the ``.env`` file to configure the following necessary environment "
+"variables:"
+msgstr "编辑 ``.env`` 文件，配置以下必要环境变量："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:79
+msgid "**Important Configuration Items:**"
+msgstr "【重要配置项】"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:81
+msgid "**Database Configuration**:"
+msgstr "【数据库配置】："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:83
+msgid "``POSTGRES_USER``: PostgreSQL database username (default: loonflow)"
+msgstr "``POSTGRES_USER``：PostgreSQL 数据库用户名（默认：loonflow）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:84
+msgid "``POSTGRES_PASSWORD``: PostgreSQL database password (**must be changed**)"
+msgstr "``POSTGRES_PASSWORD``：PostgreSQL 数据库密码（**必须修改**）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:85
+msgid "``POSTGRES_DB``: Database name (default: loonflow)"
+msgstr "``POSTGRES_DB``：数据库名（默认：loonflow）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:86
+msgid "``POSTGRES_PORT``: PostgreSQL port (default: 5432)"
+msgstr "``POSTGRES_PORT``：PostgreSQL 端口（默认：5432）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:88
+msgid "**Redis Configuration**:"
+msgstr "【Redis 配置】："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:90
+msgid "``REDIS_PASSWORD``: Redis password (**must be changed**)"
+msgstr "``REDIS_PASSWORD``：Redis 密码（**必须修改**）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:91
+msgid "``REDIS_PORT``: Redis port (default: 6379)"
+msgstr "``REDIS_PORT``：Redis 端口（默认：6379）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:93
+msgid "**Administrator Account Configuration**:"
+msgstr "【管理员账号配置】："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:95
+msgid "``ADMIN_EMAIL``: Administrator email (for login)"
+msgstr "``ADMIN_EMAIL``：管理员邮箱（用于登录）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:96
+msgid "``ADMIN_NAME``: Administrator username"
+msgstr "``ADMIN_NAME``：管理员用户名"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:97
+msgid "``ADMIN_PASSWORD``: Administrator password (**must be changed**)"
+msgstr "``ADMIN_PASSWORD``：管理员密码（**必须修改**）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:99
+msgid "**Tenant Configuration**:"
+msgstr "【租户配置】："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:101
+msgid "``TENANT_NAME``: Tenant name"
+msgstr "``TENANT_NAME``：租户名称"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:102
+msgid "``TENANT_DOMAIN``: Tenant domain"
+msgstr "``TENANT_DOMAIN``：租户域名"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:104
+msgid "**Data Volume Configuration**:"
+msgstr "【数据卷配置】："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:106
+msgid "``PG_DATA_VOLUME``: PostgreSQL data volume name (for data persistence)"
+msgstr "``PG_DATA_VOLUME``：PostgreSQL 数据卷名称（用于数据持久化）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:108
+msgid ""
+"**Security Note:** Please ensure to change all password-related "
+"configuration items and use strong passwords to ensure system security."
+msgstr "【安全提示】：请务必修改所有与密码相关的配置项，并使用强密码以保证系统安全。"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:111
+msgid "Starting Services"
+msgstr "启动服务"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:113
+msgid ""
+"Ensure you are in the directory containing the ``docker-compose.yml`` "
+"file:"
+msgstr "确保当前位于包含 ``docker-compose.yml`` 的目录："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:119
+msgid "Start all services:"
+msgstr "启动全部服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:125
+msgid "This command will start the following services in the background:"
+msgstr "该命令将在后台启动以下服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:127
+msgid ""
+"**loonflow-redis**: Redis service (for generating ticket serial numbers "
+"and Celery async tasks)"
+msgstr "**loonflow-redis**：Redis 服务（生成工单流水号与 Celery 异步任务）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:128
+msgid "**loonflow-pg**: PostgreSQL database service"
+msgstr "**loonflow-pg**：PostgreSQL 数据库服务"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:129
+msgid "**loonflow-backend**: Loonflow backend service (Django + Gunicorn)"
+msgstr "**loonflow-backend**：Loonflow 后端服务（Django + Gunicorn）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:130
+msgid "**loonflow-ui**: Loonflow frontend service (Nginx)"
+msgstr "**loonflow-ui**：Loonflow 前端服务（Nginx）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:131
+msgid "**loonflow-task**: Celery task processing service"
+msgstr "**loonflow-task**：Celery 任务处理服务"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:133
+msgid "Check service status:"
+msgstr "查看服务状态："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:139
+msgid "View service logs (optional):"
+msgstr "查看服务日志（可选）："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:150
+msgid "Accessing the Application"
+msgstr "访问应用"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:152
+msgid ""
+"After the services are started, you can access Loonflow through your "
+"browser:"
+msgstr "服务启动后，可通过浏览器访问 Loonflow："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:154
+msgid "**Access URL**: ``http://your_server_ip:80``"
+msgstr "访问地址：``http://your_server_ip:80``"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:156
+msgid "**Login Credentials**:"
+msgstr "登录凭据："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:158
+msgid "Email: The ``ADMIN_EMAIL`` you configured in the ``.env`` file"
+msgstr "邮箱：``.env`` 中配置的 ``ADMIN_EMAIL``"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:159
+msgid "Password: The ``ADMIN_PASSWORD`` you configured in the ``.env`` file"
+msgstr "密码：``.env`` 中配置的 ``ADMIN_PASSWORD``"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:162
+msgid "Common Management Commands"
+msgstr "常用管理命令"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:164
+msgid "**Stop services**:"
+msgstr "停止服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:170
+msgid "**Start services**:"
+msgstr "启动服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:176
+msgid "**Restart services**:"
+msgstr "重启服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:182
+msgid "**Stop and remove containers**:"
+msgstr "停止并删除容器："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:188
+msgid ""
+"**Stop and remove containers and volumes** (**Warning: This will delete "
+"database data**):"
+msgstr "停止并删除容器及数据卷（**警告：会删除数据库数据**）："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:194
+msgid "**Update services**:"
+msgstr "更新服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:205
+msgid "Troubleshooting"
+msgstr "故障排查"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:207
+msgid "If you encounter issues, try the following steps:"
+msgstr "如遇问题，可尝试以下步骤："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:209
+msgid "**Check service status**:"
+msgstr "检查服务状态："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:215
+msgid "**View service logs**:"
+msgstr "查看服务日志："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:221
+msgid "**Check port usage**:"
+msgstr "检查端口占用："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:228
+msgid "**Check firewall settings**:"
+msgstr "检查防火墙设置："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:230
+msgid "Ensure the firewall allows the following ports:"
+msgstr "确保防火墙放行以下端口："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:232
+msgid "80: HTTP access"
+msgstr "80：HTTP 访问"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:233
+msgid "8000: Backend API (if direct access is needed)"
+msgstr "8000：后端 API（若需直接访问）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:234
+msgid "5432: PostgreSQL (if external access is needed)"
+msgstr "5432：PostgreSQL（若需外部访问）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:235
+msgid "6379: Redis (if external access is needed)"
+msgstr "6379：Redis（若需外部访问）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:237
+msgid "**Restart service**:"
+msgstr "重启服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:244
+msgid "Important Notes"
+msgstr "重要说明"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:246
+msgid ""
+"On first startup, the backend service will automatically perform database"
+" migrations and create a superuser, which may take a few minutes"
+msgstr "首次启动时，后端服务会自动执行数据库迁移并创建超级用户，可能需要几分钟。"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:247
+msgid "Ensure the server has sufficient resources (CPU, memory, disk space)"
+msgstr "确保服务器资源充足（CPU、内存、磁盘空间）。"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:248
+msgid "Regularly backup the PostgreSQL data volume (``pg_data``)"
+msgstr "定期备份 PostgreSQL 数据卷（``pg_data``）。"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:249
+msgid "Production environments should configure HTTPS and a reverse proxy"
+msgstr "生产环境应配置 HTTPS 与反向代理"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:2
+msgid "Developer Setup"
+msgstr "开发环境搭建"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:4
+msgid ""
+"This guide will help you set up the Loonflow development environment on "
+"your local machine."
+msgstr "本指南帮助你在本地搭建 Loonflow 开发环境。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:9
+msgid "Before starting, ensure you have the following installed:"
+msgstr "开始前，请确保已安装："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:11
+msgid "Python 3.12.x (latest stable version of Python 3.12)"
+msgstr "Python 3.12.x（3.12 最新稳定版）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:12
+msgid "Node.js 22.x (latest stable version of Node.js 22)"
+msgstr "Node.js 22.x（22 的最新稳定版）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:13
+msgid "Redis (for generating unique ticket serial numbers and Celery async tasks)"
+msgstr "Redis（用于生成唯一工单流水号和 Celery 异步任务）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:14
+#, fuzzy
+msgid "PostgreSQL(database)"
+msgstr "PostgreSQL 或 MySQL（任选其一作为数据库）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:17
+msgid "Backend Setup"
+msgstr "后端配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:19
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:118
+msgid "Navigate to the backend directory:"
+msgstr "进入后端目录："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:25
+msgid "Create configuration file:"
+msgstr "创建配置文件："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:27
+msgid ""
+"Copy ``settings/dev.py.sample`` to ``settings/config.py`` in the settings"
+" directory."
+msgstr "将 ``settings/dev.py.sample`` 复制为 ``settings/config.py``。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:33
+msgid "Configure settings:"
+msgstr "配置参数："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:35
+msgid "Edit ``settings/config.py`` and update the following configurations:"
+msgstr "编辑 ``settings/config.py``，更新以下配置："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:37
+msgid "Database configuration (connection settings)"
+msgstr "数据库连接配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:38
+msgid "Redis address configuration"
+msgstr "Redis 地址配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:39
+msgid "Log path configuration"
+msgstr "日志路径配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:40
+msgid "Other environment-specific settings"
+msgstr "其他环境相关设置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:42
+msgid "Create and activate a Python virtual environment:"
+msgstr "创建并激活 Python 虚拟环境："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:49
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:93
+msgid "Install dependencies:"
+msgstr "安装依赖："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:55
+msgid "Start Redis:"
+msgstr "启动 Redis："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:57
+msgid "Redis is required for:"
+msgstr "Redis 用于："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:59
+msgid "Celery async tasks (script execution, status hooks, notification hooks)"
+msgstr "Celery 异步任务（脚本执行、状态回调、通知回调）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:61
+msgid "Make sure Redis is running before proceeding."
+msgstr "继续之前请确认 Redis 已启动。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:63
+msgid "Initialize the database:"
+msgstr "初始化数据库："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:70
+msgid "Create a superuser:"
+msgstr "创建超级用户："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:76
+msgid "Start the backend server:"
+msgstr "启动后端服务："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:82
+#, fuzzy, python-brace-format
+msgid "The backend will be available at ``http://{your_ip}:8000``."
+msgstr "后端将运行在 ``http://127.0.0.1:8000``。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:85
+msgid "Frontend Setup"
+msgstr "前端配置"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:87
+msgid "Navigate to the frontend directory:"
+msgstr "进入前端目录："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:99
+msgid "Start the frontend development server:"
+msgstr "启动前端开发服务器："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:105
+#, fuzzy, python-brace-format
+msgid "The frontend will be available at ``http://{your_ip}:3000``."
+msgstr "前端将运行在 ``http://127.0.0.1:3000``。"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:108
+msgid "Celery Worker (Optional)"
+msgstr "Celery Worker（可选）"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:110
+msgid ""
+"For local development, the Celery worker is optional unless you need the "
+"following features:"
+msgstr "本地开发可选启动 Celery，除非需要以下功能："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:112
+msgid "Script execution"
+msgstr "脚本执行"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:113
+msgid "Status hooks"
+msgstr "状态回调"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:114
+msgid "Notification hooks"
+msgstr "通知回调"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:116
+msgid "If you need these features, start the Celery worker:"
+msgstr "如需这些功能，请启动 Celery worker："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:124
+msgid "Start the Celery worker:"
+msgstr "启动 Celery worker："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:131
+msgid "Access the Application"
+msgstr "访问应用"
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:133
+msgid "Once both the backend and frontend are running, access the application at:"
+msgstr "当后端和前端都已启动，可通过以下地址访问："
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:135
+#, python-brace-format
+msgid "http://{your_ip}:3000"
+msgstr ""
+
+#: ../../source/installtion_deployment/installation_guide/developer_setup.rst:137
+#, fuzzy, python-brace-format
+msgid ""
+"The frontend is configured to proxy API requests to the backend at "
+"``http://{your_ip}:8000``."
+msgstr "前端已配置将 API 请求代理到 ``http://127.0.0.1:8000``。"
+
+#: ../../source/installtion_deployment/installation_guide/index.rst:2
+msgid "2. Installation Guide"
+msgstr "2. 安装指南"
+
+#: ../../source/installtion_deployment/system_requirements/index.rst:2
+msgid "1. System Requirements"
+msgstr "1. 系统要求"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:2
+msgid "OS Environment Requirements"
+msgstr "操作系统要求"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:4
+msgid ""
+"This section describes the operating system requirements for running "
+"**LoonFlow**."
+msgstr "本节描述运行 **LoonFlow** 的操作系统要求。"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:7
+msgid "Linux (Recommended)"
+msgstr "Linux（推荐）"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:9
+msgid ""
+"**LoonFlow is recommended to run on Linux operating systems, which is the"
+" preferred choice for production environments.**"
+msgstr "**生产环境推荐运行在 Linux 操作系统。**"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:11
+msgid "Supported All major Linux distributions:"
+msgstr "支持主流 Linux 发行版："
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:14
+msgid ""
+"Linux operating system is strongly recommended for production "
+"environments to ensure system stability and performance."
+msgstr "生产环境强烈建议使用 Linux，以确保系统稳定性与性能。"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:17
+msgid "Windows (Development Only)"
+msgstr "Windows（仅限开发）"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:19
+msgid ""
+"**Windows operating system is not recommended for running LoonFlow in "
+"production environments.**"
+msgstr "**不建议在生产环境使用 Windows 运行 LoonFlow。**"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:21
+msgid ""
+"Since LoonFlow's asynchronous tasks are implemented using Celery, there "
+"may be compatibility issues on Windows systems, causing asynchronous "
+"tasks to fail to work properly. Here is some compatibility resoves "
+"https://stackoverflow.com/questions/37255548/how-to-run-celery-on-"
+"windows:"
+msgstr ""
+"LoonFlow 的异步任务基于 Celery，在 Windows "
+"上可能存在兼容性问题，导致异步任务无法正常工作。可参考兼容方案：https://stackoverflow.com/questions/37255548"
+"/how-to-run-celery-on-windows"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:24
+msgid ""
+"you can use Windows as a development environment, but may encounter "
+"issues such as asynchronous task execution exceptions."
+msgstr "你可以在 Windows 上作为开发环境，但可能遇到异步任务执行异常等问题。"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:27
+msgid "macOS (Development Only)"
+msgstr "macOS（仅限开发）"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:29
+msgid ""
+"**macOS can be used as a development environment, but is not recommended "
+"for production environments.**"
+msgstr "**macOS 可用于开发环境，但不推荐用于生产。**"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:31
+msgid "Supported common macOS versions."
+msgstr "常见 macOS 版本均可。"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:34
+msgid ""
+"macOS is suitable for local development and testing, but is not "
+"recommended for production environment deployment. Linux operating system"
+" should be used for production environments."
+msgstr "macOS 适合本地开发与测试，但不推荐用于生产部署；生产环境应使用 Linux。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:2
+msgid "Server Hardware Requirements"
+msgstr "服务器硬件要求"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:4
+msgid ""
+"This section describes the baseline and recommended hardware requirements"
+" for running **LoonFlow**, including CPU, memory, disk, and network "
+"resources. Actual requirements will vary depending on the number of "
+"concurrent users, ticket volume, and the number of integrated systems. "
+"The values below are general guidelines for typical deployments."
+msgstr ""
+"本节说明运行 **LoonFlow** 的基线和推荐硬件需求，包括 "
+"CPU、内存、磁盘与网络资源。实际需求取决于并发用户数、工单量以及集成系统数量，下述数值为典型部署的通用参考。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:8
+msgid "Docker Compose Deployment"
+msgstr "Docker Compose 部署"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:10
+msgid ""
+"Suitable for personal evaluation, local development, feature "
+"verification, or small pilot environments, where all components (web "
+"application, database, Redis, etc.) are deployed on a single server."
+msgstr "适用于个人评估、本地开发、功能验证或小型试点，将所有组件（Web 应用、数据库、Redis 等）部署在单台服务器上。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:12
+msgid "**Minimum configuration**"
+msgstr "**最低配置**"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:14
+msgid "**CPU**: 4 vCPU"
+msgstr "**CPU**：4 vCPU"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:15
+msgid "**Memory**: 8 GB"
+msgstr "**内存**：8 GB"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:16
+msgid "**Disk**: 40 GB of available space"
+msgstr "**磁盘**：可用空间 40 GB"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:22
+msgid ""
+"When multiple components run on the same machine, memory is usually the "
+"first resource to become a bottleneck. If you frequently observe memory "
+"pressure or unstable services in test environments, first consider adding"
+" more memory or moving the database to a separate instance."
+msgstr "多组件同机运行时，内存通常最先成为瓶颈。若在测试环境频繁观察到内存压力或服务不稳定，优先考虑增加内存或将数据库迁移到独立实例。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:26
+msgid "High Availability and Scalability Recommendations"
+msgstr "高可用与扩展性建议"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:28
+msgid ""
+"For production environments that require higher stability and "
+"availability, consider the following enhancements based on your actual "
+"needs:"
+msgstr "对于需要更高稳定性与可用性的生产环境，可根据实际需求考虑："
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:30
+msgid "**multiple backend or task instances**"
+msgstr "**多个后端或任务实例**"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:32
+msgid ""
+"use \"replicas\" attribute to start multiple backend or task instances in"
+" docker-compose.yml."
+msgstr "在 docker-compose.yml 中使用 `replicas` 属性启动多个后端或任务实例。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:34
+msgid "**Database high availability**"
+msgstr "**数据库高可用**"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:36
+msgid ""
+"use a separate database server, rather than starting on a single server "
+"through docker compose."
+msgstr "使用独立数据库服务器，而非在单机通过 docker compose 启动。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:38
+msgid "**Monitoring and capacity planning**"
+msgstr "**监控与容量规划**"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:40
+msgid ""
+"Use monitoring systems (such as Prometheus + Grafana or cloud monitoring "
+"services) to track CPU, memory, I/O, database connections, and other key "
+"metrics."
+msgstr "使用监控系统（如 Prometheus + Grafana 或云监控）跟踪 CPU、内存、I/O、数据库连接等关键指标。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:41
+msgid ""
+"Based on historical load and growth trends, plan CPU, memory, and disk "
+"expansions in advance to avoid emergency scaling during business peaks."
+msgstr "依据历史负载与增长趋势，提前规划 CPU、内存和磁盘扩容，避免业务高峰时临时扩容。"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:44
+msgid "Summary"
+msgstr "总结"
+
+#: ../../source/installtion_deployment/system_requirements/server_hardware_requirements.rst:46
+msgid ""
+"Hardware planning should be based on your organization's actual business "
+"scale and future growth expectations. Ensure that LoonFlow has enough "
+"resources to run reliably while keeping some buffer for headroom. It is "
+"strongly recommended to perform stress testing before going live and "
+"adjust CPU, memory, and database configurations according to the test "
+"results to achieve a more robust production environment."
+msgstr ""
+"硬件规划应结合组织的实际业务规模与增长预期，既要保证 LoonFlow 可靠运行，又要预留一定余量。强烈建议上线前进行压测，并根据结果调整 "
+"CPU、内存和数据库配置，以获得更稳健的生产环境。"
+
+#~ msgid "Generating unique ticket serial numbers"
+#~ msgstr "生成唯一的工单流水号"
+
+#~ msgid "http://127.0.0.1:3000"
+#~ msgstr "http://127.0.0.1:3000"
+

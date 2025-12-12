@@ -4,6 +4,15 @@ export interface ILayout {
 }
 
 export interface IExtendedProps {
+    allowNegative?: boolean;
+    allowDecimal?: boolean;
+    fixedPrecision?: boolean;
+    thousandSeparator?: boolean;
+    precision?: number;
+    min?: number;
+    max?: number;
+    unitPrefix?: string;
+    unitSuffix?: string;
     optionsWithKeys?: FormOption[];
     multiple?: boolean;
     format?: string;
@@ -11,6 +20,7 @@ export interface IExtendedProps {
     dateFormat?: string;
     timeZone?: string;
     timeZoneName?: string;
+    titleGenerateMode?: string;
 }
 
 export interface IFormField {
@@ -22,7 +32,7 @@ export interface IFormField {
     value?: any;
     placeholder?: string;
     layout: ILayout;
-    extendedProps?: IExtendedProps;
+    props?: IExtendedProps;
 }
 
 

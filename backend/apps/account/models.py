@@ -1,3 +1,4 @@
+import os
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
 from apps.loon_base_model import BaseModel, BaseCommonModel
@@ -62,7 +63,10 @@ class UserManager(BaseUserManager):
         tenant_queryset = Tenant.objects.filter(id='00000000-0000-0000-0000-000000000001').first()
         if not tenant_queryset:
             # default_tenant = Tenant(id=1, name="loonflow", domain="loonapp.com")
-            default_tenant = Tenant(name="loonflow", domain="loonapp.com")
+            tenant_name = os.environ.get('TENANT_NAME', 'loonapp')
+            tenant_domain = os.environ.get('TENANT_DOMAIN', 'loonapp.com')
+            
+            default_tenant = Tenant(name=tenant_name, domain=tenant_domain, id='00000000-0000-0000-0000-000000000001')
             default_tenant.save(using=self._db)
             Tenant.objects.filter(domain="loonapp.com").update(id=1)
         user = self.model(email=self.normalize_email(email), name=name, alias=alias)

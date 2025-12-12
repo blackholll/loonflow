@@ -1,0 +1,26 @@
+{
+  "tenant": {
+    "tenantInfo": "租户信息",
+    "tenantDetail": "租户详情",
+    "name": "名称",
+    "domain": "域名",
+    "workflowLimit": "工作流限制",
+    "ticketLimit": "工单限制",
+    "unLimited": "无限制",
+    "tenantId": "租户ID"
+  },
+  "application": {
+    "appTypeDescription": "管理员可以调用所有api，工作流管理员只能调用工单和工作流相关api和一些通用api",
+    "applicationList": "应用列表",
+    "searchWithKeyword": "关键字搜索",
+    "applicationDetial": "应用详情",
+    "newApplication": "新建应用",
+    "tokenCopied": "Token已复制"
+  },
+  "notification": {
+    "notificationList": "通知列表",
+    "notificationDetial": "通知详情",
+    "newNotification": "新建通知",
+    "notificationTypeDescription": "通知类型说明"
+  }
+}

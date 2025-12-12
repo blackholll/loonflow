@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Box, Tooltip, InputAdornment } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { addApplication } from '../../../services/application';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, InputAdornment, Radio, RadioGroup, TextField, Tooltip } from '@mui/material';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSnackbar from '../../../hooks/useSnackbar';
-import { getApplicationDetail } from '../../../services/application';
+import { addApplication, getApplicationDetail } from '../../../services/application';
 
 
 interface ApplicationDetailProps {
@@ -39,7 +38,7 @@ const ApplicationDialog = ({ open, onClose, applicationId }: ApplicationDetailPr
         showMessage(`fail to get application detail: ${error.message}`, 'error');
       }
     }
-  }, [applicationId])
+  }, [applicationId, showMessage])
 
   useEffect(() => {
     getAppDetail();

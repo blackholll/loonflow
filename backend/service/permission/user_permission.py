@@ -7,7 +7,7 @@ from service.exception.custom_common_exception import CustomCommonException
 from service.format_response import api_response
 
 
-def user_permission_check(types='', workflow_id_source=''):
+def user_permission_check(type='', workflow_id_source='url'):
     """
     user permission check decorator
     :param workflow_id_source:  from url or body
@@ -22,18 +22,19 @@ def user_permission_check(types='', workflow_id_source=''):
             app_name = request.META.get('HTTP_APPNAME')
             if workflow_id_source == 'url':
                 workflow_id = kwargs.get('workflow_id')
+                workflow_version_id = kwargs.get('workflow_version_id')
             elif workflow_id_source == 'body':
                 request_data = request.body
                 workflow_id = json.loads(request_data).get('workflow_id')
-
+                workflow_version_id = json.loads(request_data).get('workflow_version_id')
             if app_name != 'loonflow':
                 try:
-                    account_application_service_ins.app_type_check(tenant_id, app_name, workflow_id)
+                    account_application_service_ins.app_type_check(tenant_id, app_name, type, workflow_id, workflow_version_id)
                 except CustomCommonException as e:
                     return api_response(-1, 'has no permission: {}'.format(e.message), {})
             else:
                 try:
-                    account_user_service_ins.user_type_check(email=email, tenant_id=tenant_id, types=types)
+                    account_user_service_ins.user_type_check(email=email, tenant_id=tenant_id, type=type)
                 except CustomCommonException as e:
                     return api_response(-1, 'has no permission: {}'.format(e.message), {})
             return func(view_class, request, *args, **kwargs)

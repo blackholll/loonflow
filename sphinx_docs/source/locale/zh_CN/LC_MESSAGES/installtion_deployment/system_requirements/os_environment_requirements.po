@@ -1,0 +1,95 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:2
+msgid "OS Environment Requirements"
+msgstr "操作系统环境要求"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:4
+msgid ""
+"This section describes the operating system requirements for running "
+"**LoonFlow**."
+msgstr "本节说明运行 **LoonFlow** 的操作系统要求。"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:7
+msgid "Linux (Recommended)"
+msgstr "Linux（推荐）"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:9
+msgid ""
+"**LoonFlow is recommended to run on Linux operating systems, which is the"
+" preferred choice for production environments.**"
+msgstr "**LoonFlow 推荐运行在 Linux，生产环境首选。**"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:11
+msgid "Supported All major Linux distributions:"
+msgstr "支持各主流 Linux 发行版："
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:14
+msgid ""
+"Linux operating system is strongly recommended for production "
+"environments to ensure system stability and performance."
+msgstr "生产环境强烈建议使用 Linux，以确保系统稳定与性能。"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:17
+msgid "Windows (Development Only)"
+msgstr "Windows（仅开发）"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:19
+msgid ""
+"**Windows operating system is not recommended for running LoonFlow in "
+"production environments.**"
+msgstr "**不推荐在生产环境使用 Windows 运行 LoonFlow。**"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:21
+msgid ""
+"Since LoonFlow's asynchronous tasks are implemented using Celery, there "
+"may be compatibility issues on Windows systems, causing asynchronous "
+"tasks to fail to work properly. Here is some compatibility resoves "
+"https://stackoverflow.com/questions/37255548/how-to-run-celery-on-"
+"windows:"
+msgstr "由于 LoonFlow 的异步任务使用 Celery，实现上在 Windows 可能存在兼容性问题，导致异步任务无法正常工作。可参考兼容方案：https://stackoverflow.com/questions/37255548/how-to-run-celery-on-windows"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:24
+msgid ""
+"you can use Windows as a development environment, but may encounter "
+"issues such as asynchronous task execution exceptions."
+msgstr "你可以在开发环境使用 Windows，但可能遇到异步任务执行异常等问题。"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:27
+msgid "macOS (Development Only)"
+msgstr "macOS（仅开发）"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:29
+msgid ""
+"**macOS can be used as a development environment, but is not recommended "
+"for production environments.**"
+msgstr "**macOS 可作为开发环境，但不建议用于生产。**"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:31
+msgid "Supported common macOS versions."
+msgstr "支持常见的 macOS 版本。"
+
+#: ../../source/installtion_deployment/system_requirements/os_environment_requirements.rst:34
+msgid ""
+"macOS is suitable for local development and testing, but is not "
+"recommended for production environment deployment. Linux operating system"
+" should be used for production environments."
+msgstr "macOS 适合本地开发与测试，不建议用于生产部署；生产应使用 Linux。"

@@ -1,11 +1,10 @@
+import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel } from '@mui/material';
 import React from 'react';
-import { FormControl, FormLabel, FormGroup, FormControlLabel, Checkbox, FormHelperText } from '@mui/material';
-import ViewField from './ViewField';
 import { FormOption } from '../../types/workflowDesign';
+import ViewField from './ViewField';
 
 interface CheckboxFieldProps {
     value: string | string[] | FormOption | FormOption[];
-    fieldRequired: boolean;
     onChange: (value: string | string[] | FormOption | FormOption[]) => void;
     mode: 'view' | 'edit';
     props: any;
@@ -13,7 +12,6 @@ interface CheckboxFieldProps {
 
 function CheckboxField({
     value = [],
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -99,14 +97,10 @@ function CheckboxField({
         );
     }
 
-    // edit mode, support edit
-    const currentValues = getCurrentValues(value);
-    const hasSelection = currentValues.length > 0;
 
     return (
         <FormControl
             fullWidth={true}
-            error={fieldRequired && !hasSelection}
         >
             <FormLabel component="legend" sx={{ fontSize: '0.875rem', color: 'text.secondary', mb: 1 }}>
             </FormLabel>
@@ -133,11 +127,6 @@ function CheckboxField({
                     />
                 ))}
             </FormGroup>
-            {fieldRequired && !hasSelection && (
-                <FormHelperText error>
-                    此字段为必填项
-                </FormHelperText>
-            )}
         </FormControl>
     );
 }

@@ -1,0 +1,67 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:2
+msgid "submit ticket"
+msgstr "提交工单"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:5
+msgid "This guide is intended for users who want to submit a ticket."
+msgstr "本指南适用于需要提交工单的用户。"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:7
+msgid "Login to LoonFlow"
+msgstr "登录 LoonFlow"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:8
+msgid "Clieck \"Workbench\" in the left sidebar"
+msgstr "点击左侧边栏的“工作台”"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:9
+msgid "Select a workflow from the dropdown menu"
+msgstr "在下拉菜单中选择一个流程"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:11
+msgid "Select Workflow"
+msgstr "选择流程"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:16
+msgid "Click the \"New Ticket\" button"
+msgstr "点击“新建工单”按钮"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:17
+msgid "Fill in the ticket information"
+msgstr "填写工单信息"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:19
+msgid "Fill Ticket Info"
+msgstr "填写工单信息"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:24
+msgid ""
+"Click corresponding button listed in the bottom of the dialogpage to "
+"submit the ticket."
+msgstr "点击弹窗底部对应的按钮提交工单。"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:25
+msgid ""
+"The ticket will be submitted and the next handle user will receive a "
+"notification."
+msgstr "工单提交后，下一处理人会收到通知。"
