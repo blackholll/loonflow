@@ -3,8 +3,8 @@ on:
   push:
     tags:
       - 'r**'
-    branches:
-      - v3.0.1
+    # branches:
+    #   - v3.0.1
 jobs:
   build_task:
     name: Build Task

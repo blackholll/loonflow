@@ -3,7 +3,7 @@ name: Build Frontend Images
 on:
   push:
     tags: ['r**']
-    branches: [v3.0.1]
+    # branches: [v3.0.1]
 
 
 jobs:
