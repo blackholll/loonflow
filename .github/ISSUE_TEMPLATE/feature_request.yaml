@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This template helps your propose new feature, enhancements, or other ideas for Loonflow2
+        This template helps your propose new feature, enhancements, or other ideas for Loonflow. Please use English to describe your request, otherwise the issue will be force closed.
   - type: textarea
     id: need
     validations:
