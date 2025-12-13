@@ -62,9 +62,9 @@ python manage.py createsuperuser
 
 # 📖 深入探索
 
-- 📚 完整文档 - 了解安装、配置、使用和开发的全部细节. https://loonflow.readthedocs.io。
+- 📚 完整文档 - 了解安装、配置、使用和开发的全部细节. https://loonflow.readthedocs.io
 - 🔌 hook开发指南 - 学习如何为 Loonflow 开发自定义插件（编写中）。
-- 🌐 API 参考 - 查看完整的 API 接口文档. https://documenter.getpostman.com/view/15031929/2sB3WyJbap。
+- 🌐 API 参考 - 查看完整的 API 接口文档. https://documenter.getpostman.com/view/15031929/2sB3WyJbap
 
 # 🗺️ 项目规划
 [项目规划](./Roadmap_zh.md)
