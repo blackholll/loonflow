@@ -1,40 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import {
-    Box,
-    Typography,
-    TextField,
-    Divider,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    IconButton,
+    Alert,
     Autocomplete,
+    Box,
+    Button,
     Chip,
     CircularProgress,
-    FormLabel,
-    RadioGroup,
+    Divider,
+    FormControl,
     FormControlLabel,
+    FormLabel,
+    IconButton,
+    InputLabel,
+    Link,
+    MenuItem,
     Radio,
-    Switch,
-    Button,
+    RadioGroup,
+    Select,
     Snackbar,
-    Alert,
-    Link
+    Switch,
+    TextField,
+    Typography
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { Node, Edge } from '@xyflow/react';
-import { IFormSchema } from '../../../types/workflow';
-import { getSimpleUsers } from '../../../services/user';
-import { getDeptPaths } from '../../../services/dept';
-import { getSimpleRoles } from '../../../services/role';
-import { ISimpleUser } from '../../../types/user';
-import { ISimpleDeptPath } from '../../../types/dept';
+import { Edge, Node } from '@xyflow/react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { v4 as uuidv4 } from 'uuid';
-import ConditionExpressionEditor from './ConditionExpressionEditor';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { materialDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { v4 as uuidv4 } from 'uuid';
+import { getDeptPaths } from '../../../services/dept';
+import { getSimpleRoles } from '../../../services/role';
+import { getSimpleUsers } from '../../../services/user';
+import { ISimpleDeptPath } from '../../../types/dept';
+import { ISimpleUser } from '../../../types/user';
+import { IFormSchema } from '../../../types/workflow';
+import ConditionExpressionEditor from './ConditionExpressionEditor';
 
 interface PropertyPanelProps {
     element: Node | Edge | null;
@@ -68,44 +68,6 @@ function isEdge(element: Node | Edge): element is Edge {
     return 'source' in element && 'target' in element;
 }
 
-// 其他可能的类型检查方法（供参考）
-function isNodeAlternative1(element: Node | Edge): element is Node {
-    // 方法1：检查是否有 position 属性（Node 特有）
-    return 'position' in element;
-}
-
-function isNodeAlternative2(element: Node | Edge): element is Node {
-    // 方法2：检查是否有 type 属性且不是 'custom'（Edge 的默认类型）
-    return 'type' in element && element.type !== 'custom';
-}
-
-function isEdgeAlternative1(element: Node | Edge): element is Edge {
-    // 方法1：检查是否有 source 和 target 属性
-    return 'source' in element && 'target' in element;
-}
-
-function isEdgeAlternative2(element: Node | Edge): element is Edge {
-    // 方法2：检查是否有 sourceHandle 和 targetHandle 属性（Edge 特有）
-    return 'sourceHandle' in element && 'targetHandle' in element;
-}
-
-// 最可靠的方法：结合多个属性检查
-function isNodeReliable(element: Node | Edge): element is Node {
-    return (
-        'position' in element &&
-        !('source' in element) &&
-        !('target' in element)
-    );
-}
-
-function isEdgeReliable(element: Node | Edge): element is Edge {
-    return (
-        'source' in element &&
-        'target' in element &&
-        !('position' in element)
-    );
-}
-
 function PropertyPanel(props: PropertyPanelProps) {
     const { element, formSchema, onUpdateNodeProperties, onUpdateEdgeProperties } = props;
     const [currentElement, setCurrentElement] = useState<Node | Edge | null>(element);
@@ -118,9 +80,6 @@ function PropertyPanel(props: PropertyPanelProps) {
     const [loadingUsers, setLoadingUsers] = useState(false);
     const [loadingDepts, setLoadingDepts] = useState(false);
     const [loadingRoles, setLoadingRoles] = useState(false);
-    const [userSearchValue, setUserSearchValue] = useState('');
-    const [deptSearchValue, setDeptSearchValue] = useState('');
-    const [roleSearchValue, setRoleSearchValue] = useState('');
 
     const [users, setUsers] = useState<IOption[]>([]);
     const [departments, setDepartments] = useState<IOption[]>([]);
@@ -151,14 +110,44 @@ function PropertyPanel(props: PropertyPanelProps) {
         console.log('formSchema11111', formSchema);
     }, [formSchema, element]);
 
+    // 加载角色列表
+    const loadRoles = useCallback(async (searchValue: string = '', roleIds: string = '') => {
+        if (loadingRoles) return [];
+        setLoadingRoles(true);
+        try {
+            const response = await getSimpleRoles(searchValue, roleIds, 1, 100);
+            if (response.code === 0) {
+                const rawList = response.data?.roleInfoList || [];
+                const fetched = rawList.map((role: any) => ({ label: role.name, value: String(role.id) }));
+                setRoles((prev) => {
+                    const map = new Map<string, { label: string, value: string }>();
+                    [...prev, ...fetched].forEach(item => map.set(item.value, item));
+                    return Array.from(map.values());
+                });
+                return fetched;
+            }
+            return [];
+        } catch (error) {
+            console.error(t('workflow.propertyPanelLabel.loadRolesFailed'), error);
+            return [];
+        } finally {
+            setLoadingRoles(false);
+        }
+    }, [loadingRoles, t]);
 
-    useEffect(() => {
+    // 变量选项
+    const variableOptions = useMemo(() => [
+        { name: t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.creator'), value: 'creator' },
+        { name: t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.dept_approver'), value: 'dept_approver' },
+    ], [t]);
+
+    const loadElementProperties = useCallback(async () => {
         console.log('currentElement', currentElement);
         if (currentElement) {
             if (isEdge(currentElement)) {
                 setProperties(currentElement.data?.properties || {});
             } else if (isNode(currentElement)) {
-                const nodeProperties = { ...(currentElement.data?.properties || {}) } as any;
+                const nodeProperties = { ...(currentElement.data?.properties && typeof currentElement.data.properties === 'object' ? currentElement.data.properties : {}) } as any;
                 setProperties(nodeProperties);
                 if (nodeProperties.assigneeType === 'users') {
                     if (nodeProperties.assignee) {
@@ -192,7 +181,11 @@ function PropertyPanel(props: PropertyPanelProps) {
                 }
             }
         }
-    }, [currentElement]);
+    }, [currentElement, loadRoles, variableOptions]);
+
+    useEffect(() => {
+        loadElementProperties();
+    }, [loadElementProperties]);
 
     const handlePropertyChange = (key: string, value: any) => {
         console.log('handlePropertyChange', key, value);
@@ -263,12 +256,6 @@ function PropertyPanel(props: PropertyPanelProps) {
         { name: t('workflow.propertyPanelLabel.assignmentStrategyOptions.all'), value: 'whole' },
     ];
 
-    // 变量选项
-    const variableOptions = [
-        { name: t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.creator'), value: 'creator' },
-        { name: t('workflow.propertyPanelLabel.assigneeTypeVariableOptions.dept_approver'), value: 'dept_approver' },
-    ];
-
     // 加载用户列表
     const loadUsers = async (searchValue: string = '') => {
         if (loadingUsers) return;
@@ -301,31 +288,6 @@ function PropertyPanel(props: PropertyPanelProps) {
         }
     };
 
-    // 加载角色列表
-    const loadRoles = async (searchValue: string = '', roleIds: string = '') => {
-        if (loadingRoles) return [];
-        setLoadingRoles(true);
-        try {
-            const response = await getSimpleRoles(searchValue, roleIds, 1, 100);
-            if (response.code === 0) {
-                const rawList = response.data?.roleList || response.data?.role_list || [];
-                const fetched = rawList.map((role: any) => ({ label: role.name, value: String(role.id) }));
-                setRoles((prev) => {
-                    const map = new Map<string, { label: string, value: string }>();
-                    [...prev, ...fetched].forEach(item => map.set(item.value, item));
-                    return Array.from(map.values());
-                });
-                return fetched;
-            }
-            return [];
-        } catch (error) {
-            console.error(t('workflow.propertyPanelLabel.loadRolesFailed'), error);
-            return [];
-        } finally {
-            setLoadingRoles(false);
-        }
-    };
-
     // 处理处理人类型变化
     const handleAssigneeTypeChange = (value: string) => {
         console.log('handleAssigneeTypeChangevalue:', value);
@@ -340,12 +302,6 @@ function PropertyPanel(props: PropertyPanelProps) {
         console.log('handleAssigneeSelectChangevaluestr:', value.map((v: any) => v.value).join(',') || '');
         handlePropertyChange('assignee', value.map((v: any) => v.value).join(',') || '');
         setSelectedAssignees(value);
-
-        // todo: setSelectedAssignees
-    }
-
-    const handleAssigneeInputChange = (value: string) => {
-        handlePropertyChange('assignee', value);
     }
 
     const handleAssignmentStrategyChange = (value: string) => {
@@ -369,7 +325,6 @@ function PropertyPanel(props: PropertyPanelProps) {
                         value={selectedAssignees}
                         onChange={(e, value) => handleAssigneeSelectChange(value)}
                         onInputChange={(e, value) => {
-                            setUserSearchValue(value);
                             if (value.length > 0) {
                                 loadUsers(value);
                             }
@@ -408,7 +363,6 @@ function PropertyPanel(props: PropertyPanelProps) {
                         value={selectedAssignees ? selectedAssignees : []}
                         onChange={(e, value) => handleAssigneeSelectChange(value)}
                         onInputChange={(e, value) => {
-                            setDeptSearchValue(value);
                             if (value.length > 0) {
                                 loadDepartments(value);
                             }
@@ -446,7 +400,6 @@ function PropertyPanel(props: PropertyPanelProps) {
                         value={selectedAssignees ? selectedAssignees : []}
                         onChange={(e, value) => handleAssigneeSelectChange(value)}
                         onInputChange={(e, value) => {
-                            setRoleSearchValue(value);
                             if (value && value.length > 0) {
                                 loadRoles(value);
                             }
@@ -558,7 +511,7 @@ function PropertyPanel(props: PropertyPanelProps) {
                 return (
                     <>
                         <TextField
-                            label="外部接口"
+                            label={t('workflow.externalApi')}
                             required
                             value={assigneeValue}
                             onChange={(e) => handlePropertyChange('assignee', e.target.value)}
@@ -635,7 +588,6 @@ class externalAssigneeView(View):
     }
 
     const isEdgeElement = isEdge(element);
-    const elementType = isEdgeElement ? t('workflow.propertyPanelLabel.edge') : t('workflow.propertyPanelLabel.node');
     const elementLabel = isEdgeElement ? t('workflow.propertyPanelLabel.edgeProperties') : (element.data?.label as string) || t('workflow.propertyPanelLabel.nodeProperties');
 
     return (
@@ -677,6 +629,17 @@ class externalAssigneeView(View):
                             <MenuItem value="other">{t('workflow.propertyPanelLabel.edgeNameOther')}</MenuItem>
                         </Select>
                     </FormControl>
+                    <Box sx={{ width: '100%' }}>
+                        <FormControlLabel
+                            sx={{ marginLeft: 0 }}
+                            control={
+                                <Switch checked={properties.skipFieldsRequiredCheck || false} onChange={(event: React.ChangeEvent<HTMLInputElement>) => handlePropertyChange('skipFieldsRequiredCheck', event.target.checked)} />
+                            }
+                            label={t('workflow.propertyPanelLabel.skipFieldsRequiredCheck')}
+                            labelPlacement='start'
+
+                        />
+                    </Box>
 
                     {properties.type === 'condition' && (
                         <ConditionExpressionEditor
@@ -763,7 +726,7 @@ class externalAssigneeView(View):
                                     size="small"
                                     fullWidth
                                     required
-                                    placeholder="Hook访问令牌"
+                                    placeholder={t('workflow.hookTokenPlaceholder')}
                                 />
                                 <Button
                                     variant="outlined"
@@ -820,12 +783,12 @@ class externalAssigneeView(View):
 
                             {properties.gatewayType === 'exclusive' && (
                                 <TextField
-                                    label="默认分支"
+                                    label={t('workflow.defaultBranch')}
                                     value={properties.defaultBranch || ''}
                                     onChange={(e) => handlePropertyChange('defaultBranch', e.target.value)}
                                     size="small"
                                     fullWidth
-                                    placeholder="默认分支的连线ID"
+                                    placeholder={t('workflow.defaultBranchEdgeId')}
                                 />
                             )}
                         </>

@@ -1,0 +1,16 @@
+{
+  "userInfo": "User Info",
+  "updateProfileSuccess": "Update Profile Success",
+  "updateProfileFail": "Update Profile Fail",
+  "name": "Name",
+  "changePassword": "Change Password",
+  "currentPassword": "Current Password",
+  "newPassword": "New Password",
+  "confirmPassword": "Confirm New Password",
+  "changePasswordSuccess": "Password changed successfully",
+  "changePasswordFail": "Failed to change password",
+  "passwordsNotMatch": "New passwords do not match",
+  "currentPasswordRequired": "Please enter current password",
+  "newPasswordRequired": "Please enter new password",
+  "confirmPasswordRequired": "Please confirm new password"
+}

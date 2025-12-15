@@ -1,14 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import './i18n/index';
-import { store, persistor } from './store';
 import { PersistGate } from 'redux-persist/integration/react';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import App from './App';
+import DynamicLocalizationProvider from './components/commonComponents/DynamicLocalizationProvider';
+import './i18n/index';
+import './index.css';
+import reportWebVitals from './reportWebVitals';
+import { persistor, store } from './store';
 
 
 const root = ReactDOM.createRoot(
@@ -18,9 +17,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <DynamicLocalizationProvider>
           <App />
-        </LocalizationProvider>
+        </DynamicLocalizationProvider>
       </PersistGate>
 
     </Provider>

@@ -1,0 +1,111 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:2
+msgid "r3.0.0"
+msgstr "r3.0.0"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:4
+msgid "🎯 Revolutionary Visual Design"
+msgstr "🎯 革命性的可视化设计"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:6
+msgid ""
+"**Drag-and-Drop Process Designer**: No complex configuration needed. "
+"Complete complex business process modeling through intuitive drag-and-"
+"drop connections. Supports advanced nodes like conditional branches, "
+"parallel tasks, and hooks."
+msgstr "**拖拽式流程设计器**：无需复杂配置，拖拽连线即可完成复杂业务流程建模，支持条件分支、并行任务、钩子等高级节点。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:7
+msgid ""
+"**Smart Form Designer**: Powerful visual form building tool with rich "
+"field types (text, numbers, dropdowns, personnel selection, attachments, "
+"etc.) and flexible layouts."
+msgstr "**智能表单设计器**：可视化表单搭建，字段类型丰富（文本、数字、下拉、人员选择、附件等），布局灵活。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:8
+msgid ""
+"**Real-time Preview & Validation**: Real-time preview during process "
+"design with built-in process logic validation to prevent design errors "
+"early."
+msgstr "**实时预览与校验**：流程设计时实时预览，内置流程逻辑校验，提前避免设计错误。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:9
+msgid ""
+"**Multi-Version Process Configuration**: You can configure multiple "
+"versions of processes and easily test and switch between versions."
+msgstr "**多版本流程配置**：可配置多个流程版本，便于测试与版本切换。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:12
+msgid "🔧 Ultimate Flexibility & Extensibility"
+msgstr "🔧 极致灵活与可扩展性"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:14
+msgid ""
+"**Plugin Architecture**: We provide plugin extension capabilities for "
+"almost all key nodes (such as custom actions, permission validation, "
+"notification methods, etc.). Your unique business logic can be easily "
+"integrated like building blocks."
+msgstr "**插件化架构**：几乎所有关键节点（自定义操作、权限校验、通知方式等）均支持插件扩展，像搭积木一样接入你的业务逻辑。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:15
+msgid ""
+"**Powerful API System**: Provides comprehensive and clear RESTful APIs "
+"for seamless integration with your customer service systems, CMDB, "
+"monitoring systems, CI/CD, OA, and other third-party systems."
+msgstr "**强大的 API 体系**：提供完善清晰的 RESTful API，可无缝对接客服系统、CMDB、监控、CI/CD、OA 等第三方系统。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:16
+msgid ""
+"**Highly Customizable Permission Model**: Supports fine-grained "
+"permission control based on roles, departments, or even specific business"
+" conditions to meet complex enterprise permission management needs."
+msgstr "**高度可定制的权限模型**：支持按角色、部门甚至业务条件做细粒度权限控制，满足复杂的企业权限管理需求。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:18
+msgid "💼 Enterprise-Ready Features Out of the Box"
+msgstr "💼 开箱即用的企业级特性"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:20
+msgid ""
+"**Multi-Type Ticket Support**: Easily manage various processes including "
+"IT operations, HR approvals, financial reimbursements, customer service, "
+"etc."
+msgstr "**多类型工单支持**：可轻松管理运维、HR 审批、费用报销、客服等各类流程。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:21
+msgid ""
+"**Automation & Smart Routing**: Supports conditional routing based on "
+"form data, automatic assignee assignment, and intelligent ticket flow."
+msgstr "**自动化与智能路由**：支持基于表单数据的条件路由、自动分派处理人及智能流转。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:22
+msgid ""
+"**Comprehensive Audit Logs**: Complete records of every operation from "
+"ticket creation to closure, meeting compliance and audit requirements."
+msgstr "**完备的审计日志**：记录从工单创建到关闭的每一步操作，满足合规与审计要求。"
+
+#: ../../source/others/release_notes/r3.x/r3.0.0.rst:23
+msgid ""
+"**Multi-Tenant Support (Optional)**: Provides data isolation capabilities"
+" for SaaS providers or large enterprise groups (requires additional "
+"authorization)."
+msgstr "**多租户支持（可选）**：提供数据隔离能力，适用于 SaaS 服务商或大型企业集团（需额外授权）。"

@@ -89,7 +89,7 @@ const UserDialog: React.FC<UserDialogProps> = ({ open, onClose, userId, selected
                 setSelectedDeptPaths([]);
             }
         }
-    }, [userId, open, selectedDeptId, initialFormData]);
+    }, [userId, open, selectedDeptId, showMessage, initialFormData]);
 
 
     const fetchDeptPaths = useCallback(async (inputValue: string) => {

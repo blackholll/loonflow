@@ -1,5 +1,5 @@
-import apiClient from './api';
 import { ISimpleUserListRes } from '../types/user';
+import apiClient from './api';
 
 export const updateMyProfile = async (lang: string) => {
   try {
@@ -103,6 +103,19 @@ export const updateUser = async (userId: string, user: any) => {
 export const resetUserPassword = async (userId: string) => {
   try {
     const response = await apiClient.post(`/api/v1.0/accounts/users/${userId}/reset_password`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const changePassword = async (sourcePassword: string, newPassword: string, newPasswordAgain: string) => {
+  try {
+    const response = await apiClient.post('/api/v1.0/accounts/users/change_password', {
+      source_password: sourcePassword,
+      new_password: newPassword,
+      new_password_again: newPasswordAgain
+    });
     return response.data;
   } catch (error) {
     throw error;

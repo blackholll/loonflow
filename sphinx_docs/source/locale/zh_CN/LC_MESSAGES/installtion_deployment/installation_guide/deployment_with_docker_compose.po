@@ -1,0 +1,353 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:2
+msgid "Deployment with Docker Compose"
+msgstr "使用 Docker Compose 部署"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:4
+msgid ""
+"This guide will help you deploy Loonflow in a production environment "
+"using Docker Compose."
+msgstr "本指南将帮助你使用 Docker Compose 在生产环境部署 Loonflow。"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:7
+msgid "Prerequisites"
+msgstr "前置条件"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:9
+msgid "Before starting, ensure you have the following requirements:"
+msgstr "开始之前，请确保满足以下条件："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:11
+msgid ""
+"Linux server (refer to  "
+":doc:`../system_requirements/server_hardware_requirements`)"
+msgstr "Linux 服务器（参考 :doc:`../system_requirements/server_hardware_requirements`）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:12
+msgid "Docker 20.10+ installed"
+msgstr "已安装 Docker 20.10+"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:13
+msgid "Docker Compose 2.0+ installed"
+msgstr "已安装 Docker Compose 2.0+"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:17
+msgid "Installing Docker and Docker Compose"
+msgstr "安装 Docker 与 Docker Compose"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:19
+msgid ""
+"If Docker and Docker Compose are not yet installed on your server, follow"
+" these steps:"
+msgstr "若服务器尚未安装 Docker 与 Docker Compose，请按以下步骤操作："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:21
+msgid "Install Docker:"
+msgstr "安装 Docker："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:34
+msgid "Install Docker Compose:"
+msgstr "安装 Docker Compose："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:42
+msgid "Verify installation:"
+msgstr "验证安装："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:50
+msgid "Downloading Docker Compose Configuration Files"
+msgstr "下载 Docker Compose 配置文件"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:52
+msgid "Create a deployment directory:"
+msgstr "创建部署目录："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:59
+msgid "Download the necessary configuration files:"
+msgstr "下载所需配置文件："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:66
+msgid ""
+"Alternatively, if you have already cloned the repository, you can copy "
+"the files directly:"
+msgstr "如果你已克隆仓库，也可以直接复制文件："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:70
+msgid "Configuring Environment Variables"
+msgstr "配置环境变量"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:72
+msgid ""
+"Edit the ``.env`` file to configure the following necessary environment "
+"variables:"
+msgstr "编辑 ``.env`` 文件，配置以下必要的环境变量："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:79
+msgid "**Important Configuration Items:**"
+msgstr "**重要配置项：**"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:81
+msgid "**Database Configuration**:"
+msgstr "**数据库配置**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:83
+msgid "``POSTGRES_USER``: PostgreSQL database username (default: loonflow)"
+msgstr "``POSTGRES_USER``：PostgreSQL 数据库用户名（默认：loonflow）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:84
+msgid "``POSTGRES_PASSWORD``: PostgreSQL database password (**must be changed**)"
+msgstr "``POSTGRES_PASSWORD``：PostgreSQL 数据库密码（**必须修改**）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:85
+msgid "``POSTGRES_DB``: Database name (default: loonflow)"
+msgstr "``POSTGRES_DB``：数据库名（默认：loonflow）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:86
+msgid "``POSTGRES_PORT``: PostgreSQL port (default: 5432)"
+msgstr "``POSTGRES_PORT``：PostgreSQL 端口（默认：5432）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:88
+msgid "**Redis Configuration**:"
+msgstr "**Redis 配置**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:90
+msgid "``REDIS_PASSWORD``: Redis password (**must be changed**)"
+msgstr "``REDIS_PASSWORD``：Redis 密码（**必须修改**）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:91
+msgid "``REDIS_PORT``: Redis port (default: 6379)"
+msgstr "``REDIS_PORT``：Redis 端口（默认：6379）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:93
+msgid "**Administrator Account Configuration**:"
+msgstr "**管理员账号配置**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:95
+msgid "``ADMIN_EMAIL``: Administrator email (for login)"
+msgstr "``ADMIN_EMAIL``：管理员邮箱（用于登录）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:96
+msgid "``ADMIN_NAME``: Administrator username"
+msgstr "``ADMIN_NAME``：管理员用户名"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:97
+msgid "``ADMIN_PASSWORD``: Administrator password (**must be changed**)"
+msgstr "``ADMIN_PASSWORD``：管理员密码（**必须修改**）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:99
+msgid "**Tenant Configuration**:"
+msgstr "**租户配置**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:101
+msgid "``TENANT_NAME``: Tenant name"
+msgstr "``TENANT_NAME``：租户名称"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:102
+msgid "``TENANT_DOMAIN``: Tenant domain"
+msgstr "``TENANT_DOMAIN``：租户域名"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:104
+msgid "**Data Volume Configuration**:"
+msgstr "**数据卷配置**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:106
+msgid "``PG_DATA_VOLUME``: PostgreSQL data volume name (for data persistence)"
+msgstr "``PG_DATA_VOLUME``：PostgreSQL 数据卷名称（用于数据持久化）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:108
+msgid ""
+"**Security Note:** Please ensure to change all password-related "
+"configuration items and use strong passwords to ensure system security."
+msgstr "**安全提示：** 请务必修改所有与密码相关的配置项，并使用强密码以保障系统安全。"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:111
+msgid "Starting Services"
+msgstr "启动服务"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:113
+msgid ""
+"Ensure you are in the directory containing the ``docker-compose.yml`` "
+"file:"
+msgstr "确认当前所在目录包含 ``docker-compose.yml`` 文件："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:119
+msgid "Start all services:"
+msgstr "启动全部服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:125
+msgid "This command will start the following services in the background:"
+msgstr "该命令将在后台启动以下服务："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:127
+msgid ""
+"**loonflow-redis**: Redis service (for generating ticket serial numbers "
+"and Celery async tasks)"
+msgstr "**loonflow-redis**：Redis 服务（用于生成工单流水号和 Celery 异步任务）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:128
+msgid "**loonflow-pg**: PostgreSQL database service"
+msgstr "**loonflow-pg**：PostgreSQL 数据库服务"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:129
+msgid "**loonflow-backend**: Loonflow backend service (Django + Gunicorn)"
+msgstr "**loonflow-backend**：Loonflow 后端服务（Django + Gunicorn）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:130
+msgid "**loonflow-ui**: Loonflow frontend service (Nginx)"
+msgstr "**loonflow-ui**：Loonflow 前端服务（Nginx）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:131
+msgid "**loonflow-task**: Celery task processing service"
+msgstr "**loonflow-task**：Celery 任务处理服务"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:133
+msgid "Check service status:"
+msgstr "检查服务状态："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:139
+msgid "View service logs (optional):"
+msgstr "查看服务日志（可选）："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:150
+msgid "Accessing the Application"
+msgstr "访问应用"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:152
+msgid ""
+"After the services are started, you can access Loonflow through your "
+"browser:"
+msgstr "服务启动后，可通过浏览器访问 Loonflow："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:154
+msgid "**Access URL**: ``http://your_server_ip:80``"
+msgstr "**访问地址**：``http://your_server_ip:80``"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:156
+msgid "**Login Credentials**:"
+msgstr "**登录凭据**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:158
+msgid "Email: The ``ADMIN_EMAIL`` you configured in the ``.env`` file"
+msgstr "邮箱：``.env`` 中配置的 ``ADMIN_EMAIL``"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:159
+msgid "Password: The ``ADMIN_PASSWORD`` you configured in the ``.env`` file"
+msgstr "密码：``.env`` 中配置的 ``ADMIN_PASSWORD``"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:162
+msgid "Common Management Commands"
+msgstr "常用管理命令"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:164
+msgid "**Stop services**:"
+msgstr "**停止服务**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:170
+msgid "**Start services**:"
+msgstr "**启动服务**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:176
+msgid "**Restart services**:"
+msgstr "**重启服务**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:182
+msgid "**Stop and remove containers**:"
+msgstr "**停止并移除容器**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:188
+msgid ""
+"**Stop and remove containers and volumes** (**Warning: This will delete "
+"database data**):"
+msgstr "**停止并移除容器及数据卷**（**警告：这将删除数据库数据**）："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:194
+msgid "**Update services**:"
+msgstr "**更新服务**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:205
+msgid "Troubleshooting"
+msgstr "故障排查"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:207
+msgid "If you encounter issues, try the following steps:"
+msgstr "如遇问题，可尝试以下步骤："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:209
+msgid "**Check service status**:"
+msgstr "**检查服务状态**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:215
+msgid "**View service logs**:"
+msgstr "**查看服务日志**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:221
+msgid "**Check port usage**:"
+msgstr "**检查端口占用**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:228
+msgid "**Check firewall settings**:"
+msgstr "**检查防火墙设置**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:230
+msgid "Ensure the firewall allows the following ports:"
+msgstr "确保防火墙放行以下端口："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:232
+msgid "80: HTTP access"
+msgstr "80：HTTP 访问"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:233
+msgid "8000: Backend API (if direct access is needed)"
+msgstr "8000：后端 API（如需直接访问）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:234
+msgid "5432: PostgreSQL (if external access is needed)"
+msgstr "5432：PostgreSQL（如需外部访问）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:235
+msgid "6379: Redis (if external access is needed)"
+msgstr "6379：Redis（如需外部访问）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:237
+msgid "**Restart service**:"
+msgstr "**重启服务**："
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:244
+msgid "Important Notes"
+msgstr "重要说明"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:246
+msgid ""
+"On first startup, the backend service will automatically perform database"
+" migrations and create a superuser, which may take a few minutes"
+msgstr "首次启动时，后端服务会自动执行数据库迁移并创建超级管理员，可能需要几分钟"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:247
+msgid "Ensure the server has sufficient resources (CPU, memory, disk space)"
+msgstr "确保服务器有足够的资源（CPU、内存、磁盘空间）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:248
+msgid "Regularly backup the PostgreSQL data volume (``pg_data``)"
+msgstr "定期备份 PostgreSQL 数据卷（``pg_data``）"
+
+#: ../../source/installtion_deployment/installation_guide/deployment_with_docker_compose.rst:249
+msgid "Production environments should configure HTTPS and a reverse proxy"
+msgstr "生产环境应配置 HTTPS 和反向代理"

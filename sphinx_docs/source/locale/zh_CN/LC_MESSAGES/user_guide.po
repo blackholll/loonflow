@@ -1,0 +1,552 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 18:56+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/organization/index.rst:2
+msgid "3. Organization Management"
+msgstr "3. 组织管理"
+
+#: ../../source/user_guide/organization/role.rst:2
+msgid "Role Management"
+msgstr "角色管理"
+
+#: ../../source/user_guide/organization/role.rst:4
+msgid ""
+"Loonflow supports managing roles so you can create, edit, delete, and "
+"maintain role members. Roles are primarily used when configuring "
+"workflows to specify handlers, allowing you to assign a role as the "
+"processor for a workflow node."
+msgstr "Loonflow 支持角色管理，可创建、编辑、删除并维护角色成员。角色主要用于流程配置时指定处理人，可将角色设为流程节点的处理人。"
+
+#: ../../source/user_guide/organization/role.rst:6
+msgid "role management"
+msgstr "角色管理"
+
+#: ../../source/user_guide/organization/user_dept.rst:2
+msgid "User and Department Management"
+msgstr "用户与部门管理"
+
+#: ../../source/user_guide/organization/user_dept.rst:4
+msgid ""
+"Loonflow provides built-in user and department management. You can add, "
+"edit, and delete users or departments in the UI, and you can also "
+"synchronize them in bulk through the API."
+msgstr "Loonflow 内置用户和部门管理。你可以在界面新增、编辑、删除用户或部门，也可以通过 API 批量同步。"
+
+#: ../../source/user_guide/organization/user_dept.rst:6
+msgid "user and department management"
+msgstr "用户与部门管理"
+
+#: ../../source/user_guide/organization/user_dept.rst:12
+msgid "How to manage"
+msgstr "如何管理"
+
+#: ../../source/user_guide/organization/user_dept.rst:13
+msgid ""
+"UI maintenance: manually create or adjust users and departments on the "
+"“Organization Management” page—best for small-scale or ad-hoc changes."
+msgstr "界面维护：在“组织管理”页手工创建或调整用户和部门，适合小规模或临时变更。"
+
+#: ../../source/user_guide/organization/user_dept.rst:14
+msgid ""
+"API sync: call the organization management APIs to maintain users and "
+"departments in bulk. Populate the ``label`` field with an external "
+"system’s unique identifier (e.g., LDAP, AD) to simplify mapping and "
+"reconciliation later."
+msgstr "API 同步：调用组织管理接口批量维护用户和部门。可在 ``label`` 字段填入外部系统唯一标识（如 LDAP、AD），便于后续映射与对账。"
+
+#: ../../source/user_guide/organization/user_dept.rst:17
+msgid "Coming soon"
+msgstr "即将上线"
+
+#: ../../source/user_guide/organization/user_dept.rst:18
+msgid ""
+"Support for Azure AD, Google, DingTalk, and WeCom (WeChat Work) OAuth "
+"logins is on the way. After enabling, users and departments can be pulled"
+" from external identity sources without manual upkeep in the UI."
+msgstr "即将支持 Azure AD、Google、钉钉、企业微信等 OAuth 登录。启用后可从外部身份源拉取用户和部门，无需在界面手工维护。"
+
+#: ../../source/user_guide/setting/application.rst:2
+msgid "Application Management"
+msgstr "应用管理"
+
+#: ../../source/user_guide/setting/application.rst:4
+msgid ""
+"Applications are used to authenticate API calls. After creating an "
+"application, a token is generated and should be used to sign each "
+"request. The signing algorithm is documented in the Postman collection: "
+"https://documenter.getpostman.com/view/15031929/2sB3WyJbap"
+msgstr ""
+"应用用于鉴权 API 调用。创建应用后会生成 token，用于为每次请求签名。签名算法见 Postman "
+"集合：https://documenter.getpostman.com/view/15031929/2sB3WyJbap"
+
+#: ../../source/user_guide/setting/application.rst:6
+msgid "Application management page"
+msgstr "应用管理页面"
+
+#: ../../source/user_guide/setting/application.rst:13
+msgid "Application types"
+msgstr "应用类型"
+
+#: ../../source/user_guide/setting/application.rst:14
+msgid "admin: Administrators can call all APIs."
+msgstr "admin：管理员，可调用全部 API。"
+
+#: ../../source/user_guide/setting/application.rst:15
+msgid ""
+"workflow_admin: Workflow administrators can call workflow/ticket APIs and"
+" common APIs."
+msgstr "workflow_admin：流程管理员，可调用工作流/工单 API 和通用 API。"
+
+#: ../../source/user_guide/setting/index.rst:2
+msgid "4. Setting Management"
+msgstr "4. 设置管理"
+
+#: ../../source/user_guide/setting/notification.rst:2
+msgid "Notification Management"
+msgstr "通知管理"
+
+#: ../../source/user_guide/setting/notification.rst:4
+msgid ""
+"Loonflow lets you add, edit, and delete notifications. Multiple delivery "
+"channels are available so you can wire notifications into your own "
+"systems."
+msgstr "Loonflow 支持新增、编辑、删除通知，并提供多种发送渠道，便于接入自有系统。"
+
+#: ../../source/user_guide/setting/notification.rst:7
+msgid "notification management"
+msgstr "通知管理"
+
+#: ../../source/user_guide/setting/notification.rst:14
+msgid "Notification Types"
+msgstr "通知类型"
+
+#: ../../source/user_guide/setting/notification.rst:16
+msgid ""
+"hook: Triggers a POST request to your notification endpoint with the "
+"current ticket data in request body. The token is used for signing, "
+"following the same approach as application tokens."
+msgstr "hook：向你的通知端点发送 POST，请求体包含当前工单数据。token 用于签名，算法与应用 token 相同。"
+
+#: ../../source/user_guide/setting/notification.rst:19
+msgid ""
+"teams (planned): Sends to a Teams bot; requires a bot webhook URL and "
+"token."
+msgstr "teams（规划中）：发送到 Teams 机器人，需要机器人 webhook URL 和 token。"
+
+#: ../../source/user_guide/setting/notification.rst:20
+msgid "email (planned): Sends email; requires mail server configuration."
+msgstr "email（规划中）：发送邮件，需要配置邮件服务器。"
+
+#: ../../source/user_guide/setting/notification.rst:21
+#, fuzzy
+msgid ""
+"dingtalk (planned): Sends via DingTalk bot; requires bot webhook URL and "
+"token."
+msgstr "teams（规划中）：发送到 Teams 机器人，需要机器人 webhook URL 和 token。"
+
+#: ../../source/user_guide/setting/notification.rst:23
+#, fuzzy
+msgid "wecom (planned): Sends via WeCom bot; requires bot webhook URL and token."
+msgstr "teams（规划中）：发送到 Teams 机器人，需要机器人 webhook URL 和 token。"
+
+#: ../../source/user_guide/setting/notification.rst:24
+#, fuzzy
+msgid ""
+"feishu (planned): Sends via Feishu bot; requires bot webhook URL and "
+"token."
+msgstr "teams（规划中）：发送到 Teams 机器人，需要机器人 webhook URL 和 token。"
+
+#: ../../source/user_guide/setting/tenant.rst:2
+msgid "Tenant Management"
+msgstr "租户管理"
+
+#: ../../source/user_guide/setting/tenant.rst:4
+msgid ""
+"Loonflow supports multi-tenant. Most users only need a single tenant; if "
+"you require multi-tenant capabilities, please contact blackholll "
+"(blackholll@163.com; blackholll_cn@gmail.com) for licensing. In multi-"
+"tenant mode all data—users, tickets, workflows, notifications, "
+"applications, roles, departments, and more—are fully isolated. Typical "
+"scenarios include group enterprises or SaaS deployments where multiple "
+"independent organizations share one platform."
+msgstr ""
+"Loonflow 支持多租户。多数用户只需单租户；如需多租户能力，请联系 blackholll（blackholll@163.com; "
+"blackholll_cn@gmail.com）获取授权。在多租户模式下，用户、工单、流程、通知、应用、角色、部门等数据完全隔离。典型场景包括集团/企业或"
+" SaaS 部署，多组织共享同一平台。"
+
+#: ../../source/user_guide/setting/tenant.rst:6
+msgid "tenant info"
+msgstr "租户信息"
+
+#: ../../source/user_guide/setting/tenant.rst:12
+msgid "Future roadmap"
+msgstr "未来路线图"
+
+#: ../../source/user_guide/setting/tenant.rst:13
+msgid ""
+"Planned: cross-tenant ticket collaboration, allowing tickets to flow "
+"between tenants. Example scenarios: inter-company ticket handling, "
+"external customer cases, supplier tickets, and reseller/partner support."
+msgstr "计划：跨租户工单协同，允许工单在租户间流转。示例场景：跨公司工单处理、外部客户案例、供应商工单、代理/伙伴支持。"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:2
+msgid "Handle Tickets"
+msgstr "处理工单"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:4
+msgid ""
+"After signing in to Loonflow, open your pending tickets from the left "
+"sidebar via **Workbench** or through **Ticket Management → My Duty**. "
+"Click **Detail** in the **Action** column to view a ticket. The detail "
+"page contains three main areas:"
+msgstr ""
+"登录 Loonflow 后，可通过左侧 **工作台** 或 **工单管理 → 我的待办** 打开你的待办工单。点击 **操作** 列的 "
+"**详情** 查看工单。详情页包含三个主要区域："
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:6
+msgid "ticket detail page"
+msgstr "工单详情页"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:12
+msgid "workflow diagram"
+msgstr "流程图"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:18
+msgid "Ticket Detail"
+msgstr "工单详情"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:19
+msgid ""
+"Shows all visible or editable fields for the ticket. Actions available to"
+" you appear under the fields and fall into four categories:"
+msgstr "展示工单的可见或可编辑字段，可用动作显示在字段下方，分为四类："
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:21
+msgid ""
+"edge actions: Actions defined on the outgoing edges of the current "
+"workflow node."
+msgstr "边缘动作：当前节点出边上定义的动作。"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:22
+msgid ""
+"viewer actions: Available to anyone who can view the ticket, e.g., `ADD "
+"COMMENT`."
+msgstr "查看者动作：对可查看工单的用户可见，如 `ADD COMMENT`。"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:23
+msgid ""
+"handler actions: Available to users permitted to handle the ticket, e.g.,"
+" `FORWARD`, `CONSULT`, `CONSULT_SUBMIT`."
+msgstr "处理人动作：对有权限处理工单的用户可见，如 `FORWARD`、`CONSULT`、`CONSULT_SUBMIT`。"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:24
+msgid ""
+"special actions: Context-specific options such as `CONSULT_SUBMIT` (for "
+"assignees during a consultation) or `WITHDRAW` (when withdrawal is "
+"allowed on the current node and you are the ticket creator)."
+msgstr "特殊动作：特定场景可见的操作，如会签处理人可见的 `CONSULT_SUBMIT`，或当前节点允许撤回且你是创建人时可见的 `WITHDRAW`。"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:27
+msgid "Admin Actions"
+msgstr "管理员动作"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:28
+msgid ""
+"Visible when you are an administrator, the workflow manager for the "
+"ticket, or the ticket’s dispatcher. Options include `FORCE_FORWARD` and "
+"`FORCE_CLOSE`."
+msgstr "当你是管理员、该工单流程的管理员或派单人时可见，可执行 `FORCE_FORWARD`、`FORCE_CLOSE` 等。"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:31
+msgid "Operation Record"
+msgstr "操作记录"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:32
+msgid ""
+"Displays the ticket’s activity history, including actor, time, action "
+"type, and details of each operation."
+msgstr "展示工单操作历史，包括执行人、时间、操作类型及操作详情。"
+
+#: ../../source/user_guide/ticket/index.rst:2
+msgid "1. Ticket Management"
+msgstr "1. 工单管理"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:2
+msgid "Query tickets"
+msgstr "查询工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:4
+msgid ""
+"After signing in to Loonflow you can browse different ticket lists. The "
+"workbench shows your pending tasks. Under the “Ticket management” menu "
+"you will find:"
+msgstr "登录 Loonflow 后可以浏览不同的工单列表。工作台显示你的待办。在“工单管理”菜单下可以看到："
+
+#: ../../source/user_guide/ticket/query_ticket.rst:6
+msgid "`My Duty`: tickets currently assigned to you"
+msgstr "`我的待办`：当前分配给你的工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:7
+msgid "`My Owner`: tickets you created"
+msgstr "`我的提交`：你创建的工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:8
+msgid ""
+"`My Relation`: tickets you are related to (created by you, previously "
+"assigned to you, handled by you, commented by you, or force‑intervened by"
+" you)"
+msgstr "`与我相关`：与你有关的工单（你创建、曾分配给你、你处理过、你评论过或你强制介入过）"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:9
+msgid "`My View`: tickets in workflows where you have view permission"
+msgstr "`我的可见`：在流程中你有查看权限的工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:10
+msgid "`My Intervene`: tickets whose workflows list you as Dispatcher"
+msgstr "`我的介入`：流程中将你设为派单人的工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:11
+msgid ""
+"`All Tickets`: every ticket; only administrators can view and intervene "
+"through this entry"
+msgstr "`全部工单`：全量工单，仅管理员可通过此入口查看和介入"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:13
+msgid "Category Tickets"
+msgstr "分类工单"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:18
+msgid ""
+"Each ticket list provides filters above the table: `Keyword`, `Creator`, "
+"`Created time range`, and `Workflow` (ticket type). `Keyword` currently "
+"supports fuzzy search on the ticket title only. To enable searching by "
+"custom fields, set the title field to `Auto Generate` in the workflow "
+"form designer and include the desired fields in the title template. The "
+"system will then auto-generate titles containing those field values, "
+"letting you find tickets via those custom fields."
+msgstr ""
+"每个工单列表在表格上方提供筛选项：`关键词`、`创建人`、`创建时间范围`、`流程`（工单类型）。`关键词` "
+"目前仅支持对工单标题的模糊搜索。若想按自定义字段查询，可在流程表单设计里将标题字段设置为 `Auto Generate` "
+"并在标题模板中包含所需字段，系统会自动生成包含这些字段值的标题，从而通过这些字段查找到工单。"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:20
+msgid "title property"
+msgstr "标题字段属性"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:26
+msgid ""
+"if you set title property to \"Auto Generate\", the system will auto-"
+"generate a title for the ticket based on the custom fields. so you must "
+"set the title field's permission to \"hidden\" for the start node."
+msgstr ""
+"如果将标题属性设置为 \"\"Auto Generate\"\"，系统会根据自定义字段自动生成工单标题，因此需在起始节点把标题字段的权限设置为 "
+"\"\"hidden\"\"。"
+
+#: ../../source/user_guide/ticket/query_ticket.rst:29
+msgid "start node properly if title field is auto_generate"
+msgstr "若标题自动生成，请在起始节点隐藏标题字段"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:2
+msgid "submit ticket"
+msgstr "提交工单"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:5
+msgid "This guide is intended for users who want to submit a ticket."
+msgstr "本指南面向需要提交工单的用户。"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:7
+#: ../../source/user_guide/workflow/new_update_workflow.rst:9
+#: ../../source/user_guide/workflow/new_update_workflow.rst:55
+msgid "Login to LoonFlow"
+msgstr "登录 LoonFlow"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:8
+msgid "Clieck \"Workbench\" in the left sidebar"
+msgstr "点击左侧边栏的“工作台”"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:9
+msgid "Select a workflow from the dropdown menu"
+msgstr "从下拉菜单选择一个工作流"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:11
+msgid "Select Workflow"
+msgstr "选择工作流"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:16
+msgid "Click the \"New Ticket\" button"
+msgstr "点击“新建工单”按钮"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:17
+msgid "Fill in the ticket information"
+msgstr "填写工单信息"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:19
+msgid "Fill Ticket Info"
+msgstr "填写工单信息"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:24
+msgid ""
+"Click corresponding button listed in the bottom of the dialogpage to "
+"submit the ticket."
+msgstr "点击对话框底部对应按钮提交工单。"
+
+#: ../../source/user_guide/ticket/submit_ticket.rst:25
+msgid ""
+"The ticket will be submitted and the next handle user will receive a "
+"notification."
+msgstr "工单将被提交，下一处理人会收到通知。"
+
+#: ../../source/user_guide/workflow/index.rst:2
+msgid "2. Workflow Management"
+msgstr "2. 流程管理"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:2
+msgid "Create Or Update Workflow"
+msgstr "新建或更新流程"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:4
+msgid ""
+"This guide is intended for new admin or workflow admin who want to "
+"configure workflows."
+msgstr "本指南面向希望配置流程的新管理员或流程管理员。"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:7
+msgid "Create New Workflow"
+msgstr "新建流程"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:10
+msgid "Click the \"Workflow Management\" button in the left sidebar"
+msgstr "点击左侧的“流程管理”按钮"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:11
+msgid "Click the \"New Workflow\" button"
+msgstr "点击“新建流程”按钮"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:13
+msgid "Workflow List"
+msgstr "流程列表"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:18
+msgid "Fill in the workflow basic information"
+msgstr "填写流程基础信息"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:20
+msgid "Fill Workflow Basic Info"
+msgstr "填写流程基础信息"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:25
+msgid "Finish form design"
+msgstr "完成表单设计"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:27
+msgid "Fill Workflow Form Design"
+msgstr "填写流程表单设计"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:32
+msgid "Finish process design"
+msgstr "完成流程设计"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:34
+#: ../../source/user_guide/workflow/new_update_workflow.rst:39
+#: ../../source/user_guide/workflow/new_update_workflow.rst:44
+msgid "Fill Workflow Process Design"
+msgstr "填写流程设计"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:49
+msgid ""
+"Click the \"RELEASE\" button, then set the workflow version and click the"
+" \"CONFIRM\" button"
+msgstr "点击“发布”按钮，设置流程版本并点击“确定”"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:53
+msgid "Update Workflow"
+msgstr "更新流程"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:56
+msgid "Click the \"Workflow Management\" menu in the left sidebar"
+msgstr "点击左侧“流程管理”菜单"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:57
+msgid ""
+"Find the workflow you want to modify and click the EDIT button in the "
+"action column on the right"
+msgstr "找到要修改的流程，在右侧操作列点击编辑按钮"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:58
+msgid ""
+"In the version list popup, choose the version to edit and click the "
+"workflow edit button on the right to open the workflow edit page"
+msgstr "在版本列表弹窗中选择要编辑的版本，点击右侧流程编辑按钮进入编辑页"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:59
+msgid ""
+"After editing the workflow, click the \"RELEASE\" button, then set the "
+"workflow version and click the \"CONFIRM\" button"
+msgstr "编辑完流程后，点击“发布”按钮，设置版本并点击“确定”"
+
+#: ../../source/user_guide/workflow/new_update_workflow.rst:62
+msgid ""
+"LoonFlow automatically checks whether your changes are compatible with "
+"previous versions and will remind you. You can save as a new version or "
+"keep the current version. If you save as a new version, you can adjust "
+"the version type on the workflow version management page."
+msgstr "LoonFlow 会自动检查你的变更是否与历史版本兼容并提示。你可以保存为新版本或保留当前版本；若保存为新版本，可在流程版本管理页调整版本类型。"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:2
+msgid "Workflow Version Management"
+msgstr "流程版本管理"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:4
+msgid ""
+"Loonflow supports multiple workflow versions. Each workflow can have the "
+"following version types:"
+msgstr "Loonflow 支持多版本流程。每个流程可包含以下版本类型："
+
+#: ../../source/user_guide/workflow/workflow_version.rst:7
+msgid ""
+"**default**: The active version used when a user selects the workflow in "
+"Workbench to create a new ticket."
+msgstr "**default**：当前启用版本，用户在工作台选择流程创建工单时使用。"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:9
+msgid ""
+"**candidate**: A draft version for validation. Administrators can switch "
+"the version type or create test tickets with the candidate version."
+msgstr "**candidate**：用于验证的草稿版本。管理员可切换版本类型或使用候选版本创建测试工单。"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:11
+msgid ""
+"**archived**: A retired version. New tickets cannot be created with it, "
+"but existing tickets created in the past can still be processed."
+msgstr "**archived**：归档版本，不能再新建工单，但历史工单仍可继续处理。"
+
+#: ../../source/user_guide/workflow/workflow_version.rst:14
+msgid "workflow version management"
+msgstr "流程版本管理"
+
+#~ msgid "dingtalk (planned): Sends via DingTalk bot."
+#~ msgstr "dingtalk（规划中）：通过钉钉机器人发送，需要机器人 webhook URL 和 token。"
+
+#~ msgid "wecom (planned): Sends via WeCom bot."
+#~ msgstr "wecom（规划中）：通过企业微信机器人发送。"
+
+#~ msgid "feishu (planned): Sends via Feishu bot."
+#~ msgstr "feishu（规划中）：通过飞书机器人发送。"
+

@@ -1,0 +1,16 @@
+{
+  "leader": "负责人",
+  "changeParentDept": "修改父部门",
+  "passwordNotMatch": "两次输入的密码不一致",
+  "resetPassword": "重置密码",
+  "confirmResetPassword": "确认重置密码",
+  "confirmResetPasswordMsg": "密码将被重置为'123456', 请尽快修改密码",
+  "resetPasswordSuccess": "重置密码成功",
+  "resetPasswordFail": "重置密码失败",
+  "deleteUserSuccess": "删除用户成功",
+  "deleteUserFail": "删除用户失败",
+  "admin": "管理员",
+  "workflowAdmin": "工作流管理员",
+  "normal": "普通用户",
+  "userDeptHelpText": "用户所属部门,支持设置多个部门，其中第一个部门将作为用户的主要部门，审批时将以主要部门作为用户部门来获取部门审批人"
+}

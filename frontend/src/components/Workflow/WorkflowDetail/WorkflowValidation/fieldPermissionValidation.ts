@@ -21,7 +21,7 @@ export const validateFieldPermissions = (workflowData: IWorkflowFullDefinition):
     const titleKey = titleComponent?.componentKey;
 
     for (const node of workflowData.processSchema.nodeInfoList) {
-        const read_fields = ['creator', 'createdAt', 'ticketNodes', 'approvalStatus', 'ticketType', 'currentHandler'];
+        const read_fields = ['creatorInfo', 'createdAt', 'ticketNodeInfos', 'actState', 'approvalStatus', 'workflowInfo', 'currentAssigneeInfos'];
         const fieldPermissions = node.props.fieldPermissions || {};
         // 遍历fieldPermissions的key
         for (const key of Object.keys(fieldPermissions)) {

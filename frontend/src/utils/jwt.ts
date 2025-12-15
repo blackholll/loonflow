@@ -1,4 +1,3 @@
-import jwtDecode from 'jwt-decode';
 
 export const parseJwt = (token: string): any => {
   try {

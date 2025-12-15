@@ -1,0 +1,349 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:06+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/introduction/welcome/about_document.rst:2
+msgid "1.1 About This Documentation"
+msgstr "1.1 关于本文档"
+
+#: ../../source/introduction/welcome/about_document.rst:4
+msgid ""
+"This document is the official user and administrator guide for "
+"**LoonFlow**, a self-hosted, workflow-based ticketing system. It is "
+"designed to help you understand, install, configure, and effectively use "
+"LoonFlow to manage your team's requests and processes."
+msgstr ""
+"本文件是 **LoonFlow** 的官方用户和管理员手册，这是一款自托管、基于流程的工单系统。旨在帮助你理解、安装、配置并高效使用 "
+"LoonFlow 来管理团队的请求和流程。"
+
+#: ../../source/introduction/welcome/about_document.rst:7
+msgid "Purpose & Scope"
+msgstr "目的与范围"
+
+#: ../../source/introduction/welcome/about_document.rst:9
+msgid ""
+"This guide covers all aspects of the system, from initial installation "
+"and core concepts to daily operations and advanced administrative "
+"configurations. It is intended for:"
+msgstr "本指南涵盖系统的各个方面，从初始安装、核心概念到日常运营以及高级管理配置。适用于："
+
+#: ../../source/introduction/welcome/about_document.rst:11
+#: ../../source/introduction/who_need_read.rst:6
+msgid "**End Users** - Who submit and handle tickets in their daily work"
+msgstr "**终端用户** —— 日常提交和处理工单的用户"
+
+#: ../../source/introduction/welcome/about_document.rst:12
+msgid ""
+"**Administrators & Implementers** - Who are responsible for deploying, "
+"customizing, and maintaining the LoonFlow instance"
+msgstr "**管理员与实施者** —— 负责部署、定制和维护 LoonFlow 实例"
+
+#: ../../source/introduction/welcome/about_document.rst:13
+msgid ""
+"**IT Managers** - Who need to understand the system's capabilities to "
+"align it with business processes"
+msgstr "**IT 经理** —— 需要了解系统能力以与业务流程对齐"
+
+#: ../../source/introduction/welcome/about_document.rst:16
+msgid "Document Structure"
+msgstr "文档结构"
+
+#: ../../source/introduction/welcome/about_document.rst:18
+msgid ""
+"The documentation is organized into logical parts to help you find "
+"information quickly:"
+msgstr "文档按逻辑部分组织，便于你快速找到信息："
+
+#: ../../source/introduction/welcome/about_document.rst:20
+msgid "**Part 1: Introduction** — high-level overview and quick-start guides"
+msgstr "**第 1 部分：引言** — 高层概览与快速入门指南"
+
+#: ../../source/introduction/welcome/about_document.rst:21
+msgid ""
+"**Part 2: Installation & Deployment** — technical guides for setting up "
+"your LoonFlow instance"
+msgstr "**第 2 部分：安装与部署** — 搭建 LoonFlow 实例的技术指南"
+
+#: ../../source/introduction/welcome/about_document.rst:22
+msgid ""
+"**Part 3: Core Concepts** — fundamental ideas behind LoonFlow's workflow "
+"engine"
+msgstr "**第 3 部分：核心概念** — LoonFlow 工作流引擎的基础理念"
+
+#: ../../source/introduction/welcome/about_document.rst:23
+msgid ""
+"**Part 4: Administrator Guide** — configuring workflows, permissions, and"
+" integrations"
+msgstr "**第 4 部分：管理员指南** — 配置流程、权限与集成"
+
+#: ../../source/introduction/welcome/about_document.rst:24
+msgid "**Part 5: User Guide** — daily tasks for creating and managing tickets"
+msgstr "**第 5 部分：用户指南** — 创建和管理工单的日常操作"
+
+#: ../../source/introduction/welcome/about_document.rst:25
+msgid "**Part 6: FAQ & Troubleshooting** — common questions and issue resolution"
+msgstr "**第 6 部分：常见问题与故障排查** — 常见问答与问题解决"
+
+#: ../../source/introduction/welcome/about_document.rst:26
+msgid ""
+"**Part 7: Appendices** — supplementary information such as glossaries and"
+" integration setups"
+msgstr "**第 7 部分：附录** — 补充信息，如术语表和集成配置"
+
+#: ../../source/introduction/welcome/about_document.rst:29
+msgid "Conventions Used"
+msgstr "文档约定"
+
+#: ../../source/introduction/welcome/about_document.rst:31
+msgid ""
+"To improve readability, we use the following conventions throughout this "
+"guide:"
+msgstr "为提高可读性，本文档使用以下约定："
+
+#: ../../source/introduction/welcome/about_document.rst:34
+msgid "Text Formatting"
+msgstr "文本格式"
+
+#: ../../source/introduction/welcome/about_document.rst:36
+msgid ""
+"**Bold Text** - Used to highlight key interface elements, such as buttons"
+" (**Submit**), menu items (**Settings**), or page titles (**My Tickets**)"
+msgstr "**粗体** —— 用于突出关键界面元素，如按钮（**提交**）、菜单项（**设置**）或页面标题（**我的工单**）"
+
+#: ../../source/introduction/welcome/about_document.rst:39
+msgid ""
+"``Code / Monospace Font`` - Indicates file names, configuration "
+"parameters, database commands, or code snippets (e.g., ``DEBUG = False``,"
+" ``docker-compose up``)"
+msgstr ""
+"``代码/等宽字体`` —— 表示文件名、配置参数、数据库命令或代码片段（如 ``DEBUG = False``、``docker-compose"
+" up``）"
+
+#: ../../source/introduction/welcome/about_document.rst:43
+msgid "Admonitions"
+msgstr "提示框"
+
+#: ../../source/introduction/welcome/about_document.rst:47
+msgid "Provides additional information or tips that are helpful but not critical."
+msgstr "提供额外信息或提示，虽非关键但有帮助。"
+
+#: ../../source/introduction/welcome/about_document.rst:51
+msgid "Highlights crucial information required for a task to succeed."
+msgstr "强调任务成功所需的重要信息。"
+
+#: ../../source/introduction/welcome/about_document.rst:55
+msgid "Indicates a potential risk of data loss or configuration error."
+msgstr "提示可能导致数据丢失或配置错误的风险。"
+
+#: ../../source/introduction/welcome/about_document.rst:58
+msgid "Feedback and Support"
+msgstr "反馈与支持"
+
+#: ../../source/introduction/welcome/about_document.rst:60
+msgid ""
+"We strive to keep this documentation accurate and helpful. If you find "
+"any errors, have suggestions for improvements, or encounter topics that "
+"need more clarification, please reach out through our official support "
+"channels."
+msgstr "我们致力于保持文档的准确与实用。若发现错误、有改进建议，或需要更详细的说明，请通过官方支持渠道联系我们。"
+
+#: ../../source/introduction/welcome/about_document.rst:64
+msgid ""
+"The software and this documentation are subject to continuous "
+"improvement. Please refer to the version information at the beginning of "
+"this document to ensure you are consulting the correct guide for your "
+"installed version of LoonFlow."
+msgstr "软件和文档都在持续改进。请查看文档开头的版本信息，确保你查看的指南与已安装的 LoonFlow 版本匹配。"
+
+#: ../../source/introduction/welcome/about_loonflow.rst:2
+msgid "1.2 About Loonflow"
+msgstr "1.2 关于 Loonflow"
+
+#: ../../source/introduction/welcome/about_loonflow.rst:4
+msgid ""
+"Loonflow is an open-source process automation platform developed based on"
+" Django. After multiple versions of iteration and refactoring, we proudly"
+" present Loonflow 3.0 - a version that achieves a qualitative leap in "
+"visualization, flexibility, and scalability."
+msgstr ""
+"Loonflow 是基于 Django 开发的开源流程自动化平台。经过多次迭代与重构，我们自豪地推出 Loonflow "
+"3.0——在可视化、灵活性和可扩展性上实现了质的飞跃。"
+
+#: ../../source/introduction/welcome/getting_help.rst:2
+msgid "1.3 Get Help & Community Support"
+msgstr "1.3 获取帮助与社区支持"
+
+#: ../../source/introduction/welcome/getting_help.rst:4
+msgid ""
+"📝 GitHub Issues - Submit bug reports and feature requests. "
+"https://github.com/blackholll/loonflow/issues"
+msgstr "📝 GitHub Issues - 提交缺陷与功能需求：https://github.com/blackholll/loonflow/issues"
+
+#: ../../source/introduction/welcome/getting_help.rst:5
+msgid "💬 Discussion Forum Discord. https://discord.gg/WuppaG638k"
+msgstr "💬 讨论论坛 Discord：https://discord.gg/WuppaG638k"
+
+#: ../../source/introduction/welcome/getting_help.rst:6
+msgid ""
+"📧 Commercial Support & Customization: For enterprise-level deep "
+"customization, technical training, or deployment support needs, please "
+"contact me at [blackholll@163.com;blackholll.cn@gmail.com]."
+msgstr ""
+"📧 商业支持与定制：如需企业级深度定制、技术培训或部署支持，请联系 "
+"[blackholll@163.com;blackholll.cn@gmail.com]。"
+
+#: ../../source/introduction/welcome/getting_help.rst:7
+msgid "💰 Member Benefits. See https://patreon.com/blackholllcn for more details."
+msgstr "💰 会员权益：详见 https://github.com/blackholll/loonflow/blob/master/README_zh.md"
+
+#: ../../source/introduction/welcome/index.rst:2
+msgid "1. Welcome to LoonFlow"
+msgstr "1. 欢迎使用 LoonFlow"
+
+#: ../../source/introduction/who_need_read.rst:2
+msgid "2. Who Need to Read This Guide"
+msgstr "2. 适用读者"
+
+#: ../../source/introduction/who_need_read.rst:4
+msgid "This guide is intended for:"
+msgstr "本指南适用于："
+
+#: ../../source/introduction/who_need_read.rst:7
+msgid ""
+"**Admins** - Who are responsible for deploying, customizing, and "
+"maintaining the LoonFlow instance"
+msgstr "**管理员** —— 负责部署、定制和维护 LoonFlow 实例"
+
+#: ../../source/introduction/who_need_read.rst:8
+msgid ""
+"**Workflow Admins** - Who are responsible for configuring workflows, "
+"Intervene tickets"
+msgstr "**工作流管理员** —— 负责配置流程并可干预工单"
+
+#~ msgid "2.2 For New Users: Submit a Ticket"
+#~ msgstr "2.2 面向新用户：提交工单"
+
+#~ msgid "This guide is intended for new users who want to submit a ticket."
+#~ msgstr "本指南面向想要提交工单的新用户。"
+
+#~ msgid "Login to LoonFlow"
+#~ msgstr "登录 LoonFlow"
+
+#~ msgid "Clieck \"Workbench\" in the left sidebar"
+#~ msgstr "点击左侧边栏的“工作台”"
+
+#~ msgid "Select a workflow from the dropdown menu"
+#~ msgstr "从下拉菜单选择一个工作流"
+
+#~ msgid "Select Workflow"
+#~ msgstr "选择工作流"
+
+#~ msgid "Click the \"New Ticket\" button"
+#~ msgstr "点击“新建工单”按钮"
+
+#~ msgid "Fill in the ticket information"
+#~ msgstr "填写工单信息"
+
+#~ msgid "Fill Ticket Info"
+#~ msgstr "填写工单信息"
+
+#~ msgid ""
+#~ "Click corresponding button listed in the"
+#~ " bottom of the dialogpage to submit"
+#~ " the ticket."
+#~ msgstr "点击对话框底部对应的按钮提交工单。"
+
+#~ msgid ""
+#~ "The ticket will be submitted and "
+#~ "the next handle user will receive "
+#~ "a notification."
+#~ msgstr "工单将被提交，下一处理人会收到通知。"
+
+#~ msgid "2.3 For New Workflow Admins: Configure a simple Workflow"
+#~ msgstr "2.3 面向新工作流管理员：配置一个简单流程"
+
+#~ msgid ""
+#~ "This guide is intended for new "
+#~ "workflow administrators who want to "
+#~ "configure workflows."
+#~ msgstr "本指南面向想要配置流程的新工作流管理员。"
+
+#~ msgid "Click the \"Workflow\" button in the left sidebar"
+#~ msgstr "点击左侧边栏的“工作流”按钮"
+
+#~ msgid "Click the \"New Workflow\" button"
+#~ msgstr "点击“新建工作流”按钮"
+
+#~ msgid "Workflow List"
+#~ msgstr "工作流列表"
+
+#~ msgid "Fill in the workflow basic information"
+#~ msgstr "填写工作流基础信息"
+
+#~ msgid "Fill Workflow Basic Info"
+#~ msgstr "填写工作流基础信息"
+
+#~ msgid "Finish form design"
+#~ msgstr "完成表单设计"
+
+#~ msgid "Fill Workflow Form Design"
+#~ msgstr "填写工作流表单设计"
+
+#~ msgid "Finish process design"
+#~ msgstr "完成流程设计"
+
+#~ msgid "Fill Workflow Process Design"
+#~ msgstr "填写工作流流程设计"
+
+#~ msgid "Click the \"RELEASE\" button, then set the workflow version"
+#~ msgstr "点击“发布”按钮，并设置工作流版本"
+
+#~ msgid "Fill Workflow Version"
+#~ msgstr "填写工作流版本"
+
+#~ msgid "After workflow is released, the user can start to use the workflow"
+#~ msgstr "工作流发布后，用户即可开始使用"
+
+#~ msgid "Use the New Workflow"
+#~ msgstr "使用新的工作流"
+
+#~ msgid "2. Quick Start"
+#~ msgstr "2. 快速开始"
+
+#~ msgid "1.3 Version Information"
+#~ msgstr "1.3 版本信息"
+
+#~ msgid "The current version of Loonflow is 3.0.0."
+#~ msgstr "当前 Loonflow 版本为 3.0.0。"
+
+#~ msgid "The latest version of Loonflow is 3.0.0."
+#~ msgstr "最新 Loonflow 版本为 3.0.0。"
+
+#~ msgid "The version history of Loonflow is as follows:"
+#~ msgstr "Loonflow 版本历史如下："
+
+#~ msgid "3.0.0 (2025-12-01)"
+#~ msgstr "3.0.0 (2025-12-01)"
+
+#~ msgid "2.0.0 (2025-11-01)"
+#~ msgstr "2.0.0 (2025-11-01)"
+
+#~ msgid "1.0.0 (2025-10-01)"
+#~ msgstr "1.0.0 (2025-10-01)"
+

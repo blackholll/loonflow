@@ -1,24 +1,24 @@
-import React, { useRef, useState, useEffect } from 'react';
 import {
     Box,
-    Paper,
-    Typography,
     Button,
     IconButton,
-    Tooltip
+    Paper,
+    Tooltip,
+    Typography
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+    Add as AddIcon,
     Delete as DeleteIcon,
     DragIndicator as DragIcon,
-    Add as AddIcon,
     HelpOutline as HelpIcon
 } from '@mui/icons-material';
-import { ComponentTemplate, FormOption } from '../../../../types/workflowDesign';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema } from '../../../../types/workflow';
 import useSnackbar from '../../../../hooks/useSnackbar';
+import { IFormSchema, IWorkflowComponent, IWorkflowComponentRow } from '../../../../types/workflow';
+import { ComponentTemplate, FormOption } from '../../../../types/workflowDesign';
 
 interface FormDesignProps {
     formSchemaInfo: IFormSchema;
@@ -112,8 +112,8 @@ function FormDesign(props: FormDesignProps) {
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
-            if (template.defaultProps.extendedProps?.optionsWithKeys && template.defaultProps.extendedProps.optionsWithKeys.length > 0) {
-                optionsWithKeys = template.defaultProps.extendedProps.optionsWithKeys.map((option: FormOption) => ({
+            if (template.defaultProps.props?.optionsWithKeys && template.defaultProps.props.optionsWithKeys.length > 0) {
+                optionsWithKeys = template.defaultProps.props.optionsWithKeys.map((option: FormOption) => ({
                     id: generateId(),
                     label: option.label,
                     key: generateUniqueOptionKey(formSchemaDesignInfo.componentInfoList)
@@ -122,14 +122,14 @@ function FormDesign(props: FormDesignProps) {
 
             const newComponent: IWorkflowComponent = {
                 id: generateId(),
-                type: template.type as 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'title' | 'creator' | 'createdAt' | 'ticketNodes' | 'approvalStatus' | 'ticketType',
-                componentName: template.componentName || '新字段',
+                type: template.type as 'text' | 'textarea' | 'number' | 'select' | 'radio' | 'checkbox' | 'time' | 'date' | 'user' | 'department' | 'file' | 'title' | 'creator_info' | 'created_at' | 'ticket_node_infos' | 'act_state' | 'workflow_info' | 'current_assignee_infos' | 'ticket_node_infos',
+                componentName: template.componentName || t('workflow.newField'),
                 label: {},
                 description: template.defaultProps.description || '',
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, template.type),
                 props: {
                     placeholder: template.defaultProps.placeholder || '',
-                    multiple: template.defaultProps.extendedProps?.multiple || false,
+                    multiple: template.defaultProps.props?.multiple || false,
                     optionsWithKeys: optionsWithKeys,
                 },
                 layout: { span: 6 }
@@ -166,7 +166,7 @@ function FormDesign(props: FormDesignProps) {
                 type: 'row',
                 layout: { span: 6 },
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, 'row'),
-                componentName: '新行',
+                componentName: t('workflow.newRow'),
                 description: '',
                 label: {},
                 props: {},
@@ -309,7 +309,7 @@ function FormDesign(props: FormDesignProps) {
                     const newSpanSum = currentSpanSum + ((sourceComponent as IWorkflowComponent).layout.span || 12);
                     if (newSpanSum > 12) {
                         console.log('行内组件span总和不能超过12');
-                        showMessage('行内组件宽度不得超过1', 'error');
+                        showMessage(t('workflow.inlineWidthExceedOne'), 'error');
                         onIsMovingChange(false);
                         onMovingComponentChange(null);
                         return;
@@ -431,8 +431,8 @@ function FormDesign(props: FormDesignProps) {
 
             // 为有选项的组件生成选项标识
             let optionsWithKeys: FormOption[] | undefined;
-            if (template.defaultProps.extendedProps?.optionsWithKeys && template.defaultProps.extendedProps.optionsWithKeys.length > 0) {
-                optionsWithKeys = template.defaultProps.extendedProps.optionsWithKeys.map((option: FormOption) => ({
+            if (template.defaultProps.props?.optionsWithKeys && template.defaultProps.props.optionsWithKeys.length > 0) {
+                optionsWithKeys = template.defaultProps.props.optionsWithKeys.map((option: FormOption) => ({
                     id: generateId(),
                     label: option.label,
                     key: generateUniqueOptionKey(formSchemaDesignInfo.componentInfoList)
@@ -442,13 +442,12 @@ function FormDesign(props: FormDesignProps) {
             const newComponent: IWorkflowComponent = {
                 id: generateId(),
                 type: template.type,
-                componentName: template.componentName || '新字段',
+                componentName: template.componentName || t('workflow.newField'),
                 description: template.defaultProps.description || '',
                 componentKey: generateUniqueFieldKey(formSchemaDesignInfo.componentInfoList, template.type),
                 label: {},
                 props: {
-                    placeholder: template.defaultProps.placeholder || '',
-                    multiple: template.defaultProps.extendedProps?.multiple || false,
+                    ...template.defaultProps.props,
                     optionsWithKeys: optionsWithKeys,
                 },
                 layout: { span: 6 }
@@ -466,7 +465,7 @@ function FormDesign(props: FormDesignProps) {
                                 children: [...(comp as IWorkflowComponentRow).children, newComponent]
                             };
                         } else {
-                            showMessage('行内组件宽度不得超过1', 'error');
+                            showMessage(t('workflow.inlineWidthExceedOne'), 'error');
                         }
                     }
                     return comp;

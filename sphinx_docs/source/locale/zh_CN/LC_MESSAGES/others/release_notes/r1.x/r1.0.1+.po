@@ -1,0 +1,397 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:2
+msgid "r1.0.1+"
+msgstr "r1.0.1+"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:6
+msgid "r1.0.13"
+msgstr "r1.0.13"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:7
+msgid "Fixed: Creator close ticket functionality exception"
+msgstr "修复：创建人关闭工单功能异常"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:8
+msgid "Fixed: Multiple people processing ticket logic exception"
+msgstr "修复：多人处理工单逻辑异常"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:9
+msgid "Fixed: Hook processing did not properly record hook execution state"
+msgstr "修复：钩子处理未正确记录钩子执行状态"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:10
+msgid ""
+"Fixed: Format error in all field value information recorded in operation "
+"record when processing ticket"
+msgstr "修复：处理工单时操作记录保存的全部字段值格式错误"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:15
+msgid "r1.0.12"
+msgstr "r1.0.12"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:16
+msgid "Fixed: Admin panel workflow list query not working"
+msgstr "修复：管理端流程列表查询无效"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:17
+msgid "Fixed: Admin panel unable to add department"
+msgstr "修复：管理端无法新增部门"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:18
+msgid "Fixed: Ticket not appearing in creator's todo list after ticket withdrawal"
+msgstr "修复：工单撤回后未出现在创建人待办列表"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:19
+msgid "Fixed: State unable to transition when handler type is hook"
+msgstr "修复：处理人类型为钩子时状态无法流转"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:20
+msgid ""
+"Fixed: All ticket field information not successfully saved when handler "
+"type is hook and processing fails"
+msgstr "修复：处理人类型为钩子且处理失败时，工单全部字段信息未成功保存"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:21
+msgid "Fixed: Deduplication logic issue in multiple people processing"
+msgstr "修复：多人处理的去重逻辑问题"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:22
+msgid "Optimized: Admin panel supports Enter key login"
+msgstr "优化：管理端支持回车键登录"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:27
+msgid "r1.0.11"
+msgstr "r1.0.11"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:28
+msgid ""
+"Fixed: Unreasonable return result format when user has no processing "
+"permission in get user executable operations API"
+msgstr "修复：获取用户可执行操作接口在无处理权限时返回格式不合理"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:29
+msgid ""
+"Fixed: Ticket progress state field value not updated when ticket is "
+"withdrawn, causing this state unable to be queried"
+msgstr "修复：工单撤回未更新工单进展状态字段，导致该状态无法查询"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:30
+msgid ""
+"Fixed: Title template and notification template not updated in frontend "
+"after modification when editing workflow"
+msgstr "修复：编辑流程后标题模板、通知模板修改未在前端更新"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:31
+msgid "Fixed: Role users unable to be successfully deleted"
+msgstr "修复：角色用户无法删除"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:32
+msgid ""
+"Fixed: Processing comments unable to be successfully saved in ticket "
+"operation record"
+msgstr "修复：处理意见未成功保存到工单操作记录"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:37
+msgid "r1.0.10"
+msgstr "r1.0.10"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:38
+msgid ""
+"Fixed: Unable to correctly transition to corresponding person when "
+"participant type is department and participant sets multiple department "
+"ids (comma separated)"
+msgstr "修复：参与人类型为部门且配置多个部门 ID（逗号分隔）时，无法正确流转到对应人员"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:39
+msgid ""
+"Fixed: \"Click popup prompt\" attribute unable to be successfully saved "
+"when configuring transition in admin panel"
+msgstr "修复：管理端配置流转时“点击弹窗提示”属性无法保存"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:44
+msgid "r1.0.9"
+msgstr "r1.0.9"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:45
+msgid ""
+"Fixed: Ticket not appearing in current handler's todo list after add sign"
+" completion"
+msgstr "修复：加签完成后工单未出现在当前处理人待办列表"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:46
+msgid ""
+"Fixed: Unable to get current handler when next state handler type is "
+"ticket field after all multiple people complete processing"
+msgstr "修复：多人处理全部完成后，下一节点处理人类型为工单字段时无法获取当前处理人"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:47
+msgid ""
+"Optimized: Modified current participant field length in ticket base "
+"table, modified processing comment field length in ticket processing "
+"record, modified participant field length in workflow state"
+msgstr "优化：调整工单基础表当前参与人字段长度、工单处理记录处理意见字段长度、流程状态参与人字段长度"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:52
+msgid "r1.0.8"
+msgstr "r1.0.8"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:53
+msgid ""
+"Fixed: Error in get user executable transitions API when ticket current "
+"state requires acceptance"
+msgstr "修复：工单当前状态需要接单时，获取用户可执行流转接口报错"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:54
+msgid "Fixed: Unable to delete role user records"
+msgstr "修复：无法删除角色用户记录"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:55
+msgid "Optimized: Do not request favicon.ico"
+msgstr "优化：不再请求 favicon.ico"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:60
+msgid "r1.0.7"
+msgstr "r1.0.7"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:61
+msgid ""
+"Fixed: Issue where one person processing directly transitions to next "
+"state when state allocation method is all process and participant is set "
+"to ticket field"
+msgstr "修复：分配方式为全部处理且参与人为工单字段时，单人处理后直接流转到下一状态的问题"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:62
+msgid ""
+"Fixed: Ticket script hook execution state not updated when state hook "
+"callback result is false"
+msgstr "修复：状态钩子回调返回 false 时，工单脚本钩子执行状态未更新"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:63
+msgid ""
+"Fixed: Function not working when state participant is set to parent "
+"ticket field"
+msgstr "修复：状态参与人设置为父工单字段时功能异常"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:64
+msgid ""
+"Added: Ticket state participant type variable, ticket field, parent "
+"ticket field support setting multiple (comma separated)"
+msgstr "新增：工单状态参与人类型的变量/工单字段/父工单字段支持配置多个（逗号分隔）"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:69
+msgid "r1.0.6"
+msgstr "r1.0.6"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:70
+msgid "Optimized: Hook transition suggestion acquisition method adjustment"
+msgstr "优化：钩子流转建议的获取方式调整"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:71
+msgid ""
+"Optimized: Added several common questions and answers to sphinx "
+"documentation"
+msgstr "优化：在 sphinx 文档中增加若干常见问题解答"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:72
+msgid "Optimized: Modified calling party demo related information in readme"
+msgstr "优化：调整 readme 中调用方示例相关信息"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:77
+msgid "r1.0.5"
+msgstr "r1.0.5"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:78
+msgid ""
+"Fixed: Issue where participants did not complete processing but "
+"transitioned to next state when state participants are multiple people "
+"and allocation method is all process"
+msgstr "修复：状态参与人为多人且分配方式为全部处理时，参与人未全部处理就流转的问题"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:79
+msgid ""
+"Fixed: Unable to transition normally when state participant is hook, "
+"wait=false (i.e., do not wait for callback, transition directly)"
+msgstr "修复：状态参与人为钩子且 wait=false（不等待回调直接流转）时无法正常流转"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:80
+msgid ""
+"Added: New mobile calling party open source approval system project based"
+" on DingTalk ecosystem, https://gitee.com/shihow/howflow-open"
+msgstr "新增：基于钉钉生态的移动端调用方开源审批系统项目 https://gitee.com/shihow/howflow-open"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:85
+msgid "r1.0.4"
+msgstr "r1.0.4"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:86
+msgid "Fixed: Ticket custom field values unable to be normally updated"
+msgstr "修复：工单自定义字段值无法正常更新"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:87
+msgid "Fixed: Handler calculation error when handler is multiple departments"
+msgstr "修复：处理人为多个部门时计算错误"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:88
+msgid "Fixed: Ticket state not updated when ticket is withdrawn"
+msgstr "修复：工单撤回时状态未更新"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:93
+msgid "r1.0.3"
+msgstr "r1.0.3"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:94
+msgid "Fixed: Handler exception after forcibly modifying ticket state"
+msgstr "修复：强制修改工单状态后处理人异常"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:95
+msgid "Fixed: Ticket withdrawal condition judgment logic error"
+msgstr "修复：工单撤回条件判断逻辑错误"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:96
+msgid ""
+"Added: New docker compose deployment method for loonflow_shutongflow (for"
+" demonstration only)"
+msgstr "新增：loonflow_shutongflow 的 docker compose 部署方式（仅用于演示）"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:101
+msgid "r1.0.2"
+msgstr "r1.0.2"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:102
+msgid "Fixed: Error in get workflow state details API"
+msgstr "修复：获取流程状态详情接口报错"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:103
+msgid ""
+"Fixed: Error on ticket management interface when workflow is not yet "
+"configured"
+msgstr "修复：未配置流程时工单管理界面报错"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:104
+msgid ""
+"Fixed: Unable to save when department approval person is not selected "
+"when editing department"
+msgstr "修复：编辑部门未选择审批人时无法保存"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:105
+msgid ""
+"Fixed: Title template and content template not successfully saved when "
+"editing workflow"
+msgstr "修复：编辑流程时标题模板、内容模板未成功保存"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:106
+msgid ""
+"Fixed: Error in getting handler information when handler type is ticket "
+"field"
+msgstr "修复：处理人类型为工单字段时获取处理人信息错误"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:107
+msgid ""
+"Fixed: Transition list not appearing when target state is not selected "
+"when configuring transition"
+msgstr "修复：配置流转未选择目标状态时流转列表未显示"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:108
+msgid ""
+"Fixed: Ticket unable to continue processing after forcibly modifying "
+"ticket state in admin panel"
+msgstr "修复：后台强制修改工单状态后工单无法继续处理"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:109
+msgid ""
+"Fixed: Handler error when state is forcibly modified to initial state or "
+"end state"
+msgstr "修复：状态被强制改为初始/结束状态时处理人错误"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:110
+msgid ""
+"Fixed: Form retains last edited content when adding new record after "
+"editing call permission"
+msgstr "修复：编辑调用权限后新增记录，表单保留上次编辑内容的问题"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:111
+msgid ""
+"Fixed: Issue description in readthedoc documentation where two dashes in "
+"startup command were converted to one --"
+msgstr "修复：readthedoc 文档中启动命令的两个短横被转换为一个的问题说明"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:112
+msgid ""
+"Fixed: Log file has no content after deployment with uwsgi (temporarily "
+"changed to print logs to console, can view logs in uwsgi logs)"
+msgstr "修复：uwsgi 部署后日志文件无内容（临时改为打印到控制台，可在 uwsgi 日志查看）"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:113
+msgid "Optimized: Prompt user to add call permission after adding new workflow"
+msgstr "优化：新增流程后提示用户添加调用权限"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:114
+msgid ""
+"Optimized: Added prompt on how to add notification when configuring "
+"workflow notification selection"
+msgstr "优化：配置流程通知选择时新增如何添加通知的提示"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:119
+msgid "r1.0.1"
+msgstr "r1.0.1"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:120
+msgid "Fixed: Production environment dependency package uwsgi version update"
+msgstr "修复：生产环境依赖包 uwsgi 版本更新"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:121
+msgid ""
+"Fixed: Ticket list query condition creation start and end time processing"
+" logic error"
+msgstr "修复：工单列表查询条件创建开始/结束时间处理逻辑错误"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:122
+msgid "Fixed: Comment ticket API logic error"
+msgstr "修复：评论工单接口逻辑错误"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:123
+msgid "Fixed: Ticket progress state attribute not updated after forced close"
+msgstr "修复：强制关闭后工单进度状态属性未更新"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:124
+msgid "Fixed: Handler exception when state participant type is role"
+msgstr "修复：状态参与人类型为角色时处理人异常"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:125
+msgid "Fixed: Error in ticket list API query my todo tickets in some cases"
+msgstr "修复：工单列表接口查询我的待办在部分场景下出错"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:126
+msgid "New Feature: Ticket list supports querying tickets I have processed"
+msgstr "新增：工单列表支持查询我处理过的工单"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:127
+msgid ""
+"New Feature: Ticket list query API state attribute condition supports "
+"\"closed\" query"
+msgstr "新增：工单列表查询接口的状态条件支持“closed”查询"
+
+#: ../../source/others/release_notes/r1.x/r1.0.1+.rst:128
+msgid ""
+"Optimized: Admin panel ticket management exception prompt information "
+"optimization and some other detail optimizations"
+msgstr "优化：管理端工单管理异常提示等细节"

@@ -1,36 +1,27 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import {
+    Edit as EditIcon,
+    Visibility as PreviewIcon
+} from '@mui/icons-material';
 import {
     Box,
-    Paper,
-    Typography,
     Card,
     Divider,
+    Paper,
+    Tab,
     Tabs,
-    Tab
+    Typography
 } from '@mui/material';
-import {
-    Visibility as PreviewIcon,
-    Edit as EditIcon
-} from '@mui/icons-material';
-import useSnackbar from '../../../hooks/useSnackbar';
-import { FormStructure, ComponentTemplate, FormDesignProps } from '../../../types/workflowDesign';
+import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import { IFormSchema, IWorkflowComponent, IWorkflowComponentRow } from '../../../types/workflow';
+import { ComponentTemplate } from '../../../types/workflowDesign';
 import getComponentCategories from './ComponentCategories';
 import ComponentProperties from './ComponentProperties';
 import FormDesign from './FormDesign';
 import FormPreview from './FormPreview';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, createEmptyWorkflowFullDefinition } from '../../../types/workflow';
-import { v4 as uuidv4 } from 'uuid';
 import RenderFormComponent from './RenderFormComponent';
-import { useTranslation } from 'react-i18next';
 
-import {
-    TextField,
-    // NumberField,
-    // SelectField,
-    // DateTimeField,
-    // UserField,
-    // DepartmentField,
-} from '../../formFields';
 
 interface WorkflowFormProps {
     onFormSchemaChange: (newFormSchema: IFormSchema) => void;

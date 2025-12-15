@@ -1,24 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, CardContent, CircularProgress } from '@mui/material';
-import Card from '@mui/material/Card';
-import { CardHeader } from '@mui/material';
-import { Link } from 'react-router-dom';
-import Autocomplete from '@mui/material/Autocomplete';
-import { useTranslation } from 'react-i18next';
-import i18n from '../../../i18n';
 import { ISimpleWorkflowEntity } from '@/types/workflow';
+import { Button, CardContent, CardHeader, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import Card from '@mui/material/Card';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import i18n from '../../../i18n';
 import { getTicketList } from '../../../services/ticket';
-import { getSimpleWorkflowList } from '../../../services/workflow';
 import { getSimpleUsers } from '../../../services/user';
+import { getSimpleWorkflowList } from '../../../services/workflow';
 
 import useSnackbar from '../../../hooks/useSnackbar';
 import { formatDate } from '../../../utils/dateFormat';
 
 
 
-import Grid from '@mui/material/Grid2';
 import { ITicketListResEntity } from '@/types/ticket';
 import { ISimpleUser } from '@/types/user';
+import Grid from '@mui/material/Grid2';
 import MuiLink from '@mui/material/Link';
 
 interface IOption {
@@ -48,17 +47,17 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
 
 
   const { showMessage } = useSnackbar();
-  let listTitle = t('ticketList.allTickets');
+  let listTitle = t('ticket.allTickets');
   if (category === 'owner') {
-    listTitle = t('ticketList.owerTickets');
+    listTitle = t('ticket.owerTickets');
   } else if (category === 'view') {
-    listTitle = t('ticketList.viewTickets');
+    listTitle = t('ticket.viewTickets');
   } else if (category === 'duty') {
-    listTitle = t('ticketList.dutyTickets');
+    listTitle = t('ticket.dutyTickets');
   } else if (category === 'relation') {
-    listTitle = t('ticketList.relationTickets');
+    listTitle = t('ticket.relationTickets');
   } else if (category === 'intervene') {
-    listTitle = t('ticketList.interveneTickets')
+    listTitle = t('ticket.interveneTickets')
 
   }
 
@@ -71,7 +70,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
         setUsers(response.data.userInfoList.map((user: ISimpleUser) => ({ label: `${user.name}(${user.alias})`, value: user.id })) || []);
       }
     } catch (error) {
-      console.error('加载用户列表失败:', error);
+      console.error(t('common.loadUserListFailed'), error);
     } finally {
       setLoadingUsers(false);
     }
@@ -98,23 +97,24 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
     fetchSimpleWorkflow();
   }, [showMessage]);
 
-  useEffect(() => {
-    const fetchTicketList = async (searchValue: string = '') => {
-      try {
-        const res = await getTicketList({ category, page, perPage, searchValue, creatorId: selectedUser?.value, createDateStart, createDateEnd, workflowId: workflowValue?.id });
-        if (res.code === 0) {
-          setTicketList(res.data.ticketList);
-          setTotal(res.data.total);
-        } else {
-          showMessage(res.msg, 'error');
-        }
-      } catch (error: any) {
-        showMessage(error.message, 'error');
-        console.log(error);
+  const fetchTicketList = useCallback(async (searchValue: string = '') => {
+    try {
+      const res = await getTicketList({ category, page, perPage, searchValue, creatorId: selectedUser?.value, createDateStart, createDateEnd, workflowId: workflowValue?.id });
+      if (res.code === 0) {
+        setTicketList(res.data.ticketList);
+        setTotal(res.data.total);
+      } else {
+        showMessage(res.msg, 'error');
       }
-    };
+    } catch (error: any) {
+      showMessage(error.message, 'error');
+      console.log(error);
+    }
+  }, [category, page, perPage, selectedUser?.value, createDateStart, createDateEnd, workflowValue?.id, showMessage]);
+
+  useEffect(() => {
     fetchTicketList();
-  }, [category, page, perPage, refreshToken, showMessage])
+  }, [fetchTicketList, refreshToken])
 
   const handleChangePage = (_event: any, newPage: number) => {
     setPage(newPage);
@@ -141,7 +141,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
         <CardContent>
           <Grid container spacing={1} justifyContent="left" alignItems="center">
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-              <TextField fullWidth label={t('ticketList.keyword')} size="small" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
+              <TextField fullWidth label={t('ticket.keyword')} size="small" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <Autocomplete
@@ -157,7 +157,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={t('ticketList.creator')}
+                    label={t('ticket.creator')}
                     placeholder={t('common.userSearchTip')}
                     InputProps={{
                       ...params.InputProps,
@@ -178,7 +178,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <TextField
                 fullWidth
-                label={t('ticketList.createDateStart')}
+                label={t('ticket.createDateStart')}
                 type="date"
                 slotProps={{
                   inputLabel: { shrink: true },
@@ -218,7 +218,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <TextField
                 fullWidth
-                label={t('ticketList.createDateEnd')}
+                label={t('ticket.createDateEnd')}
                 type="date"
                 slotProps={{
                   inputLabel: { shrink: true },
@@ -263,7 +263,7 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                 disablePortal
                 options={workflowList}
                 sx={{ marginLeft: 0, marginRight: 0 }}
-                renderInput={(params) => <TextField {...params} label={t('ticketList.ticketType')} size="small" />}
+                renderInput={(params) => <TextField {...params} label={t('ticket.ticketType')} size="small" />}
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6, md: 2 }}>
@@ -277,12 +277,12 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
               <TableHead>
                 <TableRow>
                   {/* <TableCell>Id</TableCell> */}
-                  <TableCell>{t('ticketList.ticketTitle')}</TableCell>
-                  <TableCell>{t('ticketList.ticketType')}</TableCell>
-                  <TableCell>{t('ticketList.approveState')}</TableCell>
-                  <TableCell>{t('ticketList.ticketCreator')}</TableCell>
-                  <TableCell>{t('ticketList.ticketCreateTime')}</TableCell>
-                  <TableCell>{t('actions')}</TableCell>
+                  <TableCell>{t('ticket.ticketTitle')}</TableCell>
+                  <TableCell>{t('ticket.ticketType')}</TableCell>
+                  <TableCell>{t('ticket.approveState')}</TableCell>
+                  <TableCell>{t('ticket.ticketCreator')}</TableCell>
+                  <TableCell>{t('ticket.ticketCreateTime')}</TableCell>
+                  <TableCell>{t('common.actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

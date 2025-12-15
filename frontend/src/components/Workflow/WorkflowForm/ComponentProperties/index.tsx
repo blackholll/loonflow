@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
 import {
-    Box,
-    Typography,
-    TextField,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    Button,
-    IconButton,
-    Alert,
-    FormControlLabel,
-    Checkbox,
-    RadioGroup,
-    Radio,
-    FormLabel
-} from '@mui/material';
-import {
-    Delete as DeleteIcon,
     Add as AddIcon,
+    Delete as DeleteIcon,
     Visibility as VisibilityIcon,
     VisibilityOff as VisibilityOffIcon
 } from '@mui/icons-material';
-import { FormOption } from '../../../../types/workflowDesign';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema } from '../../../../types/workflow';
-import TemplateEditor from '../../../../components/commonComponents/inputs/TemplateEditor';
+import {
+    Alert,
+    Box,
+    Button,
+    Checkbox,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    IconButton,
+    InputLabel,
+    MenuItem,
+    Radio,
+    RadioGroup,
+    Select,
+    TextField,
+    Typography
+} from '@mui/material';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import TemplateEditor from '../../../../components/commonComponents/inputs/TemplateEditor';
+import { IFormSchema, IWorkflowComponent, IWorkflowComponentRow } from '../../../../types/workflow';
+import { FormOption } from '../../../../types/workflowDesign';
 
 
 interface ComponentPropertiesProps {
@@ -54,7 +54,6 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
             }
         });
         fields.push({ key: 'created_at', label: t('common.createdAt') });
-        fields.push({ key: 'updated_at', label: t('common.updatedAt') });
         fields.push({ key: 'creator', label: t('common.creator') });
 
         setAvailableFields(fields);
@@ -150,7 +149,7 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
             />
 
             <TextField
-                label={t('name')}
+                label={t('common.name')}
                 value={(component as IWorkflowComponent).componentName || ''}
                 onChange={(e) => handleChange('componentName', e.target.value)}
                 fullWidth
@@ -162,7 +161,7 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
             />
 
             <TextField
-                label={t('description')}
+                label={t('common.description')}
                 value={(component as IWorkflowComponent).description || ''}
                 onChange={(e) => handleChange('description', e.target.value)}
                 fullWidth
@@ -239,16 +238,8 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                     <MenuItem value={12}>{t('workflow.componentProperties.fullWidth')}</MenuItem>
                 </Select>
             </FormControl>
-            {/* time 类型属性配置 */}
             {component.type === 'time' && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <TextField
-                        label={t('workflow.componentProperties.placeholder')}
-                        value={(component as IWorkflowComponent).props?.placeholder || ''}
-                        onChange={(e) => handleChange('placeholder', e.target.value)}
-                        fullWidth
-                        size="small"
-                    />
 
                     <FormControl fullWidth size="small">
                         <InputLabel>{t('workflow.componentProperties.timeFormat')}</InputLabel>
@@ -257,37 +248,16 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                             label={t('workflow.componentProperties.timeFormat')}
                             onChange={(e) => handleChange('format', e.target.value)}
                         >
-                            <MenuItem value="HH:mm">时-分 (HH:mm)</MenuItem>
-                            <MenuItem value="HH:mm:ss">时-分-秒 (HH:mm:ss)</MenuItem>
+                            <MenuItem value="HH:mm">{t('common.dateTimePicker.timeFormatHourMin')}</MenuItem>
+                            <MenuItem value="HH:mm:ss">{t('common.dateTimePicker.timeFormatHourMinSec')}</MenuItem>
                         </Select>
                     </FormControl>
-                </Box>
-            )}
-
-            {/* date 类型属性配置 */}
-            {component.type === 'date' && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <TextField
-                        label={t('workflow.componentProperties.placeholder')}
-                        value={(component as IWorkflowComponent).props?.placeholder || ''}
-                        onChange={(e) => handleChange('placeholder', e.target.value)}
-                        fullWidth
-                        size="small"
-                    />
                 </Box>
             )}
 
             {/* datetime 类型属性配置 */}
             {component.type === 'datetime' && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <TextField
-                        label={t('workflow.componentProperties.placeholder')}
-                        value={(component as IWorkflowComponent).props?.placeholder || ''}
-                        onChange={(e) => handleChange('placeholder', e.target.value)}
-                        fullWidth
-                        size="small"
-                    />
-
                     <FormControl fullWidth size="small">
                         <InputLabel>{t('workflow.componentProperties.dateTimeFormat')}</InputLabel>
                         <Select
@@ -295,8 +265,8 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                             label={t('workflow.componentProperties.dateTimeFormat')}
                             onChange={(e) => handleChange('format', e.target.value)}
                         >
-                            <MenuItem value="YYYY-MM-DD HH:mm">年-月-日 时-分 (YYYY-MM-DD HH:mm)</MenuItem>
-                            <MenuItem value="YYYY-MM-DD HH:mm:ss">年-月-日 时-分-秒 (YYYY-MM-DD HH:mm:ss)</MenuItem>
+                            <MenuItem value="YYYY-MM-DD HH:mm">{t('common.dateTimePicker.dateTimeFormatHourMin')}</MenuItem>
+                            <MenuItem value="YYYY-MM-DD HH:mm:ss">{t('common.dateTimePicker.dateTimeFormatHourMinSec')}</MenuItem>
                         </Select>
                     </FormControl>
                 </Box>
@@ -305,14 +275,6 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
             {/* number 类型属性配置 */}
             {component.type === 'number' && (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <TextField
-                        label={t('workflow.componentProperties.placeholder')}
-                        value={(component as IWorkflowComponent).props?.placeholder || ''}
-                        onChange={(e) => handleChange('placeholder', e.target.value)}
-                        fullWidth
-                        size="small"
-                    />
-
                     <FormControlLabel
                         control={
                             <Checkbox

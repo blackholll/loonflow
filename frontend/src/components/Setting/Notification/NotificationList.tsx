@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Card, CardHeader, Button, Dialog, DialogTitle, DialogActions, DialogContent, Autocomplete, Container, TextField, Select, MenuItem, FormControl, InputLabel, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, TablePagination, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import { INotificationResEntity } from '@/types/notification';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Button, Card, CardHeader, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSnackbar from '../../../hooks/useSnackbar';
-import { getNotificationList, delNotification } from '../../../services/notification';
+import { delNotification, getNotificationList } from '../../../services/notification';
 import NotificationDialog from './NotificationDialog';
-import { Edit as EditIcon, Delete as DeleteIcon, Settings as PermissionIcon } from '@mui/icons-material';
 
 
 export const NotificationList = () => {

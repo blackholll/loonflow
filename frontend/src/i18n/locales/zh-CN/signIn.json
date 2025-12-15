@@ -1,0 +1,12 @@
+{
+  "title": "Loonflow",
+  "description": "企业级统一工作流解决方案",
+  "emailLabel": "电子邮件地址",
+  "passwordLabel": "密码",
+  "rememberMe": "记住我",
+  "signInButton": "登录",
+  "forgotPassword": "忘记密码？",
+  "noAccount": "还没有账号？注册",
+  "welcomeBack": "欢迎回来！请登录继续。",
+  "welcomeMessage": "欢迎!"
+}

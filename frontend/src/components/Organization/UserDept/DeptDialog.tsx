@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Box, Tooltip, InputAdornment, Autocomplete } from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { addApplication } from '../../../services/application';
-import useSnackbar from '../../../hooks/useSnackbar';
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField } from '@mui/material';
 import { debounce } from 'lodash';
-import { getSimpleUsers } from '../../../services/user';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import useSnackbar from '../../../hooks/useSnackbar';
 import { addDept, getDeptDetail, updateDept } from '../../../services/dept';
+import { getSimpleUsers } from '../../../services/user';
 
 // 定义用户接口
 interface User {
@@ -87,11 +85,11 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
 
   const handelSubmit = async () => {
     if (!name.trim()) {
-      showMessage('请输入部门名称', 'error');
+      showMessage('please input department name', 'error');
       return;
     }
     if (!deptLeaderId) {
-      showMessage('请选择部门负责人', 'error');
+      showMessage('please select department leader', 'error');
       return;
     }
     if (deptId) {
@@ -166,8 +164,8 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
           disabled
           fullWidth
           id="outlined-disabled"
-          helperText="please select parent department on the left parent tree"
-          label="上级部门"
+          helperText={t('department.parentDepartmentHelpText')}
+          label={t('department.parentDepartment')}
           value={editDeptParentName || selectedDeptName}
         />
         <Autocomplete
@@ -197,7 +195,7 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
             <TextField
               {...params}
               required
-              label='部门负责人'
+              label={t('department.departmentLeader')}
               slotProps={{
                 input: {
                   ...params.InputProps,
@@ -234,18 +232,18 @@ const DeptDialog = ({ open, onClose, deptId, selectedDeptId, selectedDeptName }:
           disablePortal
           options={approverUserList}
           loading={approverSearchLoading}
-          noOptionsText={approverInputValue.length < 2 ? "请至少输入2个字符搜索" : "无匹配结果"}
+          noOptionsText={approverInputValue.length < 2 ? t('common.pleaseEnterToSearch') : t('common.noOptions')}
           sx={{ marginTop: 2, marginBottom: 2 }}
           renderInput={(params) => (
             <TextField
               {...params}
-              label='部门审批人'
+              label={t('department.departmentApprover')}
               slotProps={{
                 input: {
                   ...params.InputProps,
                   endAdornment: (
                     <>
-                      {approverSearchLoading ? <InputAdornment position="end">搜索中...</InputAdornment> : null}
+                      {approverSearchLoading ? <InputAdornment position="end">{t('common.searching')}</InputAdornment> : null}
                       {params.InputProps.endAdornment}
                     </>
                   ),

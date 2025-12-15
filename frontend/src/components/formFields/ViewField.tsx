@@ -1,9 +1,9 @@
-import { Typography, Box, Chip } from "@mui/material";
-import { useState, useEffect } from 'react';
-import { getSimpleUsers } from '../../services/user';
+import { Box, Chip, Typography } from "@mui/material";
+import { useEffect, useState } from 'react';
 import { getDeptPaths } from '../../services/dept';
-import { ISimpleUser } from '../../types/user';
+import { getSimpleUsers } from '../../services/user';
 import { ISimpleDeptPath } from '../../types/dept';
+import { ISimpleUser } from '../../types/user';
 
 interface ViewFieldProps {
     type: string;
@@ -23,7 +23,7 @@ function ViewField({
         const handleUserOrDeptDisplay = async () => {
             if (type === 'user' || type === 'department') {
                 if (!value || value === '-' || (Array.isArray(value) && value.length === 0)) {
-                    setDisplayValue('-');
+                    setDisplayValue('');
                     return;
                 }
 
@@ -80,7 +80,7 @@ function ViewField({
                 } else if (type === 'file') {
                     // 文件类型特殊处理
                     if (!value || value === '-') {
-                        computedValue = '-';
+                        computedValue = '';
                     } else {
                         try {
                             const files = JSON.parse(value as string);
@@ -146,7 +146,7 @@ function ViewField({
         );
     }
 
-    return (<Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{displayValue || '-'}</Typography>)
+    return (<Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{displayValue}</Typography>)
 }
 
 export default ViewField;

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import WorkflowProcess from '../../../Workflow/WorkflowProcess';
-import { Box, Typography, CircularProgress, Alert } from '@mui/material';
+import { Alert, Box, CircularProgress, Typography } from '@mui/material';
 import '@xyflow/react/dist/style.css';
+import { useEffect, useState } from 'react';
+import WorkflowProcess from '../../../Workflow/WorkflowProcess';
 
-import { IWorkflowDiagram } from '../../../../types/workflow';
-import { getWorkflowDiagram } from '../../../../services/workflow';
 import { getTicketCurrentNodeInfos } from '../../../../services/ticket';
+import { getWorkflowDiagram } from '../../../../services/workflow';
+import { IWorkflowDiagram } from '../../../../types/workflow';
 
 interface WorkflowDiagramProps {
     workflowId: string;

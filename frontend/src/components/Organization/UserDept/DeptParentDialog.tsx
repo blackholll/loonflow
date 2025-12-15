@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Icon, Box, Tooltip, InputAdornment, Autocomplete } from '@mui/material';
+import { Autocomplete, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, TextField } from '@mui/material';
+import { debounce } from 'lodash';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSnackbar from '../../../hooks/useSnackbar';
-import { getDeptPaths, getDeptPath, updateDeptParentDept } from '../../../services/dept';
-import { debounce } from 'lodash';
+import { getDeptPath, getDeptPaths, updateDeptParentDept } from '../../../services/dept';
 
 
 interface IDeptPath {
@@ -36,7 +36,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
                 showMessage(result.msg, 'error');
             }
         } catch (error: any) {
-            showMessage('搜索deptpath失败', 'error');
+            showMessage('search deptpath failed', 'error');
         } finally {
             setLoading(false);
         }
@@ -75,7 +75,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
             setDeptPath(null);
         }
 
-    }, [open]);
+    }, [open, parentDeptId, showMessage]);
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth style={{ maxWidth: 600, margin: '0 auto' }}>
@@ -105,7 +105,7 @@ const DeptParentDialog = ({ open, deptId, parentDeptId, onClose }: {
                     renderInput={(params) => (
                         <TextField
                             {...params}
-                            label='上级部门'
+                            label={t('department.parentDepartment')}
                             slotProps={{
                                 input: {
                                     ...params.InputProps,

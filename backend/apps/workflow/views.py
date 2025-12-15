@@ -13,7 +13,7 @@ logger = logging.getLogger("django")
 
 
 class WorkflowView(BaseView):
-    @user_permission_check("admin, workflow_admin")
+    @user_permission_check("workflow_admin")
     def get(self, request, *args, **kwargs):
         """
         get workflow list api
@@ -38,7 +38,7 @@ class WorkflowView(BaseView):
         return api_response(0, "", dict(workflow_info_list=result.get("workflow_info_list"), page=
                                         result.get("page"), per_page=result.get("per_page"), total=result.get("total")))
 
-    @user_permission_check('workflow_admin,admin')
+    @user_permission_check('workflow_admin')
     def post(self, request, *args, **kwargs):
         """
         new workflow. include all workflow info
@@ -110,7 +110,7 @@ class WorkflowInitNodeView(BaseView):
         return api_response(0, "", result)
 
 class WorkflowVersionsView(BaseView):
-    @user_permission_check("admin, workflow_admin")
+    @user_permission_check("workflow_admin")
     def get(self, request, *args, **kwargs):
         workflow_id = kwargs.get("workflow_id")
         tenant_id = request.META.get('HTTP_TENANTID')
@@ -128,8 +128,53 @@ class WorkflowVersionsView(BaseView):
         return api_response(0, "", dict(version_info_list=result.get("version_info_list"), page=
                                         result.get("page"), per_page=result.get("per_page"), total=result.get("total")))
 
+class WorkflowVersionDetailView(BaseView):
+    def get(self, request, *args, **kwargs):
+        """
+        get workflow version detail
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        version_id = kwargs.get('version_id')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        operator_id = request.META.get('HTTP_USERID')
+        
+        try:
+            result = workflow_base_service_ins.get_workflow_version_detail(workflow_id, version_id, tenant_id, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internel Server Error", {})
+        return api_response(0, "", result)
+    def patch(self, request, *args, **kwargs):
+        """
+        update workflow version detail
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        workflow_id = kwargs.get('workflow_id')
+        version_id = kwargs.get('version_id')
+        tenant_id = request.META.get('HTTP_TENANTID')
+        operator_id = request.META.get('HTTP_USERID')
+        json_str = request.body.decode('utf-8')
+        request_data_dict = json.loads(json_str)
+        try:
+            workflow_base_service_ins.update_workflow_version(workflow_id, version_id, tenant_id, operator_id, request_data_dict.get('name', ''), request_data_dict.get('description', ''), request_data_dict.get('type', ''))
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+        return api_response(0, "", {})
+
 class WorkflowDetailView(BaseView):
-    @user_permission_check('workflow_admin,admin', workflow_id_source='url')
+    @user_permission_check('workflow_admin', workflow_id_source='url')
     def get(self, request, *args, **kwargs):
         """
         get workflow detail
@@ -152,7 +197,7 @@ class WorkflowDetailView(BaseView):
         
         return api_response(0, '', {'workflow_full_defination':  workflow_result})
 
-    @user_permission_check('workflow_admin,admin', workflow_id_source='url')
+    @user_permission_check('workflow_admin', workflow_id_source='url')
     def patch(self, request, *args, **kwargs):
         """
         修改工作流

@@ -1,33 +1,35 @@
-import React, { useState, useEffect, useCallback } from "react";
 import {
-  Box,
-  Paper,
-  Typography,
-  Tooltip,
-  Button,
-  Dialog,
-  DialogContent,
-  TextField,
-  DialogActions,
   Autocomplete,
-  CircularProgress
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Paper,
+  TextField,
+  Tooltip,
+  Typography
 } from "@mui/material";
 import Grid from '@mui/material/Grid2';
+import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 
-import RenderFormComponent from "../../Workflow/WorkflowForm/RenderFormComponent";
 import { HelpOutline as HelpIcon } from '@mui/icons-material';
-import { IWorkflowComponent, IWorkflowComponentRow, IFormSchema, IWorkflowAction } from "../../../types/workflow";
-import { getTicketCreationForm, getTicketCreationActions } from "../../../services/workflow";
-import { newTicket, getTicketDetailForm, getTicketDetailActions, handleTicket, getTicketDetailAdminActions } from "../../../services/ticket";
 import useSnackbar from "../../../hooks/useSnackbar";
-import WorkflowDiagram from "./WorkflowDiagram";
-import TicketHistory from './TicketFlowHistory';
+import { getTicketDetailActions, getTicketDetailAdminActions, getTicketDetailForm, handleTicket, newTicket } from "../../../services/ticket";
 import { getSimpleUsers } from '../../../services/user';
+import { getTicketCreationActions, getTicketCreationForm } from "../../../services/workflow";
 import { ISimpleUser } from '../../../types/user';
+import { IFormSchema, IWorkflowAction, IWorkflowComponent, IWorkflowComponentRow } from "../../../types/workflow";
+import RenderFormComponent from "../../Workflow/WorkflowForm/RenderFormComponent";
 import getButtonProps from './getButtonProps';
+import TicketHistory from './TicketFlowHistory';
+import WorkflowDiagram from "./WorkflowDiagram";
 
 interface TicketDetailProps {
   workflowId?: string;
+  workflowVersionName?: string;
   ticketId?: string;
   onTicketHandledChange?: (ticketId: string) => void;
   refreshToken?: number;
@@ -38,7 +40,8 @@ interface IOption {
   label: string;
   value: string;
 }
-function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToken }: TicketDetailProps) {
+function TicketDetail({ workflowId, workflowVersionName, ticketId, onTicketHandledChange, refreshToken }: TicketDetailProps) {
+  const { t } = useTranslation();
 
   const [formActions, setFormActions] = useState<any>();
   const [adminFormActions, setAdminFormActions] = useState<any>();
@@ -74,22 +77,22 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
   }
 
   const fetchTicketCreationForm = useCallback(async () => {
-    const res = await getTicketCreationForm(workflowId!);
+    const res = await getTicketCreationForm(workflowId!, workflowVersionName);
     if (res.code === 0) {
       setFormSchema(res.data.formSchema);
     } else {
       showMessage(res.msg, 'error');
     }
-  }, [workflowId, showMessage]);
+  }, [workflowId, workflowVersionName, showMessage]);
 
   const fetchTicketCreationActions = useCallback(async () => {
-    const res = await getTicketCreationActions(workflowId!);
+    const res = await getTicketCreationActions(workflowId!, workflowVersionName);
     if (res.code === 0) {
       setFormActions(res.data.actions);
     } else {
       showMessage(res.msg, 'error');
     }
-  }, [workflowId, showMessage]);
+  }, [workflowId, workflowVersionName, showMessage]);
 
   const fetchTicketDetailFrom = useCallback(async (ticketId: string) => {
     const res = await getTicketDetailForm(ticketId);
@@ -142,13 +145,44 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
       fetchTicketDetailActions(ticketId);
       fetchTicketDetailAdminActions(ticketId);
     }
-  }, [workflowId, fetchTicketCreationForm, fetchTicketCreationActions, refreshToken, ticketId, fetchTicketDetailFrom, fetchTicketDetailActions, fetchTicketDetailAdminActions]);
+  }, [workflowId, workflowVersionName, fetchTicketCreationForm, fetchTicketCreationActions, refreshToken, ticketId, fetchTicketDetailFrom, fetchTicketDetailActions, fetchTicketDetailAdminActions]);
 
   const updateFormValue = (component: IWorkflowComponent) => {
+    console.log('updateFormValue', component.componentKey, component.props.value);
+
+    // 更新 fields 状态
     setFields({
       ...fields,
       [component.componentKey]: component.props.value
-    })
+    });
+
+    // 更新 formSchema 中的组件值
+    if (formSchema) {
+      const updatedFormSchema = {
+        ...formSchema,
+        componentInfoList: formSchema.componentInfoList.map((rowComponent: IWorkflowComponentRow | IWorkflowComponent) => {
+          if (rowComponent.type === 'row') {
+            return {
+              ...rowComponent,
+              children: (rowComponent as IWorkflowComponentRow).children.map((fieldComponent: IWorkflowComponent) => {
+                if (fieldComponent.componentKey === component.componentKey) {
+                  return {
+                    ...fieldComponent,
+                    props: {
+                      ...fieldComponent.props,
+                      value: component.props.value
+                    }
+                  };
+                }
+                return fieldComponent;
+              })
+            };
+          }
+          return rowComponent;
+        })
+      };
+      setFormSchema(updatedFormSchema);
+    }
   }
 
   const loadUsers = async (searchValue: string = '') => {
@@ -189,7 +223,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
           }
         })
         if (res.code === 0) {
-          showMessage(res.msg, 'success')
+          showMessage(t('ticket.ticketHandled'), 'success')
           if (onTicketHandledChange) {
             onTicketHandledChange(res.data.ticketId)
           }
@@ -202,7 +236,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
     } else {
       // new ticket
       console.log('no ticketId')
-      const res = await newTicket({ workflowId: workflowId!, actionId: action.id, fields: fields })
+      const res = await newTicket({ workflowId: workflowId!, actionId: action.id, fields: fields, workflowVersion: workflowVersionName })
       if (res.code === 0) {
         showMessage(res.msg, 'success')
         if (onTicketHandledChange) {
@@ -218,7 +252,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
   const handleDialogActionSubmit = async (actionType: string) => {
     console.log('comment submit')
     const actionProps: any = {
-      comment: dialogComment, nodeId: actionBaseNodeId
+      comment: dialogComment, nodeId: actionRunning === 'admin' ? adminActionBaseNodeId : actionBaseNodeId
     }
     if (["forward", "consult", "force_forward"].indexOf(actionType) !== -1) {
       actionProps.targetAssigneeId = selectedAssignee?.value
@@ -227,7 +261,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
       ticketId: ticketId!, actionType: actionType, actionId: '', actionProps
     })
     if (res.code === 0) {
-      showMessage('操作成功', 'success')
+      showMessage(t('common.operationSuccess'), 'success')
       if (onTicketHandledChange) {
         onTicketHandledChange(res.data.ticketId)
       }
@@ -324,7 +358,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
                   handleActionClick(action)
                 }}
               >
-                {action.name}
+                {['add_comment', 'forward', 'consult', 'consult_submit', 'withdraw'].indexOf(action.type) !== -1 ? t('ticket.actionName.' + action.type) : action.name}
               </Button>
             );
           })}
@@ -332,7 +366,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
       </Paper>
       {ticketId && (
         <Paper sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="h6" sx={{ mb: 1 }}>管理员操作</Typography>
+          <Typography variant="h6" sx={{ mb: 1 }}>{t('common.adminActions')}</Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mt: 2 }}>
             {adminFormActions?.map((action: IWorkflowAction) => {
               const buttonProps = getButtonProps(action.type);
@@ -344,7 +378,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
                     handleActionClick(action)
                   }}
                 >
-                  {action.name}
+                  {t('ticket.actionName.' + action.type)}
                 </Button>
               );
             })}
@@ -393,8 +427,8 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="选择处理人"
-                  placeholder="输入关键词后搜索用户..."
+                  label={t('ticket.selectAssignee')}
+                  placeholder={t('common.searchUserPlaceholder')}
                   InputProps={{
                     ...params.InputProps,
                     endAdornment: (
@@ -414,7 +448,7 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
         )}
         <DialogContent>
           <TextField
-            label="Comment"
+            label={t('ticket.comment')}
             fullWidth
             multiline
             rows={4}
@@ -423,8 +457,8 @@ function TicketDetail({ workflowId, ticketId, onTicketHandledChange, refreshToke
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={() => handleDialogActionSubmit(dialogActionType)}>Submit</Button>
+          <Button onClick={handleDialogClose}>{t('common.cancel')}</Button>
+          <Button onClick={() => handleDialogActionSubmit(dialogActionType)}>{t('common.submit')}</Button>
         </DialogActions>
       </Dialog>
     </>

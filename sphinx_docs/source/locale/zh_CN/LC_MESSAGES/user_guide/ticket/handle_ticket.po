@@ -1,0 +1,95 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:2
+msgid "Handle Tickets"
+msgstr "处理工单"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:4
+msgid ""
+"After signing in to Loonflow, open your pending tickets from the left "
+"sidebar via **Workbench** or through **Ticket Management → My Duty**. "
+"Click **Detail** in the **Action** column to view a ticket. The detail "
+"page contains three main areas:"
+msgstr "登录 Loonflow 后，可在左侧 **工作台** 或 **工单管理 → 我的待办** 打开待处理工单，在 **操作** 列点击 **详情** 进入工单页面，页面包含三个区域："
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:6
+msgid "ticket detail page"
+msgstr "工单详情页"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:12
+msgid "workflow diagram"
+msgstr "流程图"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:18
+msgid "Ticket Detail"
+msgstr "工单详情"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:19
+msgid ""
+"Shows all visible or editable fields for the ticket. Actions available to"
+" you appear under the fields and fall into four categories:"
+msgstr "展示工单的可见/可编辑字段。可执行的操作显示在字段下方，分为四类："
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:21
+msgid ""
+"edge actions: Actions defined on the outgoing edges of the current "
+"workflow node."
+msgstr "边操作：当前节点外连边上定义的操作"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:22
+msgid ""
+"viewer actions: Available to anyone who can view the ticket, e.g., `ADD "
+"COMMENT`."
+msgstr "查看者操作：所有可查看工单的人可用，如 `添加评论`"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:23
+msgid ""
+"handler actions: Available to users permitted to handle the ticket, e.g.,"
+" `FORWARD`, `CONSULT`, `CONSULT_SUBMIT`."
+msgstr "处理者操作：允许处理工单的用户可用，如 `转交`、`加签`、`加签提交`"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:24
+msgid ""
+"special actions: Context-specific options such as `CONSULT_SUBMIT` (for "
+"assignees during a consultation) or `WITHDRAW` (when withdrawal is "
+"allowed on the current node and you are the ticket creator)."
+msgstr "特殊操作：特定场景可见，如加签人可执行的 `加签提交`，或当前节点允许且你是创建人时的 `撤回`"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:27
+msgid "Admin Actions"
+msgstr "管理员操作"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:28
+msgid ""
+"Visible when you are an administrator, the workflow manager for the "
+"ticket, or the ticket’s dispatcher. Options include `FORCE_FORWARD` and "
+"`FORCE_CLOSE`."
+msgstr "当你是管理员、该工单的流程管理者或干预人时可见，包括 `强制转交`、`强制关闭` 等。"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:31
+msgid "Operation Record"
+msgstr "操作记录"
+
+#: ../../source/user_guide/ticket/handle_ticket.rst:32
+msgid ""
+"Displays the ticket’s activity history, including actor, time, action "
+"type, and details of each operation."
+msgstr "展示工单的历史操作，包含执行人、时间、操作类型和详情。"

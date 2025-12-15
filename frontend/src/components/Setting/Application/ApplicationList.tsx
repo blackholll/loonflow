@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Card, CardHeader, Button, Dialog, DialogTitle, DialogActions, DialogContent, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 import { IApplicationResEntity } from '@/types/application';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Button, Card, CardHeader, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSnackbar from '../../../hooks/useSnackbar';
-import { getApplicationList, delApplicationDetail } from '../../../services/application';
+import { delApplicationDetail, getApplicationList } from '../../../services/application';
 import ApplicationDialog from './ApplicationDialog';
 import ApplicationWorkflowPermissionDialog from './ApplicationWorkflowPermissionDialog';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 
 
 
@@ -94,12 +94,6 @@ export function ApplicationList() {
     setOpenedAppId('');
   }
 
-  const handleOpenWorkflowPermission = (applicationId: string, applicationName: string) => {
-    setWorkflowPermissionAppId(applicationId);
-    setWorkflowPermissionAppName(applicationName);
-    setOpenWorkflowPermission(true);
-  }
-
   const closeWorkflowPermissionDialog = () => {
     setOpenWorkflowPermission(false);
     setWorkflowPermissionAppId('');
@@ -139,7 +133,6 @@ export function ApplicationList() {
                     <div>
                       <Button size="small" startIcon={<EditIcon />} onClick={() => handleOpenApp(application.id)}>{t('common.edit')}</Button>
                       <Button size="small" startIcon={<DeleteIcon />} color="error" onClick={() => handleDeleteClick(application.id)}>{t('common.delete')}</Button>
-                      {/* {application.type === 'workflow_admin' ? <Button size="small" startIcon={<PermissionIcon />} onClick={() => handleOpenWorkflowPermission(application.id, application.name)}>{t('common.workflowPermission')}</Button> : null} */}
                     </div>
                   </TableCell>
                 </TableRow>

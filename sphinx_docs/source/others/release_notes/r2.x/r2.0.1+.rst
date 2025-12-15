@@ -1,0 +1,216 @@
+r2.0.1+
+==========
+
+---------
+r2.0.20
+---------
+- Fixed: Error in sample workflow configuration code in initialization SQL for docker compose deployment
+
+
+---------
+r2.0.19
+---------
+- Fixed: Comment button should not appear when creating a new ticket
+- Fixed: Error in sample workflow configuration information in initialization SQL
+- Fixed: Transfer ticket and add sign ticket did not trigger notification hook
+
+
+---------
+r2.0.18
+---------
+- Fixed: [User Management] Missing required field markers when adding users
+- Optimized: [Deployment] Added media directory configuration for docker compose deployment
+- Optimized: [Admin Panel] Migrated SVG background files to local
+- Fixed: [User Management] When adding records in department management page, parent department can only select from current page list
+- Fixed: [User Management] Unable to switch pages in user role page
+- Fixed: [Ticket Details] When date or datetime fields are empty and ticket is returned directly, these fields cannot be edited subsequently
+- Fixed: [Ticket Details] Required validation for file type fields not working when processing tickets
+
+
+---------
+r2.0.17
+---------
+- Fixed: [Ticket Details] Error on ticket details page when date type field has value and is in editable state
+- Fixed: [Ticket Details] Error on ticket details page when file type field has no value and current configuration is displayed
+- Optimized: [Documentation] Updated readme documentation
+
+
+---------
+r2.0.16
+---------
+- Optimized: [Deployment] Simplified docker compose deployment, images uploaded to docker hub, no longer need local build, supports container startup mysql
+- Fixed: [API] Error in admin list information returned by workflow list API
+- Optimized: [New Feature] Support configuring trusted host list for hook_url to improve security
+- Fixed: [Admin Panel] Typo in per_page parameter in frontend code for state list and custom field list (does not affect functionality)
+- Fixed: [Admin Panel] Page number display error after adding configuration on second page in workflow configuration related pages
+- Fixed: [Code Logic] Ticket title template did not support built-in fields (creator, sn, etc.)
+- Fixed: [Code Logic] Ticket list page requires 1 minute to display latest ticket record after creating new ticket
+- Fixed: [Admin Panel] No prompt information on login failure page
+- Fixed: [Code Logic] Operation log not recorded when ticket state hook executes successfully
+- Fixed: [Code Logic] count parameter in ticket creation limit expression did not actually take effect
+
+
+---------
+r2.0.15
+---------
+- Fixed: Docker-compose deployment unable to start after Python version upgrade
+- Fixed: Error in calculating final handler when handler type uses external fetch
+- Fixed: Missing ticket information when triggering hook for second state with handler type as external fetch
+
+
+---------
+r2.0.14
+---------
+- Optimized: Ticket details API does not error when current ticket state is deleted
+- Optimized: Upgraded Python version to 3.10, replaced mysqlclient with pymysql to reduce installation complexity
+- Optimized: Migrated frontend icon files to local to avoid slow page loading when users cannot connect to external network
+- Optimized: Updated initialization SQL
+- Optimized: Updated screenshots in documentation to latest version
+- Fixed: Content confusion in creator department id information returned by ticket details API
+- Fixed: "Client sent AUTH, but no password is set" error when creating ticket with redis server without password configured
+- Added: Ticket handler now supports real-time external fetch during workflow process
+- Added: English version readme
+
+
+---------
+r2.0.13
+---------
+- Fixed: New ticket interface incorrectly displayed ticket list (caused by improper handling of sub-ticket list)
+- Fixed: Error logs not recorded after production environment deployment
+- Fixed: When ticket state handler is all handlers and ticket is processed through different paths, then state is forcibly modified, ticket cannot continue processing
+
+
+---------
+r2.0.12
+---------
+- Optimized: Admin ticket list supports ticket deletion
+- Optimized: Ticket details page supports creator closing and withdrawing tickets
+- Optimized: Ticket details page processing button supports popup prompt after clicking
+- Optimized: Ticket list API supports querying sub-tickets
+- Optimized: Ticket details page displays sub-ticket list
+- Fixed: Unable to submit ticket when date field is not filled
+- Fixed: Notification hook not triggered when ticket state is forcibly modified
+- Fixed: Switch for enabling popup in transition operation during workflow configuration not working
+
+
+---------
+r2.0.11
+---------
+- Removed login authentication from backend homepage
+- Fixed: Unable to submit or process ticket when form contains read-only time or date type
+- Docker compose deployment uses utf8mb4 character set
+- Fixed: Flowchart interface page crash due to missing message import
+- Fixed: Unable to upload attachments when submitting or processing tickets in development mode
+- Optimized: Removed description information of built-in ticket fields to avoid display on ticket details page
+- Fixed: Unable to save when conditional expression is configured but target state is not selected when creating new workflow
+- Fixed: Attachments in ticket details not accessible in development environment
+- Optimized: Download files in ticket details saved with original filename
+- Optimized: Error on ticket details page when workflow display form is not configured
+- Deployment: Some notes on docker compose deployment method
+- Fixed: Only first 10 departments can be selected when adding user's department
+- Fixed: Empty list returned on ticket view and ticket intervention pages when view or intervention permissions are configured
+
+
+---------
+r2.0.10
+---------
+- Compatibility: [Flowchart] Compatibility for flowchart page error after automatic upgrade of frontend ant design chart version
+- Compatibility: [Deployment] Compatibility for docker compose deployment unable to download due to nodejs source certificate issue
+
+---------
+r2.0.9
+---------
+- Added: [Details Page] Support for add sign completion operation
+- Optimized: [API] Ticket state deletion does not affect data return of list API (no exception thrown, replaced with 'Unknown State')
+- Fixed: [API] Operation type not recorded after hook operation, causing hook operation name to be 'Unknown' in operation log API
+- Optimized: [Code Logic] Improved eval security
+
+
+---------
+r2.0.8
+---------
+- Fixed: [Code Logic] Application API call permission cannot pass permission verification after being added
+
+
+---------
+r2.0.7
+---------
+- Fixed: [Code Logic] Error in calculating user's parent department logic
+- Fixed: [Admin Panel] Unable to add workflow call permission successfully
+- Fixed: [Admin Panel] Unable to add role users in role user management
+- Fixed: [Admin Panel] Unable to search applications when adding application authorization in workflow basic configuration
+- Optimized: [Admin Panel] Display state id in workflow state list for convenience in writing conditional expressions
+- Optimized: [Admin Panel] Application name not allowed to be duplicated when adding or editing application call permission records
+- Optimized: [API] Optimized error when operation record API uses deleted transition operation
+- Optimized: [API] Optimized prompt information when redis is not started when creating new ticket
+- Optimized: [Documentation] Added description of frontend code interfaces
+- Optimized: [Code] Removed deprecated frontend pages and related images
+
+
+---------
+r2.0.6
+---------
+- Fixed: [Admin Panel] Workflow list pagination not working
+- Fixed: [Admin Panel] Unable to delete workflow
+- Fixed: [Admin Panel] Participant type selected as none, but participant is still required
+- Fixed: [Admin Panel] Unable to add department when approval person is not selected when adding department
+- Fixed: [Admin Panel] Unable to add back API authorized application after deletion when editing workflow
+- Optimized: [Admin Panel] Display department approval person name and leader name in department list
+- Fixed: [Deployment] Unable to stop service with docker compose method, error when executing python3 run.py stop
+- Optimized: [Deployment] Docker compose deployment supports upgrade
+
+
+---------
+r2.0.5
+---------
+- Fixed: [Admin Panel] Notification selection echo exception when editing workflow
+- Fixed: [Admin Panel] JSON repeatedly converted causing content exception when editing workflow state transitions multiple times
+- Fixed: [Admin Panel] Unable to delete user's department
+- Fixed: [Ticket Details] Unable to submit multi-select type fields
+- Fixed: [Admin Panel] Display exception for select type fields in read-only state
+- Added: [Ticket Details] Added support for rich text display and echo
+- Optimized: [API] Performance optimization for ticket list when ticket handler is multiple people
+
+---------
+r2.0.4
+---------
+- Fixed: [Deployment] Field error in initial SQL causing unable to add call permission record
+- Optimized: [Admin Panel] Flowchart display optimization
+- Fixed: [Admin Panel] Department list only displays first page
+- Fixed: [Admin Panel] Default approval person information error in add department popup causing unable to add department directly
+- Fixed: [Admin Panel] Default workflow selection initial value empty in add call permission record popup causing unable to add directly
+
+---------
+r2.0.3
+---------
+- Fixed: [Admin Panel] Query conditions not working on workflow management page
+- Fixed: [Admin Panel] Ticket list filter conditions (creator, creation time not working)
+- Fixed: [Admin Panel] Conditional expression not displayed in flowchart
+- Fixed: [Admin Panel] No configuration entry for timer
+- Fixed: [Admin Panel] Some personnel information not saved when creating workflow
+- Fixed: [Admin Panel] New record added after editing transition record
+- Fixed: [Admin Panel] Hook type frontend display error
+- Fixed: [Deployment] Database import failure did not stop deployment process during docker compose deployment
+- Fixed: [Deployment] Database port specification not effective when importing initialization data during docker compose deployment
+
+
+---------
+r2.0.2
+---------
+- Fixed: Jump to error page when creating ticket with invalid content
+- Fixed: Newly created users unable to login
+- Fixed: Regular users unable to reset password
+- Fixed: Permissions not working for different user types
+- Fixed: Super administrator unable to manage all tickets
+- Fixed: Regular users can view intervention ticket menu
+- Fixed: Unable to delete role
+- Fixed: Workflow type query condition not working in ticket list
+- Fixed: Title template not working after configuration
+- Optimized: Popup error when clicking new ticket button without selecting workflow
+
+
+---------
+r2.0.1
+---------
+- Fixed: Permission issue when deploying with docker compose method
+- Fixed: Error when adding new workflow in admin panel

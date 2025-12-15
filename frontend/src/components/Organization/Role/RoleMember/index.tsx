@@ -1,35 +1,35 @@
-import React, { useCallback, useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    TextField,
+    Delete as DeleteIcon,
+    PersonAdd as PersonAddIcon,
+    Search as SearchIcon
+} from '@mui/icons-material';
+import {
+    Box,
     Button,
+    Checkbox,
+    Chip,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
     Paper,
     Table,
     TableBody,
-    TableRow,
     TableCell,
     TableContainer,
     TableHead,
     TablePagination,
-    CircularProgress,
-    Box,
-    Chip,
-    IconButton,
-    Checkbox,
+    TableRow,
+    TextField,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import {
-    Delete as DeleteIcon,
-    Search as SearchIcon,
-    PersonAdd as PersonAddIcon
-} from '@mui/icons-material';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSnackbar from '../../../../hooks/useSnackbar';
-import { getSimpleUsers } from '../../../../services/user';
 import { addRoleUser, deleteRoleUser, getRoleUserList } from '../../../../services/role';
+import { getSimpleUsers } from '../../../../services/user';
 import { ISimpleUser } from '../../../../types/user';
 
 interface RoleMemberProps {
@@ -391,7 +391,7 @@ export function RoleMember({ open, roleId, roleName, onClose }: RoleMemberProps)
                     {selectedUsers.length > 0 && (
                         <Box sx={{ mt: 2 }}>
                             <Chip
-                                label={`已选择 ${selectedUsers.length} 个用户`}
+                                label={`${t('common.selected')} ${selectedUsers.length} ${t('common.users')}`}
                                 color="primary"
                                 variant="outlined"
                             />

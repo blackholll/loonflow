@@ -1,0 +1,63 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/user_guide/organization/user_dept.rst:2
+msgid "User and Department Management"
+msgstr "用户与部门管理"
+
+#: ../../source/user_guide/organization/user_dept.rst:4
+msgid ""
+"Loonflow provides built-in user and department management. You can add, "
+"edit, and delete users or departments in the UI, and you can also "
+"synchronize them in bulk through the API."
+msgstr "Loonflow 内置用户与部门管理，可在界面新增、编辑、删除，也可通过 API 批量同步。"
+
+#: ../../source/user_guide/organization/user_dept.rst:6
+msgid "user and department management"
+msgstr "用户与部门管理页面"
+
+#: ../../source/user_guide/organization/user_dept.rst:12
+msgid "How to manage"
+msgstr "管理方式"
+
+#: ../../source/user_guide/organization/user_dept.rst:13
+msgid ""
+"UI maintenance: manually create or adjust users and departments on the "
+"“Organization Management” page—best for small-scale or ad-hoc changes."
+msgstr "界面维护：在“组织管理”页面手动创建或调整用户和部门，适合小规模或临时调整。"
+
+#: ../../source/user_guide/organization/user_dept.rst:14
+msgid ""
+"API sync: call the organization management APIs to maintain users and "
+"departments in bulk. Populate the ``label`` field with an external "
+"system’s unique identifier (e.g., LDAP, AD) to simplify mapping and "
+"reconciliation later."
+msgstr "API 同步：调用组织管理接口批量维护用户与部门。可在 ``label`` 字段填入外部系统唯一标识（如 LDAP/AD），便于后续映射与校对。"
+
+#: ../../source/user_guide/organization/user_dept.rst:17
+msgid "Coming soon"
+msgstr "即将推出"
+
+#: ../../source/user_guide/organization/user_dept.rst:18
+msgid ""
+"Support for Azure AD, Google, DingTalk, and WeCom (WeChat Work) OAuth "
+"logins is on the way. After enabling, users and departments can be pulled"
+" from external identity sources without manual upkeep in the UI."
+msgstr "即将支持 Azure AD、Google、钉钉、企业微信 OAuth 登录。启用后可从外部身份源同步用户与部门，无需在界面手动维护。"

@@ -218,6 +218,39 @@ class WorkflowBaseService(BaseService):
         return dict(version_info_list=workflow_version_info_list, per_page=per_page, page=page, total=paginator.count)
 
     @classmethod
+    def get_workflow_version_detail(cls, workflow_id: str, version_id: str, tenant_id: str, operator_id: str) -> dict:
+        """
+        get workflow version detail
+        :param workflow_id:
+        :param version_id:
+        :param tenant_id:
+        :param operator_id:
+        :return:
+        """
+        version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, id=version_id)
+        return version_obj.get_dict()
+    @classmethod
+    def update_workflow_version(cls, workflow_id: str, version_id: str, tenant_id: str, operator_id: str, name: str, description: str, type: str) -> bool:
+        """
+        update workflow version, only allow one default version, and also must have one default version
+        :param workflow_id:
+        :param version_id:
+        :param tenant_id:
+        :param operator_id:
+        :return:
+        """
+        default_version_count = WorkflowVersion.objects.filter(workflow_id=workflow_id, tenant_id=tenant_id, type='default').count()
+        
+        version_obj = WorkflowVersion.objects.get(workflow_id=workflow_id, tenant_id=tenant_id, id=version_id)
+        if version_obj.type != 'default' and type == 'default' and default_version_count == 1:
+            raise CustomCommonException('can only exist one default version, please change other default version to candidate or archived first')
+        version_obj.name = name
+        version_obj.description = description
+        version_obj.type = type
+        version_obj.save()
+        return True
+
+    @classmethod
     def get_ticket_creation_form(cls, workflow_id: str, tenant_id: str, operator_id: str, version_name: str) -> dict:
         """
         get ticket creation form

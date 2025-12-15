@@ -4,7 +4,8 @@
 # You can set these variables from the command line, and also
 # from the environment for the first two.
 SPHINXOPTS    ?=
-SPHINXBUILD   ?= sphinx-build
+# Use python -m sphinx to ensure we use the current Python environment
+SPHINXBUILD   ?= python -m sphinx
 SOURCEDIR     = source
 BUILDDIR      = build
 
@@ -18,3 +19,10 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+# gen po files
+update-translations:
+	sphinx-intl update -p build/gettext -l zh_CN
+
+html-zh:
+	sphinx-build -b html -D language=zh_CN source build/html/zh_CN

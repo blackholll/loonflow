@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Autocomplete, CircularProgress, FormControl, FormHelperText, TextField } from '@mui/material';
+import { Autocomplete, CircularProgress, FormControl, TextField } from '@mui/material';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getSimpleUsers } from '../../services/user';
 import { ISimpleUser } from '../../types/user';
 import ViewField from './ViewField';
-import { useTranslation } from 'react-i18next';
 
 interface UserFieldProps {
     value: string | null;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: {
@@ -24,7 +23,6 @@ interface IOption {
 
 function UserField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -46,14 +44,14 @@ function UserField({
                 setUsers(response.data.userInfoList.map((user: ISimpleUser) => ({ label: `${user.name}(${user.alias})`, value: user.id })) || []);
             }
         } catch (error) {
-            console.error('加载用户列表失败:', error);
+            console.error(t('common.loadUserListFailed'), error);
         } finally {
             setLoading(false);
         }
     };
 
 
-    const fetchUsersByIds = async (userIds: string | string[]) => {
+    const fetchUsersByIds = useCallback(async (userIds: string | string[]) => {
         if (!userIds || (Array.isArray(userIds) && userIds.length === 0)) {
             return [];
         }
@@ -68,10 +66,10 @@ function UserField({
                 }));
             }
         } catch (error) {
-            console.error('获取用户信息失败:', error);
+            console.error(t('common.getUserInfoFailed'), error);
         }
         return [];
-    };
+    }, [t]);
 
     // 处理值变化
     const handleChange = (newValue: IOption | IOption[] | null) => {
@@ -99,7 +97,7 @@ function UserField({
                 }
             });
         }
-    }, [value, isMultiple]);
+    }, [value, isMultiple, fetchUsersByIds]);
 
 
     // 监控selectedUsers变化
@@ -117,9 +115,16 @@ function UserField({
             <Autocomplete
                 multiple={isMultiple}
                 options={users}
-                getOptionLabel={(option) => option.label}
+                getOptionLabel={(option) => (option as IOption).label}
+                isOptionEqualToValue={(option, val) => {
+                    if (isMultiple) {
+                        return Array.isArray(val) && val.some((v: IOption) => v.value === (option as IOption).value);
+                    } else {
+                        return (option as IOption).value === (val as IOption)?.value;
+                    }
+                }}
                 value={isMultiple ? selectedUsers : selectedUser}
-                onChange={(e, value) => handleChange(value)}
+                onChange={(e, value) => handleChange(value as IOption | IOption[])}
                 onInputChange={(e, value) => {
                     if (value.length > 0) {
                         loadUsers(value);

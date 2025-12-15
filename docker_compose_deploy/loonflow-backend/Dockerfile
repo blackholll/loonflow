@@ -1,4 +1,4 @@
-FROM python:3.12-slim as builder
+FROM python:3.12.12-slim AS builder
 WORKDIR /app
 
 
@@ -13,7 +13,7 @@ COPY ./backend/requirements/pro.txt .
 RUN pip install --user --no-warn-script-location -r pro.txt
 
 
-FROM python:3.12-slim
+FROM python:3.12.12-slim
 LABEL maintainer=blackholll@163.com
 
 WORKDIR /app/loonflow

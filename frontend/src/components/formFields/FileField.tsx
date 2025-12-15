@@ -1,24 +1,22 @@
-import React, { useState, useRef } from 'react';
-import {
-    FormControl,
-    Button,
-    Box,
-    Typography,
-    IconButton,
-    List,
-    ListItem,
-    ListItemText,
-    ListItemSecondaryAction,
-    Alert,
-    CircularProgress
-} from '@mui/material';
 import {
     CloudUpload,
-    AttachFile,
     Delete,
     Download,
     FilePresent
 } from '@mui/icons-material';
+import {
+    Alert,
+    Box,
+    CircularProgress,
+    FormControl,
+    IconButton,
+    List,
+    ListItem,
+    ListItemSecondaryAction,
+    ListItemText,
+    Typography
+} from '@mui/material';
+import React, { useRef, useState } from 'react';
 import ViewField from './ViewField';
 
 interface FileInfo {

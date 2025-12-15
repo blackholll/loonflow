@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
 import { Autocomplete, CircularProgress, FormControl, TextField } from '@mui/material';
-import { getDeptPaths } from '../../services/dept';
-import ViewField from './ViewField';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getDeptPaths } from '../../services/dept';
 import { ISimpleDeptPath } from '../../types/dept';
+import ViewField from './ViewField';
 
 interface DeptFieldProps {
     value: string | null;
-    fieldRequired: boolean;
     onChange: (value: string) => void;
     mode: 'view' | 'edit';
     props: {
@@ -24,7 +23,6 @@ interface IOption {
 
 function DepartmentField({
     value = '',
-    fieldRequired,
     onChange,
     mode,
     props,
@@ -46,14 +44,14 @@ function DepartmentField({
                 setDepts(response.data.deptPathList.map((dept: ISimpleDeptPath) => ({ label: `${dept.path}`, value: dept.id })) || []);
             }
         } catch (error) {
-            console.error('加载部门列表失败:', error);
+            console.error(t('common.loadDeptListFailed'), error);
         } finally {
             setLoading(false);
         }
-    }, [loading]);
+    }, [loading, t]);
 
 
-    const fetchDeptByIds = async (deptIds: string | string[]) => {
+    const fetchDeptByIds = useCallback(async (deptIds: string | string[]) => {
         if (!deptIds || (Array.isArray(deptIds) && deptIds.length === 0)) {
             return [];
         }
@@ -68,10 +66,10 @@ function DepartmentField({
                 }));
             }
         } catch (error) {
-            console.error('获取部门信息失败:', error);
+            console.error(t('common.getDeptInfoFailed'), error);
         }
         return [];
-    };
+    }, [t]);
 
     // 处理值变化
     const handleChange = (newValue: IOption | IOption[] | null) => {
@@ -107,7 +105,7 @@ function DepartmentField({
                 setSelectedDept(null);
             }
         }
-    }, [value, isMultiple]);
+    }, [value, isMultiple, fetchDeptByIds]);
 
 
 
@@ -121,11 +119,17 @@ function DepartmentField({
             <Autocomplete
                 multiple={isMultiple}
                 options={depts}
-                getOptionLabel={(option) => option.label}
-                isOptionEqualToValue={(option, val) => option.value === (val as IOption).value}
+                getOptionLabel={(option) => (option as IOption).label}
+                isOptionEqualToValue={(option, val) => {
+                    if (isMultiple) {
+                        return Array.isArray(val) && val.some((v: IOption) => v.value === (option as IOption).value);
+                    } else {
+                        return (option as IOption).value === (val as IOption)?.value;
+                    }
+                }}
                 value={isMultiple ? selectedDepts : selectedDept}
-                onChange={(e, value) => handleChange(value)}
-                onInputChange={(e, value) => {
+                onChange={(_e, value) => handleChange(value as IOption | IOption[])}
+                onInputChange={(_e, value) => {
                     if (value.length > 0) {
                         loadDepts(value);
                     }

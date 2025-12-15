@@ -1,21 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ISimpleDept } from '../../../types/dept';
-import { Tabs, Tab, Button, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Box, Modal, TextField, Paper, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, FormHelperText, CircularProgress, Dialog } from '@mui/material';
+import { IDept } from '@/types/dept';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { RichTreeView } from '@mui/x-tree-view';
 import { TreeViewBaseItem } from '@mui/x-tree-view/models';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../store';
-import { getDeptTree, getDeptDetail } from '../../../services/dept';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import useSnackbar from '../../../hooks/useSnackbar';
+import { deleteDept, getDeptDetail, getDeptTree } from '../../../services/dept';
 import DeptDialog from './DeptDialog';
 import DeptParentDialog from './DeptParentDialog';
-import { getUsers } from '../../../services/user';
-import { IUser, ISimpleUserListRes } from '@/types/user';
-import { IDept } from '@/types/dept';
-import User from './User';
-import { useTranslation } from 'react-i18next';
-import { deleteDept } from '../../../services/dept';
 
 
 interface Department {
@@ -127,7 +120,18 @@ function Dept() {
         return undefined;
     };
 
-    const fetchDepartmentTree = async () => {
+    const transformDeptData = useCallback((deptList: any[]): Department[] => {
+        return deptList.map((dept: any) => ({
+            id: dept.id.toString(),
+            name: dept.name,
+            label: dept.name,
+            leaderInfo: dept.leaderInfo,
+            hasChildren: dept.hasChildren || false,
+            children: dept.children ? transformDeptData(dept.children) : undefined
+        }));
+    }, []);
+
+    const fetchDepartmentTree = useCallback(async () => {
         try {
             setLoading(true);
             const response = await getDeptTree(true);
@@ -143,22 +147,12 @@ function Dept() {
         } finally {
             setLoading(false);
         }
-    };
-    const transformDeptData = (deptList: any[]): Department[] => {
-        return deptList.map(dept => ({
-            id: dept.id.toString(),
-            name: dept.name,
-            label: dept.name,
-            leaderInfo: dept.leaderInfo,
-            hasChildren: dept.hasChildren || false,
-            children: dept.children ? transformDeptData(dept.children) : undefined
-        }));
-    };
+    }, [showMessage, transformDeptData]);
 
-    // 在组件加载时获取部门树数据
+
     useEffect(() => {
         fetchDepartmentTree();
-    }, []);
+    }, [fetchDepartmentTree]);
 
 
     const fetchDeptDetail = useCallback(async () => {

@@ -1,29 +1,30 @@
-version: '3'
 services:
   loonflow-redis:
     hostname: loonflow-redis
-    image: redis:latest
+    image: redis:8.2.2
+    container_name: loonflow-redis
     restart: always
     ports:
-      - 6379:6379
+      - ${REDIS_PORT}:6379
     command: redis-server --requirepass ${REDIS_PASSWORD}
 
   loonflow-pg:
     hostname: loonflow-pg
-    image: postgres:latest # change to 15
+    image: postgres:15.14
+    container_name: loonflow-pg
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT}:5432
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - pg_data:/var/lib/postgresql/data
 
   loonflow-ui:
     hostname: loonflow-ui
-    image: blackholll/loonflow-ui:latest
-    platform: linux/amd64
+    image: blackholll/loonflow-ui:r3.0.1
+    container_name: loonflow-ui
     depends_on:
       - loonflow-redis
       - loonflow-pg
@@ -32,8 +33,8 @@ services:
 
   loonflow-backend:
     hostname: loonflow-backend
-    image: blackholll/loonflow-backend:latest
-    platform: linux/amd64
+    image: blackholll/loonflow-backend:r3.0.1
+    container_name: loonflow-backend
     environment:
       DB_NAME: ${POSTGRES_DB}
       DB_HOST: loonflow-pg
@@ -41,20 +42,28 @@ services:
       DB_PASS: ${POSTGRES_PASSWORD}
       REDIS_HOST: loonflow-redis
       REDIS_PASS: ${REDIS_PASSWORD}
+      DJANGO_SUPERUSER_PASSWORD: ${ADMIN_PASSWORD}
+      TENANT_NAME: ${TENANT_NAME}
+      TENANT_DOMAIN: ${TENANT_DOMAIN}
+
     working_dir: /app/loonflow
     ports:
-      - 8080:8080
+      - 8000:8000
     command:
       - sh
       - -c
       - |
+        python manage.py makemigrations
         python manage.py migrate
-        gunicorn --bind 0.0.0.0:8000 --workers 4 --chdir /app/loonflow --pythonpath /app/loonflow loonflow.wsgi:application
+        python manage.py createsuperuser --noinput --email ${ADMIN_EMAIL} --name ${ADMIN_NAME} || true
+        gunicorn --bind 0.0.0.0:8000 --workers 4 --chdir /app/loonflow --pythonpath /app/loonflow \
+        --access-logfile - --error-logfile - --log-level info \
+        loonflow.wsgi:application
 
   loonflow-task:
     hostname: loonflow-task
-    image: blackholll/loonflow-backend:latest
-    platform: linux/amd64
+    image: blackholll/loonflow-backend:r3.0.1
+    container_name: loonflow-task
     depends_on:
       - loonflow-redis
       - loonflow-pg
@@ -74,4 +83,5 @@ services:
         celery -A tasks worker -l info -c 8 -Q loonflow
 
 volumes:
-  postgres_data:
+  pg_data:
+    name: ${PG_DATA_VOLUME}

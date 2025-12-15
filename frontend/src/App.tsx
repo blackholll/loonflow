@@ -1,32 +1,29 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import React, { ReactNode, useEffect } from 'react';
-import PrivateRoute from './utils/PrivateRoute';
-import SnackbarProvider from './components/commonComponents/Snackbar/SnackbarProvider';
-import { useTranslation } from 'react-i18next';
+import { ReactNode, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import SnackbarProvider from './components/commonComponents/Snackbar/SnackbarProvider';
 import { getTenantByDomain } from './services/tenant';
 import { setTenantBasicInfo } from './store';
+import PrivateRoute from './utils/PrivateRoute';
 
 import Layout from './components/layout';
-import useMenuItems from './components/MenuItem';
-import Home from './components/home/HomePage';
-import SignIn from './SignIn';
-import Home2 from './components/home2/HomePage';
-import Workbench from './components/Workbench'
-import DutyTicket from './components/Ticket/DutyTicket';
-import OwerTicket from './components/Ticket/OwnerTicket';
-import RelationTicket from './components/Ticket/RelationTicket';
-import ViewTicket from './components/Ticket/ViewTicket';
-import InterveneTicket from './components/Ticket/InterveneTicket';
-import AllTicket from './components/Ticket/AllTicket';
-import TicketDetailPage from './components/Ticket/TicketDetailPage';
-import Tenant from './components/Setting/Tenant';
+import Role from './components/Organization/Role';
+import UserDept from './components/Organization/UserDept';
 import { ApplicationList } from './components/Setting/Application';
 import { NotificationList } from './components/Setting/Notification';
-import UserDept from './components/Organization/UserDept/Index';
-import Role from './components/Organization/Role';
-import { WorkflowList } from './components/Workflow/WorkflowList';
+import Tenant from './components/Setting/Tenant';
+import AllTicket from './components/Ticket/AllTicket';
+import DutyTicket from './components/Ticket/DutyTicket';
+import InterveneTicket from './components/Ticket/InterveneTicket';
+import NewTicketPage from './components/Ticket/NewTicketPage';
+import OwerTicket from './components/Ticket/OwnerTicket';
+import RelationTicket from './components/Ticket/RelationTicket';
+import TicketDetailPage from './components/Ticket/TicketDetailPage';
+import ViewTicket from './components/Ticket/ViewTicket';
+import Workbench from './components/Workbench';
 import WorkflowDetail from './components/Workflow/WorkflowDetail';
+import { WorkflowList } from './components/Workflow/WorkflowList';
+import SignIn from './SignIn';
 
 
 const App = () => {
@@ -39,18 +36,17 @@ const App = () => {
         const response = await getTenantByDomain(domain);
         if (response.code === 0) {
           dispatch(setTenantBasicInfo(response.data.tenantInfo));
-          console.log('获取租户信息成功:', response.data);
         }
       } catch (error) {
-        console.error('获取租户信息失败:', error);
+        console.error('get tenant info fail:', error);
       }
     };
     fetchTenantInfo();
 
-    // 设置定时刷新租户信息，每30分钟刷新一次
+    // set interval to refresh tenant info, every 30 minutes
     const intervalId = setInterval(fetchTenantInfo, 30 * 60 * 1000);
 
-    // 组件卸载时清除定时器
+    // clear interval when component unmount
     return () => clearInterval(intervalId);
   }, [dispatch]);
 
@@ -76,6 +72,10 @@ const App = () => {
       key={'ticketManagement'}
       path={'/ticket'}
     >
+      <Route key={'ticketNew'}
+        path={'/ticket/new'}
+        element={<PrivateRoute element={<Layout children={<NewTicketPage />} />} />}
+      />
       <Route key={'ticketDuty'}
         path={'/ticket/duty'}
         element={<PrivateRoute element={<Layout children={<DutyTicket />} />} />}

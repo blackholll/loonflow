@@ -1,34 +1,85 @@
-name: Build Web Image
+name: Build Frontend Images
+
 on:
   push:
-    tags:
-      - 'r**'
+    tags: ['r**']
+    # branches: [v3.0.1]
+
+
 jobs:
-  build_web:
-    name: Build Web
+  build:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v3
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      -
-        name: Login to Docker Hub
-        uses: docker/login-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          
+      - name: Enable Corepack and setup Yarn
+        run: |
+          corepack enable
+          # 从 package.json 中读取 packageManager 字段
+          YARN_VERSION=$(node -p "require('./frontend/package.json').packageManager?.split('@')[1] || '4.4.1'")
+          echo "Installing Yarn version: $YARN_VERSION"
+          corepack prepare yarn@$YARN_VERSION --activate
+          echo "Yarn version: $(yarn --version)"
+          echo "Yarn location: $(which yarn)"
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            frontend/.yarn/cache
+            frontend/node_modules
+          key: yarn-${{ runner.os }}-${{ hashFiles('frontend/yarn.lock') }}
+          restore-keys: |
+            yarn-${{ runner.os }}-
+
+      - name: Cache TS incremental info
+        uses: actions/cache@v3
+        with:
+          path: frontend/.tsbuildinfo
+          key: tsbuildinfo-${{ runner.os }}-${{ hashFiles('frontend/tsconfig.json') }}
+          restore-keys: |
+            tsbuildinfo-${{ runner.os }}-
+
+      - name: Verify Yarn version
+        run: yarn --version
+        
+      - name: Install deps (frontend)
+        working-directory: frontend
+        run: yarn install --immutable
+
+      - name: TypeScript type check
+        working-directory: frontend
+        run: |
+          echo "Running TypeScript check with Yarn $(yarn --version)"
+          yarn tsc --noEmit
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Build and push
-        uses: docker/build-push-action@v4
+      
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker_compose_deploy/loonflow-ui/Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           push: true
-          tags: blackholll/loonflow-ui:latest,blackholll/loonflow-ui:${{ github.ref_name }}
+          tags: |
+            blackholll/loonflow-ui:${{ github.ref_name }}

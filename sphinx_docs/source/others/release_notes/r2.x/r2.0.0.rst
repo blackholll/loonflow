@@ -1,0 +1,10 @@
+r2.0.0
+---------
+
+- Built-in ticket creation, viewing, processing, and management interface (major change in this release)
+- Support for users belonging to multiple departments simultaneously (significant change in this release)
+- flowlog API supports specifying order or reverse order
+- Workflow configuration interface supports viewing daily new ticket statistics
+- Ticket details support administrator intervention
+- Support for users to change their own passwords
+- Various other optimizations

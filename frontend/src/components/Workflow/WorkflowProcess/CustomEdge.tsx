@@ -1,6 +1,5 @@
+import { EdgeProps, getSmoothStepPath, useReactFlow } from '@xyflow/react';
 import React from 'react';
-import { EdgeProps, getSmoothStepPath, getBezierPath, getStraightPath, EdgeLabelRenderer, useReactFlow } from '@xyflow/react';
-import { Box, Typography } from '@mui/material';
 
 interface EdgeData {
     properties?: {
@@ -21,7 +20,6 @@ function CustomEdge(props: EdgeProps) {
         sourcePosition,
         targetPosition,
         style = {},
-        markerEnd,
         selected,
         data,
     } = props;

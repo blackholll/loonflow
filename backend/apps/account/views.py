@@ -446,7 +446,7 @@ class SimpleRolesView(BaseView):
         except Exception as e:
             logger.error(traceback.format_exc())
             return api_response(-1, "Internal Server Error", {})
-        data = dict(role_list=result.get('role_result_object_format_list'),
+        data = dict(role_info_list=result.get('role_result_object_format_list'),
                     per_page=result.get('paginator_info').get('per_page'),
                     page=result.get('paginator_info').get('page'),
                     total=result.get('paginator_info').get('total'))
@@ -822,6 +822,7 @@ class UserChangePasswordView(BaseView):
         :return:
         """
         operator_id = request.META.get('HTTP_USERID')
+        tenant_id = request.META.get('HTTP_TENANTID')
 
         json_str = request.body.decode('utf-8')
         request_data_dict = json.loads(json_str)
@@ -832,7 +833,7 @@ class UserChangePasswordView(BaseView):
         if new_password != new_password_again:
             return api_response(-1, "passwords are different between two input", {})
         try:
-            account_user_service_ins.change_password(operator_id, source_password, new_password)
+            account_user_service_ins.change_password(tenant_id, operator_id, source_password, new_password)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception:

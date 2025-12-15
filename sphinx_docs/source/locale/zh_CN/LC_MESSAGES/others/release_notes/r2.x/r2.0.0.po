@@ -1,0 +1,58 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-11 20:46+0800\n"
+"PO-Revision-Date: 2025-12-11 00:00+0800\n"
+"Last-Translator: ChatGPT <noreply@example.com>\n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/others/release_notes/r2.x/r2.0.0.rst:2
+msgid "r2.0.0"
+msgstr "r2.0.0"
+
+#: ../../source/others/release_notes/r2.x/r2.0.0.rst:4
+msgid ""
+"Built-in ticket creation, viewing, processing, and management interface "
+"(major change in this release)"
+msgstr "内置工单创建、查看、处理、管理界面（本次版本重大变更）"
+
+#: ../../source/others/release_notes/r2.x/r2.0.0.rst:5
+msgid ""
+"Support for users belonging to multiple departments simultaneously "
+"(significant change in this release)"
+msgstr "支持用户同时隶属多个部门（本次版本重大变更）"
+
+#: ../../source/others/release_notes/r2.x/r2.0.0.rst:6
+msgid "flowlog API supports specifying order or reverse order"
+msgstr "flowlog 接口支持指定正序或倒序"
+
+#: ../../source/others/release_notes/r2.x/r2.0.0.rst:7
+msgid ""
+"Workflow configuration interface supports viewing daily new ticket "
+"statistics"
+msgstr "流程配置界面支持查看每日新增工单统计"
+
+#: ../../source/others/release_notes/r2.x/r2.0.0.rst:8
+msgid "Ticket details support administrator intervention"
+msgstr "工单详情支持管理员干预"
+
+#: ../../source/others/release_notes/r2.x/r2.0.0.rst:9
+msgid "Support for users to change their own passwords"
+msgstr "支持用户修改自己的密码"
+
+#: ../../source/others/release_notes/r2.x/r2.0.0.rst:10
+msgid "Various other optimizations"
+msgstr "其他多项优化"
+

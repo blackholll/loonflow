@@ -72,6 +72,9 @@ class TicketNodeService(BaseService):
     
         if node_info_list:
             exist_ticket_node_queryset = TicketNode.objects.filter(tenant_id=tenant_id, ticket_id=node_info_list[0].get("ticket_id"))
+        else:
+            exist_ticket_node_queryset = []
+
         
         # get need add records, geet need update records, get need delete records
         ## get need add records

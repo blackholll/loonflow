@@ -221,7 +221,7 @@ class TicketBaseService(BaseService):
 
         # required field check
         edge_obj = workflow_edge_service_ins.get_workflow_edge_by_id(tenant_id, workflow_id, version_id, action_id)
-        validate_fields = edge_obj.props.get('validate_fields', True)
+        skip_fields_required_check = edge_obj.props.get('skip_fields_required_check', False)
 
         ## get start node id
         required_field_list, update_field_list = [], []
@@ -241,7 +241,7 @@ class TicketBaseService(BaseService):
             elif field_permission == 'optional':
                 update_field_list.append(field_key)
         
-        if validate_fields:
+        if not skip_fields_required_check:
             for required_field in required_field_list:
                 if required_field not in request_data_dict.get('fields', {}).keys():
                     raise CustomCommonException('field {} is required'.format(required_field))
@@ -254,7 +254,7 @@ class TicketBaseService(BaseService):
             act_state = cls.get_act_state_by_node_and_edge_type(next_node_dict_list[0].get("type"), edge_obj.type)
         
         # title need check whether title need auto genirate
-        title = workflow_component_service_ins.get_title_from_template(tenant_id, workflow_id, version_id, request_data_dict.get('fields', {}))
+        title = workflow_component_service_ins.get_title_from_template(tenant_id, workflow_id, version_id, operator_id, request_data_dict.get('fields', {}))
 
         ticket_record = TicketRecord(title=title, workflow_id=workflow_id,
                                      parent_ticket_id=parent_ticket_id,
@@ -276,7 +276,11 @@ class TicketBaseService(BaseService):
                                                                 start_node_obj.id,
                                                                 request_data_dict.get('fields', {}))
         # add ticket custom field
-        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, version_id, request_data_dict.get('fields'))
+        for_update_field = {}
+        for field_key, field_value in request_data_dict.get('fields', {}).items():
+            if field_key in update_field_list:
+                for_update_field[field_key] = field_value
+        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, version_id, for_update_field)
 
         # update TicketNode
         next_ticket_node_result_list  = []
@@ -1427,12 +1431,13 @@ class TicketBaseService(BaseService):
 
 
         edge_record = workflow_edge_service_ins.get_workflow_edge_by_id(tenant_id, workflow_id, workflow_version_id, edge_id=action_id)
+        skip_fields_required_check = edge_record.props.get('skip_fields_required_check', False)
+
         if str(edge_record.source_node_id) != node_id:
             raise CustomCommonException("current node has no permission to run this transition")
         
         current_node_record = workflow_node_service_ins.get_node_by_id(tenant_id, node_id)
 
-        validate_fields = edge_record.props.get('validate_fields', True)
         
         ## get start node id
         required_field_list, update_field_list = [], []
@@ -1450,7 +1455,7 @@ class TicketBaseService(BaseService):
                 update_field_list.append(field_key)
             elif field_permission == 'optional':
                 update_field_list.append(field_key)
-        if validate_fields:
+        if skip_fields_required_check:
             for required_field in required_field_list:
                 if required_field not in fields.keys():
                     raise CustomCommonException('field {} is required'.format(required_field))
@@ -1477,7 +1482,12 @@ class TicketBaseService(BaseService):
                                                                 node_id, ticket_data)
 
         # add ticket custom field
-        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, workflow_version_id, request_data_dict.get('fields'))
+        for_update_field = {}
+        for field_key, field_value in request_data_dict.get('fields', {}).items():
+            if field_key in update_field_list:
+                for_update_field[field_key] = field_value
+
+        ticket_field_service_ins.update_ticket_fields(tenant_id, ticket_id, operator_id, workflow_id, workflow_version_id, for_update_field)
 
         # update TicketNode
         next_ticket_node_result_list  = []
