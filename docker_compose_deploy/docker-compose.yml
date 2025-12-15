@@ -19,11 +19,12 @@ services:
     ports:
       - ${POSTGRES_PORT}:5432
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql
 
   loonflow-ui:
     hostname: loonflow-ui
     image: blackholll/loonflow-ui:r3.0.1
+    platform: linux/amd64
     container_name: loonflow-ui
     depends_on:
       - loonflow-redis
@@ -34,6 +35,7 @@ services:
   loonflow-backend:
     hostname: loonflow-backend
     image: blackholll/loonflow-backend:r3.0.1
+    platform: linux/amd64
     container_name: loonflow-backend
     environment:
       DB_NAME: ${POSTGRES_DB}
@@ -64,6 +66,7 @@ services:
     hostname: loonflow-task
     image: blackholll/loonflow-backend:r3.0.1
     container_name: loonflow-task
+    platform: linux/amd64
     depends_on:
       - loonflow-redis
       - loonflow-pg
