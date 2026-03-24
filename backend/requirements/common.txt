@@ -33,4 +33,4 @@ tzdata==2025.2
 urllib3==2.6.3
 vine==5.1.0
 wcwidth==0.2.14
-Authlib==1.4.0
+Authlib==1.6.9
