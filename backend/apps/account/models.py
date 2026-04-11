@@ -101,7 +101,7 @@ class User(AbstractBaseUser, BaseCommonModel):
     is_active = models.BooleanField("is_active", null=False, default=True)
     type = models.CharField("type", max_length=50, null=False, choices=TYPE_CHOICE)
     avatar = models.CharField("avatar", max_length=500, null=False, default="")
-    lang = models.CharField("lang", choices=LANG_CHOICE, null=False, default="zh-cn", max_length=100)
+    lang = models.CharField("lang", choices=LANG_CHOICE, null=False, default="", max_length=100)
 
     objects = UserManager()
     REQUIRED_FIELDS = ['name']
