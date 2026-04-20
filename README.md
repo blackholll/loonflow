@@ -16,6 +16,10 @@ Loonflow is an open-source process automation platform developed based on Django
 
 The core of version 3.0 is "making complex business processes simple and visual, making personalized customization needs within reach." Not only have we rebuilt the process and form designers, but we have also constructed a powerful extension framework, aiming to become the most core process engine in enterprise digital transformation.
 
+# SaaS
+
+We offer a **managed SaaS** edition of Loonflow at [https://www.loonflow.com/](https://www.loonflow.com/). You can start with a **two-week free trial**—no self-hosting required. Visit the site for signup and plan details.
+
 # Feature Demo
 [![Feature Demo new](https://img.youtube.com/vi/IpLePpajyfU/0.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
 
