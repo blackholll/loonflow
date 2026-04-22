@@ -17,6 +17,7 @@ import {
     Typography
 } from '@mui/material';
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { uploadTicketFile, uploadDraftFile } from '../../services/ticket';
 import apiClient from '../../services/api';
 import ViewField from './ViewField';
@@ -48,6 +49,7 @@ function FileField({
     props,
     ticketId,
 }: FileFieldProps) {
+    const { t } = useTranslation();
 
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string>('');
@@ -104,14 +106,14 @@ function FileField({
 
         for (const file of Array.from(files)) {
             if (file.size > maxSize) {
-                setError(`文件 ${file.name} 超过大小限制 ${formatFileSize(maxSize)}`);
+                setError(`${t('common.fileUpload.fileTooLarge')}: ${file.name} (${formatFileSize(maxSize)})`);
                 setUploading(false);
                 if (fileInputRef.current) fileInputRef.current.value = '';
                 return;
             }
         }
         if (currentFiles.length + files.length > maxFiles) {
-            setError(`最多只能上传 ${maxFiles} 个文件`);
+            setError(`${t('common.fileUpload.tooManyFiles')}: ${maxFiles}`);
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
             return;
@@ -132,7 +134,7 @@ function FileField({
                         file_path: res.data.url
                     });
                 } else {
-                    setError((res as { msg?: string })?.msg || '上传失败');
+                    setError((res as { msg?: string })?.msg || t('common.fileUpload.uploadFailed'));
                     setUploading(false);
                     if (fileInputRef.current) fileInputRef.current.value = '';
                     return;
@@ -140,7 +142,7 @@ function FileField({
             }
             onChange([...currentFiles, ...uploadedList]);
         } catch (err) {
-            setError('文件处理失败');
+            setError(t('common.fileUpload.fileProcessingFailed'));
         } finally {
             setUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
@@ -169,7 +171,7 @@ function FileField({
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
             } catch {
-                setError('下载失败');
+                setError(t('common.fileUpload.downloadFailed'));
             }
             return;
         }
@@ -209,7 +211,7 @@ function FileField({
                         <IconButton
                             size="small"
                             onClick={() => handleDownloadFile(file)}
-                            title="下载文件"
+                            title={t('common.fileUpload.downloadFile')}
                         >
                             <Download fontSize="small" />
                         </IconButton>
@@ -243,14 +245,14 @@ function FileField({
                 >
                     <CloudUpload sx={{ fontSize: 48, color: '#666', mb: 1 }} />
                     <Typography variant="body1" sx={{ mb: 1 }}>
-                        点击选择文件或拖拽文件到此处
+                        {t('common.fileUpload.clickToSelect')}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        支持多个文件，单个文件不超过 {formatFileSize(props?.maxSize || 10 * 1024 * 1024)}
+                        {t('common.fileUpload.multipleFilesHint')} {t('common.fileUpload.fileSizeLimit')} {formatFileSize(props?.maxSize || 10 * 1024 * 1024)}
                     </Typography>
                     {props?.maxFiles && (
                         <Typography variant="caption" color="text.secondary">
-                            最多 {props.maxFiles} 个文件
+                            {t('common.fileUpload.maxFilesLimit')} {props.maxFiles} {t('common.fileUpload.filesAllowed')}
                         </Typography>
                     )}
                 </Box>
@@ -276,7 +278,7 @@ function FileField({
                 {uploading && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
                         <CircularProgress size={20} />
-                        <Typography variant="body2">正在处理文件...</Typography>
+                        <Typography variant="body2">{t('common.fileUpload.uploading')}</Typography>
                     </Box>
                 )}
 
@@ -284,7 +286,7 @@ function FileField({
                 {files.length > 0 && (
                     <Box sx={{ mt: 2 }}>
                         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                            已选择的文件 ({files.length})
+                            {t('common.fileUpload.selectedFiles')} ({files.length})
                         </Typography>
                         <List dense>
                             {files.map((file) => (
@@ -303,14 +305,14 @@ function FileField({
                                         <IconButton
                                             size="small"
                                             onClick={() => handleDownloadFile(file)}
-                                            title="下载"
+                                            title={t('common.fileUpload.downloadFile')}
                                         >
                                             <Download fontSize="small" />
                                         </IconButton>
                                         <IconButton
                                             size="small"
                                             onClick={() => handleDeleteFile(file.file_path)}
-                                            title="删除"
+                                            title={t('common.fileUpload.deleteFile')}
                                             color="error"
                                         >
                                             <Delete fontSize="small" />
@@ -325,7 +327,7 @@ function FileField({
                 {/* 必填提示 */}
                 {fieldRequired && files.length === 0 && (
                     <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
-                        此字段为必填项
+                        {t('common.fileUpload.requiredField')}
                     </Typography>
                 )}
             </Box>

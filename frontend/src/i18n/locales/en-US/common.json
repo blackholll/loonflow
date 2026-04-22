@@ -72,6 +72,7 @@
   "fileUpload": {
     "clickToSelect": "Click to select files or drag files here",
     "dragAndDrop": "Drag files here to upload",
+    "multipleFilesHint": "Multiple files are supported,",
     "fileSizeLimit": "Single file size limit",
     "maxFilesLimit": "Maximum",
     "filesAllowed": "files allowed",
@@ -82,10 +83,12 @@
     "tooManyFiles": "Maximum files allowed",
     "deleteFile": "Delete file",
     "downloadFile": "Download file",
+    "downloadFailed": "Download failed",
     "selectedFiles": "Selected files",
     "noFilesSelected": "No files selected",
     "fileProcessingFailed": "File processing failed",
-    "unknownFileType": "Unknown type"
+    "unknownFileType": "Unknown type",
+    "requiredField": "This field is required"
   },
   "pleaseSelect": "Please select",
   "invalidComponent": "Invalid component",
