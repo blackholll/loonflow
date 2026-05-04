@@ -132,7 +132,7 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
 
     const handleChange = (key: string, value: any) => {
         if (key === 'precision') {
-            const nextProps = {
+            const nextProps: IWorkflowComponent['props'] = {
                 ...(component as IWorkflowComponent).props,
                 precision: value
             };
