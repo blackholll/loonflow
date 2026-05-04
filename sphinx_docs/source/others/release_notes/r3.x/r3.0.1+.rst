@@ -10,6 +10,7 @@ r3.2.0
 - Optimize: user info display optimization(ticket list and ticket history record)
 - Optimize: added user guidance for creating workflows when none are available.
 - Bugfix: Number field maxvalue and minvalue validation
+- Bugfix: fix attchment field i18 issue
 
 
 
