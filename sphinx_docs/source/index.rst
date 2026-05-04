@@ -15,6 +15,12 @@ Welcome to loonflow's documentation!
 
 .. toctree::
    :maxdepth: 3
+   :caption: MCP
+
+   mcp/index
+
+.. toctree::
+   :maxdepth: 3
    :caption: Installation & Deployment
    
    installtion_deployment/system_requirements/index   
