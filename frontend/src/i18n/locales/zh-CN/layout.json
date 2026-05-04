@@ -33,5 +33,12 @@
   "patCreateFailed": "创建令牌失败",
   "patRevokeFailed": "吊销令牌失败",
   "patRevokeSuccess": "令牌已吊销",
-  "patRevokeConfirm": "确定吊销该令牌？使用此令牌的 MCP 客户端将立即失效。"
+  "patRevokeConfirm": "确定吊销该令牌？使用此令牌的 MCP 客户端将立即失效。",
+  "infoMenu": "帮助与信息",
+  "about": "关于",
+  "documentation": "文档",
+  "feedback": "反馈",
+  "currentVersion": "当前版本",
+  "githubRepository": "GitHub 仓库",
+  "feedbackEmail": "反馈邮箱"
 }

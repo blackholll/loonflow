@@ -33,5 +33,12 @@
   "patCreateFailed": "Failed to create token",
   "patRevokeFailed": "Failed to revoke token",
   "patRevokeSuccess": "Token revoked",
-  "patRevokeConfirm": "Revoke this token? MCP clients using it will stop working."
+  "patRevokeConfirm": "Revoke this token? MCP clients using it will stop working.",
+  "infoMenu": "Help & Info",
+  "about": "About",
+  "documentation": "Documentation",
+  "feedback": "Feedback",
+  "currentVersion": "Current version",
+  "githubRepository": "GitHub repository",
+  "feedbackEmail": "Contact emails"
 }

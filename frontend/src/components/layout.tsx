@@ -1,5 +1,6 @@
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import ContentCopy from '@mui/icons-material/ContentCopy';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import {
   Alert,
   AppBar,
@@ -50,6 +51,10 @@ import MenuList from './MenuList';
 
 
 const drawerWidth = 240;
+const DOCUMENT_URL = 'https://loonflow.readthedocs.io/';
+const GITHUB_URL = 'https://github.com/blackholll/loonflow';
+const FEEDBACK_MAILS = 'blackholll@163.com, blackholll.cn@gmail.com';
+const APP_VERSION = "r3.2.0";
 
 interface LayoutProps {
   children: ReactNode;
@@ -59,7 +64,10 @@ const Layout = ({ children }: LayoutProps) => {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [infoMenuAnchorEl, setInfoMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [openAboutDialog, setOpenAboutDialog] = React.useState(false);
+  const [openFeedbackDialog, setOpenFeedbackDialog] = React.useState(false);
   const [openUserInfo, setOpenUserInfo] = React.useState(false);
   const [language, setLanguage] = React.useState(i18n.language);
   const [tabValue, setTabValue] = React.useState(0);
@@ -84,24 +92,55 @@ const Layout = ({ children }: LayoutProps) => {
   const user = useSelector((state: any) => state.auth.user);
   const tenant = useSelector((state: any) => state.tenant);
   const { showMessage } = useSnackbar();
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleUserMenuClose = () => {
+    setUserMenuAnchorEl(null);
+  };
+
+  const handleInfoMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setInfoMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleInfoMenuClose = () => {
+    setInfoMenuAnchorEl(null);
   };
 
   const handleLogout = () => {
     dispatch(logoutState());
     removeCookie('jwtToken');
     navigate('/signin');
-    handleClose();
+    handleUserMenuClose();
   };
 
   const handleOpenUserInfo = () => {
     setOpenUserInfo(true);
-    handleClose();
+    handleUserMenuClose();
+  };
+
+  const handleOpenAboutDialog = () => {
+    setOpenAboutDialog(true);
+    handleInfoMenuClose();
+  };
+
+  const handleCloseAboutDialog = () => {
+    setOpenAboutDialog(false);
+  };
+
+  const handleOpenDocumentation = () => {
+    window.open(DOCUMENT_URL, '_blank', 'noopener,noreferrer');
+    handleInfoMenuClose();
+  };
+
+  const handleOpenFeedback = () => {
+    setOpenFeedbackDialog(true);
+    handleInfoMenuClose();
+  };
+
+  const handleCloseFeedbackDialog = () => {
+    setOpenFeedbackDialog(false);
   };
 
   const handleCloseUserInfo = () => {
@@ -310,10 +349,40 @@ const Layout = ({ children }: LayoutProps) => {
           <div>
             <IconButton
               size="large"
+              aria-label={t('layout.infoMenu')}
+              aria-controls="menu-info"
+              aria-haspopup="true"
+              onClick={handleInfoMenuOpen}
+              color="inherit"
+              sx={{ color: 'gray', mr: 0.25 }}
+            >
+              <InfoOutlined />
+            </IconButton>
+            <Menu
+              id="menu-info"
+              anchorEl={infoMenuAnchorEl}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={Boolean(infoMenuAnchorEl)}
+              onClose={handleInfoMenuClose}
+            >
+              <MenuItem onClick={handleOpenAboutDialog}>{t('layout.about')}</MenuItem>
+              <MenuItem onClick={handleOpenDocumentation}>{t('layout.documentation')}</MenuItem>
+              <MenuItem onClick={handleOpenFeedback}>{t('layout.feedback')}</MenuItem>
+            </Menu>
+            <IconButton
+              size="large"
               aria-label="account of current user"
               aria-controls="menu-appbar"
               aria-haspopup="true"
-              onClick={handleMenu}
+              onClick={handleUserMenuOpen}
               color="inherit"
               sx={{ color: 'gray' }}
             >
@@ -324,7 +393,7 @@ const Layout = ({ children }: LayoutProps) => {
             </IconButton>
             <Menu
               id="menu-appbar"
-              anchorEl={anchorEl}
+              anchorEl={userMenuAnchorEl}
               anchorOrigin={{
                 vertical: 'bottom',
                 horizontal: 'right',
@@ -334,8 +403,8 @@ const Layout = ({ children }: LayoutProps) => {
                 vertical: 'top',
                 horizontal: 'right',
               }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
+              open={Boolean(userMenuAnchorEl)}
+              onClose={handleUserMenuClose}
             >
               <MenuItem onClick={handleOpenUserInfo}>{t('common.userInfo')}</MenuItem>
               <MenuItem onClick={handleLogout}>{t('common.logout')}</MenuItem>
@@ -485,6 +554,38 @@ const Layout = ({ children }: LayoutProps) => {
               {t('layout.changePassword')}
             </Button>
           )}
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openAboutDialog} onClose={handleCloseAboutDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>{t('layout.about')}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              {t('layout.currentVersion')}: {APP_VERSION}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              {t('layout.githubRepository')}:{' '}
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+                {GITHUB_URL}
+              </a>
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAboutDialog}>{t('common.close')}</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openFeedbackDialog} onClose={handleCloseFeedbackDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>{t('layout.feedback')}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="body1">
+              {t('layout.feedbackEmail')}: {FEEDBACK_MAILS}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseFeedbackDialog}>{t('common.close')}</Button>
         </DialogActions>
       </Dialog>
       <Dialog
