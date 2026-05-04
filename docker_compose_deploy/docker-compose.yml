@@ -40,6 +40,7 @@ services:
       DB_HOST: loonflow-pg
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
       REDIS_HOST: loonflow-redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       DJANGO_SUPERUSER_PASSWORD: ${ADMIN_PASSWORD}
@@ -79,6 +80,7 @@ services:
       DB_PASS: ${POSTGRES_PASSWORD}
       REDIS_HOST: loonflow-redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
     command:
       - sh
       - -c
