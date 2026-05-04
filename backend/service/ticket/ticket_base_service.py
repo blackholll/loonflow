@@ -1132,6 +1132,9 @@ class TicketBaseService(BaseService):
         :return:
         """
         action_props = request_data_dict.get('action_props', {})
+        node_id = action_props.get('node_id', '')
+        if not node_id:
+            raise CustomCommonException("node_id is required")
         ticket_data = ticket_field_service_ins.get_ticket_all_field_value(tenant_id, ticket_id)
         ticket_flow_history_service_ins.add_ticket_flow_history(tenant_id, operator_id, ticket_id, "add_comment", None, action_props.get('comment', ''),
         "user", operator_id, action_props.get('node_id', ''), ticket_data)

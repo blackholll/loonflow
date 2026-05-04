@@ -1,11 +1,49 @@
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { AppBar, Box, Button, CssBaseline, Dialog, DialogActions, DialogContent, DialogTitle, Drawer, FormControl, IconButton, InputLabel, Menu, MenuItem, Select, Tab, Tabs, TextField, Toolbar, Typography } from '@mui/material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import {
+  Alert,
+  AppBar,
+  Box,
+  Button,
+  Chip,
+  CssBaseline,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Drawer,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  Menu,
+  MenuItem,
+  Select,
+  Stack,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tabs,
+  TextField,
+  Toolbar,
+  Typography,
+} from '@mui/material';
 import React, { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import useSnackbar from '../hooks/useSnackbar';
-import { changePassword, getMyProfile, updateMyProfile } from '../services/user';
+import {
+  changePassword,
+  createPersonalAccessToken,
+  getMyProfile,
+  listPersonalAccessTokens,
+  revokePersonalAccessToken,
+  updateMyProfile,
+} from '../services/user';
 import { logoutState } from '../store/authSlice';
 import { removeCookie } from '../utils/cookie';
 import MenuList from './MenuList';
@@ -35,6 +73,14 @@ const Layout = ({ children }: LayoutProps) => {
     newPassword: '',
     confirmPassword: ''
   });
+  const [patTokens, setPatTokens] = React.useState<
+    { id: string; label: string; maskedToken: string; expiresAt: string; lastUsedAt: string; revoked: boolean }[]
+  >([]);
+  const [patLoading, setPatLoading] = React.useState(false);
+  const [patLabel, setPatLabel] = React.useState('');
+  const [patExpiresDays, setPatExpiresDays] = React.useState<number>(90);
+  const [patCreatedToken, setPatCreatedToken] = React.useState<string | null>(null);
+  const [patCreatedDialogOpen, setPatCreatedDialogOpen] = React.useState(false);
   const user = useSelector((state: any) => state.auth.user);
   const tenant = useSelector((state: any) => state.tenant);
   const { showMessage } = useSnackbar();
@@ -71,7 +117,82 @@ const Layout = ({ children }: LayoutProps) => {
       newPassword: '',
       confirmPassword: ''
     });
+    setPatTokens([]);
+    setPatLabel('');
+    setPatExpiresDays(90);
+    setPatCreatedToken(null);
+    setPatCreatedDialogOpen(false);
   };
+
+  const loadPersonalAccessTokens = React.useCallback(async () => {
+    setPatLoading(true);
+    try {
+      const res = await listPersonalAccessTokens();
+      if (res.code === 0) {
+        setPatTokens(res.data?.personalAccessTokenList ?? []);
+      } else {
+        setPatTokens([]);
+        showMessage(res.msg || t('layout.patLoadFailed'), 'error');
+      }
+    } catch (e) {
+      showMessage(t('layout.patLoadFailed'), 'error');
+      setPatTokens([]);
+    } finally {
+      setPatLoading(false);
+    }
+  }, [showMessage, t]);
+
+  const handleGeneratePat = async () => {
+    try {
+      const res = await createPersonalAccessToken({
+        label: patLabel.trim(),
+        expiresInDays: patExpiresDays,
+      });
+      if (res.code === 0 && res.data?.token) {
+        setPatCreatedToken(res.data.token);
+        setPatCreatedDialogOpen(true);
+        setPatLabel('');
+        await loadPersonalAccessTokens();
+        showMessage(t('common.addSuccess'), 'success');
+      } else {
+        showMessage(res.msg || t('layout.patCreateFailed'), 'error');
+      }
+    } catch (e) {
+      showMessage(t('layout.patCreateFailed'), 'error');
+    }
+  };
+
+  const handleRevokePat = async (tokenId: string) => {
+    if (!window.confirm(t('layout.patRevokeConfirm'))) {
+      return;
+    }
+    try {
+      const res = await revokePersonalAccessToken(tokenId);
+      if (res.code === 0) {
+        showMessage(t('layout.patRevokeSuccess'), 'success');
+        await loadPersonalAccessTokens();
+      } else {
+        showMessage(res.msg || t('layout.patRevokeFailed'), 'error');
+      }
+    } catch (e) {
+      showMessage(t('layout.patRevokeFailed'), 'error');
+    }
+  };
+
+  const handleCopyPat = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      showMessage(t('layout.patCopied'), 'success');
+    } catch {
+      showMessage(t('layout.patCopyFailed'), 'error');
+    }
+  };
+
+  React.useEffect(() => {
+    if (openUserInfo && tabValue === 2) {
+      void loadPersonalAccessTokens();
+    }
+  }, [openUserInfo, tabValue, loadPersonalAccessTokens]);
 
   const handleLanguageChange = async (event: any) => {
     const newLang = event.target.value;
@@ -222,13 +343,14 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
         </Toolbar>
       </AppBar>
-      <Dialog open={openUserInfo} onClose={handleCloseUserInfo} maxWidth="sm" fullWidth>
+      <Dialog open={openUserInfo} onClose={handleCloseUserInfo} maxWidth="md" fullWidth>
         <DialogTitle>{t('common.userInfo')}</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="user info tabs">
               <Tab label={t('common.userInfo')} />
               <Tab label={t('layout.changePassword')} />
+              <Tab label={t('layout.personalAccessToken')} />
             </Tabs>
 
             {tabValue === 0 && (
@@ -247,6 +369,76 @@ const Layout = ({ children }: LayoutProps) => {
                     <MenuItem value="en-US">American English</MenuItem>
                   </Select>
                 </FormControl>
+              </Box>
+            )}
+
+            {tabValue === 2 && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  {t('layout.patTabDescription')}
+                </Typography>
+                <Stack spacing={2} direction={{ xs: 'column', sm: 'row' }} sx={{ mb: 2 }}>
+                  <TextField
+                    fullWidth
+                    label={t('layout.patLabelOptional')}
+                    value={patLabel}
+                    onChange={(e) => setPatLabel(e.target.value)}
+                  />
+                  <FormControl fullWidth sx={{ minWidth: 200 }}>
+                    <InputLabel>{t('layout.patExpiresIn')}</InputLabel>
+                    <Select
+                      label={t('layout.patExpiresIn')}
+                      value={patExpiresDays}
+                      onChange={(e) => setPatExpiresDays(Number(e.target.value))}
+                    >
+                      <MenuItem value={0}>{t('layout.patExpiresNever')}</MenuItem>
+                      <MenuItem value={7}>{t('layout.patExpiresDays', { count: 7 })}</MenuItem>
+                      <MenuItem value={30}>{t('layout.patExpiresDays', { count: 30 })}</MenuItem>
+                      <MenuItem value={90}>{t('layout.patExpiresDays', { count: 90 })}</MenuItem>
+                      <MenuItem value={180}>{t('layout.patExpiresDays', { count: 180 })}</MenuItem>
+                      <MenuItem value={365}>{t('layout.patExpiresDays', { count: 365 })}</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Button variant="contained" onClick={handleGeneratePat} sx={{ alignSelf: { sm: 'center' } }}>
+                    {t('layout.patGenerate')}
+                  </Button>
+                </Stack>
+                {patLoading ? (
+                  <Typography>{t('layout.patLoading')}</Typography>
+                ) : patTokens.length === 0 ? (
+                  <Typography color="text.secondary">{t('layout.patListEmpty')}</Typography>
+                ) : (
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>{t('common.description')}</TableCell>
+                        <TableCell>{t('layout.personalAccessToken')}</TableCell>
+                        <TableCell>{t('layout.patExpiresIn')}</TableCell>
+                        <TableCell>{t('common.actions')}</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {patTokens.map((row) => (
+                        <TableRow key={row.id}>
+                          <TableCell>{row.label || '—'}</TableCell>
+                          <TableCell sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                            {row.maskedToken}
+                          </TableCell>
+                          <TableCell>{row.expiresAt || t('layout.patExpiresNever')}</TableCell>
+                          <TableCell>
+                            {row.revoked ? (
+                              <Chip size="small" label={t('layout.patRevoked')} />
+                            ) : (
+                              <Button size="small" color="error" onClick={() => handleRevokePat(row.id)}>
+                                {t('layout.patRevoke')}
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
               </Box>
             )}
 
@@ -293,6 +485,55 @@ const Layout = ({ children }: LayoutProps) => {
               {t('layout.changePassword')}
             </Button>
           )}
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={patCreatedDialogOpen}
+        onClose={() => {
+          setPatCreatedDialogOpen(false);
+          setPatCreatedToken(null);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>{t('layout.patCreatedTitle')}</DialogTitle>
+        <DialogContent>
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            {t('layout.patCreatedWarning')}
+          </Alert>
+          <TextField
+            fullWidth
+            multiline
+            minRows={3}
+            value={patCreatedToken || ''}
+            InputProps={{
+              readOnly: true,
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="copy token"
+                    onClick={() => patCreatedToken && void handleCopyPat(patCreatedToken)}
+                    edge="end"
+                  >
+                    <ContentCopy />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setPatCreatedDialogOpen(false);
+              setPatCreatedToken(null);
+            }}
+          >
+            {t('common.close')}
+          </Button>
+          <Button variant="contained" onClick={() => patCreatedToken && void handleCopyPat(patCreatedToken)}>
+            {t('layout.patCopy')}
+          </Button>
         </DialogActions>
       </Dialog>
       <Drawer

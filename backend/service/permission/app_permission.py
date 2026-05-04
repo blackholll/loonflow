@@ -41,8 +41,11 @@ class AppPermissionCheck(MiddlewareMixin):
         if request.path.startswith('/api/'):
             auth_header = request.META.get('HTTP_AUTHORIZATION')
             if auth_header:
-                # for jwt check
-                user_info = self.jwt_permission_check(auth_header)
+                # PAT management endpoints must use JWT only (avoid bootstrap loops).
+                if request.path.startswith('/api/v1.0/accounts/personal_access_tokens'):
+                    user_info = self.jwt_permission_check(auth_header)
+                else:
+                    user_info = self.resolve_user_from_authorization_header(auth_header)
                 if not request.META.get('HTTP_APPNAME'):
                     request.META.update(dict(HTTP_APPNAME='loonflow'))
                 request.META.update(dict(HTTP_EMAIL=user_info.email))
@@ -105,17 +108,35 @@ class AppPermissionCheck(MiddlewareMixin):
                           'authorization for appname:{} in loonflow'.format(app_name, app_name))
         return common_service_ins.signature_check(timestamp, signature, app_record.token)
 
-    def jwt_permission_check(self, auth_header:str):
+    def resolve_user_from_authorization_header(self, auth_header: str):
+        """
+        Resolve user from Bearer token: personal access token (lfpat.*) or JWT.
+        """
+        if not auth_header.startswith('Bearer '):
+            raise CustomCommonException('Authorization header is not valid')
+        token = auth_header.split(' ', 1)[1].strip()
+        if token.startswith('lfpat.'):
+            from service.account.personal_access_token_service import personal_access_token_service_ins
+
+            return personal_access_token_service_ins.verify_token_string(token)
+        return self.jwt_permission_check_token(token)
+
+    def jwt_permission_check(self, auth_header: str):
         """
         jwt check, user existed check, user status check
         :param auth_header:
         :return:
         """
-        jwt_salt = settings.JWT_SALT
-        if auth_header.startswith('Bearer '):
-            jwt_info = auth_header.split(' ')[1]
-        else:
+        if not auth_header.startswith('Bearer '):
             raise CustomCommonException('Authorization header is not valid')
+        jwt_info = auth_header.split(' ', 1)[1].strip()
+        return self.jwt_permission_check_token(jwt_info)
+
+    def jwt_permission_check_token(self, jwt_info: str):
+        """
+        jwt check given raw JWT string (no Bearer prefix).
+        """
+        jwt_salt = settings.JWT_SALT
         try:
             jwt_data = jwt.decode(jwt_info, jwt_salt, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:

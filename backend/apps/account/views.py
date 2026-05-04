@@ -4,7 +4,7 @@ import traceback
 from django.contrib.auth import authenticate
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from schema import Schema, And, Optional
+from schema import Schema, And, Optional, Use
 from apps.loon_base_view import BaseView
 from service.format_response import api_response
 from service.permission.user_permission import user_permission_check
@@ -15,6 +15,7 @@ from service.account.account_user_service import account_user_service_ins
 from service.exception.custom_common_exception import CustomCommonException
 from service.account.account_tenant_service import account_tenant_service_ins
 from service.account.account_application_service import account_application_service_ins
+from service.account.personal_access_token_service import personal_access_token_service_ins
 
 
 logger = logging.getLogger("django")
@@ -1198,3 +1199,81 @@ class ApplicationWorkflowPermissionListView(BaseView):
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         return api_response(0, "", result)
+
+
+class PersonalAccessTokenListView(BaseView):
+    post_schema = Schema(
+        {
+            Optional("label"): str,
+            Optional("expires_in_days", default=90): And(
+                Use(int), lambda n: 0 <= n <= 730, error="expires_in_days must be between 0 and 730"
+            ),
+        }
+    )
+
+    def get(self, request, *args, **kwargs):
+        """
+        List personal access tokens for the current user (masked values only).
+        """
+        user_id = request.META.get("HTTP_USERID")
+        tenant_id = request.META.get("HTTP_TENANTID")
+        if not user_id:
+            return api_response(-1, "no user login", {})
+        try:
+            rows = personal_access_token_service_ins.list_tokens(
+                user_id=str(user_id), tenant_id=str(tenant_id)
+            )
+            return api_response(0, "", dict(personal_access_token_list=rows))
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+
+    def post(self, request, *args, **kwargs):
+        """
+        Create a personal access token. Plain token is returned once in the response.
+        """
+        user_id = request.META.get("HTTP_USERID")
+        tenant_id = request.META.get("HTTP_TENANTID")
+        if not user_id:
+            return api_response(-1, "no user login", {})
+        json_str = request.body.decode("utf-8")
+        request_data_dict = json.loads(json_str)
+        label = request_data_dict.get("label", "")
+        expires_in_days = request_data_dict.get("expires_in_days", 90)
+        try:
+            data = personal_access_token_service_ins.create_token(
+                user_id=str(user_id),
+                tenant_id=str(tenant_id),
+                label=label or "",
+                expires_in_days=int(expires_in_days) if expires_in_days is not None else None,
+            )
+            return api_response(0, "", data)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
+
+
+class PersonalAccessTokenDetailView(BaseView):
+    def delete(self, request, *args, **kwargs):
+        """
+        Revoke a personal access token owned by the current user.
+        """
+        user_id = request.META.get("HTTP_USERID")
+        tenant_id = request.META.get("HTTP_TENANTID")
+        token_id = kwargs.get("token_id")
+        if not user_id:
+            return api_response(-1, "no user login", {})
+        try:
+            personal_access_token_service_ins.revoke_token(
+                token_id=str(token_id), user_id=str(user_id), tenant_id=str(tenant_id)
+            )
+            return api_response(0, "", {})
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        except Exception:
+            logger.error(traceback.format_exc())
+            return api_response(-1, "Internal Server Error", {})
