@@ -43,6 +43,11 @@
   },
   "ticketCreated": "工单已创建",
   "ticketHandled": "工单已处理",
+  "newTicket": "新建工单",
+  "selectWorkflowForNewTicket": "选择工作流",
+  "noWorkflowOption": "暂无工作流",
+  "noWorkflowGuidePrefix": "当前还没有可用工作流，请先",
+  "goCreateWorkflow": "创建工作流",
   "externalData": {
     "empty": "暂无数据",
     "loadError": "外部数据加载失败：{{message}}"

@@ -10,6 +10,7 @@ import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import useSnackbar from '../hooks/useSnackbar';
 import { getSimpleWorkflowList } from '../services/workflow';
 import TicketDetail from './Ticket/TicketDetail';
@@ -26,6 +27,7 @@ function Workbench() {
 
   const { showMessage } = useSnackbar();
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -94,6 +96,8 @@ function Workbench() {
     setTicketListRefreshToken((prev) => prev + 1);
   }
 
+  const hasWorkflow = workflowList.length > 0;
+
   return (
     <React.Fragment>
       <Card>
@@ -106,25 +110,40 @@ function Workbench() {
                 onChange={(event, newValue) => setWorkflowValue(newValue)}
                 getOptionLabel={(option) => option.name}
                 disablePortal
+                disabled={!hasWorkflow}
+                noOptionsText={t('ticket.noWorkflowOption')}
                 options={workflowList}
                 sx={{ marginLeft: 0, marginRight: 0 }}
-                renderInput={(params) => <TextField {...params} label={t("common.pleaseSelectTicketType")} />}
+                renderInput={(params) => <TextField {...params} label={t('ticket.selectWorkflowForNewTicket')} />}
               />
             </Grid>
             <Grid size={{ xs: 4, sm: 3, md: 2 }} justifyContent="left" >
               <Button
                 variant="outlined"
                 sx={{ marginLeft: 0, marginRight: 0, height: '55px' }}
-                disabled={!workflowValue}
+                disabled={!workflowValue || !hasWorkflow}
                 onClick={() => {
                   if (!workflowValue) return;
                   setNewTicketWorkflowId(workflowValue?.workflowId ?? '');
                   setOpenTicketDetail(true);
                 }}
               >
-                New Ticket
+                {t('ticket.newTicket')}
               </Button>
             </Grid>
+            {!hasWorkflow && (
+              <Grid size={12}>
+                {t('ticket.noWorkflowGuidePrefix')}
+                <Link
+                  component="button"
+                  variant="body2"
+                  onClick={() => navigate('/workflow')}
+                  sx={{ ml: 1 }}
+                >
+                  {t('ticket.goCreateWorkflow')}
+                </Link>
+              </Grid>
+            )}
           </Grid>
         </CardContent>
       </Card>

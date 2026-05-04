@@ -43,6 +43,11 @@
   },
   "ticketCreated": "Ticket Created",
   "ticketHandled": "ticket handled",
+  "newTicket": "New Ticket",
+  "selectWorkflowForNewTicket": "Select Workflow",
+  "noWorkflowOption": "No workflows available",
+  "noWorkflowGuidePrefix": "No workflow is available yet, please",
+  "goCreateWorkflow": "Create Workflow",
   "externalData": {
     "empty": "No data",
     "loadError": "Failed to load external data: {{message}}"
