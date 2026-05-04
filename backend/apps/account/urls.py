@@ -3,10 +3,13 @@ from apps.account.views import UserView, UserDetailView, RoleView, DeptView, Use
     UserResetPasswordView, RoleDetailView, \
     DeptDetailView, SimpleUsersView, UserChangePasswordView, DeptPathsView,DeptPathView,\
     DeptTreeView, UserProfileView, SimpleRolesView, ApplicationView, SimpleApplicationView, \
-    ApplicationDetailView, TenantDetailView, TenantDomainView, DeptParentDeptView, ApplicationWorkflowPermissionListView
+    ApplicationDetailView, TenantDetailView, TenantDomainView, DeptParentDeptView, ApplicationWorkflowPermissionListView, \
+    PersonalAccessTokenListView, PersonalAccessTokenDetailView
  
 urlpatterns = [
     path('/users', UserView.as_view()),
+    path('/personal_access_tokens', PersonalAccessTokenListView.as_view()),
+    path('/personal_access_tokens/<str:token_id>', PersonalAccessTokenDetailView.as_view()),
     path('/my_profile', UserProfileView.as_view()),
     path('/simple_users', SimpleUsersView.as_view()),
     path('/users/change_password', UserChangePasswordView.as_view()),

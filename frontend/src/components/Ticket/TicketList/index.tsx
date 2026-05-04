@@ -292,7 +292,9 @@ function TicketList({ category, refreshToken }: { category: string; refreshToken
                     <TableCell>{ticket.title}</TableCell>
                     <TableCell>{ticket.workflowInfo.name}</TableCell>
                     <TableCell>{ticket.actState}</TableCell>
-                    <TableCell>{ticket.creatorInfo.alias}</TableCell>
+                    <TableCell>
+                      {ticket.creatorInfo.alias ? `${ticket.creatorInfo.name}(${ticket.creatorInfo.alias})` : ticket.creatorInfo.name}
+                    </TableCell>
                     <TableCell>{formatDate(ticket.createdAt)}</TableCell>
                     <TableCell align="left">
                       <MuiLink component={Link} to={`/ticket/${ticket.id}`} underline="none" color="primary">

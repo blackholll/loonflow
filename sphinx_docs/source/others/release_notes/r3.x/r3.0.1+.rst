@@ -3,6 +3,18 @@ r3.0.1+
 
 
 ---------
+r3.2.0
+---------
+- Feature: add MCP ticket server
+- Feature: add about Information on Frontend page
+- Optimize: user info display optimization(ticket list and ticket history record)
+- Optimize: added user guidance for creating workflows when none are available.
+- Bugfix: Number field maxvalue and minvalue validation
+- Bugfix: fix attchment field i18 issue
+
+
+
+---------
 r3.1.0
 ---------
 - Feature: add Microsoft OIDC and wecom QR scan login

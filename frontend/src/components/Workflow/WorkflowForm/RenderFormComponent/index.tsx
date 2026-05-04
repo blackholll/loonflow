@@ -36,7 +36,7 @@ function RenderFormComponent({ component, handleComponentUpdate, ticketId }: Ren
 
     // 根据组件类型和multiple属性确定初始值
     const getInitialValue = () => {
-        const defaultValue = component?.props?.value || component?.props?.defaultValue;
+        const defaultValue = component?.props?.value ?? component?.props?.defaultValue;
         if (defaultValue !== undefined) {
             return defaultValue;
         }
@@ -68,7 +68,7 @@ function RenderFormComponent({ component, handleComponentUpdate, ticketId }: Ren
 
     // 同步value状态
     useEffect(() => {
-        const currentValue = component?.props?.value || component?.props?.defaultValue;
+        const currentValue = component?.props?.value ?? component?.props?.defaultValue;
         if (currentValue !== undefined && currentValue !== value) {
             console.log('useEffect updating value from', value, 'to', currentValue);
             setValue(currentValue);

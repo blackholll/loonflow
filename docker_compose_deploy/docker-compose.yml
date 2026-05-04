@@ -23,23 +23,25 @@ services:
 
   loonflow-ui:
     hostname: loonflow-ui
-    image: blackholll/loonflow-ui:r3.1.0
+    image: blackholll/loonflow-ui:r3.2.0
     container_name: loonflow-ui
     depends_on:
       - loonflow-redis
       - loonflow-pg
+      - loonflow-mcp
     ports:
       - 80:80
 
   loonflow-backend:
     hostname: loonflow-backend
-    image: blackholll/loonflow-backend:r3.1.0
+    image: blackholll/loonflow-backend:r3.2.0
     container_name: loonflow-backend
     environment:
       DB_NAME: ${POSTGRES_DB}
       DB_HOST: loonflow-pg
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: 5432
       REDIS_HOST: loonflow-redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       DJANGO_SUPERUSER_PASSWORD: ${ADMIN_PASSWORD}
@@ -66,7 +68,7 @@ services:
 
   loonflow-task:
     hostname: loonflow-task
-    image: blackholll/loonflow-backend:r3.1.0
+    image: blackholll/loonflow-backend:r3.2.0
     container_name: loonflow-task
     depends_on:
       - loonflow-redis
@@ -79,12 +81,51 @@ services:
       DB_PASS: ${POSTGRES_PASSWORD}
       REDIS_HOST: loonflow-redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
+      POSTGRES_PORT: 5432
     command:
       - sh
       - -c
       - |
         cd /app/loonflow
         celery -A tasks worker -l info -c 8 -Q loonflow
+
+  # MCP ticket server (Streamable HTTP). Endpoint: http://<host>:${MCP_PORT}/mcp
+  # Same image as loonflow-backend; runs mcp_ticket_server.py via command.
+  loonflow-mcp:
+    hostname: loonflow-mcp
+    image: blackholll/loonflow-backend:r3.2.0
+    container_name: loonflow-mcp
+    restart: always
+    depends_on:
+      - loonflow-redis
+      - loonflow-pg
+      - loonflow-backend
+    environment:
+      DB_NAME: ${POSTGRES_DB}
+      DB_HOST: loonflow-pg
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
+      # Settings read DB port from POSTGRES_PORT (see settings/config.py.sample).
+      # Inside Docker network, Postgres listens on 5432 on service loonflow-pg — not the host-mapped port from .env.
+      POSTGRES_PORT: "5432"
+      REDIS_HOST: loonflow-redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      TENANT_NAME: ${TENANT_NAME}
+      TENANT_DOMAIN: ${TENANT_DOMAIN}
+      LOONFLOW_DATA_DIR: /app/loonflow_data
+      LOG_FILE_MAX_BYTES: ${LOG_FILE_MAX_BYTES}
+      LOG_FILE_BACKUP_COUNT: ${LOG_FILE_BACKUP_COUNT}
+      LOONFLOW_MCP_HOST: "0.0.0.0"
+      LOONFLOW_MCP_PORT: "8002"
+      LOONFLOW_MCP_TRANSPORT: streamable-http
+    volumes:
+      - loonflow_data:/app/loonflow_data
+    working_dir: /app/loonflow
+    ports:
+      - "8002:8002"
+    command:
+      - python
+      - mcp_ticket_server.py
 
 volumes:
   pg_data:

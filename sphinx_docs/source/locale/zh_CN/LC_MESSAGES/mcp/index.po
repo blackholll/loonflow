@@ -1,0 +1,262 @@
+# MCP integration documentation (Chinese).
+# Copyright (C) 2020-2025, blackholll
+# This file is distributed under the same license as the loonflow package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: loonflow \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-04 20:14+0800\n"
+"PO-Revision-Date: 2026-05-04 12:00+0800\n"
+"Last-Translator: \n"
+"Language: zh_CN\n"
+"Language-Team: zh_CN <LL@li.org>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ../../source/mcp/index.rst:2
+msgid "Model Context Protocol (MCP) — Ticket Server"
+msgstr "模型上下文协议（MCP）——工单服务"
+
+#: ../../source/mcp/index.rst:5
+msgid "Overview"
+msgstr "概述"
+
+#: ../../source/mcp/index.rst:7
+msgid ""
+"Loonflow exposes a **Model Context Protocol** server that lets compatible"
+" clients (for example AI-assisted editors) query and handle tickets "
+"through authenticated tools. The server name advertised to clients is "
+"``loonflow-ticket``. Tools call the same permission-aware ticket services"
+" as the web UI."
+msgstr ""
+"Loonflow 提供 **模型上下文协议（Model Context Protocol）** 服务端点，使兼容的客户端（例如带 AI "
+"能力的编辑器）在通过认证后查询与处理工单。对客户端展示的服务名称为 ``loonflow-ticket``。工具内部调用与 Web "
+"界面一致的、带权限校验的工单服务。"
+
+#: ../../source/mcp/index.rst:10
+msgid "Authentication"
+msgstr "认证方式"
+
+#: ../../source/mcp/index.rst:12
+msgid ""
+"Calls must be authenticated with an **access token**. Supported token "
+"types include:"
+msgstr "调用必须使用 **访问令牌（access token）** 进行认证。支持的令牌类型包括："
+
+#: ../../source/mcp/index.rst:14
+msgid ""
+"**Personal access token** (recommended for MCP clients): values start "
+"with ``lfpat.``"
+msgstr "**个人访问令牌（Personal access token）**（推荐用于 MCP 客户端）：值以 ``lfpat.`` 开头"
+
+#: ../../source/mcp/index.rst:15
+msgid "**JWT** issued by Loonflow (same as API usage)"
+msgstr "由 Loonflow 签发的 **JWT**（与 API 用法相同）"
+
+#: ../../source/mcp/index.rst:17
+msgid ""
+"You can pass the token in the MCP HTTP client as a header (see "
+"configuration below), pass it per tool where supported, or configure a "
+"server-side environment variable for non-interactive setups."
+msgstr "你可以在 MCP 的 HTTP 客户端中以请求头传递令牌（见下文配置）、在支持的工具参数中传入，或在无人值守场景下通过服务端环境变量配置。"
+
+#: ../../source/mcp/index.rst:20
+msgid "Create a personal access token"
+msgstr "创建个人访问令牌"
+
+#: ../../source/mcp/index.rst:22
+msgid ""
+"Open **Personal Information** in the product UI, then open **Personal "
+"Access Token**. Create a new token and store it securely. Replace ``xxx``"
+" in the configuration example with that token."
+msgstr ""
+"在产品界面进入 **个人信息（Personal Information）**，再进入 **个人访问令牌（Personal Access "
+"Token）**。新建令牌并妥善保存，将配置示例中的 ``xxx`` 替换为该令牌。"
+
+#: ../../source/mcp/index.rst:25
+msgid "Personal Information and Personal Access Token in Loonflow"
+msgstr "Loonflow 中的个人信息与个人访问令牌"
+
+#: ../../source/mcp/index.rst:29
+#, fuzzy
+msgid ""
+"**Screenshot slot 1:** Navigate to Personal Information → Personal Access"
+" Token (add ``mcp_profile_personal_access_token.png``)."
+msgstr "导航至 个人信息 → 个人访问令牌。"
+
+#: ../../source/mcp/index.rst:31
+msgid "Create personal access token dialog or form"
+msgstr "创建个人访问令牌的对话框或表单"
+
+#: ../../source/mcp/index.rst:35
+msgid ""
+"**Screenshot slot 2:** Create or manage personal access tokens (add "
+"``mcp_create_personal_access_token.png``)."
+msgstr ""
+
+#: ../../source/mcp/index.rst:38
+msgid "Client configuration (example)"
+msgstr "客户端配置（示例）"
+
+#: ../../source/mcp/index.rst:40
+msgid ""
+"Use the Streamable HTTP endpoint exposed by the MCP process (default path"
+" ``/mcp``). Adjust host and port to match your deployment; local "
+"development often uses port ``8002``."
+msgstr ""
+"使用 MCP 进程提供的 Streamable HTTP 端点（默认路径 ``/mcp``）。请按实际部署修改主机与端口；本地开发常见端口为 "
+"``8002``。"
+
+#: ../../source/mcp/index.rst:42
+msgid ""
+"For the Loonflow SaaS service, use ``https://mcp.loonflow.com/mcp`` as "
+"the MCP server URL."
+msgstr "对于 Loonflow SaaS 服务，请使用 ``https://mcp.loonflow.com/mcp`` 作为 MCP 服务地址。"
+
+#: ../../source/mcp/index.rst:57
+msgid ""
+"Replace ``xxx`` with your **personal access token**. If the client "
+"supports separate auth configuration, you may alternatively send ``X"
+"-Loonflow-Access-Token`` with the raw token value."
+msgstr ""
+"将 ``xxx`` 替换为你的 **个人访问令牌**。若客户端支持单独配置认证信息，也可改用请求头 ``X-Loonflow-Access-"
+"Token`` 传入原始令牌值。"
+
+#: ../../source/mcp/index.rst:60
+msgid "Supported tools"
+msgstr "当前提供的 MCP 工具"
+
+#: ../../source/mcp/index.rst:62
+msgid "The server currently registers the following tools."
+msgstr "当前服务端注册如下工具。"
+
+#: ../../source/mcp/index.rst:65
+msgid "``ticket_list``"
+msgstr "``ticket_list``"
+
+#: ../../source/mcp/index.rst:67
+msgid ""
+"Returns a **paginated ticket list** for the authenticated user, including"
+" total count and pagination metadata."
+msgstr "返回当前认证用户的 **分页工单列表**，包含总数与分页元数据。"
+
+#: ../../source/mcp/index.rst:69 ../../source/mcp/index.rst:90
+msgid "**Main behavior:**"
+msgstr "**主要行为：**"
+
+#: ../../source/mcp/index.rst:71
+msgid ""
+"**category** selects which list to query: ``duty`` (my todo), ``owner`` "
+"(created by me), ``relation`` (related to me), ``view`` (I can view), "
+"``worked`` (tickets I processed), ``intervene`` (I can intervene), "
+"``all`` (all tickets; **admin only**)."
+msgstr ""
+"**category** "
+"选择列表类型：``duty``（我的待办）、``owner``（我创建的）、``relation``（与我相关的）、``view``（我可查看的）、``worked``（我处理过的）、``intervene``（我可干预的）、``all``（全部工单；**仅管理员**）。"
+
+#: ../../source/mcp/index.rst:72
+msgid ""
+"Optional filters include free-text **search_value**, **create_start** / "
+"**create_end**, **workflow_ids**, **node_ids**, **ticket_ids**, "
+"**act_state**, **creator_id**, **parent_ticket_id**, **reverse**, "
+"**per_page**, and **page**."
+msgstr ""
+"可选筛选包括全文 **search_value**、**create_start** / "
+"**create_end**、**workflow_ids**、**node_ids**、**ticket_ids**、**act_state**、**creator_id**、**parent_ticket_id**、**reverse**、**per_page**、**page**"
+" 等。"
+
+#: ../../source/mcp/index.rst:73
+msgid ""
+"If neither ``create_start`` nor ``create_end`` is set, a default time "
+"window is applied (see server implementation)."
+msgstr "若未设置 ``create_start`` 与 ``create_end``，将应用默认时间范围（详见服务端实现）。"
+
+#: ../../source/mcp/index.rst:76
+msgid "``ticket_detail``"
+msgstr "``ticket_detail``"
+
+#: ../../source/mcp/index.rst:78
+msgid ""
+"Loads **ticket detail** for a given ``ticket_id``: dynamic form schema "
+"(**component_info_list**), workflow metadata, **field_permissions**, "
+"derived **required_fields** / **optional_fields** / **readonly_fields**, "
+"and available **actions** (plus **admin_actions** when applicable), "
+"including base node identifiers used by some actions."
+msgstr ""
+"根据 ``ticket_id`` 加载 "
+"**工单详情**：动态表单结构（**component_info_list**）、流程元数据、**field_permissions**，以及派生的"
+" **required_fields** / **optional_fields** / **readonly_fields**，并返回可用 "
+"**actions**（在适用时包含 **admin_actions**），其中含部分操作所需的基准节点标识。"
+
+#: ../../source/mcp/index.rst:81
+msgid "``ticket_prepare_handle``"
+msgstr "``ticket_prepare_handle``"
+
+#: ../../source/mcp/index.rst:83
+msgid ""
+"Prepares the **same context as ticket detail** (form schema, permissions,"
+" and available actions). Use it when you want a dedicated “prepare to "
+"handle” step before submitting an action."
+msgstr ""
+"准备与 **ticket_detail** "
+"相同的上下文（表单结构、字段权限与可用操作）。若希望在提交动作前先单独执行“准备处理”步骤，可使用本工具。"
+
+#: ../../source/mcp/index.rst:86
+msgid "``ticket_handle``"
+msgstr "``ticket_handle``"
+
+#: ../../source/mcp/index.rst:88
+msgid ""
+"**Executes a workflow action** on a ticket after permission and field "
+"validation."
+msgstr "在通过权限与必填字段校验后，对工单 **执行流程动作**。"
+
+#: ../../source/mcp/index.rst:92
+msgid ""
+"**action_type** and **action_id** must match one of the actions returned "
+"for the current user (including admin actions when allowed)."
+msgstr "**action_type** 与 **action_id** 必须与当前用户可用的动作之一一致（在允许时包含管理员动作）。"
+
+#: ../../source/mcp/index.rst:93
+msgid "**fields** must satisfy **required** fields for the current node/form."
+msgstr "**fields** 必须满足当前节点/表单下的 **必填** 字段。"
+
+#: ../../source/mcp/index.rst:94
+msgid ""
+"**action_props** carries extra properties required by specific actions "
+"(for example node context for comments when applicable)."
+msgstr "**action_props** 承载特定动作所需的附加属性（例如在适用时为评论类动作提供节点上下文）。"
+
+#: ../../source/mcp/index.rst:95
+msgid ""
+"**dry_run**: when ``true``, validates the request and returns a summary "
+"**without** changing the ticket; when ``false``, performs the handle "
+"operation."
+msgstr "**dry_run**：为 ``true`` 时仅校验请求并返回摘要，**不会**修改工单；为 ``false`` 时执行实际处理。"
+
+#: ../../source/mcp/index.rst:98
+msgid "Operational notes"
+msgstr "运维说明"
+
+#: ../../source/mcp/index.rst:100
+msgid ""
+"Default listen address and port are controlled by environment variables "
+"(for example ``LOONFLOW_MCP_HOST``, ``LOONFLOW_MCP_PORT``); align your "
+"client URL with the running process."
+msgstr ""
+"默认监听地址与端口由环境变量控制（例如 ``LOONFLOW_MCP_HOST``、``LOONFLOW_MCP_PORT``）；请使客户端 "
+"URL 与实际进程一致。"
+
+#: ../../source/mcp/index.rst:101
+msgid ""
+"For server-side default authentication (for example stdio transports), "
+"refer to ``LOONFLOW_MCP_ACCESS_TOKEN`` in the MCP server documentation in"
+" the codebase."
+msgstr ""
+"若需在服务端配置默认认证（例如 stdio 传输），请参阅代码库中 MCP 服务器文档里的 "
+"``LOONFLOW_MCP_ACCESS_TOKEN``。"
+

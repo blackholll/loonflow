@@ -23,6 +23,13 @@ function TicketFlowHistory({ ticketId, refreshToken }: TicketHistoryProps) {
         })();
     }, [ticketId, refreshToken]);
 
+    const formatProcessorDisplay = (processorInfo: ITicketFlowHistoryItem['processorInfo']) => {
+        const processorName = processorInfo?.processorName || processorInfo?.processor_name || processorInfo?.processor || '';
+        const processorAlias = processorInfo?.processorAlias || processorInfo?.processor_alias || '';
+        if (!processorName) return '-';
+        return processorAlias ? `${processorName}(${processorAlias})` : processorName;
+    };
+
     return (
         <Paper sx={{ mt: 2, p: 2, border: '1px solid', borderColor: 'divider' }}>
             <Typography variant="h6" sx={{ mb: 1 }}>{t('ticket.operationRecord')}</Typography>
@@ -32,7 +39,9 @@ function TicketFlowHistory({ ticketId, refreshToken }: TicketHistoryProps) {
                         <ListItem alignItems="flex-start" disableGutters>
                             <Box sx={{ width: '100%' }}>
                                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                                    <Typography variant="body2"><strong>{t('ticket.processor')}</strong>: {it.processorInfo?.processorAlias || it.processorInfo?.processor || '-'}</Typography>
+                                    <Typography variant="body2">
+                                        <strong>{t('ticket.processor')}</strong>: {formatProcessorDisplay(it.processorInfo)}
+                                    </Typography>
                                     <Typography variant="body2"><strong>{t('common.action')}</strong>: {it.actionName || t('ticket.actionName.' + it.actionType)}</Typography>
                                 </Box>
                                 {it.comment && (

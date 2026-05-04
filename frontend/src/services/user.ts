@@ -121,3 +121,21 @@ export const changePassword = async (sourcePassword: string, newPassword: string
     throw error;
   }
 }
+
+export const listPersonalAccessTokens = async () => {
+  const response = await apiClient.get('/api/v1.0/accounts/personal_access_tokens');
+  return response.data;
+};
+
+export const createPersonalAccessToken = async (params: { label?: string; expiresInDays: number }) => {
+  const response = await apiClient.post('/api/v1.0/accounts/personal_access_tokens', {
+    label: params.label ?? '',
+    expires_in_days: params.expiresInDays,
+  });
+  return response.data;
+};
+
+export const revokePersonalAccessToken = async (tokenId: string) => {
+  const response = await apiClient.delete(`/api/v1.0/accounts/personal_access_tokens/${tokenId}`);
+  return response.data;
+};

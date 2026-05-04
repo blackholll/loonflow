@@ -18,31 +18,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: ../../source/index.rst:9
+#: ../../source/index.rst:11
 msgid "Introduction"
 msgstr "引言"
 
-#: ../../source/index.rst:16
+#: ../../source/index.rst:18
+msgid "MCP"
+msgstr "MCP"
+
+#: ../../source/index.rst:24
 msgid "Installation & Deployment"
 msgstr "安装与部署"
 
-#: ../../source/index.rst:24
+#: ../../source/index.rst:33
 msgid "Core Concepts"
 msgstr "核心概念"
 
-#: ../../source/index.rst:31
+#: ../../source/index.rst:39
 msgid "User Guide"
 msgstr "用户指南"
 
-#: ../../source/index.rst:40
+#: ../../source/index.rst:48
 msgid "API Reference"
 msgstr "API 参考"
 
-#: ../../source/index.rst:46
+#: ../../source/index.rst:54
 msgid "Release Notes"
 msgstr "发行说明"
 
-#: ../../source/index.rst:7
+#: ../../source/index.rst:6
 msgid "Welcome to loonflow's documentation!"
 msgstr "欢迎阅读 loonflow 文档！"
 
