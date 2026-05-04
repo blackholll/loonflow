@@ -118,10 +118,16 @@ export interface ITicketFlowHistoryItem {
 
 export interface ITicketProcessorInfo {
   processorAlias: string;
+  processorName?: string;
   processorEmail: string;
   processorPhone: string;
   processorType: string;
   processor: string;
+  processor_alias?: string;
+  processor_name?: string;
+  processor_email?: string;
+  processor_phone?: string;
+  processor_type?: string;
 }
 export interface ITicketFlowHistoryResData {
   page: number;

@@ -79,7 +79,7 @@ class TicketFlowHistoryService(BaseService):
 
             if ticket_flow_history.processor_type == "user":
                 user_info = account_user_service_ins.get_user_by_user_id(tenant_id, ticket_flow_history.processor)
-                processor_info.update(processor_alias=user_info.alias, processor_email=user_info.email,
+                processor_info.update(processor_alias=user_info.alias, processor_name=user_info.name, processor_email=user_info.email,
                                         participant_phone=user_info.phone)
             ticket_flow_history_restful = dict(id=str(ticket_flow_history.id), ticket_id=str(ticket_id),
                                                node_info=node_info, processor_info=processor_info,
