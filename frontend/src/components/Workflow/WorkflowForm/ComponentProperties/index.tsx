@@ -131,6 +131,21 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
     }, [formSchema, t]);
 
     const handleChange = (key: string, value: any) => {
+        if (key === 'precision') {
+            const nextProps = {
+                ...(component as IWorkflowComponent).props,
+                precision: value
+            };
+            if (typeof value === 'number' && value > 0) {
+                nextProps.allowDecimal = true;
+            }
+            onUpdate({
+                ...component,
+                props: nextProps
+            });
+            return;
+        }
+
         // 将需要写入 props 的键统一处理
         if ([
             'multiple', 'placeholder', 'defaultValue',
@@ -452,7 +467,7 @@ function ComponentProperties({ component, onUpdate, formSchema }: ComponentPrope
                     <FormControlLabel
                         control={
                             <Checkbox
-                                checked={(component as IWorkflowComponent).props?.allowNegative ?? true}
+                                checked={(component as IWorkflowComponent).props?.allowNegative ?? false}
                                 onChange={(e) => handleChange('allowNegative', e.target.checked)}
                                 size="small"
                             />

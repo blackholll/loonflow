@@ -15,11 +15,20 @@ function NumberField({
     mode,
     props,
 }: NumberFieldProps) {
+    const toOptionalNumber = (raw: unknown): number | undefined => {
+        if (typeof raw === 'number' && Number.isFinite(raw)) return raw;
+        if (typeof raw === 'string' && raw.trim() !== '') {
+            const parsed = Number(raw);
+            return Number.isFinite(parsed) ? parsed : undefined;
+        }
+        return undefined;
+    };
 
     // view mode only show value with formatting
     if (mode === 'view') {
-        const allowDecimal: boolean = props?.allowDecimal !== false;
-        const decimalScale: number | undefined = allowDecimal ? (props?.precision ?? undefined) : 0;
+        const configuredPrecision = toOptionalNumber(props?.precision);
+        const allowDecimal: boolean = props?.allowDecimal !== false || (typeof configuredPrecision === 'number' && configuredPrecision > 0);
+        const decimalScale: number | undefined = allowDecimal ? configuredPrecision : 0;
         const fixedDecimalScale: boolean = props?.fixedPrecision === true;
         const thousandSeparator: boolean = props?.thousandSeparator ?? true;
         const suffix: string | undefined = props?.unitSuffix;
@@ -46,8 +55,9 @@ function NumberField({
         );
     }
 
-    const allowDecimal: boolean = props?.allowDecimal !== false; // 默认允许小数
-    const decimalScale: number | undefined = allowDecimal ? (props?.precision ?? undefined) : 0;
+    const configuredPrecision = toOptionalNumber(props?.precision);
+    const allowDecimal: boolean = props?.allowDecimal !== false || (typeof configuredPrecision === 'number' && configuredPrecision > 0); // default allows decimals
+    const decimalScale: number | undefined = allowDecimal ? configuredPrecision : 0;
     const fixedDecimalScale: boolean = props?.fixedPrecision === true;
 
     const suffix: string | undefined = props?.unitSuffix; // 例如 'kg', '%'
@@ -55,8 +65,8 @@ function NumberField({
 
     const thousandSeparator: boolean = props?.thousandSeparator ?? true;
 
-    const min = props?.min;
-    const max = props?.max;
+    const min = toOptionalNumber(props?.min);
+    const max = toOptionalNumber(props?.max);
 
     const handleValueChange: NumericFormatProps['onValueChange'] = (values) => {
         const { floatValue, value: strVal } = values;
@@ -64,7 +74,7 @@ function NumberField({
             onChange('');
             return;
         }
-        // 边界限制
+        // Clamp only when boundaries are configured.
         let next = floatValue as number | undefined;
         if (typeof next === 'number') {
             if (typeof min === 'number' && next < min) next = min;

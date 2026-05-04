@@ -69,9 +69,9 @@ const getBasicComponentTemplates = (t: any): ComponentTemplate[] => [
                 allowDecimal: false,
                 fixedPrecision: false,
                 thousandSeparator: true,
-                precision: 0,
-                min: 0,
-                max: 0,
+                precision: '',
+                min: '',
+                max: '',
                 unitPrefix: '',
                 unitSuffix: ''
             }
