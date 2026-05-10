@@ -38,7 +38,7 @@ django.setup()
 
 from mcp.server.fastmcp import Context, FastMCP  # noqa: E402
 
-from service.account.account_user_service import AccountUserService  # noqa: E402
+from service.account.account_user_service import AccountUserService, account_user_service_ins  # noqa: E402
 from service.account.personal_access_token_service import personal_access_token_service_ins  # noqa: E402
 from service.account.account_base_service import account_base_service_ins  # noqa: E402
 from service.exception.custom_common_exception import CustomCommonException  # noqa: E402
@@ -177,6 +177,65 @@ def _extract_form_field_permissions(component_info_list: list[dict[str, Any]]) -
             permission = str(child.get("component_permission", "")).strip() or "readonly"
             field_permissions[field_key] = permission
     return field_permissions
+
+
+def _parse_handle_request_dict(raw: dict[str, Any] | str | None) -> dict[str, Any]:
+    if raw is None:
+        return {}
+    if isinstance(raw, str):
+        text = raw.strip()
+        if not text:
+            return {}
+        try:
+            parsed = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise CustomCommonException("handle_request must be a JSON object string") from exc
+        if not isinstance(parsed, dict):
+            raise CustomCommonException("handle_request JSON must decode to an object")
+        return parsed
+    if not isinstance(raw, dict):
+        raise CustomCommonException("handle_request must be a dict or JSON object string")
+    return raw
+
+
+def _merge_handle_tool_inputs(
+    handle_request: dict[str, Any] | str | None,
+    action_type: str,
+    action_id: str,
+    action_props: dict[str, Any] | None,
+    fields: dict[str, Any] | None,
+) -> tuple[str, str, dict[str, Any] | None, dict[str, Any] | None]:
+    """
+    Merge flat tool arguments with an API-shaped body (action_type, action_id, fields, action_props).
+    Values from handle_request override the same keys when present; flat args apply first, then overlay.
+    """
+    eff_type = str(action_type or "").strip()
+    eff_id = str(action_id or "").strip()
+    eff_props = dict(action_props) if action_props else None
+    eff_fields = dict(fields) if fields else None
+
+    body = _parse_handle_request_dict(handle_request)
+    if body:
+        if body.get("action_type") is not None:
+            eff_type = str(body["action_type"]).strip()
+        if body.get("action_id") is not None:
+            eff_id = str(body["action_id"]).strip()
+        ap = body.get("action_props")
+        if ap is not None:
+            if not isinstance(ap, dict):
+                raise CustomCommonException("handle_request.action_props must be an object")
+            merged = dict(eff_props) if eff_props else {}
+            merged.update(ap)
+            eff_props = merged
+        fd = body.get("fields")
+        if fd is not None:
+            if not isinstance(fd, dict):
+                raise CustomCommonException("handle_request.fields must be an object")
+            merged_f = dict(eff_fields) if eff_fields else {}
+            merged_f.update(fd)
+            eff_fields = merged_f
+
+    return eff_type, eff_id, eff_props, eff_fields
 
 
 def _build_handle_request_payload(
@@ -326,6 +385,87 @@ async def ticket_list(
     )
 
 
+def _user_list_sync(
+    access_token: str,
+    app_name: str,
+    search_value: str,
+    user_ids: str,
+    dept_id: str,
+    page: int,
+    per_page: int,
+    simple: bool,
+    mcp_ctx: Context | None,
+) -> dict[str, Any]:
+    _stdout_log(
+        "user_list.start",
+        app_name=app_name,
+        per_page=per_page,
+        page=page,
+        simple=simple,
+    )
+    ctx = _auth_context(access_token, app_name, mcp_ctx)
+    result = account_user_service_ins.get_user_list(
+        ctx.tenant_id,
+        search_value.strip(),
+        (user_ids or "").strip(),
+        (dept_id or "").strip(),
+        int(page),
+        int(per_page),
+        simple=bool(simple),
+    )
+    paginator_info = result.get("paginator_info", {})
+    users = result.get("user_result_object_format_list", [])
+    response = {
+        "user_list": users,
+        "per_page": paginator_info.get("per_page", per_page),
+        "page": paginator_info.get("page", page),
+        "total": paginator_info.get("total", 0),
+    }
+    _stdout_log(
+        "user_list.done",
+        user_id=ctx.user_id,
+        tenant_id=ctx.tenant_id,
+        page=response["page"],
+        per_page=response["per_page"],
+        total=response["total"],
+        count=len(users),
+    )
+    return response
+
+
+@mcp.tool()
+async def user_list(
+    access_token: str = "",
+    app_name: str = "loonflow",
+    search_value: str = "",
+    user_ids: str = "",
+    dept_id: str = "",
+    page: int = 1,
+    per_page: int = 10,
+    simple: bool = True,
+    mcp_ctx: Context | None = None,
+) -> dict[str, Any]:
+    """
+    Query users in the authenticated user's tenant via AccountUserService.get_user_list.
+
+    Same filters as the accounts API: search_value matches name/alias/email;
+    user_ids is a comma-separated list of user UUIDs; dept_id filters by department.
+    When simple=True (default), several bulky profile fields are omitted from each row.
+    """
+    return await asyncio.to_thread(
+        _user_list_sync,
+        access_token,
+        app_name,
+        search_value,
+        user_ids,
+        dept_id,
+        page,
+        per_page,
+        simple,
+        mcp_ctx,
+    )
+
+
 def _ticket_detail_sync(
     ticket_id: str,
     access_token: str,
@@ -411,19 +551,23 @@ def _ticket_handle_sync(
     fields: dict[str, Any] | None,
     app_name: str,
     dry_run: bool,
+    handle_request: dict[str, Any] | str | None,
     mcp_ctx: Context | None,
 ) -> dict[str, Any]:
+    eff_type, eff_id, eff_props, eff_fields = _merge_handle_tool_inputs(
+        handle_request, action_type, action_id, action_props, fields
+    )
     _stdout_log(
         "ticket_handle.start",
         ticket_id=ticket_id,
-        action_type=action_type,
-        action_id=action_id,
+        action_type=eff_type,
+        action_id=eff_id,
         app_name=app_name,
         dry_run=dry_run,
     )
     ctx = _auth_context(access_token, app_name, mcp_ctx)
     _assert_ticket_access(ctx, ticket_id)
-    payload = _build_handle_request_payload(action_type, action_id, action_props, fields)
+    payload = _build_handle_request_payload(eff_type, eff_id, eff_props, eff_fields)
     if not ticket_base_service_ins.ticket_action_permission_check(
         ctx.tenant_id, ticket_id, ctx.user_id, payload["action_type"], payload["action_id"]
     ):
@@ -514,17 +658,31 @@ def _ticket_handle_sync(
 @mcp.tool()
 async def ticket_handle(
     ticket_id: str,
-    action_type: str,
-    action_id: str,
+    action_type: str = "",
+    action_id: str = "",
     access_token: str = "",
     action_props: dict[str, Any] | None = None,
     fields: dict[str, Any] | None = None,
     app_name: str = "loonflow",
     dry_run: bool = False,
+    handle_request: dict[str, Any] | str | None = None,
     mcp_ctx: Context | None = None,
 ) -> dict[str, Any]:
     """
     Handle a ticket after checking permissions and required fields.
+
+    Prefer passing the same JSON body as the HTTP handle API via ``handle_request``::
+
+        {
+            "action_type": "agree",
+            "action_id": "<edge-uuid>",
+            "fields": {"title": "...", "custom_field_...": "..."},
+            "action_props": {"comment": "", "node_id": "<node-uuid>"}
+        }
+
+    You may still use the flat arguments (action_type, action_id, fields, action_props);
+    when ``handle_request`` is set, its keys override the flat arguments for those fields.
+    ``handle_request`` may be a dict or a JSON object string.
     """
     return await asyncio.to_thread(
         _ticket_handle_sync,
@@ -536,6 +694,7 @@ async def ticket_handle(
         fields,
         app_name,
         dry_run,
+        handle_request,
         mcp_ctx,
     )
 
