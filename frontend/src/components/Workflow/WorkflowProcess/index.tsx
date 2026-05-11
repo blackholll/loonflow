@@ -498,6 +498,36 @@ function WorkflowProcess({
         };
     }, [edges]);
 
+    // Keep selected element in sync with latest node/edge objects.
+    React.useEffect(() => {
+        if (!selectedElement) {
+            return;
+        }
+
+        if ('source' in selectedElement) {
+            const latestEdge = edges.find((edge) => edge.id === selectedElement.id);
+            if (!latestEdge) {
+                setSelectedElement(null);
+                setPropertyPanelOpen(false);
+                return;
+            }
+            if (latestEdge !== selectedElement) {
+                setSelectedElement(latestEdge);
+            }
+            return;
+        }
+
+        const latestNode = nodes.find((node) => node.id === selectedElement.id);
+        if (!latestNode) {
+            setSelectedElement(null);
+            setPropertyPanelOpen(false);
+            return;
+        }
+        if (latestNode !== selectedElement) {
+            setSelectedElement(latestNode);
+        }
+    }, [nodes, edges, selectedElement]);
+
     // canvas click handling
     const onPaneClick = useCallback(() => {
         setSelectedElement(null);
