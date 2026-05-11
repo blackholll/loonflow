@@ -294,8 +294,9 @@ class RoleView(BaseView):
         per_page = int(request_data.get('per_page', 10)) if request_data.get('per_page', 10) else 10
         page = int(request_data.get('page', 1)) if request_data.get('page', 1) else 1
         role_ids = request_data.get('role_ids', '')
+        tenant_id = request.META.get('HTTP_TENANTID')
         try:
-            result = account_role_service_ins.get_role_list(search_value, role_ids, page, per_page)
+            result = account_role_service_ins.get_role_list(tenant_id, search_value, role_ids, page, per_page)
         except CustomCommonException as e:
             return api_response(-1, str(e), {})
         except Exception as e:
