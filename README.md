@@ -23,6 +23,8 @@ We offer a **managed SaaS** edition of Loonflow at [https://www.loonflow.com/](h
 # Feature Demo
 [![Feature Demo new](https://img.youtube.com/vi/IpLePpajyfU/0.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
 
+# MCP Demo
+[![MCP Demo](https://i9.ytimg.com/vi_webp/zLZu4aX9RoY/mqdefault.webp?v=6a049690&sqp=CPSqktAG&rs=AOn4CLBJq6W7hpoV6KpRhAKQLTknND6axg)](https://youtu.be/zLZu4aX9RoY)
 
 # Core Features
 
