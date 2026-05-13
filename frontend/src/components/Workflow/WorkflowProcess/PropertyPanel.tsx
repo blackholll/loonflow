@@ -112,7 +112,6 @@ function PropertyPanel(props: PropertyPanelProps) {
 
     // 加载角色列表
     const loadRoles = useCallback(async (searchValue: string = '', roleIds: string = '') => {
-        if (loadingRoles) return [];
         setLoadingRoles(true);
         try {
             const response = await getSimpleRoles(searchValue, roleIds, 1, 100);
@@ -133,7 +132,7 @@ function PropertyPanel(props: PropertyPanelProps) {
         } finally {
             setLoadingRoles(false);
         }
-    }, [loadingRoles, t]);
+    }, [t]);
 
     // 变量选项
     const variableOptions = useMemo(() => [
@@ -189,46 +188,52 @@ function PropertyPanel(props: PropertyPanelProps) {
 
     const handlePropertyChange = (key: string, value: any) => {
         console.log('handlePropertyChange', key, value);
-        const newProperties = { ...properties, [key]: value };
-        setProperties(newProperties);
-        console.log('newProperties', key, newProperties);
+        setProperties((prev: any) => {
+            const newProperties = { ...prev, [key]: value };
+            console.log('newProperties', key, newProperties);
 
-        if (currentElement) {
-            if (isEdge(currentElement)) {
-                // 更新边属性
-                onUpdateEdgeProperties(currentElement.id, newProperties);
-            } else if (isNode(currentElement)) {
-                // 更新节点属性
-                onUpdateNodeProperties(currentElement.id, newProperties);
+            if (currentElement) {
+                if (isEdge(currentElement)) {
+                    // Update edge properties with latest merged state
+                    onUpdateEdgeProperties(currentElement.id, newProperties);
+                } else if (isNode(currentElement)) {
+                    // Update node properties with latest merged state
+                    onUpdateNodeProperties(currentElement.id, newProperties);
+                }
             }
-        }
+            return newProperties;
+        });
     };
 
     // 支持一次性合并更新多个属性，避免连续更新时的状态覆盖问题
     const updateProperties = (partial: Record<string, any>) => {
-        const newProperties = { ...properties, ...partial };
-        setProperties(newProperties);
+        setProperties((prev: any) => {
+            const newProperties = { ...prev, ...partial };
 
-        if (currentElement) {
-            if (isEdge(currentElement)) {
-                onUpdateEdgeProperties(currentElement.id, newProperties);
-            } else if (isNode(currentElement)) {
-                onUpdateNodeProperties(currentElement.id, newProperties);
+            if (currentElement) {
+                if (isEdge(currentElement)) {
+                    onUpdateEdgeProperties(currentElement.id, newProperties);
+                } else if (isNode(currentElement)) {
+                    onUpdateNodeProperties(currentElement.id, newProperties);
+                }
             }
-        }
+            return newProperties;
+        });
     };
 
     // 特殊处理节点名称修改，同时更新节点的 label
     const handleNodeNameChange = (value: string) => {
-        const newProperties = { ...properties, name: value };
-        setProperties(newProperties);
+        setProperties((prev: any) => {
+            const newProperties = { ...prev, name: value };
 
-        if (element && isNode(element)) {
-            // 更新节点属性
-            onUpdateNodeProperties(element.id, newProperties);
-            // 同时更新节点的 label
-            onUpdateNodeProperties(element.id, { ...newProperties, label: value });
-        }
+            if (element && isNode(element)) {
+                // Update node properties
+                onUpdateNodeProperties(element.id, newProperties);
+                // Keep node label in sync with name
+                onUpdateNodeProperties(element.id, { ...newProperties, label: value });
+            }
+            return newProperties;
+        });
     };
 
 

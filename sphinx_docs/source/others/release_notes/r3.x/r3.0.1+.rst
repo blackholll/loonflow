@@ -3,6 +3,15 @@ r3.0.1+
 
 
 ---------
+r3.2.1
+---------
+- Feature: Add MCP tool to retrieve user list
+- Bugfix: Role list page now shows only current tenant's roles (previously showed all tenants)
+- Bugfix: Workflow design page: fix issue where role could not be selected as assignee
+- Improvement: Add detailed user guide for MCP configuration
+
+
+---------
 r3.2.0
 ---------
 - Feature: add MCP ticket server

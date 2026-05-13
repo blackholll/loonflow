@@ -78,7 +78,7 @@ class AccountRoleService(BaseService):
         return role_obj.get_dict()
 
     @classmethod
-    def get_role_list(cls, search_value: str, role_ids: str, page: int = 1, per_page: int = 10, simple:bool = False) -> dict:
+    def get_role_list(cls, tenant_id: str, search_value: str, role_ids: str, page: int = 1, per_page: int = 10, simple:bool = False) -> dict:
         """
         get role list
         get role restful list by search params
@@ -87,7 +87,7 @@ class AccountRoleService(BaseService):
         :param per_page:
         :return:
         """
-        query_params = Q()
+        query_params = Q(tenant_id=tenant_id)
         if search_value:
             query_params &= Q(name__contains=search_value) | Q(description__contains=search_value)
         if role_ids:
