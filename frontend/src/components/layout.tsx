@@ -54,7 +54,7 @@ const drawerWidth = 240;
 const DOCUMENT_URL = 'https://loonflow.readthedocs.io/';
 const GITHUB_URL = 'https://github.com/blackholll/loonflow';
 const FEEDBACK_MAILS = 'blackholll@163.com, blackholll.cn@gmail.com';
-const APP_VERSION = "r3.2.0";
+const APP_VERSION = "r3.2.1";
 
 interface LayoutProps {
   children: ReactNode;

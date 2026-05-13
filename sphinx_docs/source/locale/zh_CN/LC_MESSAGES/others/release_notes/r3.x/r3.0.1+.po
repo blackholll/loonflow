@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: loonflow \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-05-04 11:31+0800\n"
+"POT-Creation-Date: 2026-05-13 22:07+0800\n"
 "PO-Revision-Date: 2025-12-11 00:00+0800\n"
 "Last-Translator: ChatGPT <noreply@example.com>\n"
 "Language: zh_CN\n"
@@ -23,73 +23,128 @@ msgid "r3.0.1+"
 msgstr "r3.0.1+"
 
 #: ../../source/others/release_notes/r3.x/r3.0.1+.rst:7
-#, fuzzy
-msgid "r3.1.0"
-msgstr "r3.0.1"
+msgid "r3.2.1"
+msgstr "r3.2.1"
 
 #: ../../source/others/release_notes/r3.x/r3.0.1+.rst:8
-msgid "Feature: add Microsoft OIDC and wecom QR scan login"
-msgstr ""
+msgid "Feature: Add MCP tool to retrieve user list"
+msgstr "功能：新增 MCP 工具，支持查询用户列表"
 
 #: ../../source/others/release_notes/r3.x/r3.0.1+.rst:9
-msgid "Feature: add file&rich text&external data field"
-msgstr ""
+msgid ""
+"Bugfix: Role list page now shows only current tenant's roles (previously "
+"showed all tenants)"
+msgstr "修复：角色列表页仅显示当前租户的角色（此前会显示所有租户）"
 
 #: ../../source/others/release_notes/r3.x/r3.0.1+.rst:10
-msgid "Feature: add workflow design auto layout feature"
-msgstr ""
+msgid ""
+"Bugfix: Workflow design page: fix issue where role could not be selected "
+"as assignee"
+msgstr "修复：工作流设计页面无法将角色指定为审批人的问题"
 
 #: ../../source/others/release_notes/r3.x/r3.0.1+.rst:11
-msgid "Security: security issues fix"
-msgstr ""
+msgid "Improvement: Add detailed user guide for MCP configuration"
+msgstr "优化：为 MCP 功能增加详细使用指南"
 
 #: ../../source/others/release_notes/r3.x/r3.0.1+.rst:16
+msgid "r3.2.0"
+msgstr "r3.2.0"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:17
+msgid "Feature: add MCP ticket server"
+msgstr "功能：新增 MCP 工单服务"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:18
+msgid "Feature: add about Information on Frontend page"
+msgstr "功能：前端增加「关于」信息页"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:19
+msgid ""
+"Optimize: user info display optimization(ticket list and ticket history "
+"record)"
+msgstr "优化：用户信息展示（工单列表与工单流转记录）"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:20
+msgid ""
+"Optimize: added user guidance for creating workflows when none are "
+"available."
+msgstr "优化：尚无可用工序流时增加创建引导"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:21
+msgid "Bugfix: Number field maxvalue and minvalue validation"
+msgstr "修复：数字字段最大值与最小值校验"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:22
+msgid "Bugfix: fix attchment field i18 issue"
+msgstr "修复：附件字段国际化问题"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:28
+msgid "r3.1.0"
+msgstr "r3.1.0"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:29
+msgid "Feature: add Microsoft OIDC and wecom QR scan login"
+msgstr "功能：新增 Microsoft OIDC 与企业微信扫码登录"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:30
+msgid "Feature: add file&rich text&external data field"
+msgstr "功能：新增文件、富文本与外部数据字段"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:31
+msgid "Feature: add workflow design auto layout feature"
+msgstr "功能：工作流设计支持自动布局"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:32
+msgid "Security: security issues fix"
+msgstr "安全：安全问题修复"
+
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:37
 msgid "r3.0.1"
 msgstr "r3.0.1"
 
-#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:17
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:38
 msgid ""
 "Docker Compose: custom Redis/Postgres ports, drop version key, ARM build,"
 " pinned tags."
 msgstr "Docker Compose：支持自定义 Redis/Postgres 端口，移除 version 字段，提供 ARM 构建，镜像标签固定。"
 
-#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:18
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:39
 msgid ""
 "User-facing: reset personal password; choose workflow version on create; "
 "English publish hint; flow preview node text; default language follows "
 "browser."
 msgstr "用户侧：可重置个人密码；创建流程时可选版本；英文发布提示；流程预览节点文案；默认语言跟随浏览器。"
 
-#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:19
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:40
 msgid ""
 "Frontend: remove unused imports; upgrade yarn 4 / Node 22 / TS 5; "
 "incremental `yarn tsc`; type fixes; required label handled."
 msgstr "前端：清理未使用 import；升级到 yarn 4 / Node 22 / TS5 ；类型修复；必填标签处理。"
 
-#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:20
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:41
 msgid ""
 "I18n: numbers/dates/components/templates covered; i18-ally config; "
 "default language follows browser."
 msgstr "国际化：覆盖数字/日期/组件/模板；补充 i18-ally 配置；默认语言跟随浏览器。"
 
-#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:21
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:42
 msgid ""
 "Quality (workflow/forms): workflow version type editable; ticket field "
 "edits fixed; edge required check; user component drag fixed; rule editor "
 "i18n; notification editing fixed."
 msgstr "质量（流程/表单）：流程版本类型可编辑；工单字段修改已修复；连线必填校验；用户组件拖拽修复；规则编辑器国际化；通知编辑修复。"
 
-#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:22
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:43
 msgid ""
 "Quality (templates/dates): date/time placeholders fixed; title template "
 "parsing fixed (creator, select display, editing)."
 msgstr "质量（模板/时间）：修复日期/时间占位符；修复标题模板解析（创建人、下拉展示、编辑）。"
 
-#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:23
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:44
 msgid "Ops: stdout logging restored; add initial user on deploy."
 msgstr "运维：恢复 stdout 日志输出；部署时新增初始用户。"
 
-#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:24
+#: ../../source/others/release_notes/r3.x/r3.0.1+.rst:45
 msgid "Docs: issue templates refreshed; user/API docs."
 msgstr "文档：更新 issue 模板；完成用户/API 文档。"
 

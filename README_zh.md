@@ -44,6 +44,15 @@ Loonflow 是一个基于 Django 开发的开源流程自动化平台。历经多
 - 登录认证功能: 支持本地用户密码登录、微软OIDC登录
 - 多租户支持（可选）：为 SaaS 服务商或大型集团企业提供数据隔离能力(需要额外授权)。
 
+## 模型上下文协议（MCP）
+
+Loonflow 提供面向工单的 **模型上下文协议（Model Context Protocol）** 服务，兼容的客户端（例如带 AI 能力的编辑器）可在认证后通过工具查询与处理工单。对客户端展示的服务名称为 `loonflow-ticket`，工具内部与 Web 界面使用一致的权限校验与工单服务。
+
+- **认证**：推荐使用 **个人访问令牌**（值以 `lfpat.` 开头），或使用 Loonflow 签发的 **JWT**。在产品的 **个人信息 → 个人访问令牌** 中创建并妥善保管令牌。
+- **SaaS 端点**：`https://mcp.loonflow.com/mcp`
+- **自建部署**：MCP 进程默认以 Streamable HTTP 提供 `/mcp` 路径（主机、端口与传输方式可通过文档中的环境变量调整）。
+
+当前注册的工具包括 `ticket_list`、`ticket_detail`、`ticket_prepare_handle`、`ticket_handle`（支持 `dry_run` 仅校验不写库）以及 `user_list`（在认证用户所属租户内分页查询用户）。JSON 配置示例、参数说明与运维注意事项见完整文档：[MCP — 工单服务](https://loonflow.readthedocs.io/zh_cn/latest/mcp/index.html)。
 
 # 安装与部署
 1. 下载docker-compose相关文件
@@ -65,6 +74,7 @@ docker-compose up -d
 # 深入探索
 
 - 完整文档 - 了解安装、配置、使用和开发的全部细节. https://loonflow.readthedocs.io
+- MCP（模型上下文协议）- 面向 AI 助手等客户端的工单服务说明：https://loonflow.readthedocs.io/zh_CN/latest/mcp/index.html
 - hook开发指南 - 学习如何为 Loonflow 开发自定义插件（编写中）。
 - API 参考 - 查看完整的 API 接口文档. https://documenter.getpostman.com/view/15031929/2sB3WyJbap
 

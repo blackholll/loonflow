@@ -56,6 +56,19 @@ For the Loonflow SaaS service, use ``https://mcp.loonflow.com/mcp`` as the MCP s
 
 Replace ``xxx`` with your **personal access token**. If the client supports separate auth configuration, you may alternatively send ``X-Loonflow-Access-Token`` with the raw token value.
 
+sample for cursor
+  .. figure:: ../images/mcp_json.png
+    :width: 100%
+    :align: center
+    :alt: mcp json example
+
+
+  .. figure:: ../images/mcp_enable.png
+    :width: 100%
+    :align: center
+    :alt: mcp enable example
+
+
 Supported tools
 ---------------
 
@@ -93,6 +106,22 @@ Prepares the **same context as ticket detail** (form schema, permissions, and av
 - **fields** must satisfy **required** fields for the current node/form.
 - **action_props** carries extra properties required by specific actions (for example node context for comments when applicable).
 - **dry_run**: when ``true``, validates the request and returns a summary **without** changing the ticket; when ``false``, performs the handle operation.
+
+``user_list``
+~~~~~~~~~~~~~
+
+Returns a **paginated user list** scoped to the **authenticated user’s tenant**, using the same query logic as the accounts API (``AccountUserService.get_user_list``).
+
+**Main behavior:**
+
+- Response shape: **user_list** (array of user objects), plus pagination fields **per_page**, **page**, and **total**.
+- **search_value**: optional fuzzy match on user **name**, **alias**, and **email** (substring match).
+- **user_ids**: optional comma-separated list of user **UUIDs** to restrict results.
+- **dept_id**: optional department id; when set to a real department, only users linked to that department (via ``UserDept``) are returned. Values ``0`` or ``00000000-0000-0000-0000-000000000000`` are treated as “no department filter” (see server implementation).
+- **page** and **per_page** control pagination (defaults: page ``1``, per_page ``10``). Out-of-range **page** falls back to the last available page.
+- **simple** (default ``true``): when ``true``, omits several heavier profile fields from each user row (for example ``last_login``, ``label``, ``creator_info``, ``created_at``, ``updated_at``, ``type``, ``lang``, ``phone``). Set ``simple`` to ``false`` when you need the full serialized user record.
+
+Each user entry includes **dept_info_list** (department name, id, and primary flag) when applicable.
 
 Operational notes
 -----------------

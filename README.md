@@ -45,6 +45,16 @@ We offer a **managed SaaS** edition of Loonflow at [https://www.loonflow.com/](h
 - **Authentication**: Supports Microsoft OIDC, Wecom QR scan login.
 - **Multi-Tenant Support (Optional)**: Provides data isolation capabilities for SaaS providers or large enterprise groups (requires additional authorization).
 
+## Model Context Protocol (MCP)
+
+Loonflow exposes a **Model Context Protocol** ticket server so compatible clients (for example AI-assisted editors) can list, inspect, prepare, and handle tickets through authenticated tools. The advertised server name is `loonflow-ticket`; tools use the same permission-aware ticket services as the web UI.
+
+- **Authentication**: Use a **personal access token** (recommended; values start with `lfpat.`) or a **JWT** issued by Loonflow. Create a personal access token under **Personal Information → Personal Access Token** in the product UI.
+- **SaaS endpoint**: `https://mcp.loonflow.com/mcp`
+- **Self-hosted**: The MCP process serves Streamable HTTP on path `/mcp` by default (adjust host, port, and transport using the environment variables described in the documentation).
+
+Registered tools include `ticket_list`, `ticket_detail`, `ticket_prepare_handle`, `ticket_handle` (supports `dry_run` validation), and `user_list` (paginated user search within the authenticated tenant). For JSON client examples, supported parameters, and operational notes, see the full guide: [MCP — Ticket Server](https://loonflow.readthedocs.io/en/latest/mcp/index.html).
+
 # Installation & Deployment
 1. Download docker-compose related files
 ```
@@ -67,6 +77,7 @@ Login to loonflow using the email and password you set in the .env file.
 # Deep Dive
 
 - **Complete Documentation** - Learn all the details about installation, configuration, usage, and development: https://loonflow.readthedocs.io
+- **MCP (Model Context Protocol)** - Ticket server for AI-assisted and other MCP clients: https://loonflow.readthedocs.io/en/latest/mcp/index.html
 - **Hook Development Guide** - Learn how to develop custom plugins for Loonflow.
 - **API Reference** - View complete API interface documentation. https://documenter.getpostman.com/view/15031929/2sB3WyJbap
 

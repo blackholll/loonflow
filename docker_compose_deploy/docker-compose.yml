@@ -23,7 +23,7 @@ services:
 
   loonflow-ui:
     hostname: loonflow-ui
-    image: blackholll/loonflow-ui:r3.2.0
+    image: blackholll/loonflow-ui:r3.2.1
     container_name: loonflow-ui
     depends_on:
       - loonflow-redis
@@ -34,7 +34,7 @@ services:
 
   loonflow-backend:
     hostname: loonflow-backend
-    image: blackholll/loonflow-backend:r3.2.0
+    image: blackholll/loonflow-backend:r3.2.1
     container_name: loonflow-backend
     environment:
       DB_NAME: ${POSTGRES_DB}
@@ -68,7 +68,7 @@ services:
 
   loonflow-task:
     hostname: loonflow-task
-    image: blackholll/loonflow-backend:r3.2.0
+    image: blackholll/loonflow-backend:r3.2.1
     container_name: loonflow-task
     depends_on:
       - loonflow-redis
@@ -93,7 +93,7 @@ services:
   # Same image as loonflow-backend; runs mcp_ticket_server.py via command.
   loonflow-mcp:
     hostname: loonflow-mcp
-    image: blackholll/loonflow-backend:r3.2.0
+    image: blackholll/loonflow-backend:r3.2.1
     container_name: loonflow-mcp
     restart: always
     depends_on:
