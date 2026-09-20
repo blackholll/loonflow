@@ -21,7 +21,7 @@ The core of version 3.0 is "making complex business processes simple and visual,
 We offer a **managed SaaS** edition of Loonflow at [https://www.loonflow.com/](https://www.loonflow.com/). You can start with a **two-week free trial**—no self-hosting required. Visit the site for signup and plan details.
 
 # Feature Demo
-[![Feature Demo new](https://img.youtube.com/vi/IpLePpajyfU/0.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
+[![Feature Demo new](https://img.youtube.com/vi/IpLePpajyfU/maxresdefault.jpg)](https://www.youtube.com/watch?v=IpLePpajyfU)
 
 # MCP Demo
 [![MCP Demo](https://img.youtube.com/vi/zLZu4aX9RoY/maxresdefault.jpg)](https://youtu.be/zLZu4aX9RoY)
