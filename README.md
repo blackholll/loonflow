@@ -73,6 +73,12 @@ docker-compose up -d
 4. Access loonflow
 Login to loonflow using the email and password you set in the .env file.
 
+## Easypanel
+
+[Easypanel](https://easypanel.io) is a self-hosted Docker deployment platform, and it maintains a one-click deployment template for Loonflow that provisions the backend, UI, PostgreSQL, Redis, and Celery worker together:
+
+[![Deploy on Easypanel](https://easypanel.io/img/deploy-on-easypanel-40.svg)](https://easypanel.io/templates/loonflow)
+
 # Project Roadmap
 [Roadmap](./Roadmap.md)
 
