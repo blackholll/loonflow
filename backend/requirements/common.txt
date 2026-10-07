@@ -17,7 +17,7 @@ click==8.3.0
 click-didyoumean==0.3.1
 click-plugins==1.1.1.2
 click-repl==0.3.0
-cryptography==46.0.5
+cryptography==46.0.7
 Django==5.2.12
 docutils==0.21.2
 h11==0.16.0
