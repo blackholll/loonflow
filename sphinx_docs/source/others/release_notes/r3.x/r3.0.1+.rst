@@ -3,6 +3,11 @@ r3.0.1+
 
 
 ---------
+r3.2.3
+---------
+- Bugfix: Ticket flow history page: fix issue where user without view permission could access the page
+
+---------
 r3.2.2
 ---------
 - Bugfix: In Safari, the operation time in the ticket operation history is displayed as "invalid date"
