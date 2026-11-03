@@ -266,7 +266,7 @@ class TicketFlowHistoryView(BaseView):
     def get(self, request, *args, **kwargs):
         request_data = request.GET
         ticket_id = kwargs.get('ticket_id')
-        username = request.META.get('HTTP_USERNAME')
+        operator_id = request.META.get('HTTP_USERID')
         app_name = request.META.get('HTTP_APPNAME')
         tenant_id = request.META.get('HTTP_TENANTID')
         per_page = int(request_data.get('per_page', 10))
@@ -274,6 +274,13 @@ class TicketFlowHistoryView(BaseView):
         desc = int(request_data.get('desc', 1))
 
         account_base_service_ins.app_ticket_permission_check(tenant_id, app_name, ticket_id)
+        try:
+            user_view_permission = ticket_base_service_ins.ticket_view_permission_check(tenant_id, ticket_id, operator_id)
+        except CustomCommonException as e:
+            return api_response(-1, str(e), {})
+        if not user_view_permission:
+            return api_response(-1, "user has no view permission", {})
+
         try:
             result = ticket_flow_history_service_ins.get_ticket_flow_history(tenant_id, ticket_id, per_page, page, desc)
         except CustomCommonException as e:
