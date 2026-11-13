@@ -594,7 +594,7 @@ class TicketBaseService(BaseService):
                         try:
                             # 将变量以安全方式提供给格式化与 eval
                             fmt_expr = condition_expression.format(**{
-                                k: (f"'''{v}'''" if isinstance(v, str) else v)
+                                k: repr(v)
                                 for k, v in ticket_all_value_dict_copy.items()
                             })
                             import datetime, time  # for security， only support datetime, time, abs operation
